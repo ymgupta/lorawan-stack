@@ -19,6 +19,7 @@ import (
 	"go.thethings.network/lorawan-stack/cmd/internal/shared"
 	shared_applicationserver "go.thethings.network/lorawan-stack/cmd/internal/shared/applicationserver"
 	shared_console "go.thethings.network/lorawan-stack/cmd/internal/shared/console"
+	shared_cryptoserver "go.thethings.network/lorawan-stack/cmd/internal/shared/cryptoserver"
 	shared_gatewayserver "go.thethings.network/lorawan-stack/cmd/internal/shared/gatewayserver"
 	shared_identityserver "go.thethings.network/lorawan-stack/cmd/internal/shared/identityserver"
 	shared_joinserver "go.thethings.network/lorawan-stack/cmd/internal/shared/joinserver"
@@ -27,6 +28,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/basicstation/cups"
 	conf "go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/console"
+	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/pkg/identityserver"
 	"go.thethings.network/lorawan-stack/pkg/joinserver"
@@ -45,6 +47,8 @@ type Config struct {
 	GCS              struct {
 		BasicStation cups.ServerConfig `name:"basic-station"`
 	} `name:"gcs"`
+
+	CS cryptoserver.Config `name:"cs"`
 }
 
 // DefaultConfig contains the default config for the ttn-lw-stack binary.
@@ -56,6 +60,8 @@ var DefaultConfig = Config{
 	AS:          shared_applicationserver.DefaultApplicationServerConfig,
 	JS:          shared_joinserver.DefaultJoinServerConfig,
 	Console:     shared_console.DefaultConsoleConfig,
+
+	CS: shared_cryptoserver.DefaultCryptoServerConfig,
 }
 
 func init() {

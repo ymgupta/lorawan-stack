@@ -27,6 +27,7 @@ import (
 	asredis "go.thethings.network/lorawan-stack/pkg/applicationserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/console"
+	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	events_grpc "go.thethings.network/lorawan-stack/pkg/events/grpc"
@@ -55,6 +56,8 @@ var (
 				JoinServer        bool
 				Console           bool
 				GCS               bool
+
+				CryptoServer bool
 			}
 			startDefault := len(args) == 0
 			for _, arg := range args {
@@ -73,6 +76,10 @@ var (
 					start.Console = true
 				case "gcs":
 					start.GCS = true
+
+				case "cs", "cryptoserver":
+					start.CryptoServer = true
+
 				case "all":
 					start.IdentityServer = true
 					start.GatewayServer = true
@@ -81,6 +88,8 @@ var (
 					start.JoinServer = true
 					start.Console = true
 					start.GCS = true
+
+					start.CryptoServer = true
 				default:
 					return errUnknownComponent.WithAttributes("component", arg)
 				}
@@ -206,8 +215,16 @@ var (
 				c.RegisterWeb(rootRedirect)
 			}
 
-			logger.Info("Starting...")
+			if start.CryptoServer {
+				logger.Info("Setting up Crypto Server")
+				cryptoserver, err := cryptoserver.New(c, &config.CS)
+				if err != nil {
+					return shared.ErrInitializeCryptoServer.WithCause(err)
+				}
+				_ = cryptoserver
+			}
 
+			logger.Info("Starting...")
 			return c.Run()
 		},
 	}
