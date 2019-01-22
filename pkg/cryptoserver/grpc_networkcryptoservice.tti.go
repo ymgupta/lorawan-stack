@@ -53,5 +53,17 @@ func (s networkCryptoServiceServer) NwkKey(ctx context.Context, req *ttnpb.GetRo
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
-	return nil, nil
+	dev := &ttnpb.EndDevice{
+		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
+		ProvisionerID:        req.ProvisionerID,
+		ProvisioningData:     req.ProvisioningData,
+	}
+	nwkKey, err := s.Network.NwkKey(ctx, dev)
+	if err != nil {
+		return nil, err
+	}
+	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
+	return &ttnpb.KeyEnvelope{
+		Key: nwkKey[:],
+	}, nil
 }
