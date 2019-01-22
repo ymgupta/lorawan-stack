@@ -21,6 +21,7 @@ type Config struct {
 	ReloadKeysInterval time.Duration `name:"reload-keys-interval" description:"Interval to reload keys"`
 
 	GCPProjectID string `name:"gcp-project-id" description:"Google Cloud Platform project ID"`
+	GCPPartKind  string `name:"gcp-part-kind" description:"Google Cloud Platform Datastore part kind"`
 }
 
 type impl struct {
@@ -36,7 +37,11 @@ func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, 
 	if loadKeysFunc == nil {
 		switch {
 		case conf.GCPProjectID != "":
-			loadKeysFunc = LoadKeysFromGCP(conf.GCPProjectID)
+			partKind := conf.GCPPartKind
+			if partKind == "" {
+				partKind = "part"
+			}
+			loadKeysFunc = LoadKeysFromGCP(conf.GCPProjectID, partKind)
 		default:
 			return nil, errKeyLoader
 		}
