@@ -53,6 +53,9 @@ func (s networkCryptoServiceServer) NwkKey(ctx context.Context, req *ttnpb.GetRo
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	if s.Network == nil {
+		return nil, errServiceNotSupported
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,

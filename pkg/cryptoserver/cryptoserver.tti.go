@@ -33,20 +33,16 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	if network != nil {
-		cs.grpc.networkCryptoService = &networkCryptoServiceServer{
-			Network: network,
-		}
-	}
-
 	application, err := conf.NewApplication(cs.Context())
 	if err != nil {
 		return nil, err
 	}
-	if application != nil {
-		cs.grpc.applicationCryptoService = &applicationCryptoServiceServer{
-			Application: application,
-		}
+
+	cs.grpc.networkCryptoService = &networkCryptoServiceServer{
+		Network: network,
+	}
+	cs.grpc.applicationCryptoService = &applicationCryptoServiceServer{
+		Application: application,
 	}
 
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NetworkCryptoService", cluster.HookName, c.ClusterAuthUnaryHook())
@@ -63,12 +59,8 @@ func (cs *CryptoServer) Roles() []ttnpb.PeerInfo_Role {
 
 // RegisterServices registers services provided by cs at s.
 func (cs *CryptoServer) RegisterServices(s *grpc.Server) {
-	if cs.grpc.networkCryptoService != nil {
-		ttnpb.RegisterNetworkCryptoServiceServer(s, cs.grpc.networkCryptoService)
-	}
-	if cs.grpc.applicationCryptoService != nil {
-		ttnpb.RegisterApplicationCryptoServiceServer(s, cs.grpc.applicationCryptoService)
-	}
+	ttnpb.RegisterNetworkCryptoServiceServer(s, cs.grpc.networkCryptoService)
+	ttnpb.RegisterApplicationCryptoServiceServer(s, cs.grpc.applicationCryptoService)
 }
 
 // RegisterHandlers registers gRPC handlers.

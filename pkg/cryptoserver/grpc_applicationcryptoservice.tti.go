@@ -25,6 +25,9 @@ func (s applicationCryptoServiceServer) AppKey(ctx context.Context, req *ttnpb.G
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	if s.Application == nil {
+		return nil, errServiceNotSupported
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
