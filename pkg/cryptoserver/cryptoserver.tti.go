@@ -4,7 +4,9 @@ package cryptoserver
 
 import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
@@ -46,6 +48,9 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 			Application: application,
 		}
 	}
+
+	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NetworkCryptoService", cluster.HookName, c.ClusterAuthUnaryHook())
+	hooks.RegisterUnaryHook("/ttn.lorawan.v3.ApplicationCryptoService", cluster.HookName, c.ClusterAuthUnaryHook())
 
 	c.RegisterGRPC(cs)
 	return cs, nil
