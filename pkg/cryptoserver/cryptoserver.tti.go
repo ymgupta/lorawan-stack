@@ -40,10 +40,12 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 
 	cs.grpc.networkCryptoService = &networkCryptoServiceServer{
 		Network:        network,
+		KeyVault:       cs.KeyVault,
 		ExposeRootKeys: conf.ExposeRootKeys,
 	}
 	cs.grpc.applicationCryptoService = &applicationCryptoServiceServer{
 		Application:    application,
+		KeyVault:       cs.KeyVault,
 		ExposeRootKeys: conf.ExposeRootKeys,
 	}
 
