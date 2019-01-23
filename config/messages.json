@@ -1088,6 +1088,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_crypto_server": {
+    "translations": {
+      "en": "could not initialize Crypto Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.tti.go"
+    }
+  },
   "error:cmd/internal/shared:initialize_gateway_server": {
     "translations": {
       "en": "could not initialize Gateway Server"
@@ -2184,6 +2193,60 @@
     "description": {
       "package": "pkg/crypto",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:key_loader": {
+    "translations": {
+      "en": "invalid key loader"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "microchip.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:part_number": {
+    "translations": {
+      "en": "invalid part number `{part_number}`"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:provisioner": {
+    "translations": {
+      "en": "invalid provisioner `{id}`"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:serial_number": {
+    "translations": {
+      "en": "invalid serial number `{serial_number}`"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver:root_keys_not_exposed": {
+    "translations": {
+      "en": "root keys are not being exposed"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver:service_not_supported": {
+    "translations": {
+      "en": "crypto service not supported"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc.tti.go"
     }
   },
   "error:pkg/devicerepository:fetch": {
