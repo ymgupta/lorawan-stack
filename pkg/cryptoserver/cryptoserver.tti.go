@@ -39,10 +39,12 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 	}
 
 	cs.grpc.networkCryptoService = &networkCryptoServiceServer{
-		Network: network,
+		Network:        network,
+		ExposeRootKeys: conf.ExposeRootKeys,
 	}
 	cs.grpc.applicationCryptoService = &applicationCryptoServiceServer{
-		Application: application,
+		Application:    application,
+		ExposeRootKeys: conf.ExposeRootKeys,
 	}
 
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NetworkCryptoService", cluster.HookName, c.ClusterAuthUnaryHook())

@@ -11,7 +11,8 @@ import (
 )
 
 type applicationCryptoServiceServer struct {
-	Application cryptoservices.Application
+	Application    cryptoservices.Application
+	ExposeRootKeys bool
 }
 
 func (s applicationCryptoServiceServer) DeriveAppSKey(ctx context.Context, req *ttnpb.DeriveSessionKeysRequest) (*ttnpb.AppSKeyResponse, error) {
@@ -27,6 +28,9 @@ func (s applicationCryptoServiceServer) AppKey(ctx context.Context, req *ttnpb.G
 	}
 	if s.Application == nil {
 		return nil, errServiceNotSupported
+	}
+	if !s.ExposeRootKeys {
+		return nil, errRootKeysNotExposed
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,

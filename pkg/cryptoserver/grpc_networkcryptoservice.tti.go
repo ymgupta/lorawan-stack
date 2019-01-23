@@ -11,7 +11,8 @@ import (
 )
 
 type networkCryptoServiceServer struct {
-	Network cryptoservices.Network
+	Network        cryptoservices.Network
+	ExposeRootKeys bool
 }
 
 func (s networkCryptoServiceServer) JoinRequestMIC(ctx context.Context, req *ttnpb.CryptoServicePayloadRequest) (*ttnpb.CryptoServicePayloadResponse, error) {
@@ -55,6 +56,9 @@ func (s networkCryptoServiceServer) NwkKey(ctx context.Context, req *ttnpb.GetRo
 	}
 	if s.Network == nil {
 		return nil, errServiceNotSupported
+	}
+	if !s.ExposeRootKeys {
+		return nil, errRootKeysNotExposed
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,

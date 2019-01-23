@@ -14,6 +14,8 @@ type Config struct {
 	NetworkService     string `name:"network-service" description:"Network crypto service to host (microchip)"`
 	ApplicationService string `name:"application-service" description:"Application crypto service to host (microchip)"`
 
+	ExposeRootKeys bool `name:"expose-root-keys" description:"Expose LoRaWAN root keys"`
+
 	Microchip microchip.Config `name:"microchip"`
 }
 
