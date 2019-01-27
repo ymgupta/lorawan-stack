@@ -63,7 +63,7 @@ func (m *impl) DeriveNwkSKeys(ctx context.Context, dev *ttnpb.EndDevice, version
 	return cryptoservices.NwkSKeys{}, nil
 }
 
-func (m *impl) NwkKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
+func (m *impl) GetNwkKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
 	nwkKey, _, err := m.getRootKeys(dev)
 	if err != nil {
 		return types.AES128Key{}, err
@@ -75,7 +75,7 @@ func (m *impl) DeriveAppSKey(ctx context.Context, dev *ttnpb.EndDevice, version 
 	return types.AES128Key{}, nil
 }
 
-func (m *impl) AppKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
+func (m *impl) GetAppKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
 	_, appKey, err := m.getRootKeys(dev)
 	if err != nil {
 		return types.AES128Key{}, err

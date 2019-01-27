@@ -40,7 +40,7 @@ func (s applicationCryptoServiceServer) DeriveAppSKey(ctx context.Context, req *
 	return res, nil
 }
 
-func (s applicationCryptoServiceServer) AppKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
+func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (s applicationCryptoServiceServer) AppKey(ctx context.Context, req *ttnpb.G
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	appKey, err := s.Application.AppKey(ctx, dev)
+	appKey, err := s.Application.GetAppKey(ctx, dev)
 	if err != nil {
 		return nil, err
 	}

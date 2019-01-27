@@ -120,7 +120,7 @@ func (s networkCryptoServiceServer) DeriveNwkSKeys(ctx context.Context, req *ttn
 	return res, nil
 }
 
-func (s networkCryptoServiceServer) NwkKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
+func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ func (s networkCryptoServiceServer) NwkKey(ctx context.Context, req *ttnpb.GetRo
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	nwkKey, err := s.Network.NwkKey(ctx, dev)
+	nwkKey, err := s.Network.GetNwkKey(ctx, dev)
 	if err != nil {
 		return nil, err
 	}
