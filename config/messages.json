@@ -2204,6 +2204,33 @@
       "file": "microchip.tti.go"
     }
   },
+  "error:pkg/cryptoserver/providers/microchip:mac_version": {
+    "translations": {
+      "en": "invalid MAC version"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:no_dev_eui": {
+    "translations": {
+      "en": "no DevEUI specified"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver/providers/microchip:no_join_eui": {
+    "translations": {
+      "en": "no JoinEUI specified"
+    },
+    "description": {
+      "package": "pkg/cryptoserver/providers/microchip",
+      "file": "cryptoservices.tti.go"
+    }
+  },
   "error:pkg/cryptoserver/providers/microchip:part_number": {
     "translations": {
       "en": "invalid part number `{part_number}`"
