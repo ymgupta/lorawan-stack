@@ -9,7 +9,7 @@ replace github.com/golang/lint => golang.org/x/lint v0.0.0-20190313153728-d0100b
 replace github.com/testcontainers/testcontainer-go => github.com/testcontainers/testcontainers-go v0.0.2
 
 require (
-	cloud.google.com/go v0.37.0 // indirect
+	cloud.google.com/go v0.37.0
 	github.com/Azure/azure-storage-blob-go v0.0.0-20190123011202-457680cc0804 // indirect
 	github.com/PuerkitoBio/purell v1.1.1
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
