@@ -16,7 +16,7 @@ import { createLogic } from 'redux-logic'
 
 import api from '../../api'
 import * as application from '../actions/application'
-import * as applications from '../actions/applications'
+import createEventsConnectLogic from './events'
 
 const getApplicationLogic = createLogic({
   type: [ application.GET_APP ],
@@ -34,7 +34,10 @@ const getApplicationLogic = createLogic({
 })
 
 const getApplicationApiKeysLogic = createLogic({
-  type: application.GET_APP_API_KEYS_LIST,
+  type: [
+    application.GET_APP_API_KEYS_LIST,
+    application.GET_APP_API_KEY_PAGE_DATA,
+  ],
   async process ({ getState, action }, dispatch, done) {
     const { id, params } = action
     try {
@@ -54,13 +57,39 @@ const getApplicationApiKeysLogic = createLogic({
   },
 })
 
-const getApplicationApiKeyDataLogic = createLogic({
-  type: application.GET_APP_API_KEY,
+const getApplicationCollaboratorsLogic = createLogic({
+  type: [
+    application.GET_APP_COLLABORATOR_PAGE_DATA,
+    application.GET_APP_COLLABORATORS_LIST,
+  ],
   async process ({ getState, action }, dispatch, done) {
     const { id } = action
+    try {
+      const res = await api.application.collaborators.list(id)
+      const collaborators = res.collaborators.map(function (collaborator) {
+        const { ids, ...rest } = collaborator
+        const isUser = !!ids.user_ids
+        const collaboratorId = isUser
+          ? ids.user_ids.user_id
+          : ids.organization_ids.organization_id
 
-    dispatch(application.getApplicationApiKeysList(id))
-    dispatch(applications.getApplicationsRightsList(id))
+        return {
+          id: collaboratorId,
+          isUser,
+          ...rest,
+        }
+      })
+
+      dispatch(
+        application.getApplicationCollaboratorsListSuccess(
+          id,
+          collaborators,
+          res.totalCount
+        )
+      )
+    } catch (e) {
+      dispatch(application.getApplicationCollaboratorsListFailure(id, e))
+    }
 
     done()
   },
@@ -69,5 +98,6 @@ const getApplicationApiKeyDataLogic = createLogic({
 export default [
   getApplicationLogic,
   getApplicationApiKeysLogic,
-  getApplicationApiKeyDataLogic,
+  getApplicationCollaboratorsLogic,
+  ...createEventsConnectLogic(application.SHARED_NAME, 'application'),
 ]

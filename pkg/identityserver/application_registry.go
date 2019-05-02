@@ -20,6 +20,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/blacklist"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
@@ -28,9 +29,9 @@ import (
 )
 
 var (
-	evtCreateApplication = events.Define("application.create", "Create application")
-	evtUpdateApplication = events.Define("application.update", "Update application")
-	evtDeleteApplication = events.Define("application.delete", "Delete application")
+	evtCreateApplication = events.Define("application.create", "create application")
+	evtUpdateApplication = events.Define("application.update", "update application")
+	evtDeleteApplication = events.Define("application.delete", "delete application")
 )
 
 func (is *IdentityServer) createApplication(ctx context.Context, req *ttnpb.CreateApplicationRequest) (app *ttnpb.Application, err error) {
@@ -218,11 +219,20 @@ func (is *IdentityServer) updateApplication(ctx context.Context, req *ttnpb.Upda
 	return app, nil
 }
 
+var errApplicationHasDevices = errors.DefineFailedPrecondition("application_has_devices", "application still has `{count}` devices")
+
 func (is *IdentityServer) deleteApplication(ctx context.Context, ids *ttnpb.ApplicationIdentifiers) (*types.Empty, error) {
 	if err := rights.RequireApplication(ctx, *ids, ttnpb.RIGHT_APPLICATION_DELETE); err != nil {
 		return nil, err
 	}
 	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+		total, err := store.GetEndDeviceStore(db).CountEndDevices(ctx, ids)
+		if err != nil {
+			return err
+		}
+		if total > 0 {
+			return errApplicationHasDevices.WithAttributes("count", int(total))
+		}
 		return store.GetApplicationStore(db).DeleteApplication(ctx, ids)
 	})
 	if err != nil {

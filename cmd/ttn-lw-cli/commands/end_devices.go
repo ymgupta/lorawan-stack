@@ -17,10 +17,7 @@ package commands
 import (
 	"context"
 	stdio "io"
-	"net"
-	"net/url"
 	"os"
-	"strings"
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/spf13/cobra"
@@ -69,11 +66,13 @@ func forwardDeprecatedDeviceFlags(flagSet *pflag.FlagSet) {
 }
 
 var (
-	errNoEndDeviceID                = errors.DefineInvalidArgument("no_end_device_id", "no end device ID set")
-	errNoEndDeviceEUI               = errors.DefineInvalidArgument("no_end_device_eui", "no end device EUIs set")
-	errInconsistentEndDeviceEUI     = errors.DefineInvalidArgument("inconsistent_end_device_eui", "given end device EUIs do not match registered EUIs")
 	errEndDeviceEUIUpdate           = errors.DefineInvalidArgument("end_device_eui_update", "end device EUIs can not be updated")
 	errEndDeviceKeysWithProvisioner = errors.DefineInvalidArgument("end_device_keys_provisioner", "end device ABP or OTAA keys cannot be set when there is a provisioner")
+	errInconsistentEndDeviceEUI     = errors.DefineInvalidArgument("inconsistent_end_device_eui", "given end device EUIs do not match registered EUIs")
+	errInvalidMACVerson             = errors.DefineInvalidArgument("mac_version", "LoRaWAN MAC version is invalid")
+	errInvalidPHYVerson             = errors.DefineInvalidArgument("phy_version", "LoRaWAN PHY version is invalid")
+	errNoEndDeviceEUI               = errors.DefineInvalidArgument("no_end_device_eui", "no end device EUIs set")
+	errNoEndDeviceID                = errors.DefineInvalidArgument("no_end_device_id", "no end device ID set")
 )
 
 func getEndDeviceID(flagSet *pflag.FlagSet, args []string, requireID bool) (*ttnpb.EndDeviceIdentifiers, error) {
@@ -228,6 +227,7 @@ var (
 			if err != nil {
 				return err
 			}
+			logger.WithField("paths", isPaths).Debug("Get EndDevice from Identity Server")
 			device, err := ttnpb.NewEndDeviceRegistryClient(is).Get(ctx, &ttnpb.GetEndDeviceRequest{
 				EndDeviceIdentifiers: *devID,
 				FieldMask:            pbtypes.FieldMask{Paths: isPaths},
@@ -299,8 +299,12 @@ var (
 			if err != nil {
 				return err
 			}
+
 			if err := macVersion.UnmarshalText([]byte(s)); err != nil {
 				return err
+			}
+			if err := macVersion.Validate(); err != nil {
+				return errInvalidMACVerson
 			}
 
 			setDefaults, _ := cmd.Flags().GetBool("defaults")
@@ -488,6 +492,7 @@ var (
 			if err != nil {
 				return err
 			}
+			logger.WithField("paths", isPaths).Debug("Get EndDevice from Identity Server")
 			existingDevice, err := ttnpb.NewEndDeviceRegistryClient(is).Get(ctx, &ttnpb.GetEndDeviceRequest{
 				EndDeviceIdentifiers: *devID,
 				FieldMask:            pbtypes.FieldMask{Paths: isPaths},
@@ -733,22 +738,6 @@ func init() {
 	endDevicesCommand.AddCommand(applicationsDownlinkCommand)
 
 	Root.AddCommand(endDevicesCommand)
-}
-
-func getHost(address string) string {
-	if strings.Contains(address, "://") {
-		url, err := url.Parse(address)
-		if err == nil {
-			address = url.Host
-		}
-	}
-	if strings.Contains(address, ":") {
-		host, _, err := net.SplitHostPort(address)
-		if err == nil {
-			return host
-		}
-	}
-	return address
 }
 
 var errAddressMismatch = errors.DefineAborted("address_mismatch", "server address mismatch")

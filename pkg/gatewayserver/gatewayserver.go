@@ -21,6 +21,8 @@ import (
 	"net"
 	"strings"
 	"sync"
+	"sync/atomic"
+	"time"
 
 	"github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -39,24 +41,28 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc"
 )
-
-// connConcurrentUplinks is the number of goroutines per gateway connection to handle upstream messages.
-var connConcurrentUplinks = 16
 
 // GatewayServer implements the Gateway Server component.
 //
 // The Gateway Server exposes the Gs, GtwGs and NsGs services and MQTT and UDP frontends for gateways.
 type GatewayServer struct {
 	*component.Component
+	ctx context.Context
 	io.Server
 
 	config *Config
 
 	connections sync.Map
+}
+
+// Context returns the context of the Gateway Server.
+func (gs *GatewayServer) Context() context.Context {
+	return gs.ctx
 }
 
 var (
@@ -71,10 +77,11 @@ var (
 func New(c *component.Component, conf *Config) (gs *GatewayServer, err error) {
 	gs = &GatewayServer{
 		Component: c,
+		ctx:       log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
 		config:    conf,
 	}
 
-	ctx, cancel := context.WithCancel(c.Context())
+	ctx, cancel := context.WithCancel(gs.Context())
 	defer func() {
 		if err != nil {
 			cancel()
@@ -145,6 +152,7 @@ func New(c *component.Component, conf *Config) (gs *GatewayServer, err error) {
 		}
 	}
 
+	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NsGs", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("gs"))
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NsGs", cluster.HookName, c.ClusterAuthUnaryHook())
 
 	c.RegisterGRPC(gs)
@@ -282,7 +290,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, protocol string, ids ttnpb
 	if err != nil {
 		return nil, err
 	}
-	scheduler, err := scheduling.NewScheduler(ctx, fp, gtw.EnforceDutyCycle)
+	scheduler, err := scheduling.NewScheduler(ctx, fp, gtw.EnforceDutyCycle, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -304,8 +312,13 @@ func (gs *GatewayServer) GetConnection(ctx context.Context, ids ttnpb.GatewayIde
 	return conn.(*io.Connection), true
 }
 
+var errNoNetworkServer = errors.DefineNotFound("no_network_server", "no Network Server found to handle message")
+
 var (
-	errNoNetworkServer = errors.DefineNotFound("no_network_server", "no Network Server found to handle message")
+	// maxUpstreamHandlers is the maximum number of goroutines per gateway connection to handle upstream messages.
+	maxUpstreamHandlers = int32(1 << 5)
+	// upstreamHandlerIdleTimeout is the duration after which an idle upstream handler stops to save resources.
+	upstreamHandlerIdleTimeout = (1 << 6) * time.Millisecond
 )
 
 func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
@@ -318,18 +331,22 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 		registerGatewayDisconnect(ctx, ids)
 		logger.Info("Disconnected")
 	}()
+
 	wg := &sync.WaitGroup{}
-	for i := 0; i < connConcurrentUplinks; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			for {
-				select {
-				case <-gs.Context().Done():
-					return
-				case <-ctx.Done():
-					return
-				case msg := <-conn.Up():
+	handlers := int32(0)
+	handleCh := make(chan interface{})
+	handleFn := func() {
+		defer wg.Done()
+		defer atomic.AddInt32(&handlers, -1)
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(upstreamHandlerIdleTimeout):
+				return
+			case item := <-handleCh:
+				switch msg := item.(type) {
+				case *ttnpb.UplinkMessage:
 					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:uplink:%s", events.NewCorrelationID()))
 					msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
 					registerReceiveUplink(ctx, conn.Gateway(), msg)
@@ -362,22 +379,45 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 						break
 					}
 					registerForwardUplink(ctx, ids, conn.Gateway(), msg, ns.Name())
-				case status := <-conn.Status():
+
+				case *ttnpb.GatewayStatus:
 					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:status:%s", events.NewCorrelationID()))
-					registerReceiveStatus(ctx, conn.Gateway(), status)
-				case ack := <-conn.TxAck():
+					registerReceiveStatus(ctx, conn.Gateway(), msg)
+
+				case *ttnpb.TxAcknowledgment:
 					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:tx_ack:%s", events.NewCorrelationID()))
-					ack.CorrelationIDs = append(ack.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
-					if ack.Result == ttnpb.TxAcknowledgment_SUCCESS {
+					msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
+					if msg.Result == ttnpb.TxAcknowledgment_SUCCESS {
 						registerSuccessDownlink(ctx, conn.Gateway())
 					} else {
-						registerFailDownlink(ctx, conn.Gateway(), ack)
+						registerFailDownlink(ctx, conn.Gateway(), msg)
 					}
 				}
 			}
-		}()
+		}
 	}
-	wg.Wait()
+
+	defer wg.Wait()
+	for {
+		var item interface{}
+		select {
+		case <-ctx.Done():
+			return
+		case item = <-conn.Up():
+		case item = <-conn.Status():
+		case item = <-conn.TxAck():
+		}
+		select {
+		case handleCh <- item:
+		default:
+			if atomic.LoadInt32(&handlers) < maxUpstreamHandlers {
+				atomic.AddInt32(&handlers, 1)
+				wg.Add(1)
+				go handleFn()
+			}
+			handleCh <- item
+		}
+	}
 }
 
 // GetFrequencyPlan gets the specified frequency plan by the gateway identifiers.

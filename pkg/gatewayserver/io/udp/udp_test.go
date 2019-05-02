@@ -318,17 +318,17 @@ func TestTraffic(t *testing.T) {
 		}
 
 		for i, tc := range []struct {
-			Name               string
-			EUI                types.EUI64
-			Packet             encoding.Packet
-			AckOK              bool
-			ExpectConnect      bool
-			SyncClock          *time.Duration
-			Path               *ttnpb.DownlinkPath
-			Message            *ttnpb.DownlinkMessage
-			PreferScheduleLate bool
-			ScheduledLate      bool
-			SendTxAck          bool
+			Name                 string
+			EUI                  types.EUI64
+			Packet               encoding.Packet
+			AckOK                bool
+			ExpectConnect        bool
+			SyncClock            time.Duration
+			Path                 *ttnpb.DownlinkPath
+			Message              *ttnpb.DownlinkMessage
+			ScheduleDownlinkLate bool
+			ScheduledLate        bool
+			SendTxAck            bool
 		}{
 			{
 				Name:          "ValidExistingConnection",
@@ -345,16 +345,17 @@ func TestTraffic(t *testing.T) {
 				ExpectConnect: true,
 			},
 			{
-				Name:          "TxImmediate",
+				Name:          "TxScheduledLate",
 				EUI:           eui2,
 				Packet:        generatePullData(eui2),
 				AckOK:         true,
 				ExpectConnect: false,
+				SyncClock:     1 * time.Second, // Rx1 delay
 				Path: &ttnpb.DownlinkPath{
 					Path: &ttnpb.DownlinkPath_UplinkToken{
 						UplinkToken: io.MustUplinkToken(
 							ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
-							uint32(5*time.Second/time.Microsecond),
+							uint32(150*test.Delay/time.Microsecond),
 						),
 					},
 				},
@@ -370,39 +371,9 @@ func TestTraffic(t *testing.T) {
 						},
 					},
 				},
-				PreferScheduleLate: false,
-				ScheduledLate:      false, // Should come immediately as late scheduling is not preferred.
-				SendTxAck:          false,
-			},
-			{
-				Name:          "TxPreferLateNoClock",
-				EUI:           eui2,
-				Packet:        generatePullData(eui2),
-				AckOK:         true,
-				ExpectConnect: false,
-				Path: &ttnpb.DownlinkPath{
-					Path: &ttnpb.DownlinkPath_UplinkToken{
-						UplinkToken: io.MustUplinkToken(
-							ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
-							uint32(10*time.Second/time.Microsecond),
-						),
-					},
-				},
-				Message: &ttnpb.DownlinkMessage{
-					RawPayload: []byte{0x02},
-					Settings: &ttnpb.DownlinkMessage_Request{
-						Request: &ttnpb.TxRequest{
-							Class:            ttnpb.CLASS_A,
-							Priority:         ttnpb.TxSchedulePriority_NORMAL,
-							Rx1Delay:         ttnpb.RX_DELAY_1,
-							Rx1DataRateIndex: 5,
-							Rx1Frequency:     868100000,
-						},
-					},
-				},
-				PreferScheduleLate: true,
-				ScheduledLate:      false, // Should come immediately as there is no clock.
-				SendTxAck:          false,
+				ScheduleDownlinkLate: false,
+				ScheduledLate:        true, // Because Tx acknowledgement is not received.
+				SendTxAck:            false,
 			},
 			{
 				Name:          "TxPreferLateOK",
@@ -410,12 +381,12 @@ func TestTraffic(t *testing.T) {
 				Packet:        generatePullData(eui2),
 				AckOK:         true,
 				ExpectConnect: false,
-				SyncClock:     durationPtr(1 * time.Second), // Rx1 delay
+				SyncClock:     1*time.Second + 150*test.Delay, // Rx1 delay + start time
 				Path: &ttnpb.DownlinkPath{
 					Path: &ttnpb.DownlinkPath_UplinkToken{
 						UplinkToken: io.MustUplinkToken(
 							ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
-							uint32(150*test.Delay/time.Microsecond),
+							uint32(300*test.Delay/time.Microsecond),
 						),
 					},
 				},
@@ -431,9 +402,9 @@ func TestTraffic(t *testing.T) {
 						},
 					},
 				},
-				PreferScheduleLate: true,
-				ScheduledLate:      true, // Should be scheduled late.
-				SendTxAck:          true, // From now on, immediate scheduling takes priority over scheduling late preference.
+				ScheduleDownlinkLate: true,
+				ScheduledLate:        true, // Because Tx acknowledgement is not received.
+				SendTxAck:            true, // From now on, immediate scheduling takes priority over scheduling late preference.
 			},
 			{
 				Name:          "TxPreferLateOverruled",
@@ -441,12 +412,12 @@ func TestTraffic(t *testing.T) {
 				Packet:        generatePullData(eui2),
 				AckOK:         true,
 				ExpectConnect: false,
-				SyncClock:     durationPtr(0),
+				SyncClock:     15*time.Second + 1*time.Second, // Start time + Rx1 delay.
 				Path: &ttnpb.DownlinkPath{
 					Path: &ttnpb.DownlinkPath_UplinkToken{
 						UplinkToken: io.MustUplinkToken(
 							ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
-							uint32(15*time.Second/time.Microsecond),
+							uint32((15*time.Second+150*test.Delay)/time.Microsecond),
 						),
 					},
 				},
@@ -462,9 +433,9 @@ func TestTraffic(t *testing.T) {
 						},
 					},
 				},
-				PreferScheduleLate: true,
-				ScheduledLate:      false, // Should be scheduled immediately as it's overruled (JIT queue enabled by TxAck).
-				SendTxAck:          true,
+				ScheduleDownlinkLate: true,
+				ScheduledLate:        true, // Should be scheduled late as it's forced by ScheduleDownlinkLate.
+				SendTxAck:            true,
 			},
 		} {
 			tcok := t.Run(tc.Name, func(t *testing.T) {
@@ -495,25 +466,23 @@ func TestTraffic(t *testing.T) {
 
 				// Sync the clock at 0, i.e. approximate time.Now().
 				var clockSynced time.Time
-				if tc.SyncClock != nil {
-					packet := generatePushData(eui2, false, *tc.SyncClock)
-					buf, err = packet.MarshalBinary()
-					if !a.So(err, should.BeNil) {
-						t.FailNow()
-					}
-					token := [2]byte{0x01, byte(i)}
-					copy(buf[1:], token[:])
-					_, err = udpConn.Write(buf)
-					if !a.So(err, should.BeNil) {
-						t.FailNow()
-					}
-					clockSynced = time.Now()
-					expectAck(t, udpConn, true, encoding.PushAck, token)
-					time.Sleep(timeout) // Ensure that clock gets actually synced.
+				packet := generatePushData(eui2, false, tc.SyncClock)
+				buf, err = packet.MarshalBinary()
+				if !a.So(err, should.BeNil) {
+					t.FailNow()
 				}
+				token = [2]byte{0x01, byte(i)}
+				copy(buf[1:], token[:])
+				_, err = udpConn.Write(buf)
+				if !a.So(err, should.BeNil) {
+					t.FailNow()
+				}
+				clockSynced = time.Now()
+				expectAck(t, udpConn, true, encoding.PushAck, token)
+				time.Sleep(timeout) // Ensure that clock gets actually synced.
 
 				// Send the downlink message, optionally buffer first.
-				conn.Gateway().ScheduleDownlinkLate = tc.PreferScheduleLate
+				conn.Gateway().ScheduleDownlinkLate = tc.ScheduleDownlinkLate
 				_, err = conn.SendDown(tc.Path, tc.Message)
 				if !a.So(err, should.BeNil) {
 					t.FailNow()
@@ -522,10 +491,8 @@ func TestTraffic(t *testing.T) {
 				// Set expected time for the pull response.
 				expectedTime := time.Now()
 				if tc.ScheduledLate {
-					if tc.SyncClock != nil {
-						expectedTime = expectedTime.Add(-*tc.SyncClock)
-						expectedTime = expectedTime.Add(-time.Since(clockSynced))
-					}
+					expectedTime = expectedTime.Add(-tc.SyncClock)
+					expectedTime = expectedTime.Add(-time.Since(clockSynced))
 					expectedTime = expectedTime.Add(time.Duration(tc.Message.GetScheduled().Timestamp) * time.Microsecond)
 					expectedTime = expectedTime.Add(-testConfig.ScheduleLateTime)
 				}

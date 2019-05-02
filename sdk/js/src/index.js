@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import Applications from './service/applications'
+import Configuration from './service/configuration'
 import Application from './entity/application'
 import Api from './api'
+import Token from './util/token'
+import Gateways from './service/gateways'
 
 class TtnLw {
   constructor (token, {
@@ -24,11 +27,14 @@ class TtnLw {
     proxy,
     axiosConfig,
   }) {
+    const tokenInstance = new Token(token)
     this.config = arguments.config
-    this.api = new Api(connectionType, stackConfig, axiosConfig, token)
+    this.api = new Api(connectionType, stackConfig, axiosConfig, tokenInstance.get())
 
     this.Applications = new Applications(this.api, { defaultUserId, proxy, stackConfig })
     this.Application = Application.bind(null, this.Applications)
+    this.Configuration = new Configuration(this.api.Configuration)
+    this.Gateways = new Gateways(this.api, { defaultUserId, proxy, stackConfig })
   }
 }
 

@@ -1,9 +1,5 @@
 project_name: lorawan-stack
 
-before:
-  hooks:
-  - make js.build
-
 builds:
   - main: ./cmd/ttn-lw-stack
     binary: ttn-lw-stack
@@ -68,6 +64,53 @@ changelog:
 
 release:
   prerelease: auto
+
+nfpm:
+  vendor: The Things Industries
+  homepage: https://www.thethingsindustries.com
+  maintainer: The Things Industries <stack@thethingsindustries.com>
+  description: The Things Industries LoRaWAN Stack
+  formats:
+    - deb
+    - rpm
+  recommends:
+    - redis
+    - cockroach
+  files:
+    "public/**/*": "/srv/ttn-lorawan/public"
+
+snapcraft:
+  name: tti-lw-stack
+  summary: The Things Industries LoRaWAN Stack
+  description: The Things Industries LoRaWAN Stack
+  grade: stable
+  confinement: strict
+  publish: true
+  apps:
+    tti-lw-stack:
+      plugs: [ home, network, network-bind ]
+    tti-lw-cli:
+      plugs: [ home, network, network-bind ]
+
+# TODO: Generate separate formulas for stack+CLI and CLI only.(https://github.com/TheThingsNetwork/lorawan-stack/issues/108)
+brew:
+  name: tti-lw-stack
+  github:
+    owner: TheThingsIndustries
+    name: homebrew-lorawan-stack
+  commit_author:
+    name: tti-ci
+    email: stack@thethingsindustries.com
+  homepage: https://www.thethingsindustries.com
+  description: The Things Industries LoRaWAN Stack
+  skip_upload: auto
+  install: |
+    bin.install "ttn-lw-cli"
+    libexec.install %w[ttn-lw-stack public doc]
+    env = {
+        :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
+    }
+    (bin/"ttn-lw-stack").write_env_script libexec/"ttn-lw-stack", env
 
 dockers:
   - goos: linux

@@ -77,13 +77,13 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 			return nil, 0, false
 		}
 		cmds := make([]*ttnpb.MACCommand, 0, len(desiredMasks))
-		for _, m := range desiredMasks {
+		for i, m := range desiredMasks {
 			pld := &ttnpb.MACCommand_LinkADRReq{
 				DataRateIndex:      dev.MACState.DesiredParameters.ADRDataRateIndex,
 				NbTrans:            dev.MACState.DesiredParameters.ADRNbTrans,
 				TxPowerIndex:       dev.MACState.DesiredParameters.ADRTxPowerIndex,
 				ChannelMaskControl: uint32(m.Cntl),
-				ChannelMask:        m.Mask[:],
+				ChannelMask:        desiredMasks[i].Mask[:],
 			}
 			cmds = append(cmds, pld.MACCommand())
 			events.Publish(evtEnqueueLinkADRRequest(ctx, dev.EndDeviceIdentifiers, pld))
@@ -114,14 +114,14 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 		handler = handleMACResponse
 	}
 
-	if dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) < 0 && dupCount != 0 {
+	if (dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) < 0 || dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) >= 0) && dupCount != 0 {
 		return errInvalidPayload
 	}
 
 	var n uint
 	var req *ttnpb.MACCommand_LinkADRReq
 	dev.MACState.PendingRequests, err = handler(ttnpb.CID_LINK_ADR, func(cmd *ttnpb.MACCommand) error {
-		if dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) >= 0 && n > dupCount+1 {
+		if dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) >= 0 && dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) < 0 && n > dupCount+1 {
 			return errInvalidPayload
 		}
 		n++
@@ -136,8 +136,9 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 			panic("Network Server scheduled an invalid LinkADR command")
 		}
 
-		if req.NbTrans > 0 {
+		if req.NbTrans > 0 && dev.MACState.CurrentParameters.ADRNbTrans != req.NbTrans {
 			dev.MACState.CurrentParameters.ADRNbTrans = req.NbTrans
+			dev.RecentADRUplinks = nil
 		}
 
 		var mask [16]bool
@@ -168,7 +169,10 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 		return nil
 	}
 
-	dev.MACState.CurrentParameters.ADRDataRateIndex = req.DataRateIndex
-	dev.MACState.CurrentParameters.ADRTxPowerIndex = req.TxPowerIndex
+	if dev.MACState.CurrentParameters.ADRDataRateIndex != req.DataRateIndex || dev.MACState.CurrentParameters.ADRTxPowerIndex != req.TxPowerIndex {
+		dev.MACState.CurrentParameters.ADRDataRateIndex = req.DataRateIndex
+		dev.MACState.CurrentParameters.ADRTxPowerIndex = req.TxPowerIndex
+		dev.RecentADRUplinks = nil
+	}
 	return nil
 }

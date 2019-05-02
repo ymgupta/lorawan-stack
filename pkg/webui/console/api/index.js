@@ -17,7 +17,6 @@ import TTN from 'ttn-lw'
 
 import token from '../lib/access-token'
 import getCookieValue from '../../lib/cookie'
-import stubs from './stubs'
 
 const config = window.APP_CONFIG
 const stack = {
@@ -78,6 +77,7 @@ export default {
     'delete': ttnClient.Applications.deleteById.bind(ttnClient.Applications),
     create: ttnClient.Applications.create.bind(ttnClient.Applications),
     update: ttnClient.Applications.updateById.bind(ttnClient.Applications),
+    eventsSubscribe: ttnClient.Applications.openStream.bind(ttnClient.Applications),
     apiKeys: {
       list: ttnClient.Applications.ApiKeys.getAll.bind(ttnClient.Applications.ApiKeys),
       update: ttnClient.Applications.ApiKeys.updateById.bind(ttnClient.Applications.ApiKeys),
@@ -90,16 +90,26 @@ export default {
       'delete': ttnClient.Applications.Link.delete.bind(ttnClient.Applications.Link),
       stats: ttnClient.Applications.Link.getStats.bind(ttnClient.Applications.Link),
     },
+    collaborators: {
+      list: ttnClient.Applications.Collaborators.getAll.bind(ttnClient.Applications.Collaborators),
+      add: ttnClient.Applications.Collaborators.add.bind(ttnClient.Applications.Collaborators),
+      update: ttnClient.Applications.Collaborators.update.bind(ttnClient.Applications.Collaborators),
+      remove: ttnClient.Applications.Collaborators.remove.bind(ttnClient.Applications.Collaborators),
+    },
   },
   devices: {
     list: ttnClient.Applications.Devices.getAll.bind(ttnClient.Applications.Devices),
     get: ttnClient.Applications.Devices.getById.bind(ttnClient.Applications.Devices),
+    create: ttnClient.Applications.Devices.create.bind(ttnClient.Applications.Devices),
   },
   gateways: {
-    list: stubs.gateways.list,
-    search: stubs.gateways.search,
+    list: ttnClient.Gateways.getAll.bind(ttnClient.Gateways),
   },
   rights: {
     applications: ttnClient.Applications.getRightsById.bind(ttnClient.Applications),
+  },
+  configuration: {
+    listNsFrequencyPlans: ttnClient.Configuration.listNsFrequencyPlans.bind(ttnClient.Configuration),
+    listGsFrequencyPlans: ttnClient.Configuration.listGsFrequencyPlans.bind(ttnClient.Configuration),
   },
 }

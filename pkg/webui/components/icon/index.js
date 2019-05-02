@@ -37,6 +37,13 @@ const hardcoded = {
   access: 'lock',
   general_settings: 'settings',
   location: 'place',
+  user: 'person',
+  event: 'wifi',
+  event_create: 'add_circle',
+  event_delete: 'delete',
+  event_update: 'edit',
+  event_uplink: 'arrow_drop_up',
+  event_downlink: 'arrow_drop_down',
 }
 
 const Icon = function ({

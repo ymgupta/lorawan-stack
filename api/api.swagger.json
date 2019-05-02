@@ -4667,6 +4667,24 @@
         }
       }
     },
+    "GatewayConnectionStatsRoundTripTimes": {
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "string"
+        },
+        "max": {
+          "type": "string"
+        },
+        "median": {
+          "type": "string"
+        },
+        "count": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "GatewayRadioTxConfiguration": {
       "type": "object",
       "properties": {
@@ -6588,6 +6606,10 @@
           "$ref": "#/definitions/v3MACState",
           "description": "MAC state of the device. Stored in Network Server."
         },
+        "pending_mac_state": {
+          "$ref": "#/definitions/v3MACState",
+          "description": "Pending MAC state of the device. Stored in Network Server."
+        },
         "session": {
           "$ref": "#/definitions/v3Session",
           "description": "Current session of the device. Stored in Network Server and Application Server."
@@ -7053,6 +7075,9 @@
         "downlink_count": {
           "type": "string",
           "format": "uint64"
+        },
+        "round_trip_times": {
+          "$ref": "#/definitions/GatewayConnectionStatsRoundTripTimes"
         }
       },
       "description": "Connection stats as monitored by the Gateway Server."
