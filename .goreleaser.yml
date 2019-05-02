@@ -1,8 +1,8 @@
 project_name: lorawan-stack
 
 builds:
-  - main: ./cmd/ttn-lw-stack
-    binary: ttn-lw-stack
+  - main: ./cmd/tti-lw-stack
+    binary: tti-lw-stack
     ldflags:
     - -s
     - -w
@@ -24,8 +24,8 @@ builds:
       - 6
       - 7
 
-  - main: ./cmd/ttn-lw-cli
-    binary: ttn-lw-cli
+  - main: ./cmd/tti-lw-cli
+    binary: tti-lw-cli
     ldflags:
     - -s
     - -w
@@ -105,19 +105,19 @@ brew:
   description: The Things Industries LoRaWAN Stack
   skip_upload: auto
   install: |
-    bin.install "ttn-lw-cli"
-    libexec.install %w[ttn-lw-stack public doc]
+    bin.install "tti-lw-cli"
+    libexec.install %w[tti-lw-stack public doc]
     env = {
         :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
     }
-    (bin/"ttn-lw-stack").write_env_script libexec/"ttn-lw-stack", env
+    (bin/"tti-lw-stack").write_env_script libexec/"tti-lw-stack", env
 
 dockers:
   - goos: linux
     goarch: amd64
     binaries:
-      - ttn-lw-cli
-      - ttn-lw-stack
+      - tti-lw-cli
+      - tti-lw-stack
     image_templates:
       - "thethingsindustries/lorawan-stack:latest"
       - "thethingsindustries/lorawan-stack:{{ .Major }}"

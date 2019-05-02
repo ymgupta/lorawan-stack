@@ -1,8 +1,8 @@
 version: '3.5'
 services:
   stack:
-    image: thethingsnetwork/lorawan-stack
-    entrypoint: ttn-lw-stack
+    image: thethingsindustries/lorawan-stack
+    entrypoint: tti-lw-stack
     command: start
     environment:
       - TTN_LW_HTTP_COOKIE_HASH_KEY
