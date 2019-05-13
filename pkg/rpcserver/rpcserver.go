@@ -45,6 +45,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/validator"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 	_ "google.golang.org/grpc/encoding/gzip" // Register gzip compression.
@@ -139,6 +140,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 	}
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
+		tenant.StreamServerInterceptor,
 		rpcfillcontext.StreamServerInterceptor(options.contextFillers...),
 		grpc_ctxtags.StreamServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDStreamServerInterceptor(),
@@ -153,6 +155,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 	}
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
+		tenant.UnaryServerInterceptor,
 		rpcfillcontext.UnaryServerInterceptor(options.contextFillers...),
 		grpc_ctxtags.UnaryServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDUnaryServerInterceptor(),

@@ -1,0 +1,33 @@
+// Copyright © 2019 The Things Industries B.V.
+
+package tenant
+
+import (
+	"context"
+	"testing"
+
+	"github.com/smartystreets/assertions"
+	"github.com/smartystreets/assertions/should"
+	"google.golang.org/grpc/metadata"
+)
+
+func TestGRPCInterceptor(t *testing.T) {
+	testCases := []struct {
+		desc string
+		ctx  context.Context
+	}{
+		// Set tenant ID (typically by forwarding auth)
+		{desc: "tenant id in metadata", ctx: metadata.NewIncomingContext(context.Background(), metadata.MD{"tenant-id": []string{"foo-bar"}})},
+		// Set authority (typically set by SDKs)
+		{desc: "tenant id in authority", ctx: metadata.NewIncomingContext(context.Background(), metadata.MD{":authority": []string{"foo-bar"}})},
+		// Set host name (typically set by gRPC clients)
+		{desc: "host name in authority", ctx: metadata.NewIncomingContext(context.Background(), metadata.MD{":authority": []string{"foo-bar.identity.ttn"}})},
+		// Set X-Forwarded-Host (typically set by gRPC gateway)
+		{desc: "x-forwarded-host", ctx: metadata.NewIncomingContext(context.Background(), metadata.MD{"x-forwarded-host": []string{"foo-bar.nz.cluster.ttn"}})},
+	}
+	for _, tC := range testCases {
+		t.Run(tC.desc, func(t *testing.T) {
+			assertions.New(t).So(fromRPCContext(tC.ctx).TenantID, should.Equal, "foo-bar")
+		})
+	}
+}
