@@ -27,6 +27,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/web/cookie"
 	"go.thethings.network/lorawan-stack/pkg/web/middleware"
 )
@@ -115,6 +116,7 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	server.HTTPErrorHandler = ErrorHandler
 
 	server.Use(
+		tenant.Middleware,
 		middleware.ID(""),
 		echomiddleware.BodyLimit("16M"),
 		echomiddleware.Secure(),
