@@ -1,18 +1,6 @@
-// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright © 2019 The Things Industries B.V.
 
-//+build !tti
+//+build tti
 
 package unique_test
 
@@ -22,6 +10,7 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	. "go.thethings.network/lorawan-stack/pkg/unique"
@@ -67,6 +56,43 @@ func TestValidity(t *testing.T) {
 	}
 }
 
+func TestToTenantID(t *testing.T) {
+	AllowEmptyTenantID()
+	for _, tc := range []struct {
+		Name     string
+		UID      string
+		TenantID string
+	}{
+		{
+			Name:     "ApplicationWithoutTenant",
+			UID:      "foo-application",
+			TenantID: "",
+		},
+		{
+			Name:     "EndDeviceWithoutTenant",
+			UID:      "foo-application.foo-device",
+			TenantID: "",
+		},
+		{
+			Name:     "ApplicationWithTenant",
+			UID:      "foo-application@foo-tenant",
+			TenantID: "foo-tenant",
+		},
+		{
+			Name:     "EndDeviceWithTenant",
+			UID:      "foo-application.foo-device@foo-tenant",
+			TenantID: "foo-tenant",
+		},
+	} {
+		t.Run(tc.Name, func(t *testing.T) {
+			a := assertions.New(t)
+			id, err := ToTenantID(tc.UID)
+			a.So(err, should.BeNil)
+			a.So(id, should.Resemble, ttipb.TenantIdentifiers{TenantID: tc.TenantID})
+		})
+	}
+}
+
 func TestRoundtrip(t *testing.T) {
 	for _, tc := range []struct {
 		ID       ttnpb.Identifiers
@@ -75,22 +101,22 @@ func TestRoundtrip(t *testing.T) {
 	}{
 		{
 			ttnpb.ApplicationIdentifiers{ApplicationID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToApplicationID(uid) },
 		},
 		{
 			&ttnpb.ApplicationIdentifiers{ApplicationID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToApplicationID(uid) },
 		},
 		{
 			ttnpb.ClientIdentifiers{ClientID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToClientID(uid) },
 		},
 		{
 			&ttnpb.ClientIdentifiers{ClientID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToClientID(uid) },
 		},
 		{
@@ -100,7 +126,7 @@ func TestRoundtrip(t *testing.T) {
 				},
 				DeviceID: "foo-device",
 			},
-			"foo-app.foo-device",
+			"foo-app.foo-device@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToDeviceID(uid) },
 		},
 		{
@@ -110,37 +136,37 @@ func TestRoundtrip(t *testing.T) {
 				},
 				DeviceID: "foo-device",
 			},
-			"foo-app.foo-device",
+			"foo-app.foo-device@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToDeviceID(uid) },
 		},
 		{
 			ttnpb.GatewayIdentifiers{GatewayID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToGatewayID(uid) },
 		},
 		{
 			&ttnpb.GatewayIdentifiers{GatewayID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToGatewayID(uid) },
 		},
 		{
 			ttnpb.OrganizationIdentifiers{OrganizationID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToOrganizationID(uid) },
 		},
 		{
 			&ttnpb.OrganizationIdentifiers{OrganizationID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToOrganizationID(uid) },
 		},
 		{
 			ttnpb.UserIdentifiers{UserID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToUserID(uid) },
 		},
 		{
 			&ttnpb.UserIdentifiers{UserID: "foo"},
-			"foo",
+			"foo@foo-tenant",
 			func(uid string) (ttnpb.Identifiers, error) { return ToUserID(uid) },
 		},
 	} {
@@ -158,7 +184,7 @@ func TestRoundtrip(t *testing.T) {
 			if tc.Parser != nil {
 				parsed, err := tc.Parser(tc.Expected)
 				if a.So(err, should.BeNil) {
-					a.So(parsed.EntityIdentifiers(), should.Resemble, tc.ID.EntityIdentifiers())
+					a.So(parsed.CombinedIdentifiers(), should.Resemble, tc.ID.CombinedIdentifiers())
 				}
 			}
 		})
@@ -244,8 +270,8 @@ func TestValidatorForIdentifiers(t *testing.T) {
 				errors.IsInvalidArgument,
 			},
 			{
-				"InvalidDot",
-				"id.test",
+				"InvalidDollar",
+				"id$test",
 				errors.IsInvalidArgument,
 			},
 			{
