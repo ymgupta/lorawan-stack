@@ -70,7 +70,7 @@ func makeProtoc() (func(...string) error, *protocContext, error) {
 			"--rm",
 			"--user", fmt.Sprintf("%s:%s", usr.Uid, usr.Gid),
 			"--mount", fmt.Sprintf("type=bind,src=%s,dst=%s/api", filepath.Join(wd, "api"), wd),
-			"--mount", fmt.Sprintf("type=bind,src=%s,dst=%s/go.thethings.network/lorawan-stack/pkg/ttnpb", filepath.Join(wd, "pkg", "ttnpb"), protocOut),
+			"--mount", fmt.Sprintf("type=bind,src=%s,dst=%s/go.thethings.network/lorawan-stack/pkg", filepath.Join(wd, "pkg"), protocOut),
 			"--mount", fmt.Sprintf("type=bind,src=%s,dst=%s/sdk/js", filepath.Join(wd, "sdk", "js"), wd),
 			"-w", wd,
 			fmt.Sprintf("%s:%s", protocName, protocVersion),
