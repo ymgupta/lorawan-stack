@@ -17,6 +17,7 @@ import getByPath from '../get-by-path'
 export const getApplicationId = function (application = {}) {
   return getByPath(application, 'application_id')
     || getByPath(application, 'application_ids.application_id')
+    || getByPath(application, 'ids.application_id')
 }
 
 export const getDeviceId = function (device = {}) {
@@ -32,6 +33,7 @@ export const getCollaboratorId = function (collaborator = {}) {
 export const getGatewayId = function (gateway = {}) {
   return getByPath(gateway, 'gateway_id')
     || getByPath(gateway, 'gateway_ids.gateway_id')
+    || getByPath(gateway, 'ids.gateway_id')
 }
 
 export const getApiKeyId = function (key = {}) {

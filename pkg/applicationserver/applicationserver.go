@@ -60,6 +60,11 @@ type ApplicationServer struct {
 	links              sync.Map
 	linkErrors         sync.Map
 	defaultSubscribers []*io.Subscription
+
+	grpc struct {
+		asDevices asEndDeviceRegistryServer
+		appAs     ttnpb.AppAsServer
+	}
 }
 
 // Context returns the context of the Application Server.
@@ -98,6 +103,11 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 			},
 		},
 	}
+
+	as.grpc.asDevices = asEndDeviceRegistryServer{
+		registry: as.deviceRegistry,
+	}
+	as.grpc.appAs = iogrpc.New(as)
 
 	ctx, cancel := context.WithCancel(as.Context())
 	defer func() {
@@ -168,10 +178,8 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 // RegisterServices registers services provided by as at s.
 func (as *ApplicationServer) RegisterServices(s *grpc.Server) {
 	ttnpb.RegisterAsServer(s, as)
-	ttnpb.RegisterAsEndDeviceRegistryServer(s, &deviceRegistryRPC{
-		registry: as.deviceRegistry,
-	})
-	ttnpb.RegisterAppAsServer(s, iogrpc.New(as))
+	ttnpb.RegisterAsEndDeviceRegistryServer(s, as.grpc.asDevices)
+	ttnpb.RegisterAppAsServer(s, as.grpc.appAs)
 	if as.webhooks != nil {
 		ttnpb.RegisterApplicationWebhookRegistryServer(s, web.NewWebhookRegistryRPC(as.webhooks.Registry()))
 	}
@@ -181,6 +189,7 @@ func (as *ApplicationServer) RegisterServices(s *grpc.Server) {
 func (as *ApplicationServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.ClientConn) {
 	ttnpb.RegisterAsHandler(as.Context(), s, conn)
 	ttnpb.RegisterAsEndDeviceRegistryHandler(as.Context(), s, conn)
+	ttnpb.RegisterAppAsHandler(as.Context(), s, conn)
 	if as.webhooks != nil {
 		ttnpb.RegisterApplicationWebhookRegistryHandler(as.Context(), s, conn)
 	}
@@ -329,13 +338,13 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 // DownlinkQueuePush pushes the given downlink messages to the end device's application downlink queue.
 // This operation changes FRMPayload in the given items.
 func (as *ApplicationServer) DownlinkQueuePush(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, items []*ttnpb.ApplicationDownlink) error {
-	return as.downlinkQueueOp(ctx, ids, items, ttnpb.AsNsClient.DownlinkQueuePush)
+	return as.downlinkQueueOp(ctx, ids, io.CleanDownlinks(items), ttnpb.AsNsClient.DownlinkQueuePush)
 }
 
 // DownlinkQueueReplace replaces the end device's application downlink queue with the given downlink messages.
 // This operation changes FRMPayload in the given items.
 func (as *ApplicationServer) DownlinkQueueReplace(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, items []*ttnpb.ApplicationDownlink) error {
-	return as.downlinkQueueOp(ctx, ids, items, ttnpb.AsNsClient.DownlinkQueueReplace)
+	return as.downlinkQueueOp(ctx, ids, io.CleanDownlinks(items), ttnpb.AsNsClient.DownlinkQueueReplace)
 }
 
 var errNoAppSKey = errors.DefineCorruption("no_app_s_key", "no AppSKey")
@@ -725,6 +734,7 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 			FCnt:           newSession.LastAFCntDown + 1,
 			Confirmed:      oldItem.Confirmed,
 			ClassBC:        oldItem.ClassBC,
+			Priority:       oldItem.Priority,
 			CorrelationIDs: oldItem.CorrelationIDs,
 		}
 		newItem.FRMPayload, err = crypto.EncryptDownlink(newAppSKey, newSession.DevAddr, newItem.FCnt, frmPayload)

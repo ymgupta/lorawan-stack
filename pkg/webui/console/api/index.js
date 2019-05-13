@@ -99,11 +99,28 @@ export default {
   },
   devices: {
     list: ttnClient.Applications.Devices.getAll.bind(ttnClient.Applications.Devices),
+  },
+  device: {
     get: ttnClient.Applications.Devices.getById.bind(ttnClient.Applications.Devices),
     create: ttnClient.Applications.Devices.create.bind(ttnClient.Applications.Devices),
+    update: ttnClient.Applications.Devices.updateById.bind(ttnClient.Applications.Devices),
   },
   gateways: {
     list: ttnClient.Gateways.getAll.bind(ttnClient.Gateways),
+  },
+  gateway: {
+    get: ttnClient.Gateways.getById.bind(ttnClient.Gateways),
+    'delete': ttnClient.Gateways.deleteById.bind(ttnClient.Gateways),
+    create: ttnClient.Gateways.create.bind(ttnClient.Gateways),
+    update: ttnClient.Gateways.updateById.bind(ttnClient.Gateways),
+    stats: ttnClient.Gateways.getStatisticsById.bind(ttnClient.Gateways),
+    eventsSubscribe: ttnClient.Gateways.openStream.bind(ttnClient.Gateways),
+    apiKeys: {
+      list: ttnClient.Gateways.ApiKeys.getAll.bind(ttnClient.Gateways.ApiKeys),
+      update: ttnClient.Gateways.ApiKeys.updateById.bind(ttnClient.Gateways.ApiKeys),
+      'delete': ttnClient.Gateways.ApiKeys.deleteById.bind(ttnClient.Gateways.ApiKeys),
+      create: ttnClient.Gateways.ApiKeys.create.bind(ttnClient.Gateways.ApiKeys),
+    },
   },
   rights: {
     applications: ttnClient.Applications.getRightsById.bind(ttnClient.Applications),
