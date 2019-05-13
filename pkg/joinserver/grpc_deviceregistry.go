@@ -42,12 +42,7 @@ func (srv jsEndDeviceRegistryServer) Get(ctx context.Context, req *ttnpb.GetEndD
 		if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS); err != nil {
 			return nil, err
 		}
-		paths = append(paths,
-			"provisioner_id",
-			"provisioning_data",
-			"root_keys.nwk_key",
-			"root_keys.app_key",
-		)
+		paths = append(paths, "provisioner_id", "provisioning_data")
 	}
 	dev, err := srv.JS.devices.GetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, paths)
 	if errors.IsNotFound(err) {
