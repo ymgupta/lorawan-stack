@@ -12,21 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-/**
- * Tests whether the grpc error represents the not found erorr.
- * @param {Object} error - The error object to be tested.
- * @returns {boolean} `true` if `error` represents the not found error,
- * `false` otherwise.
- */
-export const isNotFoundError = error => (
-  error && error.code && error.code === 5
+package test_test
+
+import (
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	. "go.thethings.network/lorawan-stack/pkg/util/test"
 )
 
-/**
- * Tests wether `error` is translated.
- * @param {Object} error - The error to be tested.
- * @returns {boolean} `true` if `error` is translated, `false` otherwise.
- */
-export const isErrorTranslated = error => (
-  typeof error === 'object' && error.id && error.defaultMessage
-)
+var _ ttnpb.ApplicationAccessServer = &MockApplicationAccessServer{}

@@ -114,7 +114,7 @@ export default class Gateway extends React.Component {
 
     // show any gateway fetching error, e.g. not found, no rights, etc
     if (error) {
-      return 'ERROR'
+      throw error
     }
 
     if (fetching || !gateway) {
@@ -128,7 +128,7 @@ export default class Gateway extends React.Component {
     return (
       <Switch>
         <Route exact path={`${match.path}`} component={GatewayOverview} />
-        <Route exact path={`${match.path}/api-keys`} component={GatewayApiKeys} />
+        <Route path={`${match.path}/api-keys`} component={GatewayApiKeys} />
       </Switch>
     )
   }
