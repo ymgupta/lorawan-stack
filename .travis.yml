@@ -87,8 +87,7 @@ script:
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:translations; fi
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:test jsSDK:test; fi
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:lint; fi
-- if [[ "$RUNTYPE" == "go.lint" ]]; then HEADER_EXCLUDE=.tti $MAGE headers:check; fi
-- if [[ "$RUNTYPE" == "go.lint" ]]; then HEADER_FILE=.mage/header.tti.txt HEADER_INCLUDE=.tti $MAGE headers:check; fi
+- if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE headers:check; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE proto:goClean proto:go; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE go:messages; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE go:lint; fi
