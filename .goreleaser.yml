@@ -3,6 +3,8 @@ project_name: lorawan-stack
 builds:
   - main: ./cmd/tti-lw-stack
     binary: tti-lw-stack
+    flags:
+    - -tags=tti
     ldflags:
     - -s
     - -w
@@ -26,6 +28,8 @@ builds:
 
   - main: ./cmd/tti-lw-cli
     binary: tti-lw-cli
+    flags:
+    - -tags=tti
     ldflags:
     - -s
     - -w
