@@ -24,7 +24,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gogo/protobuf/types"
+	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
@@ -43,6 +43,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc"
 )
@@ -55,7 +56,8 @@ type GatewayServer struct {
 	ctx context.Context
 	io.Server
 
-	config *Config
+	requireRegisteredGateways bool
+	forward                   map[string][]types.DevAddrPrefix
 
 	connections sync.Map
 }
@@ -75,10 +77,18 @@ var (
 
 // New returns new *GatewayServer.
 func New(c *component.Component, conf *Config) (gs *GatewayServer, err error) {
+	forward, err := conf.ForwardDevAddrPrefixes()
+	if err != nil {
+		return nil, err
+	}
+	if len(forward) == 0 {
+		forward[""] = []types.DevAddrPrefix{{}}
+	}
 	gs = &GatewayServer{
-		Component: c,
-		ctx:       log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
-		config:    conf,
+		Component:                 c,
+		ctx:                       log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
+		requireRegisteredGateways: conf.RequireRegisteredGateways,
+		forward:                   forward,
 	}
 
 	ctx, cancel := context.WithCancel(gs.Context())
@@ -117,38 +127,25 @@ func New(c *component.Component, conf *Config) (gs *GatewayServer, err error) {
 			Config: conf.MQTTV2,
 		},
 	} {
-		for _, lis := range []struct {
-			Listen   string
-			Protocol string
-			Net      func(component.Listener) (net.Listener, error)
-		}{
-			{
-				Listen:   version.Config.Listen,
-				Protocol: "tcp",
-				Net:      component.Listener.TCP,
-			},
-			{
-				Listen:   version.Config.ListenTLS,
-				Protocol: "tls",
-				Net:      component.Listener.TLS,
-			},
+		for _, endpoint := range []component.Endpoint{
+			component.NewTCPEndpoint(version.Config.Listen, "MQTT"),
+			component.NewTLSEndpoint(version.Config.ListenTLS, "MQTT"),
 		} {
-			if lis.Listen == "" {
+			if endpoint.Address() == "" {
 				continue
 			}
-			var componentLis component.Listener
-			var netLis net.Listener
-			componentLis, err = gs.ListenTCP(lis.Listen)
+			l, err := gs.ListenTCP(endpoint.Address())
+			var lis net.Listener
 			if err == nil {
-				netLis, err = lis.Net(componentLis)
+				lis, err = endpoint.Listen(l)
 			}
 			if err != nil {
 				return nil, errListenFrontend.WithCause(err).WithAttributes(
-					"protocol", lis.Protocol,
-					"address", lis.Listen,
+					"address", endpoint.Address(),
+					"protocol", endpoint.Protocol(),
 				)
 			}
-			mqtt.Start(ctx, gs, netLis, version.Format, lis.Protocol)
+			mqtt.Start(ctx, gs, lis, version.Format, endpoint.Protocol())
 		}
 	}
 
@@ -208,7 +205,7 @@ func (gs *GatewayServer) FillGatewayContext(ctx context.Context, ids ttnpb.Gatew
 		if err == nil {
 			ids = *extIDs
 		} else if errors.IsNotFound(err) {
-			if gs.config.RequireRegisteredGateways {
+			if gs.requireRegisteredGateways {
 				return nil, ttnpb.GatewayIdentifiers{}, errGatewayEUINotRegistered.WithAttributes("eui", *ids.EUI).WithCause(err)
 			}
 			ids.GatewayID = fmt.Sprintf("eui-%v", strings.ToLower(ids.EUI.String()))
@@ -261,7 +258,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, protocol string, ids ttnpb
 	}
 	gtw, err := ttnpb.NewGatewayRegistryClient(er.Conn()).Get(ctx, &ttnpb.GetGatewayRequest{
 		GatewayIdentifiers: ids,
-		FieldMask: types.FieldMask{
+		FieldMask: pbtypes.FieldMask{
 			Paths: []string{
 				"frequency_plan_id",
 				"schedule_downlink_late",
@@ -271,7 +268,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, protocol string, ids ttnpb
 		},
 	}, callOpt)
 	if errors.IsNotFound(err) {
-		if gs.config.RequireRegisteredGateways {
+		if gs.requireRegisteredGateways {
 			return nil, errGatewayNotRegistered.WithAttributes("gateway_uid", uid).WithCause(err)
 		}
 		fpID, ok := frequencyplans.FallbackIDFromContext(ctx)
@@ -314,14 +311,38 @@ func (gs *GatewayServer) GetConnection(ctx context.Context, ids ttnpb.GatewayIde
 	return conn.(*io.Connection), true
 }
 
-var errNoNetworkServer = errors.DefineNotFound("no_network_server", "no Network Server found to handle message")
+var (
+	errNoNetworkServer = errors.DefineNotFound("no_network_server", "no Network Server found to handle message")
+	errHostHandle      = errors.Define("host_handle", "host `{host}` failed to handle message")
+)
 
 var (
 	// maxUpstreamHandlers is the maximum number of goroutines per gateway connection to handle upstream messages.
 	maxUpstreamHandlers = int32(1 << 5)
 	// upstreamHandlerIdleTimeout is the duration after which an idle upstream handler stops to save resources.
-	upstreamHandlerIdleTimeout = (1 << 6) * time.Millisecond
+	upstreamHandlerIdleTimeout = (1 << 7) * time.Millisecond
+	// upstreamHandlerBusyTimeout is the duration after traffic gets dropped if all upstream handlers are busy.
+	upstreamHandlerBusyTimeout = (1 << 6) * time.Millisecond
 )
+
+type upstreamHandler interface {
+	HandleUplink(context.Context, *ttnpb.UplinkMessage, ...grpc.CallOption) (*pbtypes.Empty, error)
+}
+
+type upstreamHost struct {
+	name     string
+	handler  func(ids *ttnpb.EndDeviceIdentifiers) upstreamHandler
+	callOpts []grpc.CallOption
+	handlers int32
+	handleWg sync.WaitGroup
+	handleCh chan upstreamItem
+}
+
+type upstreamItem struct {
+	ctx  context.Context
+	val  interface{}
+	host *upstreamHost
+}
 
 func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 	ctx := conn.Context()
@@ -334,24 +355,20 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 		logger.Info("Disconnected")
 	}()
 
-	wg := &sync.WaitGroup{}
-	handlers := int32(0)
-	handleCh := make(chan interface{})
-	handleFn := func() {
-		defer wg.Done()
-		defer atomic.AddInt32(&handlers, -1)
+	handleFn := func(host *upstreamHost) {
+		defer host.handleWg.Done()
+		defer atomic.AddInt32(&host.handlers, -1)
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case <-time.After(upstreamHandlerIdleTimeout):
 				return
-			case item := <-handleCh:
-				switch msg := item.(type) {
+			case item := <-host.handleCh:
+				ctx := item.ctx
+				switch msg := item.val.(type) {
 				case *ttnpb.UplinkMessage:
-					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:uplink:%s", events.NewCorrelationID()))
-					msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
-					registerReceiveUplink(ctx, conn.Gateway(), msg)
+					registerReceiveUplink(ctx, conn.Gateway(), msg, host.name)
 					drop := func(ids ttnpb.EndDeviceIdentifiers, err error) {
 						logger := logger.WithError(err)
 						if ids.JoinEUI != nil && !ids.JoinEUI.IsZero() {
@@ -364,60 +381,114 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 							logger = logger.WithField("dev_addr", *ids.DevAddr)
 						}
 						logger.Debug("Drop message")
-						registerDropUplink(ctx, ids, conn.Gateway(), msg, err)
+						registerDropUplink(ctx, conn.Gateway(), msg, host.name, err)
 					}
 					ids, err := lorawan.GetUplinkMessageIdentifiers(msg)
 					if err != nil {
 						drop(ttnpb.EndDeviceIdentifiers{}, err)
 						break
 					}
-					ns := gs.GetPeer(ctx, ttnpb.PeerInfo_NETWORK_SERVER, ids)
-					if ns == nil {
-						drop(ids, errNoNetworkServer)
+					handler := item.host.handler(&ids)
+					if handler == nil {
 						break
 					}
-					if _, err := ttnpb.NewGsNsClient(ns.Conn()).HandleUplink(ctx, msg, gs.WithClusterAuth()); err != nil {
-						drop(ids, err)
+					if _, err := handler.HandleUplink(ctx, msg, item.host.callOpts...); err != nil {
+						drop(ids, errHostHandle.WithCause(err).WithAttributes("host", item.host.name))
 						break
 					}
-					registerForwardUplink(ctx, ids, conn.Gateway(), msg, ns.Name())
-
-				case *ttnpb.GatewayStatus:
-					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:status:%s", events.NewCorrelationID()))
-					registerReceiveStatus(ctx, conn.Gateway(), msg)
-
-				case *ttnpb.TxAcknowledgment:
-					ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:tx_ack:%s", events.NewCorrelationID()))
-					msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
-					if msg.Result == ttnpb.TxAcknowledgment_SUCCESS {
-						registerSuccessDownlink(ctx, conn.Gateway())
-					} else {
-						registerFailDownlink(ctx, conn.Gateway(), msg)
-					}
+					registerForwardUplink(ctx, conn.Gateway(), msg, item.host.name)
 				}
 			}
 		}
 	}
 
-	defer wg.Wait()
+	hosts := make([]*upstreamHost, 0, len(gs.forward))
+	for name, prefixes := range gs.forward {
+		passDevAddr := func(devAddr types.DevAddr) bool {
+			for _, prefix := range prefixes {
+				if devAddr.HasPrefix(prefix) {
+					return true
+				}
+			}
+			return false
+		}
+		if name == "" {
+			// Cluster Network Server; filter based on DevAddr and pass all join-requests.
+			hosts = append(hosts, &upstreamHost{
+				name: "cluster",
+				handler: func(ids *ttnpb.EndDeviceIdentifiers) upstreamHandler {
+					if ids != nil && ids.DevAddr != nil && !passDevAddr(*ids.DevAddr) {
+						return nil
+					}
+					ns := gs.GetPeer(ctx, ttnpb.PeerInfo_NETWORK_SERVER, ids)
+					if ns == nil {
+						logger.Warn("Cluster Network Server unavailable for upstream traffic")
+						return nil
+					}
+					return ttnpb.NewGsNsClient(ns.Conn())
+				},
+				callOpts: []grpc.CallOption{gs.WithClusterAuth()},
+				handleCh: make(chan upstreamItem),
+			})
+		} else {
+			// Packet Broker; filter based on DevAddr and filter all join-requests.
+			// TODO: Offload traffic to Packet Broker (https://github.com/TheThingsNetwork/lorawan-stack/issues/671)
+		}
+	}
+
+	for _, host := range hosts {
+		defer host.handleWg.Wait()
+	}
+
 	for {
-		var item interface{}
+		ctx := ctx
+		var val interface{}
 		select {
 		case <-ctx.Done():
 			return
-		case item = <-conn.Up():
-		case item = <-conn.Status():
-		case item = <-conn.TxAck():
-		}
-		select {
-		case handleCh <- item:
-		default:
-			if atomic.LoadInt32(&handlers) < maxUpstreamHandlers {
-				atomic.AddInt32(&handlers, 1)
-				wg.Add(1)
-				go handleFn()
+		case msg := <-conn.Up():
+			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:uplink:%s", events.NewCorrelationID()))
+			msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
+			val = msg
+		case msg := <-conn.Status():
+			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:status:%s", events.NewCorrelationID()))
+			registerReceiveStatus(ctx, conn.Gateway(), msg)
+			continue
+		case msg := <-conn.TxAck():
+			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:tx_ack:%s", events.NewCorrelationID()))
+			msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
+			if msg.Result == ttnpb.TxAcknowledgment_SUCCESS {
+				registerSuccessDownlink(ctx, conn.Gateway())
+			} else {
+				registerFailDownlink(ctx, conn.Gateway(), msg)
 			}
-			handleCh <- item
+			// TODO: Send Tx acknowledgement upstream (https://github.com/TheThingsNetwork/lorawan-stack/issues/76)
+			continue
+		}
+		for _, host := range hosts {
+			item := upstreamItem{
+				ctx:  ctx,
+				val:  val,
+				host: host,
+			}
+			select {
+			case host.handleCh <- item:
+			default:
+				if atomic.LoadInt32(&host.handlers) < maxUpstreamHandlers {
+					atomic.AddInt32(&host.handlers, 1)
+					host.handleWg.Add(1)
+					go handleFn(host)
+				}
+				select {
+				case host.handleCh <- item:
+				case <-time.After(upstreamHandlerBusyTimeout):
+					logger.WithField("host", host).Warn("Upstream handlers busy, drop message")
+					switch msg := val.(type) {
+					case *ttnpb.UplinkMessage:
+						registerFailUplink(ctx, conn.Gateway(), msg, host.name)
+					}
+				}
+			}
 		}
 	}
 }
@@ -438,7 +509,7 @@ func (gs *GatewayServer) GetFrequencyPlan(ctx context.Context, ids ttnpb.Gateway
 	}
 	gtw, err := ttnpb.NewGatewayRegistryClient(er.Conn()).Get(ctx, &ttnpb.GetGatewayRequest{
 		GatewayIdentifiers: ids,
-		FieldMask:          types.FieldMask{Paths: []string{"frequency_plan_id"}},
+		FieldMask:          pbtypes.FieldMask{Paths: []string{"frequency_plan_id"}},
 	}, callOpt)
 	var fpID string
 	if err == nil {

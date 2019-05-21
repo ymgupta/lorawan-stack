@@ -33,6 +33,7 @@ var (
 	evtReceiveUp = events.Define("gs.up.receive", "receive uplink message")
 	evtDropUp    = events.Define("gs.up.drop", "drop uplink message")
 	evtForwardUp = events.Define("gs.up.forward", "forward uplink message")
+	evtFailUp    = events.Define("gs.up.fail", "fail to handle uplink message")
 
 	evtSendDown      = events.Define("gs.down.send", "send downlink message")
 	evtTxSuccessDown = events.Define("gs.down.tx.success", "transmit downlink message successful")
@@ -69,7 +70,7 @@ var gsMetrics = &messageMetrics{
 			Name:      "uplink_received_total",
 			Help:      "Total number of received uplinks",
 		},
-		[]string{gatewayID},
+		[]string{networkServer, gatewayID},
 	),
 	uplinkForwarded: metrics.NewContextualCounterVec(
 		prometheus.CounterOpts{
@@ -85,7 +86,15 @@ var gsMetrics = &messageMetrics{
 			Name:      "uplink_dropped_total",
 			Help:      "Total number of dropped uplinks",
 		},
-		[]string{"error"},
+		[]string{networkServer, "error"},
+	),
+	uplinkFailed: metrics.NewContextualCounterVec(
+		prometheus.CounterOpts{
+			Subsystem: subsystem,
+			Name:      "uplink_failed_total",
+			Help:      "Total number of failed uplinks",
+		},
+		[]string{networkServer},
 	),
 	downlinkSent: metrics.NewContextualCounterVec(
 		prometheus.CounterOpts{
@@ -123,6 +132,7 @@ type messageMetrics struct {
 	uplinkReceived      *metrics.ContextualCounterVec
 	uplinkForwarded     *metrics.ContextualCounterVec
 	uplinkDropped       *metrics.ContextualCounterVec
+	uplinkFailed        *metrics.ContextualCounterVec
 	downlinkSent        *metrics.ContextualCounterVec
 	downlinkTxSucceeded *metrics.ContextualCounterVec
 	downlinkTxFailed    *metrics.ContextualCounterVec
@@ -134,6 +144,7 @@ func (m messageMetrics) Describe(ch chan<- *prometheus.Desc) {
 	m.uplinkReceived.Describe(ch)
 	m.uplinkForwarded.Describe(ch)
 	m.uplinkDropped.Describe(ch)
+	m.uplinkFailed.Describe(ch)
 	m.downlinkSent.Describe(ch)
 	m.downlinkTxSucceeded.Describe(ch)
 	m.downlinkTxFailed.Describe(ch)
@@ -145,6 +156,7 @@ func (m messageMetrics) Collect(ch chan<- prometheus.Metric) {
 	m.uplinkReceived.Collect(ch)
 	m.uplinkForwarded.Collect(ch)
 	m.uplinkDropped.Collect(ch)
+	m.uplinkFailed.Collect(ch)
 	m.downlinkSent.Collect(ch)
 	m.downlinkTxSucceeded.Collect(ch)
 	m.downlinkTxFailed.Collect(ch)
@@ -165,23 +177,28 @@ func registerReceiveStatus(ctx context.Context, gtw *ttnpb.Gateway, status *ttnp
 	gsMetrics.statusReceived.WithLabelValues(ctx, gtw.GatewayID).Inc()
 }
 
-func registerReceiveUplink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage) {
+func registerReceiveUplink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, ns string) {
 	events.Publish(evtReceiveUp(ctx, gtw, msg))
-	gsMetrics.uplinkReceived.WithLabelValues(ctx, gtw.GatewayID).Inc()
+	gsMetrics.uplinkReceived.WithLabelValues(ctx, ns, gtw.GatewayID).Inc()
 }
 
-func registerForwardUplink(ctx context.Context, devIDs ttnpb.EndDeviceIdentifiers, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, ns string) {
+func registerForwardUplink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, ns string) {
 	events.Publish(evtForwardUp(ctx, gtw, nil))
 	gsMetrics.uplinkForwarded.WithLabelValues(ctx, ns).Inc()
 }
 
-func registerDropUplink(ctx context.Context, devIDs ttnpb.EndDeviceIdentifiers, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, err error) {
+func registerDropUplink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, ns string, err error) {
 	events.Publish(evtDropUp(ctx, gtw, err))
 	if ttnErr, ok := errors.From(err); ok {
-		gsMetrics.uplinkDropped.WithLabelValues(ctx, ttnErr.FullName()).Inc()
+		gsMetrics.uplinkDropped.WithLabelValues(ctx, ns, ttnErr.FullName()).Inc()
 	} else {
-		gsMetrics.uplinkDropped.WithLabelValues(ctx, unknown).Inc()
+		gsMetrics.uplinkDropped.WithLabelValues(ctx, ns, unknown).Inc()
 	}
+}
+
+func registerFailUplink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.UplinkMessage, ns string) {
+	events.Publish(evtFailUp(ctx, gtw, nil))
+	gsMetrics.uplinkFailed.WithLabelValues(ctx, ns).Inc()
 }
 
 func registerSendDownlink(ctx context.Context, gtw *ttnpb.Gateway, msg *ttnpb.DownlinkMessage) {

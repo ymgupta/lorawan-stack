@@ -18,9 +18,12 @@ import { URL } from 'url'
 import traverse from 'traverse'
 import Marshaler from '../../util/marshaler'
 import Device from '../../entity/device'
+import stream from '../../api/stream/stream-node'
 import randomByteString from '../../util/random-bytes'
+import deviceEntityMap from '../../../generated/device-entity-map.json'
 import { splitSetPaths, splitGetPaths, makeRequests } from './split'
 import mergeDevice from './merge'
+
 
 /**
  * Devices Class provides an abstraction on all devices and manages data
@@ -77,9 +80,21 @@ class Devices {
     }
 
     // Extract the paths from the patch
+    const deviceMap = traverse(deviceEntityMap)
+
+    const commonPathFilter = function (element, index, array) {
+      return deviceMap.has(array.slice(0, index + 1))
+    }
     const paths = traverse(device).reduce(function (acc, node) {
       if (this.isLeaf) {
-        acc.push(this.path)
+        const path = this.path
+
+        // Only consider adding, if a common parent has not been already added
+        if (acc.every(e => !path.join().startsWith(e.join()))) {
+          // Add only the deepest possible field mask of the patch
+          const commonPath = path.filter(commonPathFilter)
+          acc.push(commonPath)
+        }
       }
       return acc
     }, [])
@@ -297,6 +312,21 @@ class Devices {
     const result = this._deleteDevice(applicationId, deviceId)
 
     return result
+  }
+
+  // Events Stream
+
+  async openStream (identifiers, tail, after) {
+    const eventsUrl = `${this._stackConfig.as}/events`
+    const payload = {
+      identifiers: identifiers.map(ids => ({
+        device_ids: ids,
+      })),
+      tail,
+      after,
+    }
+
+    return stream(payload, eventsUrl)
   }
 }
 
