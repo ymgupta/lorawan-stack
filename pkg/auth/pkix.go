@@ -12,10 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// alphanumeric, dashes, lowercase
-export const id = /^[a-z0-9]+(-[a-z0-9]+)*$/
-export const apiKey = /^NNSXS.[A-Z0-9]{39}.[A-Z0-9]{52}$/
-export const address = /^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$/
-export const latitude = /^[-+]?([1-8]?\d(\.\d+)?|90(\.0+)?)$/
-export const longitude = /^\s*[-+]?(180(\.0+)?|((1[0-7]\d)|([1-9]?\d))(\.\d+)?)$/
-export const int32 = /^-?\d+$/
+package auth
+
+import (
+	"context"
+	"crypto/x509/pkix"
+)
+
+type x509DNKeyType struct{}
+
+var x509DNKey x509DNKeyType
+
+// NewContextWithX509DN returns a new context with the given distinguished name.
+func NewContextWithX509DN(ctx context.Context, name pkix.Name) context.Context {
+	return context.WithValue(ctx, x509DNKey, name)
+}
+
+// X509DNFromContext returns the distinguished from the given context.
+func X509DNFromContext(ctx context.Context) (pkix.Name, bool) {
+	if name, ok := ctx.Value(x509DNKey).(pkix.Name); ok {
+		return name, true
+	}
+	return pkix.Name{}, false
+}
