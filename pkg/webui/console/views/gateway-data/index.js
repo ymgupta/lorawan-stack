@@ -14,49 +14,57 @@
 
 import React from 'react'
 import { connect } from 'react-redux'
-import { Col, Row, Container } from 'react-grid-system'
-import bind from 'autobind-decorator'
+import { defineMessages } from 'react-intl'
+import { Container, Col, Row } from 'react-grid-system'
 
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import sharedMessages from '../../../lib/shared-messages'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
-import DeviceEvents from '../../containers/device-events'
+import Message from '../../../lib/components/message'
+import GatewayEvents from '../../containers/gateway-events'
 
-import { getDeviceId } from '../../../lib/selectors/id'
+import { getGatewayId } from '../../../lib/selectors/id'
 
-@connect(function ({ device, application }, props) {
+import style from './gateway-data.styl'
+
+const m = defineMessages({
+  gtwData: 'Gateway Data',
+})
+
+@connect(function (state) {
+  const gateway = state.gateway.gateway
+
   return {
-    device: device.device,
-    devId: getDeviceId(device.device),
-    devIds: device.device && device.device.ids,
+    gtwId: getGatewayId(gateway),
   }
 })
-@withBreadcrumb('device.single.data', function (props) {
-  const { devId } = props
-  const { appId } = props.match.params
+@withBreadcrumb('gateways.single.data', function (props) {
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/devices/${devId}/data`}
+      path={`/console/gateways/${props.gtwId}/data`}
       icon="data"
       content={sharedMessages.data}
     />
   )
 })
-@bind
 export default class Data extends React.Component {
+
   render () {
-    const { devIds } = this.props
+    const { gtwId } = this.props
 
     return (
       <Container>
-        <IntlHelmet
-          title={sharedMessages.data}
-        />
         <Row>
-          <Col sm={12}>
-            <DeviceEvents
-              devIds={devIds}
+          <Col lg={8} md={12}>
+            <IntlHelmet title={m.gtwData} />
+            <Message component="h2" content={m.gtwData} />
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12} className={style.wrapper}>
+            <GatewayEvents
+              gtwId={gtwId}
             />
           </Col>
         </Row>

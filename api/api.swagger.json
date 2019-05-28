@@ -461,7 +461,7 @@
           },
           {
             "name": "join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -633,7 +633,7 @@
           },
           {
             "name": "end_device_ids.join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -698,7 +698,7 @@
           },
           {
             "name": "join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -752,7 +752,7 @@
           },
           {
             "name": "join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -836,71 +836,6 @@
         ],
         "tags": [
           "As"
-        ]
-      }
-    },
-    "/as/applications/{application_ids.application_id}/webhooks": {
-      "get": {
-        "operationId": "List",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v3ApplicationWebhooks"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "application_ids.application_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "field_mask.paths",
-            "description": "The set of field mask paths.",
-            "in": "query",
-            "required": false,
-            "type": "array",
-            "items": {
-              "type": "string"
-            },
-            "collectionFormat": "multi"
-          }
-        ],
-        "tags": [
-          "ApplicationWebhookRegistry"
-        ]
-      }
-    },
-    "/as/applications/{application_ids.application_id}/webhooks/{webhook_id}": {
-      "delete": {
-        "operationId": "Delete",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "properties": {}
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "application_ids.application_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "webhook_id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "ApplicationWebhookRegistry"
         ]
       }
     },
@@ -1057,7 +992,7 @@
           },
           {
             "name": "end_device_ids.join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -1164,7 +1099,88 @@
         ]
       }
     },
-    "/as/applications/{ids.application_ids.application_id}/webhooks/{ids.webhook_id}": {
+    "/as/webhook-formats": {
+      "get": {
+        "operationId": "GetFormats",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ApplicationWebhookFormats"
+            }
+          }
+        },
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
+    "/as/webhooks/{application_ids.application_id}": {
+      "get": {
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ApplicationWebhooks"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
+    "/as/webhooks/{application_ids.application_id}/{webhook_id}": {
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "webhook_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
+    "/as/webhooks/{ids.application_ids.application_id}/{ids.webhook_id}": {
       "get": {
         "operationId": "Get",
         "responses": {
@@ -1205,8 +1221,40 @@
         ]
       }
     },
-    "/as/applications/{webhook.ids.application_ids.application_id}/webhooks/{webhook.ids.webhook_id}": {
+    "/as/webhooks/{webhook.ids.application_ids.application_id}": {
       "post": {
+        "operationId": "Set2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ApplicationWebhook"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "webhook.ids.application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3SetApplicationWebhookRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
+    "/as/webhooks/{webhook.ids.application_ids.application_id}/{webhook.ids.webhook_id}": {
+      "put": {
         "operationId": "Set",
         "responses": {
           "200": {
@@ -1238,22 +1286,6 @@
             }
           }
         ],
-        "tags": [
-          "ApplicationWebhookRegistry"
-        ]
-      }
-    },
-    "/as/webhook-formats": {
-      "get": {
-        "operationId": "GetFormats",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v3ApplicationWebhookFormats"
-            }
-          }
-        },
         "tags": [
           "ApplicationWebhookRegistry"
         ]
@@ -2207,7 +2239,7 @@
           },
           {
             "name": "join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -2363,7 +2395,7 @@
           },
           {
             "name": "end_device_ids.join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -2428,7 +2460,7 @@
           },
           {
             "name": "join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -2552,7 +2584,7 @@
           },
           {
             "name": "end_device_ids.join_eui",
-            "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+            "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
             "in": "query",
             "required": false,
             "type": "string",
@@ -6866,7 +6898,7 @@
         "join_eui": {
           "type": "string",
           "format": "byte",
-          "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices)."
+          "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices)."
         },
         "dev_addr": {
           "type": "string",
@@ -7700,16 +7732,6 @@
           "format": "float",
           "description": "Maximum EIRP (dBm)."
         },
-        "uplink_dwell_time": {
-          "type": "boolean",
-          "format": "boolean",
-          "description": "Uplink dwell time is set (400ms)."
-        },
-        "downlink_dwell_time": {
-          "type": "boolean",
-          "format": "boolean",
-          "description": "Downlink dwell time is set (400ms)."
-        },
         "adr_data_rate_index": {
           "$ref": "#/definitions/v3DataRateIndex",
           "description": "ADR: data rate index to use."
@@ -7784,6 +7806,16 @@
             "$ref": "#/definitions/v3MACParametersChannel"
           },
           "description": "Configured uplink channels and optionally Rx1 frequency."
+        },
+        "uplink_dwell_time": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Whether uplink dwell time is set (400ms).\nIf this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it)."
+        },
+        "downlink_dwell_time": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Whether downlink dwell time is set (400ms).\nIf this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it)."
         }
       },
       "description": "MACParameters represent the parameters of the device's MAC layer (active or desired).\nThis is used internally by the Network Server and is read only."

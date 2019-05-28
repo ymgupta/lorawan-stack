@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package auth
-
-import (
-	"context"
-	"crypto/x509/pkix"
+export const createGetApiKeyActionType = name => (
+  `GET_${name}_API_KEY`
 )
 
-type x509DNKeyType struct{}
+export const createGetApiKeySuccessActionType = name => (
+  `GET_${name}_API_KEY_SUCCESS`
+)
 
-var x509DNKey x509DNKeyType
+export const createGetApiKeyFailureActionType = name => (
+  `GET_${name}_API_KEY_FAILURE`
+)
 
-// NewContextWithX509DN returns a new context with the given distinguished name.
-func NewContextWithX509DN(ctx context.Context, name pkix.Name) context.Context {
-	return context.WithValue(ctx, x509DNKey, name)
-}
+export const getApiKey = name => (entityId, keyId) => (
+  { type: createGetApiKeyActionType(name), entityId, keyId }
+)
 
-// X509DNFromContext returns the distinguished name from the given context.
-func X509DNFromContext(ctx context.Context) (pkix.Name, bool) {
-	if name, ok := ctx.Value(x509DNKey).(pkix.Name); ok {
-		return name, true
-	}
-	return pkix.Name{}, false
-}
+export const getApiKeySuccess = name => key => (
+  { type: createGetApiKeySuccessActionType(name), key }
+)
+
+export const getApiKeyFailure = name => error => (
+  { type: createGetApiKeyFailureActionType(name), error }
+)

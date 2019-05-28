@@ -12,26 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package auth
+const storeSelector = (state, entity) => state.apiKeys[entity]
 
-import (
-	"context"
-	"crypto/x509/pkix"
-)
+export const apiKeySelector = entity => function (state) {
+  const store = storeSelector(state, entity)
 
-type x509DNKeyType struct{}
-
-var x509DNKey x509DNKeyType
-
-// NewContextWithX509DN returns a new context with the given distinguished name.
-func NewContextWithX509DN(ctx context.Context, name pkix.Name) context.Context {
-	return context.WithValue(ctx, x509DNKey, name)
+  return store.key
 }
 
-// X509DNFromContext returns the distinguished name from the given context.
-func X509DNFromContext(ctx context.Context) (pkix.Name, bool) {
-	if name, ok := ctx.Value(x509DNKey).(pkix.Name); ok {
-		return name, true
-	}
-	return pkix.Name{}, false
+export const fetchingSelector = entity => function (state) {
+  const store = storeSelector(state, entity)
+
+  return store.fetching
+}
+
+export const errorSelector = entity => function (state) {
+  const store = storeSelector(state, entity)
+
+  return store.error
 }

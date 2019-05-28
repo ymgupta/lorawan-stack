@@ -2043,7 +2043,7 @@
                   "rules": [
                     {
                       "method": "GET",
-                      "pattern": "/as/applications/{ids.application_ids.application_id}/webhooks/{ids.webhook_id}"
+                      "pattern": "/as/webhooks/{ids.application_ids.application_id}/{ids.webhook_id}"
                     }
                   ]
                 }
@@ -2065,7 +2065,7 @@
                   "rules": [
                     {
                       "method": "GET",
-                      "pattern": "/as/applications/{application_ids.application_id}/webhooks"
+                      "pattern": "/as/webhooks/{application_ids.application_id}"
                     }
                   ]
                 }
@@ -2086,8 +2086,13 @@
                 "google.api.http": {
                   "rules": [
                     {
+                      "method": "PUT",
+                      "pattern": "/as/webhooks/{webhook.ids.application_ids.application_id}/{webhook.ids.webhook_id}",
+                      "body": "*"
+                    },
+                    {
                       "method": "POST",
-                      "pattern": "/as/applications/{webhook.ids.application_ids.application_id}/webhooks/{webhook.ids.webhook_id}",
+                      "pattern": "/as/webhooks/{webhook.ids.application_ids.application_id}",
                       "body": "*"
                     }
                   ]
@@ -2110,7 +2115,7 @@
                   "rules": [
                     {
                       "method": "DELETE",
-                      "pattern": "/as/applications/{application_ids.application_id}/webhooks/{webhook_id}"
+                      "pattern": "/as/webhooks/{application_ids.application_id}/{webhook_id}"
                     }
                   ]
                 }
@@ -4717,26 +4722,6 @@
               "defaultValue": ""
             },
             {
-              "name": "uplink_dwell_time",
-              "description": "Uplink dwell time is set (400ms).",
-              "label": "",
-              "type": "bool",
-              "longType": "bool",
-              "fullType": "bool",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
-              "name": "downlink_dwell_time",
-              "description": "Downlink dwell time is set (400ms).",
-              "label": "",
-              "type": "bool",
-              "longType": "bool",
-              "fullType": "bool",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
               "name": "adr_data_rate_index",
               "description": "ADR: data rate index to use.",
               "label": "",
@@ -5039,6 +5024,26 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "uplink_dwell_time",
+              "description": "Whether uplink dwell time is set (400ms).\nIf this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it).",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_dwell_time",
+              "description": "Whether downlink dwell time is set (400ms).\nIf this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it).",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -8798,7 +8803,7 @@
             },
             {
               "name": "join_eui",
-              "description": "The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices).",
+              "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
               "label": "",
               "type": "bytes",
               "longType": "bytes",
@@ -10044,6 +10049,16 @@
             {
               "name": "dev_eui",
               "description": "LoRaWAN DevEUI.",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "join_eui",
+              "description": "The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices).",
               "label": "",
               "type": "bytes",
               "longType": "bytes",

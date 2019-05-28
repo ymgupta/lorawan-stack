@@ -856,10 +856,11 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
 | `GetFormats` | `GET` | `/api/v3/as/webhook-formats` |  |
-| `Get` | `GET` | `/api/v3/as/applications/{ids.application_ids.application_id}/webhooks/{ids.webhook_id}` |  |
-| `List` | `GET` | `/api/v3/as/applications/{application_ids.application_id}/webhooks` |  |
-| `Set` | `POST` | `/api/v3/as/applications/{webhook.ids.application_ids.application_id}/webhooks/{webhook.ids.webhook_id}` | `*` |
-| `Delete` | `DELETE` | `/api/v3/as/applications/{application_ids.application_id}/webhooks/{webhook_id}` |  |
+| `Get` | `GET` | `/api/v3/as/webhooks/{ids.application_ids.application_id}/{ids.webhook_id}` |  |
+| `List` | `GET` | `/api/v3/as/webhooks/{application_ids.application_id}` |  |
+| `Set` | `PUT` | `/api/v3/as/webhooks/{webhook.ids.application_ids.application_id}/{webhook.ids.webhook_id}` | `*` |
+| `Set` | `POST` | `/api/v3/as/webhooks/{webhook.ids.application_ids.application_id}` | `*` |
+| `Delete` | `DELETE` | `/api/v3/as/webhooks/{application_ids.application_id}/{webhook_id}` |  |
 
 ## <a name="lorawan-stack/api/client.proto">File `lorawan-stack/api/client.proto`</a>
 
@@ -1388,8 +1389,6 @@ This is used internally by the Network Server and is read only.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `max_eirp` | [`float`](#float) |  | Maximum EIRP (dBm). |
-| `uplink_dwell_time` | [`bool`](#bool) |  | Uplink dwell time is set (400ms). |
-| `downlink_dwell_time` | [`bool`](#bool) |  | Downlink dwell time is set (400ms). |
 | `adr_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | ADR: data rate index to use. |
 | `adr_tx_power_index` | [`uint32`](#uint32) |  | ADR: transmission power index to use. |
 | `adr_nb_trans` | [`uint32`](#uint32) |  | ADR: number of retransmissions. |
@@ -1406,6 +1405,8 @@ This is used internally by the Network Server and is read only.
 | `ping_slot_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | Data rate index of the class B ping slot. |
 | `beacon_frequency` | [`uint64`](#uint64) |  | Frequency of the class B beacon (Hz). |
 | `channels` | [`MACParameters.Channel`](#ttn.lorawan.v3.MACParameters.Channel) | repeated | Configured uplink channels and optionally Rx1 frequency. |
+| `uplink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether uplink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
+| `downlink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether downlink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
 
 #### Field Rules
 
@@ -2282,7 +2283,7 @@ The main purpose of this message is its use in events.
 | `device_id` | [`string`](#string) |  |  |
 | `application_ids` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) |  |  |
 | `dev_eui` | [`bytes`](#bytes) |  | The LoRaWAN DevEUI. |
-| `join_eui` | [`bytes`](#bytes) |  | The LoRaWAN JoinEUI (or AppEUI for LoRaWAN 1.0 end devices). |
+| `join_eui` | [`bytes`](#bytes) |  | The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices). |
 | `dev_addr` | [`bytes`](#bytes) |  | The LoRaWAN DevAddr. |
 
 #### Field Rules
@@ -2578,6 +2579,7 @@ OrganizationOrUserIdentifiers contains either organization or user identifiers.
 | ----- | ---- | ----- | ----------- |
 | `session_key_id` | [`bytes`](#bytes) |  | Join Server issued identifier for the session keys. |
 | `dev_eui` | [`bytes`](#bytes) |  | LoRaWAN DevEUI. |
+| `join_eui` | [`bytes`](#bytes) |  | The LoRaWAN JoinEUI (AppEUI until LoRaWAN 1.0.3 end devices). |
 
 #### Field Rules
 
