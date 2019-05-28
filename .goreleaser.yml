@@ -74,6 +74,7 @@ nfpm:
   homepage: https://www.thethingsindustries.com
   maintainer: The Things Industries <stack@thethingsindustries.com>
   description: The Things Industries LoRaWAN Stack
+  license: TTI EULA
   formats:
     - deb
     - rpm
