@@ -21,6 +21,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -49,7 +50,7 @@ func (as *ApplicationServer) SetLink(ctx context.Context, req *ttnpb.SetApplicat
 	if err := as.cancelLink(ctx, req.ApplicationIdentifiers); err != nil && !errors.IsNotFound(err) {
 		log.FromContext(ctx).WithError(err).Warn("Failed to cancel link")
 	}
-	as.startLinkTask(as.Context(), req.ApplicationIdentifiers)
+	as.startLinkTask(tenant.NewContext(as.Context(), tenant.FromContext(ctx)), req.ApplicationIdentifiers)
 
 	res := &ttnpb.ApplicationLink{}
 	if err := res.SetFields(link, req.FieldMask.Paths...); err != nil {
