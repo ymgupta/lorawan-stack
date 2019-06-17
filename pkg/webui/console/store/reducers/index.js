@@ -33,6 +33,12 @@ import createNamedRightsReducer from './rights'
 import createNamedCollaboratorsReducer from './collaborators'
 import createNamedEventsReducer from './events'
 import createNamedApiKeyReducer from './api-key'
+import link from './link'
+import fetching from './ui/fetching'
+import error from './ui/error'
+import webhook from './webhook'
+import webhooks from './webhooks'
+import webhookFormats from './webhook-formats'
 
 export default combineReducers({
   user,
@@ -40,10 +46,14 @@ export default combineReducers({
   init,
   applications,
   application,
+  link,
   devices,
   device,
   gateways,
   gateway,
+  webhook,
+  webhooks,
+  webhookFormats,
   configuration,
   apiKeys: combineReducers({
     application: createNamedApiKeyReducer(APPLICATION_SHARED_NAME),
@@ -62,5 +72,9 @@ export default combineReducers({
     applications: createNamedEventsReducer(APPLICATION_SHARED_NAME),
     devices: createNamedEventsReducer(DEVICE_SHARED_NAME),
     gateways: createNamedEventsReducer(GATEWAY_SHARED_NAME),
+  }),
+  ui: combineReducers({
+    fetching,
+    error,
   }),
 })

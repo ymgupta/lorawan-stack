@@ -26,8 +26,10 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/formatters"
 	iogrpc "go.thethings.network/lorawan-stack/pkg/applicationserver/io/grpc"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/mqtt"
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/web"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/component"
@@ -41,6 +43,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/messageprocessors/javascript"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
+	_ "gocloud.dev/pubsub/natspubsub" // NATS backend for PubSub.
 	"google.golang.org/grpc"
 )
 
@@ -155,6 +158,14 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		c.RegisterWeb(webhooks)
 	}
 
+	if len(conf.PubSub.PublishURLs) > 0 {
+		pubsub, err := pubsub.Start(as.Context(), as, formatters.JSON, conf.PubSub.PublishURLs, conf.PubSub.SubscribeURLs)
+		if err != nil {
+			return nil, err
+		}
+		as.defaultSubscribers = append(as.defaultSubscribers, pubsub...)
+	}
+
 	c.RegisterGRPC(as)
 	if as.linkMode == LinkAll {
 		c.RegisterTask(as.Context(), "link_all", as.linkAll, component.TaskRestartOnFailure)
@@ -239,9 +250,9 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 	}
 	_, err = as.deviceRegistry.Set(ctx, ids,
 		[]string{
-			"session",
-			"pending_session",
 			"formatters",
+			"pending_session",
+			"session",
 			"version_ids",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
@@ -293,13 +304,16 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 			errorDetails = *ttnpb.ErrorDetailsToProto(ttnErr)
 		}
 		for _, item := range items {
-			link.upCh <- &ttnpb.ApplicationUp{
-				EndDeviceIdentifiers: ids,
-				CorrelationIDs:       item.CorrelationIDs,
-				Up: &ttnpb.ApplicationUp_DownlinkFailed{
-					DownlinkFailed: &ttnpb.ApplicationDownlinkFailed{
-						ApplicationDownlink: *item,
-						Error:               errorDetails,
+			link.upCh <- &io.ContextualApplicationUp{
+				Context: ctx,
+				ApplicationUp: &ttnpb.ApplicationUp{
+					EndDeviceIdentifiers: ids,
+					CorrelationIDs:       item.CorrelationIDs,
+					Up: &ttnpb.ApplicationUp_DownlinkFailed{
+						DownlinkFailed: &ttnpb.ApplicationDownlinkFailed{
+							ApplicationDownlink: *item,
+							Error:               errorDetails,
+						},
 					},
 				},
 			}
@@ -310,11 +324,14 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 	atomic.AddUint64(&link.downlinks, uint64(len(items)))
 	atomic.StoreInt64(&link.lastDownlinkTime, time.Now().UnixNano())
 	for _, item := range items {
-		link.upCh <- &ttnpb.ApplicationUp{
-			EndDeviceIdentifiers: ids,
-			CorrelationIDs:       item.CorrelationIDs,
-			Up: &ttnpb.ApplicationUp_DownlinkQueued{
-				DownlinkQueued: item,
+		link.upCh <- &io.ContextualApplicationUp{
+			Context: ctx,
+			ApplicationUp: &ttnpb.ApplicationUp{
+				EndDeviceIdentifiers: ids,
+				CorrelationIDs:       item.CorrelationIDs,
+				Up: &ttnpb.ApplicationUp_DownlinkQueued{
+					DownlinkQueued: item,
+				},
 			},
 		}
 		registerForwardDownlink(ctx, ids, item, link.connName)
@@ -435,8 +452,8 @@ func (as *ApplicationServer) handleJoinAccept(ctx context.Context, ids ttnpb.End
 	))
 	_, err := as.deviceRegistry.Set(ctx, ids,
 		[]string{
-			"session",
 			"pending_session",
+			"session",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			var mask []string
@@ -492,9 +509,9 @@ func (as *ApplicationServer) handleUplink(ctx context.Context, ids ttnpb.EndDevi
 	logger := log.FromContext(ctx)
 	dev, err := as.deviceRegistry.Set(ctx, ids,
 		[]string{
-			"session",
-			"pending_session",
 			"formatters",
+			"pending_session",
+			"session",
 			"version_ids",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
@@ -521,7 +538,8 @@ func (as *ApplicationServer) handleUplink(ctx context.Context, ids ttnpb.EndDevi
 						},
 						StartedAt: time.Now().UTC(),
 					}
-					mask = append(mask, "session")
+					dev.DevAddr = ids.DevAddr
+					mask = append(mask, "session", "ids.dev_addr")
 					logger.Debug("Restored session")
 				}
 				dev.PendingSession = nil

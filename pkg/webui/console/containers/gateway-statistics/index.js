@@ -119,17 +119,17 @@ class GatewayStatistic extends React.PureComponent {
       return null
     }
 
-    const uplinkCount = statistics.uplink_count
-    const downlinkCount = statistics.downlink_count
+    const uplinkCount = statistics.uplink_count || 0
+    const downlinkCount = statistics.downlink_count || 0
 
     return (
       <React.Fragment>
         <span className={style.messageCount}>
-          <Icon className={style.icon} icon="event_uplink" />
+          <Icon className={style.icon} icon="uplink" />
           <span>{uplinkCount}</span>
         </span>
         <span className={style.messageCount}>
-          <Icon className={style.icon} icon="event_downlink" />
+          <Icon className={style.icon} icon="downlink" />
           <span>{downlinkCount}</span>
         </span>
       </React.Fragment>

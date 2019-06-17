@@ -193,6 +193,13 @@ The Console is the official management application of the stack. It can be used 
 The OAuth app provides the necessary frontend for the OAuth provider of the stack. It is used e.g. to display the authorization screen that users get prompted with when they want to authorize a third-party app to access the stack.
 
 ### Building the frontend
+
+#### Prerequisites
+In order to build the frontend, you'll need the following:
+* Node JS, version 10.x (see [Development Environment](#development-environment))
+* NPM (node package manager), version >= 6.4.1 (⟶ `npm install -g npm` or `npm update npm -g` should give you the latest version)
+
+#### Build process
 You can control whether to build the frontend for production or development by setting the `$NODE_ENV` environment variable to either `development` or `production`. The frontend can then be built using:
 
 ```sh
@@ -231,8 +238,8 @@ In order to set up the stack to support running the frontend via `webpack-dev-se
 ```
 NODE_ENV=development
 TTN_LW_LOG_LEVEL=debug
-TTN_LW_IS_OAUTH_UI_JS_FILE=libs.bundle.js,oauth.js
-TTN_LW_CONSOLE_UI_JS_FILE=libs.bundle.js,console.js
+TTN_LW_IS_OAUTH_UI_JS_FILE="libs.bundle.js oauth.js"
+TTN_LW_CONSOLE_UI_JS_FILE="libs.bundle.js console.js"
 TTN_LW_CONSOLE_UI_CANONICAL_URL=http://localhost:8080/console
 TTN_LW_CONSOLE_OAUTH_AUTHORIZE_URL=http://localhost:8080/oauth/authorize
 TTN_LW_CONSOLE_OAUTH_TOKEN_URL=http://localhost:8080/oauth/token

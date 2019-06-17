@@ -83,16 +83,17 @@ func TestWebhooks(t *testing.T) {
 			},
 			[]string{
 				"base_url",
-				"headers",
-				"format",
-				"uplink_message",
-				"join_accept",
 				"downlink_ack",
-				"downlink_nack",
-				"downlink_sent",
 				"downlink_failed",
+				"downlink_nack",
 				"downlink_queued",
+				"downlink_sent",
+				"format",
+				"headers",
+				"ids",
+				"join_accept",
 				"location_solved",
+				"uplink_message",
 			}, nil
 	})
 	if err != nil {
@@ -284,7 +285,7 @@ func TestWebhooks(t *testing.T) {
 				} {
 					t.Run(tc.Name, func(t *testing.T) {
 						a := assertions.New(t)
-						err := sub.SendUp(tc.Message)
+						err := sub.SendUp(ctx, tc.Message)
 						if !a.So(err, should.BeNil) {
 							t.FailNow()
 						}

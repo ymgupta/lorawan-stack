@@ -23,8 +23,9 @@ import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import sharedMessages from '../../../lib/shared-messages'
 import Form from '../../../components/form'
-import Field from '../../../components/field'
+import Input from '../../../components/input'
 import Button from '../../../components/button'
+import SubmitButton from '../../../components/submit-button'
 import Message from '../../../lib/components/message'
 import DataSheet from '../../../components/data-sheet'
 import { apiKey, address } from '../../lib/regexp'
@@ -35,12 +36,27 @@ import DateTime from '../../../lib/components/date-time'
 import Icon from '../../../components/icon'
 import SubmitBar from '../../../components/submit-bar'
 
+import {
+  getApplicationLink,
+  updateApplicationLinkSuccess,
+  deleteApplicationLinkSuccess,
+} from '../../store/actions/link'
+import {
+  selectApplicationIsLinked,
+  selectApplicationLink,
+  selectApplicationLinkStats,
+  selectApplicationLinkFetching,
+  selectApplicationLinkError,
+  selectSelectedApplicationId,
+} from '../../store/selectors/application'
+
 import api from '../../api'
 
 import style from './application-link.styl'
 
 const m = defineMessages({
   linkApplication: 'Link {appId}',
+  linkSettings: 'Link settings',
   linkStatistics: 'Statistics',
   linkStatus: 'Link status',
   linkStatusLinked: 'The application is linked successfully',
@@ -63,17 +79,25 @@ const validationSchema = Yup.object().shape({
     .matches(address, sharedMessages.validateFormat),
 })
 
-@connect(function (state, props) {
-  const { appId } = props.match.params
-
-  return { appId }
-})
+@connect(function (state) {
+  return {
+    appId: selectSelectedApplicationId(state),
+    link: selectApplicationLink(state),
+    stats: selectApplicationLinkStats(state),
+    fetching: selectApplicationLinkFetching(state),
+    linked: selectApplicationIsLinked(state),
+    linkError: selectApplicationLinkError(state),
+  }
+},
+dispatch => ({
+  getLink: (id, meta) => dispatch(getApplicationLink(id, meta)),
+  updateLinkSuccess: (link, stats) => dispatch(updateApplicationLinkSuccess(link, stats)),
+  deleteLinkSuccess: () => dispatch(deleteApplicationLinkSuccess()),
+}))
 @withBreadcrumb('apps.single.link', function (props) {
-  const { appId } = props
-
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/link`}
+      path={`/console/applications/${props.appId}/link`}
       icon="link"
       content={sharedMessages.link}
     />
@@ -86,49 +110,19 @@ class ApplicationLink extends React.Component {
     super(props)
 
     this.form = React.createRef()
+    this.state = { error: '' }
   }
-
-  state = {
-    fetching: true,
-    link: undefined,
-    stats: undefined,
-    error: '',
-  }
-
-
 
   componentDidMount () {
-    this.fetchLinkData()
-  }
+    const { getLink, appId } = this.props
 
-  async fetchLinkData () {
-    const { appId } = this.props
-
-    await this.setState({ fetching: true })
-    try {
-      const link = await api.application.link.get(appId,
-        [ 'api_key', 'network_server_address' ],
-      )
-      const stats = await api.application.link.stats(appId)
-
-      await this.setState({
-        fetching: false,
-        error: '',
-        link,
-        stats,
-      })
-    } catch (error) {
-      // show only non-404 errors
-      if (error && error.code !== 5) {
-        await this.setState({ error })
-      }
-    } finally {
-      await this.setState({ fetching: false })
-    }
+    getLink(appId, {
+      selectors: [ 'api_key', 'network_server_address' ],
+    })
   }
 
   async handleLink (values, { setSubmitting, resetForm }) {
-    const { appId } = this.props
+    const { appId, updateLinkSuccess } = this.props
     const { api_key, network_server_address } = values
 
     await this.setState({ error: '' })
@@ -140,10 +134,7 @@ class ApplicationLink extends React.Component {
 
       try {
         const stats = await api.application.link.stats(appId)
-        await this.setState({
-          link,
-          stats,
-        })
+        updateLinkSuccess(link, stats)
         resetForm(values)
         toast({
           title: appId,
@@ -154,38 +145,35 @@ class ApplicationLink extends React.Component {
         throw statsError
       }
     } catch (error) {
-      await this.setState({ error })
       setSubmitting(false)
+      await this.setState({ error })
     }
   }
 
   async handleUnlink () {
-    const { appId } = this.props
+    const { appId, deleteLinkSuccess } = this.props
 
     await this.setState({ error: '' })
 
     try {
       await api.application.link.delete(appId)
-      await this.setState({
-        stats: undefined,
-        link: undefined,
-      })
+      deleteLinkSuccess()
       toast({
         title: appId,
         message: m.unlinkSuccess,
         type: toast.types.SUCCESS,
       })
-    } catch (error) {
-      await this.setState({ error })
-    } finally {
       this.form.current.resetForm({})
+    } catch (error) {
+      this.form.current.resetForm({})
+      this.setState({ error })
     }
   }
 
   get statistics () {
-    const { stats } = this.state
+    const { stats, linked } = this.props
 
-    if (!stats) {
+    if (!stats && !linked) {
       return (
         <div className={style.status}>
           <Message component="h3" content={m.linkStatus} />
@@ -235,12 +223,13 @@ class ApplicationLink extends React.Component {
   }
 
   render () {
-    const { appId } = this.props
     const {
+      appId,
       link = {},
       fetching,
-      error,
-    } = this.state
+      linkError,
+    } = this.props
+    const { error } = this.state
 
     if (fetching) {
       return (
@@ -255,6 +244,8 @@ class ApplicationLink extends React.Component {
       api_key: link.api_key || '',
       network_server_address: link.network_server_address || '',
     }
+
+    const formError = error || linkError || ''
 
     return (
       <Container className={style.main}>
@@ -272,30 +263,31 @@ class ApplicationLink extends React.Component {
         </Row>
         <Row className={style.form}>
           <Col lg={6} md={12}>
-            <h3>Link settings</h3>
+            <Message component="h3" content={m.linkSettings} />
             <Form
               formikRef={this.form}
-              error={error}
+              error={formError}
               onSubmit={this.handleLink}
               initialValues={initialValues}
               validationSchema={validationSchema}
             >
-              <Field
-                type="text"
+              <Form.Field
+                component={Input}
                 description={m.nsDescription}
                 name="network_server_address"
                 title={m.nsAddress}
                 autoFocus
               />
-              <Field
+              <Form.Field
                 type="password"
+                component={Input}
                 required
                 name="api_key"
                 title={sharedMessages.apiKey}
               />
               <SubmitBar>
-                <Button
-                  type="submit"
+                <Form.Submit
+                  component={SubmitButton}
                   message={sharedMessages.saveChanges}
                 />
               </SubmitBar>

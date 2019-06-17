@@ -2426,6 +2426,22 @@
         ]
       }
     },
+    "/js/join_eui_prefixes": {
+      "get": {
+        "operationId": "GetJoinEUIPrefixes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3JoinEUIPrefixes"
+            }
+          }
+        },
+        "tags": [
+          "Js"
+        ]
+      }
+    },
     "/ns/applications/{application_ids.application_id}/devices/{device_id}": {
       "delete": {
         "operationId": "Delete",
@@ -2612,6 +2628,22 @@
         ],
         "tags": [
           "NsEndDeviceRegistry"
+        ]
+      }
+    },
+    "/ns/dev_addr": {
+      "get": {
+        "operationId": "GenerateDevAddr",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GenerateDevAddrResponse"
+            }
+          }
+        },
+        "tags": [
+          "Ns"
         ]
       }
     },
@@ -6877,6 +6909,11 @@
         "provisioning_data": {
           "$ref": "#/definitions/protobufStruct",
           "description": "Vendor-specific provisioning data. Stored in Join Server."
+        },
+        "multicast": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Indicates whether this device represents a multicast group."
         }
       },
       "description": "Defines an End Device registration and its state on the network.\nThe persistence of the EndDevice is divided between the Network Server, Application Server and Join Server.\nSDKs are responsible for combining (if desired) the three."
@@ -7378,6 +7415,15 @@
         }
       }
     },
+    "v3GenerateDevAddrResponse": {
+      "type": "object",
+      "properties": {
+        "dev_addr": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
     "v3GrantType": {
       "type": "string",
       "enum": [
@@ -7456,6 +7502,30 @@
         },
         "cf_list": {
           "$ref": "#/definitions/v3CFList"
+        }
+      }
+    },
+    "v3JoinEUIPrefix": {
+      "type": "object",
+      "properties": {
+        "join_eui": {
+          "type": "string",
+          "format": "byte"
+        },
+        "length": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "v3JoinEUIPrefixes": {
+      "type": "object",
+      "properties": {
+        "prefixes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3JoinEUIPrefix"
+          }
         }
       }
     },

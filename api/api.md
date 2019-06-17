@@ -172,6 +172,8 @@
   - [Message `DeriveSessionKeysRequest`](#ttn.lorawan.v3.DeriveSessionKeysRequest)
   - [Message `GetRootKeysRequest`](#ttn.lorawan.v3.GetRootKeysRequest)
   - [Message `JoinAcceptMICRequest`](#ttn.lorawan.v3.JoinAcceptMICRequest)
+  - [Message `JoinEUIPrefix`](#ttn.lorawan.v3.JoinEUIPrefix)
+  - [Message `JoinEUIPrefixes`](#ttn.lorawan.v3.JoinEUIPrefixes)
   - [Message `NwkSKeysResponse`](#ttn.lorawan.v3.NwkSKeysResponse)
   - [Message `ProvisionEndDevicesRequest`](#ttn.lorawan.v3.ProvisionEndDevicesRequest)
   - [Message `ProvisionEndDevicesRequest.IdentifiersFromData`](#ttn.lorawan.v3.ProvisionEndDevicesRequest.IdentifiersFromData)
@@ -180,6 +182,7 @@
   - [Message `SessionKeyRequest`](#ttn.lorawan.v3.SessionKeyRequest)
   - [Service `ApplicationCryptoService`](#ttn.lorawan.v3.ApplicationCryptoService)
   - [Service `AsJs`](#ttn.lorawan.v3.AsJs)
+  - [Service `Js`](#ttn.lorawan.v3.Js)
   - [Service `JsEndDeviceRegistry`](#ttn.lorawan.v3.JsEndDeviceRegistry)
   - [Service `NetworkCryptoService`](#ttn.lorawan.v3.NetworkCryptoService)
   - [Service `NsJs`](#ttn.lorawan.v3.NsJs)
@@ -275,10 +278,12 @@
   - [Message `ApplicationUp`](#ttn.lorawan.v3.ApplicationUp)
   - [Message `ApplicationUplink`](#ttn.lorawan.v3.ApplicationUplink)
   - [Message `DownlinkMessage`](#ttn.lorawan.v3.DownlinkMessage)
+  - [Message `DownlinkQueueOperation`](#ttn.lorawan.v3.DownlinkQueueOperation)
   - [Message `DownlinkQueueRequest`](#ttn.lorawan.v3.DownlinkQueueRequest)
   - [Message `MessagePayloadFormatters`](#ttn.lorawan.v3.MessagePayloadFormatters)
   - [Message `TxAcknowledgment`](#ttn.lorawan.v3.TxAcknowledgment)
   - [Message `UplinkMessage`](#ttn.lorawan.v3.UplinkMessage)
+  - [Enum `DownlinkQueueOperation.Operation`](#ttn.lorawan.v3.DownlinkQueueOperation.Operation)
   - [Enum `PayloadFormatter`](#ttn.lorawan.v3.PayloadFormatter)
   - [Enum `TxAcknowledgment.Result`](#ttn.lorawan.v3.TxAcknowledgment.Result)
 - [File `lorawan-stack/api/metadata.proto`](#lorawan-stack/api/metadata.proto)
@@ -286,8 +291,10 @@
   - [Message `RxMetadata`](#ttn.lorawan.v3.RxMetadata)
   - [Enum `LocationSource`](#ttn.lorawan.v3.LocationSource)
 - [File `lorawan-stack/api/networkserver.proto`](#lorawan-stack/api/networkserver.proto)
+  - [Message `GenerateDevAddrResponse`](#ttn.lorawan.v3.GenerateDevAddrResponse)
   - [Service `AsNs`](#ttn.lorawan.v3.AsNs)
   - [Service `GsNs`](#ttn.lorawan.v3.GsNs)
+  - [Service `Ns`](#ttn.lorawan.v3.Ns)
   - [Service `NsEndDeviceRegistry`](#ttn.lorawan.v3.NsEndDeviceRegistry)
 - [File `lorawan-stack/api/oauth.proto`](#lorawan-stack/api/oauth.proto)
   - [Message `ListOAuthAccessTokensRequest`](#ttn.lorawan.v3.ListOAuthAccessTokensRequest)
@@ -1238,6 +1245,7 @@ SDKs are responsible for combining (if desired) the three.
 | `formatters` | [`MessagePayloadFormatters`](#ttn.lorawan.v3.MessagePayloadFormatters) |  | The payload formatters for this end device. Stored in Application Server. Copied on creation from template identified by version_ids. |
 | `provisioner_id` | [`string`](#string) |  | ID of the provisioner. Stored in Join Server. |
 | `provisioning_data` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  | Vendor-specific provisioning data. Stored in Join Server. |
+| `multicast` | [`bool`](#bool) |  | Indicates whether this device represents a multicast group. |
 
 #### Field Rules
 
@@ -2520,6 +2528,19 @@ OrganizationOrUserIdentifiers contains either organization or user identifiers.
 | `payload_request` | <p>`message.required`: `true`</p> |
 | `join_request_type` | <p>`enum.defined_only`: `true`</p> |
 
+### <a name="ttn.lorawan.v3.JoinEUIPrefix">Message `JoinEUIPrefix`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `join_eui` | [`bytes`](#bytes) |  |  |
+| `length` | [`uint32`](#uint32) |  |  |
+
+### <a name="ttn.lorawan.v3.JoinEUIPrefixes">Message `JoinEUIPrefixes`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `prefixes` | [`JoinEUIPrefix`](#ttn.lorawan.v3.JoinEUIPrefix) | repeated |  |
+
 ### <a name="ttn.lorawan.v3.NwkSKeysResponse">Message `NwkSKeysResponse`</a>
 
 | Field | Type | Label | Description |
@@ -2603,6 +2624,18 @@ The AsJs service connects an Application Server to a Join Server.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | `GetAppSKey` | [`SessionKeyRequest`](#ttn.lorawan.v3.SessionKeyRequest) | [`AppSKeyResponse`](#ttn.lorawan.v3.AppSKeyResponse) |  |
+
+### <a name="ttn.lorawan.v3.Js">Service `Js`</a>
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `GetJoinEUIPrefixes` | [`.google.protobuf.Empty`](#google.protobuf.Empty) | [`JoinEUIPrefixes`](#ttn.lorawan.v3.JoinEUIPrefixes) |  |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `GetJoinEUIPrefixes` | `GET` | `/api/v3/js/join_eui_prefixes` |  |
 
 ### <a name="ttn.lorawan.v3.JsEndDeviceRegistry">Service `JsEndDeviceRegistry`</a>
 
@@ -3903,6 +3936,21 @@ Downlink message from the network to the end device
 | ----- | ----------- |
 | `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 
+### <a name="ttn.lorawan.v3.DownlinkQueueOperation">Message `DownlinkQueueOperation`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `end_device_ids` | [`EndDeviceIdentifiers`](#ttn.lorawan.v3.EndDeviceIdentifiers) |  |  |
+| `operation` | [`DownlinkQueueOperation.Operation`](#ttn.lorawan.v3.DownlinkQueueOperation.Operation) |  |  |
+| `downlinks` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) | repeated |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `end_device_ids` | <p>`message.required`: `true`</p> |
+| `operation` | <p>`enum.defined_only`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.DownlinkQueueRequest">Message `DownlinkQueueRequest`</a>
 
 | Field | Type | Label | Description |
@@ -3964,6 +4012,13 @@ Uplink message from the end device to the network
 | `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 | `gateway_channel_index` | <p>`uint32.lte`: `255`</p> |
 | `device_channel_index` | <p>`uint32.lte`: `255`</p> |
+
+### <a name="ttn.lorawan.v3.DownlinkQueueOperation.Operation">Enum `DownlinkQueueOperation.Operation`</a>
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `PUSH` | 0 |  |
+| `REPLACE` | 1 |  |
 
 ### <a name="ttn.lorawan.v3.PayloadFormatter">Enum `PayloadFormatter`</a>
 
@@ -4060,6 +4115,12 @@ More estimation methods can be added. |
 
 ## <a name="lorawan-stack/api/networkserver.proto">File `lorawan-stack/api/networkserver.proto`</a>
 
+### <a name="ttn.lorawan.v3.GenerateDevAddrResponse">Message `GenerateDevAddrResponse`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `dev_addr` | [`bytes`](#bytes) |  |  |
+
 ### <a name="ttn.lorawan.v3.AsNs">Service `AsNs`</a>
 
 The AsNs service connects an Application Server to a Network Server.
@@ -4078,6 +4139,18 @@ The GsNs service connects a Gateway Server to a Network Server.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | `HandleUplink` | [`UplinkMessage`](#ttn.lorawan.v3.UplinkMessage) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
+
+### <a name="ttn.lorawan.v3.Ns">Service `Ns`</a>
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `GenerateDevAddr` | [`.google.protobuf.Empty`](#google.protobuf.Empty) | [`GenerateDevAddrResponse`](#ttn.lorawan.v3.GenerateDevAddrResponse) | GenerateDevAddr requests a device address assignment from the Network Server. |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `GenerateDevAddr` | `GET` | `/api/v3/ns/dev_addr` |  |
 
 ### <a name="ttn.lorawan.v3.NsEndDeviceRegistry">Service `NsEndDeviceRegistry`</a>
 

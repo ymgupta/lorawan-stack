@@ -222,8 +222,10 @@ func handleUplinkTest() func(t *testing.T) {
 			ret, err := devReg.SetByID(authorizedCtx, pb.ApplicationIdentifiers, pb.DeviceID,
 				[]string{
 					"frequency_plan_id",
+					"ids.application_ids",
 					"ids.dev_addr",
 					"ids.dev_eui",
+					"ids.device_id",
 					"ids.join_eui",
 					"lorawan_phy_version",
 					"lorawan_version",
@@ -235,8 +237,10 @@ func handleUplinkTest() func(t *testing.T) {
 					}
 					return CopyEndDevice(pb), []string{
 						"frequency_plan_id",
+						"ids.application_ids",
 						"ids.dev_addr",
 						"ids.dev_eui",
+						"ids.device_id",
 						"ids.join_eui",
 						"lorawan_phy_version",
 						"lorawan_version",
@@ -311,11 +315,14 @@ func handleUplinkTest() func(t *testing.T) {
 				[]string{
 					"created_at",
 					"frequency_plan_id",
+					"ids.application_ids",
 					"ids.dev_addr",
 					"ids.dev_eui",
+					"ids.device_id",
 					"ids.join_eui",
 					"lorawan_phy_version",
 					"lorawan_version",
+					"multicast",
 					"session",
 					"updated_at",
 				},
@@ -325,11 +332,14 @@ func handleUplinkTest() func(t *testing.T) {
 					}
 					return CopyEndDevice(pb), []string{
 						"frequency_plan_id",
+						"ids.application_ids",
 						"ids.dev_addr",
 						"ids.dev_eui",
+						"ids.device_id",
 						"ids.join_eui",
 						"lorawan_phy_version",
 						"lorawan_version",
+						"multicast",
 						"session",
 					}, nil
 				})
@@ -1346,6 +1356,7 @@ func handleUplinkTest() func(t *testing.T) {
 						"lorawan_phy_version",
 						"lorawan_version",
 						"mac_state",
+						"multicast",
 						"pending_session",
 						"session",
 					}...); err != nil {
@@ -1358,6 +1369,7 @@ func handleUplinkTest() func(t *testing.T) {
 							"lorawan_phy_version",
 							"lorawan_version",
 							"mac_state",
+							"multicast",
 							"pending_session",
 							"session",
 						}...); err != nil {
@@ -1387,12 +1399,15 @@ func handleUplinkTest() func(t *testing.T) {
 						[]string{
 							"created_at",
 							"frequency_plan_id",
+							"ids.application_ids",
 							"ids.dev_addr",
 							"ids.dev_eui",
+							"ids.device_id",
 							"ids.join_eui",
 							"lorawan_phy_version",
 							"lorawan_version",
 							"mac_state",
+							"multicast",
 							"pending_session",
 							"session",
 							"updated_at",
@@ -1403,12 +1418,15 @@ func handleUplinkTest() func(t *testing.T) {
 							}
 							return CopyEndDevice(pb), []string{
 								"frequency_plan_id",
+								"ids.application_ids",
 								"ids.dev_addr",
 								"ids.dev_eui",
+								"ids.device_id",
 								"ids.join_eui",
 								"lorawan_phy_version",
 								"lorawan_version",
 								"mac_state",
+								"multicast",
 								"pending_session",
 								"session",
 							}, nil
@@ -1490,13 +1508,16 @@ func handleUplinkTest() func(t *testing.T) {
 					[]string{
 						"created_at",
 						"frequency_plan_id",
+						"ids.application_ids",
 						"ids.dev_addr",
 						"ids.dev_eui",
+						"ids.device_id",
 						"ids.join_eui",
 						"lorawan_phy_version",
 						"lorawan_version",
 						"mac_settings",
 						"mac_state",
+						"multicast",
 						"pending_session",
 						"recent_downlinks",
 						"session",
@@ -1508,13 +1529,16 @@ func handleUplinkTest() func(t *testing.T) {
 						}
 						return CopyEndDevice(tc.Device), []string{
 							"frequency_plan_id",
+							"ids.application_ids",
 							"ids.dev_addr",
 							"ids.dev_eui",
+							"ids.device_id",
 							"ids.join_eui",
 							"lorawan_phy_version",
 							"lorawan_version",
 							"mac_settings",
 							"mac_state",
+							"multicast",
 							"pending_session",
 							"recent_downlinks",
 							"session",
@@ -1662,104 +1686,6 @@ func handleUplinkTest() func(t *testing.T) {
 				case <-time.After(Timeout):
 					t.Fatal("Timed out while waiting for HandleUplink to return")
 				}
-
-				t.Run("after cooldown window", func(t *testing.T) {
-					a := assertions.New(t)
-
-					errch := make(chan error, 1)
-					go func() {
-						_, err = ns.HandleUplink(ctx, CopyUplinkMessage(tc.UplinkMessage))
-						errch <- err
-					}()
-
-					if pb.MACState != nil && pb.MACState.CurrentParameters.ADRNbTrans <= 1 {
-						_ = sendUplinkDuplicates(t, ns, collectionDoneCh, ctx, tc.UplinkMessage, DuplicateCount)
-
-						select {
-						case err := <-errch:
-							a.So(err, should.BeError)
-
-						case <-time.After(Timeout):
-							t.Fatal("Timed out while waiting for HandleUplink to return")
-						}
-
-						return
-					}
-
-					if pb.MACState != nil && pb.MACState.PendingApplicationDownlink != nil {
-						select {
-						case req := <-asSendCh:
-							close(req.errch)
-							if tc.UplinkMessage.Payload.GetMACPayload().Ack {
-								a.So(req.up.GetDownlinkAck(), should.Resemble, pb.MACState.PendingApplicationDownlink)
-							} else {
-								a.So(req.up.GetDownlinkNack(), should.Resemble, pb.MACState.PendingApplicationDownlink)
-							}
-
-						case weReq := <-collectionDoneCh:
-							close(weReq.Response)
-							a.So(<-errch, should.BeNil)
-							t.Fatal("Downlink (n)ack not sent to AS")
-
-						case <-time.After(Timeout):
-							t.Fatal("Timed out while waiting for (n)ack to be sent to AS")
-						}
-					}
-
-					md := sendUplinkDuplicates(t, ns, deduplicationDoneCh, ctx, tc.UplinkMessage, DuplicateCount)
-
-					select {
-					case asUpReq = <-asSendCh:
-						a.So(md, should.HaveSameElementsDeep, asUpReq.up.GetUplinkMessage().RxMetadata)
-						a.So(asUpReq.up.CorrelationIDs, should.NotBeEmpty)
-
-						a.So(asUpReq.up, should.Resemble, &ttnpb.ApplicationUp{
-							EndDeviceIdentifiers: pb.EndDeviceIdentifiers,
-							CorrelationIDs:       asUpReq.up.CorrelationIDs,
-							ReceivedAt:           asUpReq.up.ReceivedAt,
-							Up: &ttnpb.ApplicationUp_UplinkMessage{UplinkMessage: &ttnpb.ApplicationUplink{
-								FCnt:         tc.NextFCntUp,
-								FPort:        tc.UplinkMessage.Payload.GetMACPayload().FPort,
-								FRMPayload:   tc.UplinkMessage.Payload.GetMACPayload().FRMPayload,
-								RxMetadata:   asUpReq.up.GetUplinkMessage().RxMetadata,
-								SessionKeyID: pb.Session.SessionKeys.SessionKeyID,
-								Settings:     asUpReq.up.GetUplinkMessage().Settings,
-							}},
-						})
-
-					case weReq := <-collectionDoneCh:
-						close(weReq.Response)
-						a.So(<-errch, should.BeNil)
-						t.Fatal("Uplink not sent to AS")
-
-					case <-time.After(Timeout):
-						t.Fatal("Timed out while waiting for uplink to be sent to AS")
-					}
-
-					close(asUpReq.errch)
-
-					select {
-					case req := <-downlinkAddCh:
-						a.So(req.ctx, should.HaveParentContext, ctx)
-						a.So(req.devID, should.Resemble, pb.EndDeviceIdentifiers)
-						a.So(req.replace, should.BeTrue)
-						a.So([]time.Time{start, req.t, time.Now()}, should.BeChronological)
-
-					case <-time.After(Timeout):
-						t.Fatal("Timeout waiting for Add to be called")
-					}
-
-					_ = sendUplinkDuplicates(t, ns, collectionDoneCh, ctx, tc.UplinkMessage, DuplicateCount)
-					close(collectionDoneCh)
-
-					select {
-					case err := <-errch:
-						a.So(err, should.BeNil)
-
-					case <-time.After(Timeout):
-						t.Fatal("Timed out while waiting for HandleUplink to return")
-					}
-				})
 			})
 		}
 	}
@@ -1813,6 +1739,7 @@ func handleJoinTest() func(t *testing.T) {
 						DeviceID:               DeviceID,
 					},
 					FrequencyPlanID: test.EUFrequencyPlanID,
+					SupportsJoin:    true,
 				},
 				func() *ttnpb.UplinkMessage {
 					msg := ttnpb.NewPopulatedUplinkMessageJoinRequest(test.Randy)
@@ -1842,6 +1769,7 @@ func handleJoinTest() func(t *testing.T) {
 					FrequencyPlanID: test.EUFrequencyPlanID,
 					PendingSession:  ttnpb.NewPopulatedSession(test.Randy, false),
 					PendingMACState: ttnpb.NewPopulatedMACState(test.Randy, false),
+					SupportsJoin:    true,
 				},
 				func() *ttnpb.UplinkMessage {
 					msg := ttnpb.NewPopulatedUplinkMessageJoinRequest(test.Randy)
@@ -1871,6 +1799,7 @@ func handleJoinTest() func(t *testing.T) {
 					FrequencyPlanID: test.EUFrequencyPlanID,
 					PendingSession:  ttnpb.NewPopulatedSession(test.Randy, false),
 					PendingMACState: ttnpb.NewPopulatedMACState(test.Randy, false),
+					SupportsJoin:    true,
 				},
 				func() *ttnpb.UplinkMessage {
 					msg := ttnpb.NewPopulatedUplinkMessageJoinRequest(test.Randy)
@@ -1900,6 +1829,7 @@ func handleJoinTest() func(t *testing.T) {
 					FrequencyPlanID: test.EUFrequencyPlanID,
 					PendingSession:  ttnpb.NewPopulatedSession(test.Randy, false),
 					PendingMACState: ttnpb.NewPopulatedMACState(test.Randy, false),
+					SupportsJoin:    true,
 				},
 				func() *ttnpb.UplinkMessage {
 					msg := ttnpb.NewPopulatedUplinkMessageJoinRequest(test.Randy)
@@ -1929,6 +1859,7 @@ func handleJoinTest() func(t *testing.T) {
 					FrequencyPlanID: test.EUFrequencyPlanID,
 					PendingSession:  ttnpb.NewPopulatedSession(test.Randy, false),
 					PendingMACState: ttnpb.NewPopulatedMACState(test.Randy, false),
+					SupportsJoin:    true,
 				},
 				func() *ttnpb.UplinkMessage {
 					msg := ttnpb.NewPopulatedUplinkMessageJoinRequest(test.Randy)
@@ -1966,6 +1897,7 @@ func handleJoinTest() func(t *testing.T) {
 						"mac_state",
 						"pending_session",
 						"session",
+						"supports_join",
 					}...); err != nil {
 						t.Fatalf("Failed to set fields: %s", err)
 					}
@@ -1974,14 +1906,17 @@ func handleJoinTest() func(t *testing.T) {
 						[]string{
 							"created_at",
 							"frequency_plan_id",
+							"ids.application_ids",
 							"ids.dev_addr",
 							"ids.dev_eui",
+							"ids.device_id",
 							"ids.join_eui",
 							"lorawan_phy_version",
 							"lorawan_version",
 							"mac_state",
 							"pending_session",
 							"session",
+							"supports_join",
 							"updated_at",
 						},
 						func(stored *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
@@ -1990,14 +1925,17 @@ func handleJoinTest() func(t *testing.T) {
 							}
 							return CopyEndDevice(pb), []string{
 								"frequency_plan_id",
+								"ids.application_ids",
 								"ids.dev_addr",
 								"ids.dev_eui",
+								"ids.device_id",
 								"ids.join_eui",
 								"lorawan_phy_version",
 								"lorawan_version",
 								"mac_state",
 								"pending_session",
 								"session",
+								"supports_join",
 							}, nil
 						})
 					if !a.So(err, should.BeNil) || !a.So(ret, should.NotBeNil) {
@@ -2102,6 +2040,11 @@ func handleJoinTest() func(t *testing.T) {
 					[]string{
 						"created_at",
 						"frequency_plan_id",
+						"ids.application_ids",
+						"ids.dev_addr",
+						"ids.dev_eui",
+						"ids.device_id",
+						"ids.join_eui",
 						"lorawan_phy_version",
 						"lorawan_version",
 						"mac_settings",
@@ -2111,6 +2054,7 @@ func handleJoinTest() func(t *testing.T) {
 						"recent_downlinks",
 						"session",
 						"updated_at",
+						"supports_join",
 					},
 					func(stored *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 						if !a.So(stored, should.BeNil) {
@@ -2118,6 +2062,11 @@ func handleJoinTest() func(t *testing.T) {
 						}
 						return CopyEndDevice(tc.Device), []string{
 							"frequency_plan_id",
+							"ids.application_ids",
+							"ids.dev_addr",
+							"ids.dev_eui",
+							"ids.device_id",
+							"ids.join_eui",
 							"lorawan_phy_version",
 							"lorawan_version",
 							"mac_settings",
@@ -2126,6 +2075,7 @@ func handleJoinTest() func(t *testing.T) {
 							"pending_session",
 							"recent_downlinks",
 							"session",
+							"supports_join",
 						}, nil
 					})
 				if !a.So(err, should.BeNil) || !a.So(ret, should.NotBeNil) {

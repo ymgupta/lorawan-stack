@@ -42,9 +42,8 @@ const m = defineMessages({
   title: '%s - {deviceName} - The Things Network Console',
 })
 
-@connect(function ({ device, application }, props) {
+@connect(function ({ device }, props) {
   return {
-    appName: application.application.name,
     deviceName: device.device && device.device.name,
     devIds: device.device && device.device.ids,
     devId: props.match.params.devId,
@@ -124,7 +123,7 @@ export default class Device extends React.Component {
       { title: sharedMessages.overview, name: 'overview', link: basePath },
       { title: sharedMessages.data, name: 'data', link: `${basePath}/data` },
       { title: sharedMessages.location, name: 'location', link: `${basePath}/location` },
-      { title: sharedMessages.payloadFormats, name: 'develop' },
+      { title: sharedMessages.payloadFormatters, name: 'develop' },
       { title: sharedMessages.generalSettings, name: 'general-settings', link: `${basePath}/general-settings` },
     ]
 

@@ -29,21 +29,28 @@ import ApplicationApiKeys from '../application-api-keys'
 import ApplicationLink from '../application-link'
 import ApplicationCollaborators from '../application-collaborators'
 import ApplicationData from '../application-data'
+import ApplicationPayloadFormatters from '../application-payload-formatters'
+import ApplicationIntegrations from '../application-integrations'
 
 import {
   getApplication,
   startApplicationEventsStream,
   stopApplicationEventsStream,
 } from '../../store/actions/application'
+import {
+  selectSelectedApplication,
+  selectApplicationError,
+  selectApplicationFetching,
+} from '../../store/selectors/application'
 
 import Devices from '../devices'
 
-@connect(function ({ application }, props) {
+@connect(function (state, props) {
   return {
     appId: props.match.params.appId,
-    fetching: application.fetching,
-    application: application.application,
-    error: application.error,
+    fetching: selectApplicationFetching(state),
+    application: selectSelectedApplication(state),
+    error: selectApplicationError(state),
   }
 },
 dispatch => ({
@@ -79,14 +86,27 @@ dispatch => ({
         icon: 'link',
       },
       {
-        title: sharedMessages.payloadFormats,
-        path: `${matchedUrl}/payload-formats`,
-        icon: 'payload_formats',
+        title: sharedMessages.payloadFormatters,
+        icon: 'code',
+        nested: true,
+        items: [
+          {
+            title: sharedMessages.uplink,
+            path: `${matchedUrl}/payload-formatters/uplink`,
+            icon: 'uplink',
+          },
+          {
+            title: sharedMessages.downlink,
+            path: `${matchedUrl}/payload-formatters/downlink`,
+            icon: 'downlink',
+          },
+        ],
       },
       {
         title: sharedMessages.integrations,
         path: `${matchedUrl}/integrations`,
         icon: 'integration',
+        exact: false,
       },
       {
         title: sharedMessages.collaborators,
@@ -157,6 +177,8 @@ export default class Application extends React.Component {
         <Route path={`${match.path}/devices`} component={Devices} />
         <Route path={`${match.path}/collaborators`} component={ApplicationCollaborators} />
         <Route path={`${match.path}/data`} component={ApplicationData} />
+        <Route path={`${match.path}/payload-formatters`} component={ApplicationPayloadFormatters} />
+        <Route path={`${match.path}/integrations`} component={ApplicationIntegrations} />
       </Switch>
     )
   }

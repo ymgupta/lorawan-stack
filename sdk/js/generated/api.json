@@ -4128,6 +4128,16 @@
               "fullType": "google.protobuf.Struct",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "multicast",
+              "description": "Indicates whether this device represents a multicast group.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -9789,6 +9799,58 @@
           ]
         },
         {
+          "name": "JoinEUIPrefix",
+          "longName": "JoinEUIPrefix",
+          "fullName": "ttn.lorawan.v3.JoinEUIPrefix",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "join_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "length",
+              "description": "",
+              "label": "",
+              "type": "uint32",
+              "longType": "uint32",
+              "fullType": "uint32",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "JoinEUIPrefixes",
+          "longName": "JoinEUIPrefixes",
+          "fullName": "ttn.lorawan.v3.JoinEUIPrefixes",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "prefixes",
+              "description": "",
+              "label": "repeated",
+              "type": "JoinEUIPrefix",
+              "longType": "JoinEUIPrefix",
+              "fullType": "ttn.lorawan.v3.JoinEUIPrefix",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "NwkSKeysResponse",
           "longName": "NwkSKeysResponse",
           "fullName": "ttn.lorawan.v3.NwkSKeysResponse",
@@ -10119,6 +10181,36 @@
               "responseLongType": "AppSKeyResponse",
               "responseFullType": "ttn.lorawan.v3.AppSKeyResponse",
               "responseStreaming": false
+            }
+          ]
+        },
+        {
+          "name": "Js",
+          "longName": "Js",
+          "fullName": "ttn.lorawan.v3.Js",
+          "description": "",
+          "methods": [
+            {
+              "name": "GetJoinEUIPrefixes",
+              "description": "",
+              "requestType": "Empty",
+              "requestLongType": ".google.protobuf.Empty",
+              "requestFullType": "google.protobuf.Empty",
+              "requestStreaming": false,
+              "responseType": "JoinEUIPrefixes",
+              "responseLongType": "JoinEUIPrefixes",
+              "responseFullType": "ttn.lorawan.v3.JoinEUIPrefixes",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/js/join_eui_prefixes"
+                    }
+                  ]
+                }
+              }
             }
           ]
         },
@@ -14714,6 +14806,24 @@
       "hasServices": false,
       "enums": [
         {
+          "name": "Operation",
+          "longName": "DownlinkQueueOperation.Operation",
+          "fullName": "ttn.lorawan.v3.DownlinkQueueOperation.Operation",
+          "description": "",
+          "values": [
+            {
+              "name": "PUSH",
+              "number": "0",
+              "description": ""
+            },
+            {
+              "name": "REPLACE",
+              "number": "1",
+              "description": ""
+            }
+          ]
+        },
+        {
           "name": "PayloadFormatter",
           "longName": "PayloadFormatter",
           "fullName": "ttn.lorawan.v3.PayloadFormatter",
@@ -15572,6 +15682,63 @@
           ]
         },
         {
+          "name": "DownlinkQueueOperation",
+          "longName": "DownlinkQueueOperation",
+          "fullName": "ttn.lorawan.v3.DownlinkQueueOperation",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "end_device_ids",
+              "description": "",
+              "label": "",
+              "type": "EndDeviceIdentifiers",
+              "longType": "EndDeviceIdentifiers",
+              "fullType": "ttn.lorawan.v3.EndDeviceIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "operation",
+              "description": "",
+              "label": "",
+              "type": "Operation",
+              "longType": "DownlinkQueueOperation.Operation",
+              "fullType": "ttn.lorawan.v3.DownlinkQueueOperation.Operation",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "enum.defined_only",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "downlinks",
+              "description": "",
+              "label": "repeated",
+              "type": "ApplicationDownlink",
+              "longType": "ApplicationDownlink",
+              "fullType": "ttn.lorawan.v3.ApplicationDownlink",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "DownlinkQueueRequest",
           "longName": "DownlinkQueueRequest",
           "fullName": "ttn.lorawan.v3.DownlinkQueueRequest",
@@ -16204,11 +16371,33 @@
       "package": "ttn.lorawan.v3",
       "hasEnums": false,
       "hasExtensions": false,
-      "hasMessages": false,
+      "hasMessages": true,
       "hasServices": true,
       "enums": [],
       "extensions": [],
-      "messages": [],
+      "messages": [
+        {
+          "name": "GenerateDevAddrResponse",
+          "longName": "GenerateDevAddrResponse",
+          "fullName": "ttn.lorawan.v3.GenerateDevAddrResponse",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "dev_addr",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
       "services": [
         {
           "name": "AsNs",
@@ -16283,6 +16472,36 @@
               "responseLongType": ".google.protobuf.Empty",
               "responseFullType": "google.protobuf.Empty",
               "responseStreaming": false
+            }
+          ]
+        },
+        {
+          "name": "Ns",
+          "longName": "Ns",
+          "fullName": "ttn.lorawan.v3.Ns",
+          "description": "",
+          "methods": [
+            {
+              "name": "GenerateDevAddr",
+              "description": "GenerateDevAddr requests a device address assignment from the Network Server.",
+              "requestType": "Empty",
+              "requestLongType": ".google.protobuf.Empty",
+              "requestFullType": "google.protobuf.Empty",
+              "requestStreaming": false,
+              "responseType": "GenerateDevAddrResponse",
+              "responseLongType": "GenerateDevAddrResponse",
+              "responseFullType": "ttn.lorawan.v3.GenerateDevAddrResponse",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/ns/dev_addr"
+                    }
+                  ]
+                }
+              }
             }
           ]
         },

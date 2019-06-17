@@ -21,12 +21,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"sync"
 	"testing"
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	pbtypes "github.com/gogo/protobuf/types"
+	nats_server "github.com/nats-io/nats-server/test"
+	nats_client "github.com/nats-io/nats.go"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver"
 	iowebredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/web/redis"
@@ -35,6 +38,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/jsonpb"
+	"go.thethings.network/lorawan-stack/pkg/rpcclient"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -197,6 +201,14 @@ hardware_versions:
 	defer webhooksRedisClient.Close()
 	webhookRegistry := iowebredis.WebhookRegistry{Redis: webhooksRedisClient}
 
+	natsServer := nats_server.RunDefaultServer()
+	defer natsServer.Shutdown()
+	time.Sleep(Timeout)
+	err = os.Setenv("NATS_SERVER_URL", "127.0.0.1")
+	if err != nil {
+		t.Fatalf("Failed to set the NATS_SERVER_URL: %s", err)
+	}
+
 	c := component.MustNew(test.GetLogger(t), &component.Config{
 		ServiceBase: config.ServiceBase{
 			GRPC: config.GRPC{
@@ -233,6 +245,10 @@ hardware_versions:
 			Target:    "direct",
 			Timeout:   Timeout,
 			QueueSize: 1,
+		},
+		PubSub: applicationserver.PubSubConfig{
+			PublishURLs:   []string{"nats://publish"},
+			SubscribeURLs: []string{"nats://subscribe?ackfunc=noop"},
 		},
 	}
 	as, err := applicationserver.New(c, config)
@@ -336,33 +352,31 @@ hardware_versions:
 				// Write downstream.
 				go func() {
 					for {
-						for {
-							var req *ttnpb.DownlinkQueueRequest
-							var topicFmt string
-							select {
-							case <-ctx.Done():
-								return
-							case req = <-chs.downPush:
-								topicFmt = "v3/%v/devices/%v/down/push"
-							case req = <-chs.downReplace:
-								topicFmt = "v3/%v/devices/%v/down/replace"
-							}
-							msg := &ttnpb.ApplicationDownlinks{
-								Downlinks: req.Downlinks,
-							}
-							buf, err := jsonpb.TTN().Marshal(msg)
-							if err != nil {
-								chs.downErr <- err
-								continue
-							}
-							token := client.Publish(fmt.Sprintf(topicFmt, req.ApplicationID, req.DeviceID), 1, false, buf)
-							token.Wait()
-							chs.downErr <- token.Error()
+						var req *ttnpb.DownlinkQueueRequest
+						var topicFmt string
+						select {
+						case <-ctx.Done():
+							return
+						case req = <-chs.downPush:
+							topicFmt = "v3/%v/devices/%v/down/push"
+						case req = <-chs.downReplace:
+							topicFmt = "v3/%v/devices/%v/down/replace"
 						}
+						msg := &ttnpb.ApplicationDownlinks{
+							Downlinks: req.Downlinks,
+						}
+						buf, err := jsonpb.TTN().Marshal(msg)
+						if err != nil {
+							chs.downErr <- err
+							continue
+						}
+						token := client.Publish(fmt.Sprintf(topicFmt, req.ApplicationID, req.DeviceID), 1, false, buf)
+						token.Wait()
+						chs.downErr <- token.Error()
 					}
 				}()
 				// Read upstream.
-				token := client.Subscribe(fmt.Sprintf("v3/%v/devices/#", ids.ApplicationID), 1, func(_ mqtt.Client, raw mqtt.Message) {
+				token := client.Subscribe(fmt.Sprintf("v3/%v/devices/#", unique.ID(ctx, ids)), 1, func(_ mqtt.Client, raw mqtt.Message) {
 					msg := &ttnpb.ApplicationUp{}
 					if err := jsonpb.TTN().Unmarshal(raw.Payload(), msg); err != nil {
 						errCh <- err
@@ -381,6 +395,65 @@ hardware_versions:
 				}
 			},
 			SkipCheckDownErr: true, // There is no direct error response in MQTT.
+		},
+		{
+			Protocol: "pubsub",
+			ValidAuth: func(ctx context.Context, ids ttnpb.ApplicationIdentifiers, key string) bool {
+				return true // There is no authentication in PubSub.
+			},
+			Connect: func(ctx context.Context, t *testing.T, ids ttnpb.ApplicationIdentifiers, key string, chs *connChannels) error {
+				client, err := nats_client.Connect("127.0.0.1")
+				if err != nil {
+					return err
+				}
+				defer client.Close()
+				// Write downstream.
+				go func() {
+					for {
+						var req *ttnpb.DownlinkQueueRequest
+						op := &ttnpb.DownlinkQueueOperation{}
+						select {
+						case <-ctx.Done():
+							return
+						case req = <-chs.downPush:
+							op.Operation = ttnpb.DownlinkQueueOperation_PUSH
+						case req = <-chs.downReplace:
+							op.Operation = ttnpb.DownlinkQueueOperation_REPLACE
+						}
+						op.EndDeviceIdentifiers = req.EndDeviceIdentifiers
+						op.Downlinks = req.Downlinks
+						buf, err := jsonpb.TTN().Marshal(op)
+						if err != nil {
+							chs.downErr <- err
+							continue
+						}
+						err = client.Publish("subscribe", buf)
+						chs.downErr <- err
+					}
+				}()
+				errCh := make(chan error, 1)
+				// Read upstream.
+				subscription, err := client.Subscribe("publish", func(raw *nats_client.Msg) {
+					msg := &ttnpb.ApplicationUp{}
+					err = jsonpb.TTN().Unmarshal(raw.Data, msg)
+					if err != nil {
+						errCh <- err
+						return
+					}
+					chs.up <- msg
+				})
+				if err != nil {
+					return err
+				}
+				defer subscription.Unsubscribe()
+				select {
+				case err = <-errCh:
+					return err
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			},
+			SkipCheckDownErr: true, // There is no direct error response in PubSub.
 		},
 		{
 			Protocol: "webhooks",
@@ -403,7 +476,7 @@ hardware_versions:
 				}))
 				defer webhookTarget.Close()
 				// Configure webhook.
-				conn, err := grpc.Dial(":9184", grpc.WithInsecure(), grpc.WithBlock())
+				conn, err := grpc.Dial(":9184", append(rpcclient.DefaultDialOptions(ctx), grpc.WithInsecure(), grpc.WithBlock())...)
 				if err != nil {
 					return err
 				}

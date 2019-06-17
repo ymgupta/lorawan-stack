@@ -14,8 +14,13 @@
 
 import { createLogic } from 'redux-logic'
 
+import { isNotFoundError } from '../../../lib/errors/utils'
 import api from '../../api'
 import * as application from '../actions/application'
+import * as link from '../actions/link'
+import * as webhooks from '../actions/webhooks'
+import * as webhook from '../actions/webhook'
+import * as webhookFormats from '../actions/webhook-formats'
 import createEventsConnectLogics from './events'
 
 const getApplicationLogic = createLogic({
@@ -107,10 +112,85 @@ const getApplicationCollaboratorsLogic = createLogic({
   },
 })
 
+const getApplicationLinkLogic = createLogic({
+  type: link.GET_APP_LINK,
+  async process ({ action }, dispatch, done) {
+    const { id, meta = {}} = action
+    const { selectors = []} = meta
+
+    let linkResult
+    let statsResult
+    try {
+      linkResult = await api.application.link.get(id, selectors)
+      statsResult = await api.application.link.stats(id)
+
+      dispatch(link.getApplicationLinkSuccess(linkResult, statsResult, true))
+    } catch (error) {
+      // consider errors that are not 404, since not found means that the
+      // application is not linked.
+      if (isNotFoundError(error)) {
+        dispatch(link.getApplicationLinkSuccess(linkResult, statsResult, false))
+      } else {
+        dispatch(link.getApplicationLinkFailure(error))
+      }
+    }
+
+    done()
+  },
+})
+
+const getWebhookLogic = createLogic({
+  type: webhook.GET_WEBHOOK,
+  async process ({ action }, dispatch, done) {
+    const { appId, webhookId, meta: { selector }} = action
+    try {
+      const res = await api.application.webhooks.get(appId, webhookId, selector)
+      dispatch(webhook.getWebhookSuccess(res))
+    } catch (e) {
+      dispatch(webhook.getWebhookFailure(e))
+    }
+
+    done()
+  },
+})
+
+const getWebhooksLogic = createLogic({
+  type: webhooks.GET_WEBHOOKS_LIST,
+  async process ({ action }, dispatch, done) {
+    const { appId } = action
+    try {
+      const res = await api.application.webhooks.list(appId)
+      dispatch(webhooks.getWebhooksListSuccess(res.webhooks, res.totalCount))
+    } catch (e) {
+      dispatch(webhooks.getWebhooksListFailure(e))
+    }
+
+    done()
+  },
+})
+
+const getWebhookFormatsLogic = createLogic({
+  type: webhookFormats.GET_WEBHOOK_FORMATS,
+  async process ({ action }, dispatch, done) {
+    try {
+      const { formats } = await api.application.webhooks.getFormats()
+      dispatch(webhookFormats.getWebhookFormatsSuccess(formats))
+    } catch (e) {
+      dispatch(webhookFormats.getWebhookFormatsFailure(e))
+    }
+
+    done()
+  },
+})
+
 export default [
   getApplicationLogic,
   getApplicationApiKeysLogic,
   getApplicationApiKeyLogic,
   getApplicationCollaboratorsLogic,
+  getWebhooksLogic,
+  getWebhookLogic,
+  getWebhookFormatsLogic,
   ...createEventsConnectLogics(application.SHARED_NAME, 'application'),
+  getApplicationLinkLogic,
 ]

@@ -1457,6 +1457,15 @@
       "file": "mqtt.go"
     }
   },
+  "error:pkg/applicationserver/io/web/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/web/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/applicationserver/io/web/redis:invalid_identifiers": {
     "translations": {
       "en": "invalid identifiers"
@@ -1538,6 +1547,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/applicationserver/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/applicationserver/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/applicationserver/redis:invalid_identifiers": {
     "translations": {
       "en": "invalid identifiers"
@@ -1581,6 +1599,24 @@
     "description": {
       "package": "pkg/applicationserver",
       "file": "registry.go"
+    }
+  },
+  "error:pkg/applicationserver:field_mask": {
+    "translations": {
+      "en": "invalid field mask"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "error:pkg/applicationserver:field_value": {
+    "translations": {
+      "en": "invalid value of field `{field}`"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc_deviceregistry.go"
     }
   },
   "error:pkg/applicationserver:formatter_not_configured": {
@@ -3428,7 +3464,16 @@
       "file": "user_registry.go"
     }
   },
-  "error:pkg/identityserver:password_strength_length": {
+  "error:pkg/identityserver:password_strength_max_length": {
+    "translations": {
+      "en": "need at most `{n}` characters"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "user_registry.go"
+    }
+  },
+  "error:pkg/identityserver:password_strength_min_length": {
     "translations": {
       "en": "need at least `{n}` characters"
     },
@@ -3770,6 +3815,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/joinserver/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/joinserver/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/joinserver/redis:invalid_identifiers": {
     "translations": {
       "en": "invalid identifiers"
@@ -3903,6 +3957,24 @@
     "description": {
       "package": "pkg/joinserver",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/joinserver:field_mask": {
+    "translations": {
+      "en": "invalid field mask"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "error:pkg/joinserver:field_value": {
+    "translations": {
+      "en": "invalid value of field `{field}`"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "grpc_deviceregistry.go"
     }
   },
   "error:pkg/joinserver:forward_join_request": {
@@ -4256,6 +4328,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/networkserver/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/networkserver/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/networkserver/redis:invalid_identifiers": {
     "translations": {
       "en": "invalid identifiers"
@@ -4263,6 +4344,15 @@
     "description": {
       "package": "pkg/networkserver/redis",
       "file": "registry.go"
+    }
+  },
+  "error:pkg/networkserver:abp_join_request": {
+    "translations": {
+      "en": "received a join-request from ABP device"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
     }
   },
   "error:pkg/networkserver:application_downlink_too_long": {
@@ -4292,6 +4382,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:class_b_c_for_class_a": {
+    "translations": {
+      "en": "class B/C downlink queued for device in class A mode"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:compute_mic": {
     "translations": {
       "en": "failed to compute MIC"
@@ -4304,6 +4403,24 @@
   "error:pkg/networkserver:configuration": {
     "translations": {
       "en": "invalid configuration"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/networkserver:confirmed_multicast_downlink": {
+    "translations": {
+      "en": "confirmed downlink queued for multicast device"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/networkserver:confirmed_too_soon": {
+    "translations": {
+      "en": "confirmed downlink is scheduled too soon"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -4364,6 +4481,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:downlink_expired": {
+    "translations": {
+      "en": "queued downlink is expired"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:downlink_priority": {
     "translations": {
       "en": "invalid downlink priority `{value}`"
@@ -4376,15 +4502,6 @@
   "error:pkg/networkserver:duplicate_cid_handler": {
     "translations": {
       "en": "a handler for MAC command with CID {cid} is already registered"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:duplicate_identifiers": {
-    "translations": {
-      "en": "a device identified by the identifiers already exists"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -4472,15 +4589,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/networkserver:gateway_server_not_found": {
-    "translations": {
-      "en": "Gateway Server not found"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/networkserver:invalid_f_nwk_s_int_key": {
     "translations": {
       "en": "invalid FNwkSIntKey"
@@ -4553,15 +4661,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/networkserver:no_frequency_plan": {
-    "translations": {
-      "en": "no frequency plan specified"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/networkserver:no_join_eui": {
     "translations": {
       "en": "no JoinEUI specified"
@@ -4616,15 +4715,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/networkserver:rx2_data_rate_index": {
-    "translations": {
-      "en": "invalid Rx2 data rate index"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/networkserver:schedule": {
     "translations": {
       "en": "all downlink scheduling attempts failed"
@@ -4634,9 +4724,18 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:schedule_too_late": {
+    "translations": {
+      "en": "downlink is scheduled too late"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:schedule_too_soon": {
     "translations": {
-      "en": "confirmed downlink is scheduled too soon"
+      "en": "downlink is scheduled too soon"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -4655,24 +4754,6 @@
   "error:pkg/networkserver:unknown_chanel": {
     "translations": {
       "en": "channel is unknown"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:unknown_f_nwk_s_int_key": {
-    "translations": {
-      "en": "FNwkSIntKey is unknown"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:unknown_frequency_plan": {
-    "translations": {
-      "en": "frequency plan is unknown"
     },
     "description": {
       "package": "pkg/networkserver",
