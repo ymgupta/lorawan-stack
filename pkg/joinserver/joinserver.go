@@ -37,6 +37,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoservices"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/interop"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
@@ -155,6 +156,21 @@ func validateCaller(dn pkix.Name, addr string) error {
 	return nil
 }
 
+// wrapKeyIfKEKExists wraps the given key with the KEK label.
+// If the configured key vault cannot find the KEK, the key is returned in the clear.
+func (js *JoinServer) wrapKeyIfKEKExists(key types.AES128Key, kekLabel string) (*ttnpb.KeyEnvelope, error) {
+	env, err := cryptoutil.WrapAES128Key(key, kekLabel, js.KeyVault)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			return &ttnpb.KeyEnvelope{
+				Key: &key,
+			}, nil
+		}
+		return nil, err
+	}
+	return &env, nil
+}
+
 // HandleJoin handles the given join-request.
 func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (res *ttnpb.JoinResponse, err error) {
 	if _, ok := auth.X509DNFromContext(ctx); !ok {
@@ -178,7 +194,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 		}
 	}
 	if !supported {
-		return nil, errUnsupportedLoRaWANVersion.WithAttributes("version", req.SelectedMACVersion)
+		return nil, errUnsupportedMACVersion.WithAttributes("version", req.SelectedMACVersion)
 	}
 
 	req.Payload = &ttnpb.Message{}
@@ -187,7 +203,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 	}
 
 	if req.Payload.Major != ttnpb.Major_LORAWAN_R1 {
-		return nil, errUnsupportedLoRaWANVersion.WithAttributes("version", req.Payload.Major)
+		return nil, errUnsupportedLoRaWANMajorVersion.WithAttributes("major", req.Payload.Major)
 	}
 	if req.Payload.MType != ttnpb.MType_JOIN_REQUEST {
 		return nil, errWrongPayloadType.WithAttributes("type", req.Payload.MType)
@@ -222,15 +238,16 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 
 	dev, err := js.devices.SetByEUI(ctx, pld.JoinEUI, pld.DevEUI,
 		[]string{
+			"application_server_address",
 			"last_dev_nonce",
 			"last_join_nonce",
 			"net_id",
 			"network_server_address",
+			"provisioner_id",
+			"provisioning_data",
 			"resets_join_nonces",
 			"root_keys",
 			"used_dev_nonces",
-			"provisioner_id",
-			"provisioning_data",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			if dn, ok := auth.X509DNFromContext(ctx); ok {
@@ -379,23 +396,23 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 
 			sessionKeys := ttnpb.SessionKeys{
 				SessionKeyID: skID[:],
-				FNwkSIntKey: &ttnpb.KeyEnvelope{
-					// TODO: Encrypt key with NS KEK https://github.com/TheThingsNetwork/lorawan-stack/issues/5
-					Key: &nwkSKeys.FNwkSIntKey,
-				},
-				AppSKey: &ttnpb.KeyEnvelope{
-					// TODO: Encrypt key with AS KEK https://github.com/TheThingsNetwork/lorawan-stack/issues/5
-					Key: &appSKey,
-				},
 			}
-			if req.SelectedMACVersion == ttnpb.MAC_V1_1 {
-				sessionKeys.SNwkSIntKey = &ttnpb.KeyEnvelope{
-					// TODO: Encrypt key with NS KEK https://github.com/TheThingsNetwork/lorawan-stack/issues/5
-					Key: &nwkSKeys.SNwkSIntKey,
+			sessionKeys.FNwkSIntKey, err = js.wrapKeyIfKEKExists(nwkSKeys.FNwkSIntKey, js.KeyVault.NsKEKLabel(ctx, dev.NetID, dev.NetworkServerAddress))
+			if err != nil {
+				return nil, nil, errWrapKey.WithCause(err)
+			}
+			sessionKeys.AppSKey, err = js.wrapKeyIfKEKExists(appSKey, js.KeyVault.AsKEKLabel(ctx, dev.ApplicationServerAddress))
+			if err != nil {
+				return nil, nil, errWrapKey.WithCause(err)
+			}
+			if req.SelectedMACVersion >= ttnpb.MAC_V1_1 {
+				sessionKeys.SNwkSIntKey, err = js.wrapKeyIfKEKExists(nwkSKeys.SNwkSIntKey, js.KeyVault.NsKEKLabel(ctx, dev.NetID, dev.NetworkServerAddress))
+				if err != nil {
+					return nil, nil, errWrapKey.WithCause(err)
 				}
-				sessionKeys.NwkSEncKey = &ttnpb.KeyEnvelope{
-					// TODO: Encrypt key with NS KEK https://github.com/TheThingsNetwork/lorawan-stack/issues/5
-					Key: &nwkSKeys.NwkSEncKey,
+				sessionKeys.NwkSEncKey, err = js.wrapKeyIfKEKExists(nwkSKeys.NwkSEncKey, js.KeyVault.NsKEKLabel(ctx, dev.NetID, dev.NetworkServerAddress))
+				if err != nil {
+					return nil, nil, errWrapKey.WithCause(err)
 				}
 			}
 

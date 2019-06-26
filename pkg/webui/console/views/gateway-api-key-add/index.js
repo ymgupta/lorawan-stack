@@ -27,27 +27,23 @@ import IntlHelmet from '../../../lib/components/intl-helmet'
 import { ApiKeyCreateForm } from '../../../components/api-key-form'
 
 import { getGatewaysRightsList } from '../../store/actions/gateways'
-import { getGatewayId } from '../../../lib/selectors/id'
 import {
-  gatewaySelector,
-  gatewayRightsSelector,
-  gatewayRightsErrorSelector,
-  gatewayRightsFetchingSelector,
+  selectSelectedGatewayId,
+  selectGatewayRights,
+  selectGatewayRightsError,
+  selectGatewayRightsFetching,
+  selectGatewayUniversalRights,
 } from '../../store/selectors/gateway'
 
 import api from '../../api'
 
-@connect(function (state, props) {
-  const gateway = gatewaySelector(state, props)
-  const gtwId = getGatewayId(gateway)
-
-  return {
-    gtwId,
-    fetching: gatewayRightsFetchingSelector(state, props),
-    error: gatewayRightsErrorSelector(state, props),
-    rights: gatewayRightsSelector(state, props),
-  }
-})
+@connect((state, props) => ({
+  gtwId: selectSelectedGatewayId(state),
+  fetching: selectGatewayRightsFetching(state),
+  error: selectGatewayRightsError(state),
+  rights: selectGatewayRights(state),
+  universalRights: selectGatewayUniversalRights(state),
+}))
 @withBreadcrumb('gtws.single.api-keys.add', function (props) {
   const gtwId = props.gtwId
 
@@ -81,7 +77,7 @@ export default class GatewayApiKeyAdd extends React.Component {
   }
 
   render () {
-    const { rights, fetching, error } = this.props
+    const { rights, fetching, error, universalRights } = this.props
 
     if (error) {
       throw error
@@ -103,6 +99,7 @@ export default class GatewayApiKeyAdd extends React.Component {
           <Col lg={8} md={12}>
             <ApiKeyCreateForm
               rights={rights}
+              universalRights={universalRights}
               onCreate={this.createGatewayKey}
               onCreateSuccess={this.handleApprove}
             />

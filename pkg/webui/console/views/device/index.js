@@ -16,7 +16,6 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
 import { Col, Row, Container } from 'react-grid-system'
-import { defineMessages } from 'react-intl'
 
 import sharedMessages from '../../../lib/shared-messages'
 import Message from '../../../lib/components/message'
@@ -30,25 +29,28 @@ import DeviceOverview from '../device-overview'
 import DeviceData from '../device-data'
 import DeviceGeneralSettings from '../device-general-settings'
 import DeviceLocation from '../device-location'
+import DevicePayloadFormatters from '../device-payload-formatters'
 
 import {
   getDevice,
   stopDeviceEventsStream,
 } from '../../store/actions/device'
 
+import withEnv, { EnvProvider } from '../../../lib/components/env'
+import { selectDeviceFetching, selectGetDeviceError } from '../../store/selectors/device'
+
 import style from './device.styl'
 
-const m = defineMessages({
-  title: '%s - {deviceName} - The Things Network Console',
-})
 
-@connect(function ({ device }, props) {
+@connect(function (state, props) {
+  const { device } = state
   return {
+    device: device.device,
     deviceName: device.device && device.device.name,
     devIds: device.device && device.device.ids,
     devId: props.match.params.devId,
-    fetching: device.fetching,
-    error: device.error,
+    fetching: selectDeviceFetching(state),
+    error: selectGetDeviceError(state),
   }
 }, dispatch => ({
   getDevice: (appId, devId, selectors, config) =>
@@ -66,6 +68,8 @@ const m = defineMessages({
     />
   )
 })
+
+@withEnv
 export default class Device extends React.Component {
 
   componentDidMount () {
@@ -89,6 +93,7 @@ export default class Device extends React.Component {
         'lorawan_version',
         'lorawan_phy_version',
         'locations',
+        'formatters',
       ],
       { ignoreNotFound: true })
   }
@@ -101,10 +106,18 @@ export default class Device extends React.Component {
 
 
   render () {
-    const { fetching, error, match, devId, deviceName } = this.props
-    const { appId } = match.params
+    const {
+      fetching,
+      error,
+      location: { pathname },
+      match: { params: { appId }},
+      devId,
+      deviceName,
+      device,
+      env,
+    } = this.props
 
-    if (fetching) {
+    if (fetching || !device) {
       return (
         <Spinner center>
           <Message content={sharedMessages.loading} />
@@ -119,38 +132,45 @@ export default class Device extends React.Component {
 
     const basePath = `/console/applications/${appId}/devices/${devId}`
 
+    // Prevent default redirect to uplink when tab is already open
+    const payloadFormattersLink =
+    pathname.startsWith(`${basePath}/payload-formatters`)
+      ? pathname : `${basePath}/payload-formatters`
+
     const tabs = [
       { title: sharedMessages.overview, name: 'overview', link: basePath },
       { title: sharedMessages.data, name: 'data', link: `${basePath}/data` },
       { title: sharedMessages.location, name: 'location', link: `${basePath}/location` },
-      { title: sharedMessages.payloadFormatters, name: 'develop' },
+      { title: sharedMessages.payloadFormatters, name: 'develop', link: payloadFormattersLink, exact: false },
       { title: sharedMessages.generalSettings, name: 'general-settings', link: `${basePath}/general-settings` },
     ]
 
     return (
-      <React.Fragment>
+      <EnvProvider env={env}>
         <IntlHelmet
-          titleTemplate={m.title} values={{ deviceName: deviceName || devId }}
+          titleTemplate={`%s - ${deviceName || devId} - ${env.site_name}`}
         />
         <Container>
           <Row>
             <Col lg={12}>
               <h2 className={style.title}>{deviceName || devId}</h2>
               <Tabs
+                className={style.tabs}
                 narrow
                 tabs={tabs}
-                className={style.tabs}
               />
             </Col>
           </Row>
         </Container>
+        <hr className={style.rule} />
         <Switch>
           <Route exact path={basePath} component={DeviceOverview} />
           <Route exact path={`${basePath}/data`} component={DeviceData} />
           <Route exact path={`${basePath}/location`} component={DeviceLocation} />
           <Route exact path={`${basePath}/general-settings`} component={DeviceGeneralSettings} />
+          <Route path={`${basePath}/payload-formatters`} component={DevicePayloadFormatters} />
         </Switch>
-      </React.Fragment>
+      </EnvProvider>
     )
   }
 }

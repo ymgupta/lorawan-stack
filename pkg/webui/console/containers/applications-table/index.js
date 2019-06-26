@@ -19,10 +19,13 @@ import bind from 'autobind-decorator'
 import sharedMessages from '../../../lib/shared-messages'
 import FetchTable from '../fetch-table'
 
+import { getApplicationsList } from '../../../console/store/actions/applications'
 import {
-  getApplicationsList,
-  searchApplicationsList,
-} from '../../../console/store/actions/applications'
+  selectApplications,
+  selectApplicationsTotalCount,
+  selectApplicationsFetching,
+  selectApplicationsError,
+} from '../../store/selectors/applications'
 
 const m = defineMessages({
   all: 'All',
@@ -53,8 +56,13 @@ const headers = [
 @bind
 export default class ApplicationsTable extends Component {
 
-  baseDataSelector ({ applications }) {
-    return applications
+  baseDataSelector (state) {
+    return {
+      applications: selectApplications(state),
+      totalCount: selectApplicationsTotalCount(state),
+      fetching: selectApplicationsFetching(state),
+      error: selectApplicationsError(state),
+    }
   }
 
   render () {
@@ -65,7 +73,7 @@ export default class ApplicationsTable extends Component {
         addMessage={sharedMessages.addApplication}
         tableTitle={this.tableTitle}
         getItemsAction={getApplicationsList}
-        searchItemsAction={searchApplicationsList}
+        searchItemsAction={getApplicationsList}
         tabs={tabs}
         baseDataSelector={this.baseDataSelector}
         {...this.props}

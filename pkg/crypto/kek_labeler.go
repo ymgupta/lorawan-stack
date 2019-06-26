@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.id
-  h2()
+package crypto
 
-.right-label
-  span::first-letter
-    text-transform: uppercase
+import (
+	"context"
+
+	"go.thethings.network/lorawan-stack/pkg/types"
+)
+
+// ComponentKEKLabeler provides KEK labels for components.
+type ComponentKEKLabeler interface {
+	NsKEKLabel(ctx context.Context, netID *types.NetID, addr string) string
+	AsKEKLabel(ctx context.Context, addr string) string
+}

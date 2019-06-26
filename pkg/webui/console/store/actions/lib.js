@@ -12,19 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  GET_APP_SUCCESS,
-} from '../actions/application'
+/* eslint-disable import/prefer-default-export */
 
-const defaultState = null
+import { createAction } from 'redux-actions'
 
-const application = function (state = defaultState, action) {
-  switch (action.type) {
-  case GET_APP_SUCCESS:
-    return action.application
-  default:
-    return state
-  }
+const createRequestActions = function (
+  baseType,
+  requestPayloadCreator,
+  requestMetaCreator,
+) {
+  const requestType = `${baseType}_REQUEST`
+  const successType = `${baseType}_SUCCESS`
+  const failureType = `${baseType}_FAILURE`
+
+  return [{
+    request: requestType,
+    success: successType,
+    failure: failureType,
+  }, {
+    request: createAction(requestType, requestPayloadCreator, requestMetaCreator),
+    success: createAction(successType),
+    failure: createAction(failureType),
+  }]
 }
 
-export default application
+export { createRequestActions }

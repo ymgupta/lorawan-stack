@@ -12,48 +12,53 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { getApplicationId } from '../../../lib/selectors/id'
 import {
-  GET_APPS_LIST,
-  SEARCH_APPS_LIST,
+  GET_APP,
+  GET_APP_SUCCESS,
   GET_APPS_LIST_SUCCESS,
-  GET_APPS_LIST_FAILURE,
 } from '../actions/applications'
 
-const defaultState = {
-  fetching: false,
-  fetchingSearch: false,
-  error: undefined,
-  applications: [],
-  totalCount: 0,
+const application = function (state = {}, application) {
+  return {
+    ...state,
+    ...application,
+  }
 }
 
-const applications = function (state = defaultState, action) {
-  switch (action.type) {
-  case GET_APPS_LIST:
+const defaultState = {
+  entities: {},
+  selectedApplication: null,
+}
+
+const applications = function (state = defaultState, { type, payload }) {
+  switch (type) {
+  case GET_APP:
     return {
       ...state,
-      fetching: true,
-    }
-  case SEARCH_APPS_LIST:
-    return {
-      ...state,
-      fetching: true,
-      fetchingSearch: true,
+      selectedApplication: payload.id,
     }
   case GET_APPS_LIST_SUCCESS:
+    const entities = payload.entities.reduce(function (acc, app) {
+      const id = getApplicationId(app)
+
+      acc[id] = application(acc[id], app)
+      return acc
+    }, { ...state.entities })
+
     return {
       ...state,
-      totalCount: action.totalCount,
-      applications: action.applications,
-      fetching: false,
-      fetchingSearch: false,
+      entities,
     }
-  case GET_APPS_LIST_FAILURE:
+  case GET_APP_SUCCESS:
+    const id = getApplicationId(payload)
+
     return {
       ...state,
-      fetching: false,
-      fetchingSearch: false,
-      error: action.error,
+      entities: {
+        ...state.entities,
+        [id]: application(state[id], payload),
+      },
     }
   default:
     return state

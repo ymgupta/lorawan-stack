@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.submit-bar
-  border-dark('top')
-  display: flex
-  justify-content: space-between
-  background-color: $c-divider-subtle
-  padding: $cs.m
+import * as user from '../../actions/user'
+import api from '../../../api'
+import * as accessToken from '../../../lib/access-token'
+import createRequestLogic from './lib'
 
-.right-label
-  span::first-letter
-    text-transform: uppercase
-
+export default [
+  createRequestLogic({
+    type: user.LOGOUT,
+    async process () {
+      await api.console.logout()
+      accessToken.clear()
+      return true
+    },
+  }),
+]

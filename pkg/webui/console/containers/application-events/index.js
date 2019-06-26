@@ -21,12 +21,12 @@ import EventsSubscription from '../../containers/events-subscription'
 
 import {
   clearApplicationEventsStream,
-} from '../../store/actions/application'
+} from '../../store/actions/applications'
 
 import {
-  applicationEventsSelector,
-  applicationEventsStatusSelector,
-} from '../../store/selectors/application'
+  selectApplicationEvents,
+  selectApplicationEventsStatus,
+} from '../../store/selectors/applications'
 
 @connect(
   null,
@@ -46,8 +46,8 @@ class ApplicationEvents extends React.Component {
       <EventsSubscription
         id={appId}
         widget={widget}
-        eventsSelector={applicationEventsSelector}
-        statusSelector={applicationEventsStatusSelector}
+        eventsSelector={selectApplicationEvents}
+        statusSelector={selectApplicationEventsStatus}
         onClear={onClear}
         toAllUrl={`/console/applications/${appId}/data`}
       />

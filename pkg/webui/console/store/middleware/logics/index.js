@@ -12,6 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.right-label
-  span::first-letter
-    text-transform: uppercase
+import user from './user'
+import init from './init'
+import applications from './applications'
+import devices from './devices'
+import device from './device'
+import gateways from './gateways'
+import gateway from './gateway'
+import configuration from './configuration'
+
+export default [
+  ...user,
+  ...init,
+  ...applications,
+  ...devices,
+  ...device,
+  ...gateways,
+  ...gateway,
+  ...configuration,
+]

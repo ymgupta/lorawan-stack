@@ -12,22 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { createLogic } from 'redux-logic'
+import { createRequestActions } from './lib'
 
-import api from '../../api'
-import * as client from '../actions/client'
+export const createPaginationBaseActionType = name => (
+  `GET_${name}_LIST`
+)
 
-const clientLogic = createLogic({
-  type: client.GET_CLIENT,
-  async process ({ getState, action }, dispatch, done) {
-    try {
-      const result = await api.clients.get(action.clientId)
-      dispatch(client.getClientSuccess(result.data))
-    } catch (error) {
-      dispatch(client.getClientFailure(action.clientId))
-    }
-    done()
-  },
-})
+export const createPaginationByIdRequestActions = name => createRequestActions(
+  createPaginationBaseActionType(name),
+  (id, { page, limit, query } = {}) => ({ id, params: { page, limit, query }}),
+  (id, params, selectors) => ({ selectors })
+)
 
-export default clientLogic
+export const createPaginationRequestActions = name => createRequestActions(
+  createPaginationBaseActionType(name),
+  ({ page, limit, query } = {}) => ({ params: { page, limit, query }}),
+  (params, selectors) => ({ selectors })
+)

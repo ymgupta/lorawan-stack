@@ -26,42 +26,45 @@ import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import { ApiKeyEditForm } from '../../../components/api-key-form'
 
-import { getApplicationApiKey } from '../../store/actions/application'
-import { getApplicationsRightsList } from '../../store/actions/applications'
 import {
-  applicationRightsSelector,
-  applicationRightsErrorSelector,
-  applicationRightsFetchingSelector,
-  applicationKeySelector,
-  applicationKeyErrorSelector,
-  applicationKeyFetchingSelector,
-} from '../../store/selectors/application'
+  getApplicationApiKey,
+  getApplicationsRightsList,
+} from '../../store/actions/applications'
+import {
+  selectSelectedApplicationId,
+  selectApplicationRights,
+  selectApplicationUniversalRights,
+  selectApplicationRightsError,
+  selectApplicationRightsFetching,
+  selectApplicationApiKey,
+  selectApplicationApiKeyError,
+  selectApplicationApiKeyFetching,
+} from '../../store/selectors/applications'
 
 import api from '../../api'
 
 @connect(function (state, props) {
-  const { appId, apiKeyId } = props.match.params
+  const { apiKeyId } = props.match.params
 
-  const keyFetching = applicationKeyFetchingSelector(state)
-  const rightsFetching = applicationRightsFetchingSelector(state, props)
-  const keyError = applicationKeyErrorSelector(state)
-  const rightsError = applicationRightsErrorSelector(state, props)
-  const apiKey = applicationKeySelector(state)
-  const rights = applicationRightsSelector(state, props)
+  const keyFetching = selectApplicationApiKeyFetching(state)
+  const rightsFetching = selectApplicationRightsFetching(state)
+  const keyError = selectApplicationApiKeyError(state)
+  const rightsError = selectApplicationRightsError(state)
 
   return {
     keyId: apiKeyId,
-    appId,
-    apiKey,
-    rights,
+    appId: selectSelectedApplicationId(state),
+    apiKey: selectApplicationApiKey(state),
+    rights: selectApplicationRights(state),
+    universalRights: selectApplicationUniversalRights(state),
     fetching: keyFetching || rightsFetching,
     error: keyError || rightsError,
   }
 },
 dispatch => ({
-  loadPageData (appId, apiKeyId) {
+  async loadPageData (appId, apiKeyId) {
+    await dispatch(getApplicationsRightsList(appId))
     dispatch(getApplicationApiKey(appId, apiKeyId))
-    dispatch(getApplicationsRightsList(appId))
   },
   deleteSuccess: appId => dispatch(replace(`/console/applications/${appId}/api-keys`)),
 }))
@@ -103,7 +106,7 @@ export default class ApplicationApiKeyEdit extends React.Component {
   }
 
   render () {
-    const { apiKey, rights, fetching, error } = this.props
+    const { apiKey, rights, fetching, error, universalRights } = this.props
 
     if (error) {
       throw error
@@ -125,6 +128,7 @@ export default class ApplicationApiKeyEdit extends React.Component {
           <Col lg={8} md={12}>
             <ApiKeyEditForm
               rights={rights}
+              universalRights={universalRights}
               apiKey={apiKey}
               onEdit={this.editApplicationKey}
               onDelete={this.deleteApplicationKey}

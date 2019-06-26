@@ -1205,6 +1205,15 @@
       "file": "gateways.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:gateway_server_disabled": {
+    "translations": {
+      "en": "Gateway Server is disabled"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_devices.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:inconsistent_end_device_eui": {
     "translations": {
       "en": "given end device EUIs do not match registered EUIs"
@@ -4013,9 +4022,18 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/joinserver:lorawan_version": {
+  "error:pkg/joinserver:lorawan_major_version": {
     "translations": {
-      "en": "unsupported LoRaWAN version: {version}"
+      "en": "unsupported LoRaWAN major version: `{major}`"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/joinserver:mac_version": {
+    "translations": {
+      "en": "unsupported MAC version: `{version}`"
     },
     "description": {
       "package": "pkg/joinserver",
@@ -4241,6 +4259,15 @@
   "error:pkg/joinserver:unknown_app_eui": {
     "translations": {
       "en": "AppEUI specified is not known"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/joinserver:wrap_key": {
+    "translations": {
+      "en": "failed to wrap key"
     },
     "description": {
       "package": "pkg/joinserver",

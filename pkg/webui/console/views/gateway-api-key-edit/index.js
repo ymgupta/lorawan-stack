@@ -28,44 +28,40 @@ import { ApiKeyEditForm } from '../../../components/api-key-form'
 
 import { getGatewayApiKey } from '../../store/actions/gateway'
 import { getGatewaysRightsList } from '../../store/actions/gateways'
-import { getGatewayId } from '../../../lib/selectors/id'
 import {
-  gatewaySelector,
-  gatewayRightsSelector,
-  gatewayRightsErrorSelector,
-  gatewayRightsFetchingSelector,
-  gatewayKeySelector,
-  gatewayKeyErrorSelector,
-  gatewayKeyFetchingSelector,
+  selectSelectedGatewayId,
+  selectGatewayRights,
+  selectGatewayUniversalRights,
+  selectGatewayRightsError,
+  selectGatewayRightsFetching,
+  selectGatewayApiKey,
+  selectGatewayApiKeyError,
+  selectGatewayApiKeyFetching,
 } from '../../store/selectors/gateway'
 
 import api from '../../api'
 
 @connect(function (state, props) {
-  const gateway = gatewaySelector(state, props)
-  const gtwId = getGatewayId(gateway)
   const apiKeyId = props.match.params.apiKeyId
-
-  const keyFetching = gatewayKeyFetchingSelector(state)
-  const rightsFetching = gatewayRightsFetchingSelector(state, props)
-  const keyError = gatewayKeyErrorSelector(state)
-  const apiKey = gatewayKeySelector(state)
-  const rightsError = gatewayRightsErrorSelector(state, props)
-  const rights = gatewayRightsSelector(state, props)
+  const keyFetching = selectGatewayApiKeyFetching(state)
+  const rightsFetching = selectGatewayRightsFetching(state)
+  const keyError = selectGatewayApiKeyError(state)
+  const rightsError = selectGatewayRightsError(state)
 
   return {
     keyId: apiKeyId,
-    gtwId,
-    apiKey,
-    rights,
+    gtwId: selectSelectedGatewayId(state),
+    apiKey: selectGatewayApiKey(state),
+    rights: selectGatewayRights(state),
+    universalRights: selectGatewayUniversalRights(state),
     fetching: keyFetching || rightsFetching,
     error: keyError || rightsError,
   }
 },
 dispatch => ({
-  loadPageData (gtwId, apiKeyId) {
+  async loadPageData (gtwId, apiKeyId) {
+    await dispatch(getGatewaysRightsList(gtwId))
     dispatch(getGatewayApiKey(gtwId, apiKeyId))
-    dispatch(getGatewaysRightsList(gtwId))
   },
   deleteSuccess: gtwId => dispatch(replace(`/console/gateways/${gtwId}/api-keys`)),
 }))
@@ -107,7 +103,7 @@ export default class GatewayApiKeyEdit extends React.Component {
   }
 
   render () {
-    const { apiKey, rights, fetching, error } = this.props
+    const { apiKey, rights, fetching, error, universalRights } = this.props
 
     if (error) {
       throw error
@@ -129,6 +125,7 @@ export default class GatewayApiKeyEdit extends React.Component {
           <Col lg={8} md={12}>
             <ApiKeyEditForm
               rights={rights}
+              universalRights={universalRights}
               apiKey={apiKey}
               onEdit={this.editGatewayKey}
               onDelete={this.deleteGatewayKey}

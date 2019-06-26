@@ -18,4 +18,5 @@ package crypto
 type KeyVault interface {
 	Wrap(plaintext []byte, kekLabel string) ([]byte, error)
 	Unwrap(ciphertext []byte, kekLabel string) ([]byte, error)
+	ComponentKEKLabeler
 }
