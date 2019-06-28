@@ -14,6 +14,7 @@
 
 import createApiKeysRequestActions, { createGetApiKeysListActionType } from './api-keys'
 import createApiKeyRequestActions, { createGetApiKeyActionType } from './api-key'
+import { createGetCollaboratorsListActionType } from './collaborators'
 
 import {
   startEventsStream,
@@ -44,6 +45,20 @@ export const [{
 }] = createRequestActions(GET_GTW_BASE,
   id => ({ id }),
   (id, selector) => ({ selector })
+)
+
+export const UPDATE_GTW_BASE = 'UPDATE_GATEWAY'
+export const [{
+  request: UPDATE_GTW,
+  success: UPDATE_GTW_SUCCESS,
+  failure: UPDATE_GTW_FAILURE,
+}, {
+  request: updateGateway,
+  success: updateGatewaySuccess,
+  failure: updateGatewayFailure,
+}] = createRequestActions(UPDATE_GTW_BASE,
+  (gatewayId, patch) => ({ gatewayId, patch }),
+  (gatewayId, patch, selector) => ({ selector })
 )
 
 export const UPDATE_GTW_STATS_BASE = 'UPDATE_GATEWAY_STATISTICS'
@@ -79,7 +94,17 @@ export const [{
   failure: getGatewayApiKeysListFailure,
 }] = createApiKeysRequestActions(SHARED_NAME)
 
-export const UPDATE_GTW = 'UPDATE_GATEWAY'
+export const GET_GTW_COLLABORATORS_LIST_BASE = createGetCollaboratorsListActionType(SHARED_NAME)
+export const [{
+  request: GET_GTW_COLLABORATORS_LIST,
+  success: GET_GTW_COLLABORATORS_LIST_SUCCESS,
+  failure: GET_GTW_COLLABORATORS_LIST_FAILURE,
+}, {
+  request: getGatewayCollaboratorsList,
+  success: getGatewayCollaboratorsListSuccess,
+  failure: getGatewayCollaboratorsListFailure,
+}] = createRequestActions(GET_GTW_COLLABORATORS_LIST_BASE, (gtwId, { page, limit } = {}) => ({ gtwId, params: { page, limit }}))
+
 export const START_GTW_STATS = 'START_GATEWAY_STATISTICS'
 export const STOP_GTW_STATS = 'STOP_GATEWAY_STATISTICS'
 export const UPDATE_GTW_STATS_UNAVAILABLE = 'UPDATE_GATEWAY_STATISTICS_UNAVAILABLE'
@@ -88,10 +113,6 @@ export const START_GTW_EVENT_STREAM_SUCCESS = createStartEventsStreamSuccessActi
 export const START_GTW_EVENT_STREAM_FAILURE = createStartEventsStreamFailureActionType(SHARED_NAME)
 export const STOP_GTW_EVENT_STREAM = createStopEventsStreamActionType(SHARED_NAME)
 export const CLEAR_GTW_EVENTS = createClearEventsActionType(SHARED_NAME)
-
-export const updateGateway = (id, patch) => (
-  { type: UPDATE_GTW, id, patch }
-)
 
 export const startGatewayStatistics = (id, meta) => (
   { type: START_GTW_STATS, id, meta }

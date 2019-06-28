@@ -67,6 +67,7 @@ export default combineReducers({
   }),
   collaborators: combineReducers({
     applications: createNamedCollaboratorsReducer(APPLICATION_SHARED_NAME),
+    gateways: createNamedCollaboratorsReducer(GATEWAY_SHARED_NAME),
   }),
   events: combineReducers({
     applications: createNamedEventsReducer(APPLICATION_SHARED_NAME),
@@ -79,7 +80,7 @@ export default combineReducers({
   }),
   pagination: combineReducers({
     applications: createNamedPaginationReducer(
-      APPLICATIONS_SHARED_NAME,
+      APPLICATION_SHARED_NAME,
       getApplicationId
     ),
   }),
