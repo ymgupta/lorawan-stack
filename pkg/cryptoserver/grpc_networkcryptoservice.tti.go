@@ -7,27 +7,35 @@ import (
 
 	"go.thethings.network/lorawan-stack/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
-	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoservices"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 type networkCryptoServiceServer struct {
-	Network        cryptoservices.Network
-	KeyVault       crypto.KeyVault
-	ExposeRootKeys bool
+	Provisioners Provisioners
+	KeyVault     crypto.KeyVault
 }
+
+var errNoNetworkService = errors.DefineFailedPrecondition("no_network_service", "no network service provided by provisioner `{id}`")
 
 func (s networkCryptoServiceServer) JoinRequestMIC(ctx context.Context, req *ttnpb.CryptoServicePayloadRequest) (*ttnpb.CryptoServicePayloadResponse, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
+	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	mic, err := s.Network.JoinRequestMIC(ctx, dev, req.LoRaWANVersion, req.Payload)
+	mic, err := provisioner.Network.JoinRequestMIC(ctx, dev, req.LoRaWANVersion, req.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -40,12 +48,19 @@ func (s networkCryptoServiceServer) JoinAcceptMIC(ctx context.Context, req *ttnp
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	mic, err := s.Network.JoinAcceptMIC(ctx, dev, req.LoRaWANVersion, byte(req.JoinRequestType), req.DevNonce, req.Payload)
+	mic, err := provisioner.Network.JoinAcceptMIC(ctx, dev, req.LoRaWANVersion, byte(req.JoinRequestType), req.DevNonce, req.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -58,12 +73,19 @@ func (s networkCryptoServiceServer) EncryptJoinAccept(ctx context.Context, req *
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	data, err := s.Network.EncryptJoinAccept(ctx, dev, req.LoRaWANVersion, req.Payload)
+	data, err := provisioner.Network.EncryptJoinAccept(ctx, dev, req.LoRaWANVersion, req.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -76,12 +98,19 @@ func (s networkCryptoServiceServer) EncryptRejoinAccept(ctx context.Context, req
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	data, err := s.Network.EncryptRejoinAccept(ctx, dev, req.LoRaWANVersion, req.Payload)
+	data, err := provisioner.Network.EncryptRejoinAccept(ctx, dev, req.LoRaWANVersion, req.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -94,12 +123,19 @@ func (s networkCryptoServiceServer) DeriveNwkSKeys(ctx context.Context, req *ttn
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
+	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	nwkSKeys, err := s.Network.DeriveNwkSKeys(ctx, dev, req.LoRaWANVersion, req.JoinNonce, req.DevNonce, req.NetID)
+	nwkSKeys, err := provisioner.Network.DeriveNwkSKeys(ctx, dev, req.LoRaWANVersion, req.JoinNonce, req.DevNonce, req.NetID)
 	if err != nil {
 		return nil, err
 	}
@@ -120,14 +156,20 @@ func (s networkCryptoServiceServer) DeriveNwkSKeys(ctx context.Context, req *ttn
 	return res, nil
 }
 
+var errRootKeysNotExposed = errors.DefinePermissionDenied("root_keys_not_exposed", "root keys are not being exposed")
+
 func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
-	if s.Network == nil {
-		return nil, errServiceNotSupported
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
 	}
-	if !s.ExposeRootKeys {
+	if provisioner.Network == nil {
+		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
+	}
+	if !provisioner.ExposeRootKeys {
 		return nil, errRootKeysNotExposed
 	}
 	dev := &ttnpb.EndDevice{
@@ -135,7 +177,7 @@ func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.Ge
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	nwkKey, err := s.Network.GetNwkKey(ctx, dev)
+	nwkKey, err := provisioner.Network.GetNwkKey(ctx, dev)
 	if err != nil {
 		return nil, err
 	}

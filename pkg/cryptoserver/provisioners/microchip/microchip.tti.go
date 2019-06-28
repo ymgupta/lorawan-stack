@@ -17,8 +17,12 @@ type KeyLoaderFunc func(ctx context.Context) (map[string]Key, error)
 
 // Config represents Microchip crypto service configuration.
 type Config struct {
+	Enabled bool `name:"enabled"`
+
 	LoadKeysFunc       KeyLoaderFunc `name:"-"`
 	ReloadKeysInterval time.Duration `name:"reload-keys-interval" description:"Interval to reload keys"`
+
+	ExposeRootKeys bool `name:"expose-root-keys" description:"Expose root keys"`
 
 	GCPProjectID string `name:"gcp-project-id" description:"Google Cloud Platform project ID"`
 	GCPPartKind  string `name:"gcp-part-kind" description:"Google Cloud Platform Datastore part kind"`
@@ -31,7 +35,7 @@ type impl struct {
 
 var errKeyLoader = errors.DefineFailedPrecondition("key_loader", "invalid key loader")
 
-// New returns a new Microchip crypto service provider.
+// New returns a new Microchip provisioner.
 func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, error) {
 	loadKeysFunc := conf.LoadKeysFunc
 	if loadKeysFunc == nil {
@@ -50,7 +54,7 @@ func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, 
 		parentKeys: make(map[string]Key),
 	}
 
-	ctx = log.NewContextWithField(ctx, "namespace", "cryptoserver/providers/microchip")
+	ctx = log.NewContextWithField(ctx, "namespace", "cryptoserver/provisioners/microchip")
 	logger := log.FromContext(ctx)
 	loadKeys := func() error {
 		logger.Debug("Load keys")

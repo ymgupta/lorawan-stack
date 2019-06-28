@@ -7,27 +7,35 @@ import (
 
 	"go.thethings.network/lorawan-stack/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
-	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoservices"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 type applicationCryptoServiceServer struct {
-	Application    cryptoservices.Application
-	KeyVault       crypto.KeyVault
-	ExposeRootKeys bool
+	Provisioners Provisioners
+	KeyVault     crypto.KeyVault
 }
+
+var errNoApplicationService = errors.DefineFailedPrecondition("no_application_service", "no application service provided by provisioner `{id}`")
 
 func (s applicationCryptoServiceServer) DeriveAppSKey(ctx context.Context, req *ttnpb.DeriveSessionKeysRequest) (*ttnpb.AppSKeyResponse, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
+	}
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
+	}
+	if provisioner.Application == nil {
+		return nil, errNoApplicationService.WithAttributes("id", req.ProvisionerID)
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	appSKey, err := s.Application.DeriveAppSKey(ctx, dev, req.LoRaWANVersion, req.JoinNonce, req.DevNonce, req.NetID)
+	appSKey, err := provisioner.Application.DeriveAppSKey(ctx, dev, req.LoRaWANVersion, req.JoinNonce, req.DevNonce, req.NetID)
 	if err != nil {
 		return nil, err
 	}
@@ -44,10 +52,14 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
 	}
-	if s.Application == nil {
-		return nil, errServiceNotSupported
+	provisioner, err := s.Provisioners.Get(req.ProvisionerID)
+	if err != nil {
+		return nil, err
 	}
-	if !s.ExposeRootKeys {
+	if provisioner.Application == nil {
+		return nil, errNoApplicationService.WithAttributes("id", req.ProvisionerID)
+	}
+	if !provisioner.ExposeRootKeys {
 		return nil, errRootKeysNotExposed
 	}
 	dev := &ttnpb.EndDevice{
@@ -55,7 +67,7 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 		ProvisionerID:        req.ProvisionerID,
 		ProvisioningData:     req.ProvisioningData,
 	}
-	appKey, err := s.Application.GetAppKey(ctx, dev)
+	appKey, err := provisioner.Application.GetAppKey(ctx, dev)
 	if err != nil {
 		return nil, err
 	}
