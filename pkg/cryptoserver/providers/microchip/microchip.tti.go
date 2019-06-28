@@ -41,7 +41,7 @@ func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, 
 			if partKind == "" {
 				partKind = "part"
 			}
-			loadKeysFunc = LoadKeysFromGCP(conf.GCPProjectID, partKind)
+			loadKeysFunc = NewGCPKeyLoader(conf.GCPProjectID, partKind)
 		default:
 			return nil, errKeyLoader
 		}
@@ -53,7 +53,7 @@ func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, 
 	ctx = log.NewContextWithField(ctx, "namespace", "cryptoserver/providers/microchip")
 	logger := log.FromContext(ctx)
 	loadKeys := func() error {
-		logger.Debug("Loading keys")
+		logger.Debug("Load keys")
 		keys, err := loadKeysFunc(ctx)
 		if err != nil {
 			return err

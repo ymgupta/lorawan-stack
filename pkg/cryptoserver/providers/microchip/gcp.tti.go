@@ -20,11 +20,11 @@ type gcpPart struct {
 	KEK           string         `datastore:"kek,noindex"`
 }
 
-// LoadKeysFromGCP returns a key loader that loads keys from Google Cloud Platform.
-// Parts are stored as Datastore entities with kind `part`. The part number is the key of the entity.
-// The encrypted parent key is loaded from the bucket `key-bucket` and data object `key-data-object`.
+// NewGCPKeyLoader returns a key loader that loads keys from Google Cloud Platform.
+// Parts are stored as Datastore entities with the given kind. The part number is the key of the entity.
+// The encrypted parent key is loaded from the bucket `key_bucket` and data object `key_data_object`.
 // The parent key is decrypted using the asymmetric KMS key `kek`.
-func LoadKeysFromGCP(projectID, kind string) KeyLoaderFunc {
+func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 	return func(ctx context.Context) (map[string]Key, error) {
 		logger := log.FromContext(ctx).WithField("gcp_project_id", projectID)
 		partsClient, err := datastore.NewClient(ctx, projectID)
@@ -37,7 +37,7 @@ func LoadKeysFromGCP(projectID, kind string) KeyLoaderFunc {
 		}
 		keys := make(map[string]Key)
 		for _, part := range parts {
-			logger.WithField("part_number", part.Name.Name).Debug("Loading part")
+			logger.WithField("part_number", part.Name.Name).Debug("Load part")
 			storageClient, err := storage.NewClient(ctx)
 			if err != nil {
 				return nil, err
