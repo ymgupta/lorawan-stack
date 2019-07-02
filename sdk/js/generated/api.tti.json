@@ -430,11 +430,33 @@
       "package": "tti.lorawan.v3",
       "hasEnums": false,
       "hasExtensions": false,
-      "hasMessages": false,
+      "hasMessages": true,
       "hasServices": true,
       "enums": [],
       "extensions": [],
-      "messages": [],
+      "messages": [
+        {
+          "name": "GetTenantIdentifiersForGatewayEUIRequest",
+          "longName": "GetTenantIdentifiersForGatewayEUIRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
       "services": [
         {
           "name": "TenantRegistry",
@@ -553,6 +575,18 @@
                   ]
                 }
               }
+            },
+            {
+              "name": "GetIdentifiersForGatewayEUI",
+              "description": "",
+              "requestType": "GetTenantIdentifiersForGatewayEUIRequest",
+              "requestLongType": "GetTenantIdentifiersForGatewayEUIRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
+              "requestStreaming": false,
+              "responseType": "TenantIdentifiers",
+              "responseLongType": "TenantIdentifiers",
+              "responseFullType": "tti.lorawan.v3.TenantIdentifiers",
+              "responseStreaming": false
             }
           ]
         }

@@ -31,3 +31,87 @@ var (
 	_ = (*mail.Address)(nil)
 	_ = types.DynamicAny{}
 )
+
+// ValidateFields checks the field values on
+// GetTenantIdentifiersForGatewayEUIRequest with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *GetTenantIdentifiersForGatewayEUIRequest) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = GetTenantIdentifiersForGatewayEUIRequestFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "eui":
+			// no validation rules for EUI
+		default:
+			return GetTenantIdentifiersForGatewayEUIRequestValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// GetTenantIdentifiersForGatewayEUIRequestValidationError is the validation
+// error returned by GetTenantIdentifiersForGatewayEUIRequest.ValidateFields
+// if the designated constraints aren't met.
+type GetTenantIdentifiersForGatewayEUIRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) ErrorName() string {
+	return "GetTenantIdentifiersForGatewayEUIRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetTenantIdentifiersForGatewayEUIRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetTenantIdentifiersForGatewayEUIRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetTenantIdentifiersForGatewayEUIRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetTenantIdentifiersForGatewayEUIRequestValidationError{}
