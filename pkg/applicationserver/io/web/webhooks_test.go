@@ -32,6 +32,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
@@ -390,6 +391,7 @@ func TestWebhooks(t *testing.T) {
 					}
 					req.Header.Set("Content-Type", "application/json")
 					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tc.Key))
+					req.Header.Set("X-Forwarded-Host", fmt.Sprintf("%v.test", tenant.FromContext(ctx).TenantID))
 					res, err := http.DefaultClient.Do(req)
 					if !a.So(err, should.BeNil) {
 						t.FailNow()
