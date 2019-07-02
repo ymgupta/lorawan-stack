@@ -5351,7 +5351,16 @@
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.go"
+      "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/unique:missing_tenant_id": {
+    "translations": {
+      "en": "missing tenant ID"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
     }
   },
   "error:pkg/unique:unique_identifier": {
@@ -5360,7 +5369,7 @@
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.go"
+      "file": "unique.tti.go"
     }
   },
   "error:pkg/validate:email": {
