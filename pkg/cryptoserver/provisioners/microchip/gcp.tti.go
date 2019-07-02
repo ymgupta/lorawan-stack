@@ -29,29 +29,39 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 		logger := log.FromContext(ctx).WithField("gcp_project_id", projectID)
 		partsClient, err := datastore.NewClient(ctx, projectID)
 		if err != nil {
+			logger.WithError(err).Warn("Failed to create Datastore client")
 			return nil, err
 		}
 		var parts []gcpPart
 		if _, err := partsClient.GetAll(ctx, datastore.NewQuery(kind), &parts); err != nil {
+			logger.WithError(err).WithField("kind", kind).Warn("Failed to get parts")
 			return nil, err
 		}
 		keys := make(map[string]Key)
 		for _, part := range parts {
-			logger.WithField("part_number", part.Name.Name).Debug("Load part")
+			logger := logger.WithField("part_number", part.Name.Name)
+			logger.Debug("Load part")
 			storageClient, err := storage.NewClient(ctx)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to create Storage client")
 				return nil, err
 			}
 			reader, err := storageClient.Bucket(part.KeyBucket).Object(part.KeyDataObject).NewReader(ctx)
 			if err != nil {
+				logger.WithError(err).WithFields(log.Fields(
+					"key_bucket", part.KeyBucket,
+					"key_data_object", part.KeyDataObject,
+				)).Warn("Failed to create data object reader")
 				return nil, err
 			}
 			encryptedKey, err := ioutil.ReadAll(reader)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to read data object")
 				return nil, err
 			}
 			kmsClient, err := kms.NewKeyManagementClient(ctx)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to create KMS client")
 				return nil, err
 			}
 			response, err := kmsClient.AsymmetricDecrypt(ctx, &kmspb.AsymmetricDecryptRequest{
@@ -59,6 +69,7 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 				Ciphertext: encryptedKey,
 			})
 			if err != nil {
+				logger.WithError(err).WithField("kek", part.KEK).Warn("Failed to decrypt KEK")
 				return nil, err
 			}
 			var key Key
