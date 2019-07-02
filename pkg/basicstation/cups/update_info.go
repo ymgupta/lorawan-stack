@@ -72,6 +72,10 @@ func (s *Server) getOrRegisterGateway(ctx context.Context, req UpdateInfoRequest
 	serverAuth := s.getAuth(ctx, req.Router.EUI64, authHeader)
 
 	logger.Info("Finding gateway...")
+	ctx, err = s.getContextForGatewayEUI(ctx, req.Router.EUI64, serverAuth)
+	if err != nil {
+		return nil, err
+	}
 	ids, err := s.getRegistry(ctx, nil).GetIdentifiersForEUI(ctx, &ttnpb.GetGatewayIdentifiersForEUIRequest{
 		EUI: req.Router.EUI64,
 	}, serverAuth)
