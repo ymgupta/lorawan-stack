@@ -37,6 +37,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/log/middleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/version"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"golang.org/x/crypto/acme/autocert"
@@ -88,6 +89,8 @@ type Component struct {
 	rightsFetcher rights.Fetcher
 
 	tasks []task
+
+	DefaultTenantID ttipb.TenantIdentifiers
 }
 
 // Option allows extending the component when it is instantiated with New.
@@ -133,6 +136,8 @@ func New(logger log.Stack, config *Config, opts ...Option) (*Component, error) {
 
 		FrequencyPlans: config.FrequencyPlans.Store(),
 		KeyVault:       config.KeyVault.KeyVault(),
+
+		DefaultTenantID: ttipb.TenantIdentifiers{TenantID: config.Tenancy.DefaultID},
 	}
 
 	if config.Sentry.DSN != "" {

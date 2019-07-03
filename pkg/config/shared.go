@@ -256,4 +256,6 @@ type ServiceBase struct {
 	DeviceRepository DeviceRepositoryConfig `name:"device-repository" description:"Source of the device repository"`
 	Rights           Rights                 `name:"rights"`
 	KeyVault         KeyVault               `name:"key-vault"`
+
+	Tenancy Tenancy `name:"tenancy"`
 }
