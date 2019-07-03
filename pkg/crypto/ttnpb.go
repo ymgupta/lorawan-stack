@@ -12,15 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.tabs
-  box-sizing: border-box
-  list-style-type: none
-  padding: 0
-  height: 3rem
-  display: flex
+package crypto
 
-  .icon
-    margin-right: $cs.xs
+import "go.thethings.network/lorawan-stack/pkg/ttnpb"
 
-.divider
-  border-normal('bottom')
+func init() {
+	ttnpb.PopulatorConfig.LoRaWAN.ComputeUplinkMIC = ComputeUplinkMIC
+	ttnpb.PopulatorConfig.LoRaWAN.ComputeDownlinkMIC = ComputeDownlinkMIC
+}
