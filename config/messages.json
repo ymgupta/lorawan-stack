@@ -2303,67 +2303,94 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:key_loader": {
+  "error:pkg/cryptoserver/provisioners/microchip:key_loader": {
     "translations": {
       "en": "invalid key loader"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "microchip.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:mac_version": {
+  "error:pkg/cryptoserver/provisioners/microchip:mac_version": {
     "translations": {
       "en": "invalid MAC version"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:no_dev_eui": {
+  "error:pkg/cryptoserver/provisioners/microchip:no_dev_eui": {
     "translations": {
       "en": "no DevEUI specified"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:no_join_eui": {
+  "error:pkg/cryptoserver/provisioners/microchip:no_join_eui": {
     "translations": {
       "en": "no JoinEUI specified"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:part_number": {
+  "error:pkg/cryptoserver/provisioners/microchip:part_number": {
     "translations": {
       "en": "invalid part number `{part_number}`"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:provisioner": {
+  "error:pkg/cryptoserver/provisioners/microchip:provisioner": {
     "translations": {
       "en": "invalid provisioner `{id}`"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
     }
   },
-  "error:pkg/cryptoserver/providers/microchip:serial_number": {
+  "error:pkg/cryptoserver/provisioners/microchip:serial_number": {
     "translations": {
       "en": "invalid serial number `{serial_number}`"
     },
     "description": {
-      "package": "pkg/cryptoserver/providers/microchip",
+      "package": "pkg/cryptoserver/provisioners/microchip",
       "file": "cryptoservices.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver:no_application_service": {
+    "translations": {
+      "en": "no application service provided by provisioner `{id}`"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc_applicationcryptoservice.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver:no_network_service": {
+    "translations": {
+      "en": "no network service provided by provisioner `{id}`"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc_networkcryptoservice.tti.go"
+    }
+  },
+  "error:pkg/cryptoserver:provisioner_not_found": {
+    "translations": {
+      "en": "provisioner `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "provisioners.tti.go"
     }
   },
   "error:pkg/cryptoserver:root_keys_not_exposed": {
@@ -2372,16 +2399,7 @@
     },
     "description": {
       "package": "pkg/cryptoserver",
-      "file": "grpc.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:service_not_supported": {
-    "translations": {
-      "en": "crypto service not supported"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc.tti.go"
+      "file": "grpc_networkcryptoservice.tti.go"
     }
   },
   "error:pkg/devicerepository:fetch": {

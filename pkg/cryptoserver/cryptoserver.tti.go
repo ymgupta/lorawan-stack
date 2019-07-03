@@ -29,24 +29,17 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 		Component: c,
 	}
 
-	network, err := conf.NewNetwork(cs.Context())
+	provisioners, err := conf.NewProvisioners(cs.Context())
 	if err != nil {
 		return nil, err
 	}
-	application, err := conf.NewApplication(cs.Context())
-	if err != nil {
-		return nil, err
-	}
-
 	cs.grpc.networkCryptoService = &networkCryptoServiceServer{
-		Network:        network,
-		KeyVault:       cs.KeyVault,
-		ExposeRootKeys: conf.ExposeRootKeys,
+		Provisioners: provisioners,
+		KeyVault:     cs.KeyVault,
 	}
 	cs.grpc.applicationCryptoService = &applicationCryptoServiceServer{
-		Application:    application,
-		KeyVault:       cs.KeyVault,
-		ExposeRootKeys: conf.ExposeRootKeys,
+		Provisioners: provisioners,
+		KeyVault:     cs.KeyVault,
 	}
 
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NetworkCryptoService", cluster.HookName, c.ClusterAuthUnaryHook())

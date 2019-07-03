@@ -20,38 +20,48 @@ type gcpPart struct {
 	KEK           string         `datastore:"kek,noindex"`
 }
 
-// LoadKeysFromGCP returns a key loader that loads keys from Google Cloud Platform.
-// Parts are stored as Datastore entities with kind `part`. The part number is the key of the entity.
-// The encrypted parent key is loaded from the bucket `key-bucket` and data object `key-data-object`.
+// NewGCPKeyLoader returns a key loader that loads keys from Google Cloud Platform.
+// Parts are stored as Datastore entities with the given kind. The part number is the key of the entity.
+// The encrypted parent key is loaded from the bucket `key_bucket` and data object `key_data_object`.
 // The parent key is decrypted using the asymmetric KMS key `kek`.
-func LoadKeysFromGCP(projectID, kind string) KeyLoaderFunc {
+func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 	return func(ctx context.Context) (map[string]Key, error) {
 		logger := log.FromContext(ctx).WithField("gcp_project_id", projectID)
 		partsClient, err := datastore.NewClient(ctx, projectID)
 		if err != nil {
+			logger.WithError(err).Warn("Failed to create Datastore client")
 			return nil, err
 		}
 		var parts []gcpPart
 		if _, err := partsClient.GetAll(ctx, datastore.NewQuery(kind), &parts); err != nil {
+			logger.WithError(err).WithField("kind", kind).Warn("Failed to get parts")
 			return nil, err
 		}
 		keys := make(map[string]Key)
 		for _, part := range parts {
-			logger.WithField("part_number", part.Name.Name).Debug("Loading part")
+			logger := logger.WithField("part_number", part.Name.Name)
+			logger.Debug("Load part")
 			storageClient, err := storage.NewClient(ctx)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to create Storage client")
 				return nil, err
 			}
 			reader, err := storageClient.Bucket(part.KeyBucket).Object(part.KeyDataObject).NewReader(ctx)
 			if err != nil {
+				logger.WithError(err).WithFields(log.Fields(
+					"key_bucket", part.KeyBucket,
+					"key_data_object", part.KeyDataObject,
+				)).Warn("Failed to create data object reader")
 				return nil, err
 			}
 			encryptedKey, err := ioutil.ReadAll(reader)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to read data object")
 				return nil, err
 			}
 			kmsClient, err := kms.NewKeyManagementClient(ctx)
 			if err != nil {
+				logger.WithError(err).Warn("Failed to create KMS client")
 				return nil, err
 			}
 			response, err := kmsClient.AsymmetricDecrypt(ctx, &kmspb.AsymmetricDecryptRequest{
@@ -59,6 +69,7 @@ func LoadKeysFromGCP(projectID, kind string) KeyLoaderFunc {
 				Ciphertext: encryptedKey,
 			})
 			if err != nil {
+				logger.WithError(err).WithField("kek", part.KEK).Warn("Failed to decrypt KEK")
 				return nil, err
 			}
 			var key Key

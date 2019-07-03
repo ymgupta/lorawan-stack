@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/smartystreets/assertions"
-	. "go.thethings.network/lorawan-stack/pkg/cryptoserver/providers/microchip"
+	. "go.thethings.network/lorawan-stack/pkg/cryptoserver/provisioners/microchip"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )

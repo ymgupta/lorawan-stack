@@ -8,7 +8,7 @@ import (
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/smartystreets/assertions"
-	. "go.thethings.network/lorawan-stack/pkg/cryptoserver/providers/microchip"
+	. "go.thethings.network/lorawan-stack/pkg/cryptoserver/provisioners/microchip"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
