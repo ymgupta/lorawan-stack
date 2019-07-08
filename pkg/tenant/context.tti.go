@@ -17,12 +17,11 @@ var tenantIDKey = tenantIDKeyType{}
 
 // FromContext returns the current TenantIdentifier based on the given context.
 // Returns empty identifier if not found.
-func FromContext(ctx context.Context) (res ttipb.TenantIdentifiers) {
+func FromContext(ctx context.Context) ttipb.TenantIdentifiers {
 	if id, ok := ctx.Value(tenantIDKey).(ttipb.TenantIdentifiers); ok { // set by NewContext
-		res = id
-		return
+		return id
 	}
-	return
+	return ttipb.TenantIdentifiers{}
 }
 
 // NewContext returns a context containing the tenant identifier.

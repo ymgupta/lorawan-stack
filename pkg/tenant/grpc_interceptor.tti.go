@@ -13,24 +13,19 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func fromRPCContext(ctx context.Context) (res ttipb.TenantIdentifiers) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return
+func fromRPCContext(ctx context.Context) ttipb.TenantIdentifiers {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if id, ok := md["tenant-id"]; ok {
+			return ttipb.TenantIdentifiers{TenantID: id[0]}
+		}
+		if host, ok := md["x-forwarded-host"]; ok { // Set by gRPC gateway.
+			return ttipb.TenantIdentifiers{TenantID: tenantID(host[0])}
+		}
+		if authority, ok := md[":authority"]; ok { // Set by gRPC clients.
+			return ttipb.TenantIdentifiers{TenantID: tenantID(authority[0])}
+		}
 	}
-	if id, ok := md["tenant-id"]; ok {
-		res.TenantID = id[0]
-		return
-	}
-	if host, ok := md["x-forwarded-host"]; ok { // Set by gRPC gateway.
-		res.TenantID = tenantID(host[0])
-		return
-	}
-	if authority, ok := md[":authority"]; ok { // Set by gRPC clients.
-		res.TenantID = tenantID(authority[0])
-		return
-	}
-	return
+	return ttipb.TenantIdentifiers{}
 }
 
 // UnaryClientInterceptor is a gRPC interceptor that injects the tenant ID into the metadata.

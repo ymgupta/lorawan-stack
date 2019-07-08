@@ -11,20 +11,17 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
-func fromRequest(r *http.Request) (res ttipb.TenantIdentifiers) {
+func fromRequest(r *http.Request) ttipb.TenantIdentifiers {
 	if host := r.Header.Get("X-Forwarded-Host"); host != "" {
-		res.TenantID = tenantID(host)
-		return
+		return ttipb.TenantIdentifiers{TenantID: tenantID(host)}
 	}
 	if host := r.Host; host != "" {
-		res.TenantID = tenantID(host)
-		return
+		return ttipb.TenantIdentifiers{TenantID: tenantID(host)}
 	}
 	if tlsState := r.TLS; tlsState != nil {
-		res.TenantID = tenantID(tlsState.ServerName)
-		return
+		return ttipb.TenantIdentifiers{TenantID: tenantID(tlsState.ServerName)}
 	}
-	return
+	return ttipb.TenantIdentifiers{}
 }
 
 // Middleware is echo middleware for extracting tenant IDs from the request.
