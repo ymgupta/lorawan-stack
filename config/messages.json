@@ -3410,6 +3410,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:tenant_not_found": {
+    "translations": {
+      "en": "tenant `{tenant_id}` not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
   "error:pkg/identityserver/store:user_not_found": {
     "translations": {
       "en": "user `{user_id}` not found"

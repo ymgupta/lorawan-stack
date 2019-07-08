@@ -28,3 +28,16 @@ func init() {
 		return db
 	}
 }
+
+func withTenantID(id ...string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		switch len(id) {
+		case 0:
+			return db
+		case 1:
+			return db.Where("tenant_id = ?", id[0])
+		default:
+			return db.Where("tenant_id IN (?)", id).Order("tenant_id")
+		}
+	}
+}
