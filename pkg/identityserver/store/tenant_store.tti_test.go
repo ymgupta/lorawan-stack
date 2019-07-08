@@ -6,12 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gogo/protobuf/types"
+	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 )
 
@@ -41,7 +44,7 @@ func TestTenantStore(t *testing.T) {
 		a.So(created.CreatedAt, should.HappenAfter, time.Now().Add(-1*time.Hour))
 		a.So(created.UpdatedAt, should.HappenAfter, time.Now().Add(-1*time.Hour))
 
-		got, err := store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, &types.FieldMask{Paths: []string{"name", "attributes"}})
+		got, err := store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, &pbtypes.FieldMask{Paths: []string{"name", "attributes"}})
 		a.So(err, should.BeNil)
 		a.So(got.TenantID, should.Equal, "foo")
 		a.So(got.Name, should.Equal, "Foo Tenant")
@@ -66,7 +69,7 @@ func TestTenantStore(t *testing.T) {
 				"baz": "baz",
 				"qux": "foo",
 			},
-		}, &types.FieldMask{Paths: []string{"description", "attributes"}})
+		}, &pbtypes.FieldMask{Paths: []string{"description", "attributes"}})
 		a.So(err, should.BeNil)
 		a.So(updated.Description, should.Equal, "The Amazing Foobar Tenant")
 		a.So(updated.Attributes, should.HaveLength, 3)
@@ -82,7 +85,7 @@ func TestTenantStore(t *testing.T) {
 		a.So(got.CreatedAt, should.Equal, created.CreatedAt)
 		a.So(got.UpdatedAt, should.Equal, updated.UpdatedAt)
 
-		list, err := store.FindTenants(ctx, nil, &types.FieldMask{Paths: []string{"name"}})
+		list, err := store.FindTenants(ctx, nil, &pbtypes.FieldMask{Paths: []string{"name"}})
 		a.So(err, should.BeNil)
 		if a.So(list, should.HaveLength, 1) {
 			a.So(list[0].Name, should.EndWith, got.Name)
@@ -99,5 +102,31 @@ func TestTenantStore(t *testing.T) {
 		list, err = store.FindTenants(ctx, nil, nil)
 		a.So(err, should.BeNil)
 		a.So(list, should.BeEmpty)
+	})
+}
+
+func TestGetTenantIDForGatewayEUI(t *testing.T) {
+	a := assertions.New(t)
+	ctx := test.Context()
+
+	WithDB(t, func(t *testing.T, db *gorm.DB) {
+		prepareTest(db, &Tenant{}, &Gateway{})
+
+		eui := types.EUI64{1, 2, 3, 4, 5, 6, 7, 8}
+
+		_, err := GetGatewayStore(db).CreateGateway(ctx, &ttnpb.Gateway{
+			GatewayIdentifiers: ttnpb.GatewayIdentifiers{
+				GatewayID: "foo",
+				EUI:       &eui,
+			},
+			Name:        "Foo Gateway",
+			Description: "The Amazing Foo Gateway",
+		})
+		a.So(err, should.BeNil)
+
+		id, err := GetTenantStore(db).GetTenantIDForGatewayEUI(ctx, eui)
+		a.So(err, should.BeNil)
+
+		a.So(*id, should.Resemble, tenant.FromContext(ctx))
 	})
 }

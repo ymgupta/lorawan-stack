@@ -9,11 +9,13 @@ import (
 	"runtime/trace"
 	"strings"
 
-	"github.com/gogo/protobuf/types"
+	ptypes "github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/warning"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
 // GetTenantStore returns an TenantStore on the given db (or transaction).
@@ -26,7 +28,7 @@ type tenantStore struct {
 }
 
 // selectTenantFields selects relevant fields (based on fieldMask) and preloads details if needed.
-func selectTenantFields(ctx context.Context, query *gorm.DB, fieldMask *types.FieldMask) *gorm.DB {
+func selectTenantFields(ctx context.Context, query *gorm.DB, fieldMask *ptypes.FieldMask) *gorm.DB {
 	if fieldMask == nil || len(fieldMask.Paths) == 0 {
 		return query.Preload("Attributes")
 	}
@@ -66,7 +68,7 @@ func (s *tenantStore) CreateTenant(ctx context.Context, tnt *ttipb.Tenant) (*tti
 	return &tntProto, nil
 }
 
-func (s *tenantStore) FindTenants(ctx context.Context, ids []*ttipb.TenantIdentifiers, fieldMask *types.FieldMask) ([]*ttipb.Tenant, error) {
+func (s *tenantStore) FindTenants(ctx context.Context, ids []*ttipb.TenantIdentifiers, fieldMask *ptypes.FieldMask) ([]*ttipb.Tenant, error) {
 	defer trace.StartRegion(ctx, "find tenants").End()
 	idStrings := make([]string, len(ids))
 	for i, id := range ids {
@@ -93,7 +95,7 @@ func (s *tenantStore) FindTenants(ctx context.Context, ids []*ttipb.TenantIdenti
 	return tntProtos, nil
 }
 
-func (s *tenantStore) GetTenant(ctx context.Context, id *ttipb.TenantIdentifiers, fieldMask *types.FieldMask) (*ttipb.Tenant, error) {
+func (s *tenantStore) GetTenant(ctx context.Context, id *ttipb.TenantIdentifiers, fieldMask *ptypes.FieldMask) (*ttipb.Tenant, error) {
 	defer trace.StartRegion(ctx, "get tenant").End()
 	query := s.query(ctx, Tenant{}, withTenantID(id.GetTenantID()))
 	query = selectTenantFields(ctx, query, fieldMask)
@@ -109,7 +111,7 @@ func (s *tenantStore) GetTenant(ctx context.Context, id *ttipb.TenantIdentifiers
 	return tntProto, nil
 }
 
-func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, fieldMask *types.FieldMask) (updated *ttipb.Tenant, err error) {
+func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, fieldMask *ptypes.FieldMask) (updated *ttipb.Tenant, err error) {
 	defer trace.StartRegion(ctx, "update tenant").End()
 	query := s.query(ctx, Tenant{}, withTenantID(tnt.GetTenantID()))
 	query = selectTenantFields(ctx, query, fieldMask)
@@ -141,4 +143,19 @@ func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, field
 func (s *tenantStore) DeleteTenant(ctx context.Context, id *ttipb.TenantIdentifiers) error {
 	defer trace.StartRegion(ctx, "delete tenant").End()
 	return s.deleteEntity(ctx, id)
+}
+
+var errGatewayEUINotFound = errors.DefineNotFound("gateway_eui_not_found", "gateway eui `{eui}` not found")
+
+func (s *tenantStore) GetTenantIDForGatewayEUI(ctx context.Context, eui types.EUI64) (*ttipb.TenantIdentifiers, error) {
+	defer trace.StartRegion(ctx, "get tenant id for gateway eui").End()
+	query := s.query(ctx, nil, withGatewayEUI(EUI64(eui))).Select("tenant_id")
+	var gtwModel Gateway
+	if err := query.First(&gtwModel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errGatewayEUINotFound.WithAttributes("eui", eui.String())
+		}
+		return nil, err
+	}
+	return &ttipb.TenantIdentifiers{TenantID: gtwModel.TenantID}, nil
 }
