@@ -59,6 +59,9 @@ func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryS
 	if id := fromRPCContext(ctx); !id.IsZero() {
 		return handler(NewContext(ctx, id), req)
 	}
+	if err := UseEmptyID(); err != nil {
+		return nil, err
+	}
 	return handler(ctx, req)
 }
 
@@ -72,6 +75,9 @@ func StreamServerInterceptor(srv interface{}, stream grpc.ServerStream, _ *grpc.
 		wrapped := grpc_middleware.WrapServerStream(stream)
 		wrapped.WrappedContext = NewContext(ctx, id)
 		return handler(srv, wrapped)
+	}
+	if err := UseEmptyID(); err != nil {
+		return err
 	}
 	return handler(srv, stream)
 }

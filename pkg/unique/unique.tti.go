@@ -39,28 +39,18 @@ func ID(ctx context.Context, id ttnpb.Identifiers) (res string) {
 	if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
 		return fmt.Sprintf("%s@%s", res, tenantID)
 	}
-	if !allowEmptyTenantID {
-		panic(errMissingTenantID)
+	if err := tenant.UseEmptyID(); err != nil {
+		panic(err)
 	}
 	return res
 }
 
-// AllowEmptyTenantID makes the unique package allow tenant IDs to be missing.
-// This is useful in case a default tenant ID of "" is used.
-func AllowEmptyTenantID() {
-	allowEmptyTenantID = true
-}
-
-var allowEmptyTenantID bool
-
-var errMissingTenantID = errors.DefineInvalidArgument("missing_tenant_id", "missing tenant ID")
-
-func parse(uid string) (tenant, id string, err error) {
+func parse(uid string) (tenantID, id string, err error) {
 	if sepIdx := strings.Index(uid, "@"); sepIdx != -1 {
 		return uid[sepIdx+1:], uid[:sepIdx], nil
 	}
-	if !allowEmptyTenantID {
-		return "", uid, errMissingTenantID
+	if err := tenant.UseEmptyID(); err != nil {
+		return "", uid, err
 	}
 	return "", uid, nil
 }

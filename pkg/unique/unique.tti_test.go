@@ -10,6 +10,7 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -57,7 +58,7 @@ func TestValidity(t *testing.T) {
 }
 
 func TestToTenantID(t *testing.T) {
-	AllowEmptyTenantID()
+	tenant.AllowEmptyTenantID()
 	for _, tc := range []struct {
 		Name     string
 		UID      string

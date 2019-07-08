@@ -36,6 +36,8 @@ func Middleware(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 		if id := fromRequest(c.Request()); id.TenantID != "" {
 			c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
+		} else if err := UseEmptyID(); err != nil {
+			return err
 		}
 		return next(c)
 	}
