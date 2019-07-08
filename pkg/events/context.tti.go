@@ -31,6 +31,5 @@ func (tenantIDContextMarshaler) UnmarshalContext(ctx context.Context, b []byte) 
 }
 
 func init() {
-	var m tenantIDContextMarshaler
-	RegisterContextMarshaler("tenant-id", m)
+	RegisterContextMarshaler("tenant-id", tenantIDContextMarshaler{})
 }
