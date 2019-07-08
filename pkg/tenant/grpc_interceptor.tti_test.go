@@ -25,9 +25,9 @@ func TestGRPCInterceptor(t *testing.T) {
 		// Set X-Forwarded-Host (typically set by gRPC gateway)
 		{desc: "x-forwarded-host", ctx: metadata.NewIncomingContext(context.Background(), metadata.MD{"x-forwarded-host": []string{"foo-bar.nz.cluster.ttn"}})},
 	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			assertions.New(t).So(fromRPCContext(tC.ctx).TenantID, should.Equal, "foo-bar")
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			assertions.New(t).So(fromRPCContext(tc.ctx).TenantID, should.Equal, "foo-bar")
 		})
 	}
 }

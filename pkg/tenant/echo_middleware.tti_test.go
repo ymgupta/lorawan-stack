@@ -33,9 +33,9 @@ func TestEchoMiddleware(t *testing.T) {
 			},
 		},
 	}
-	for _, tC := range testCases {
-		t.Run(tC.desc, func(t *testing.T) {
-			assertions.New(t).So(fromRequest(tC.req()).TenantID, should.Equal, "foo-bar")
+	for _, tc := range testCases {
+		t.Run(tc.desc, func(t *testing.T) {
+			assertions.New(t).So(fromRequest(tc.req()).TenantID, should.Equal, "foo-bar")
 		})
 	}
 }
