@@ -116,7 +116,6 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	server.HTTPErrorHandler = ErrorHandler
 
 	server.Use(
-		tenant.Middleware,
 		middleware.ID(""),
 		echomiddleware.BodyLimit("16M"),
 		echomiddleware.Secure(),
@@ -130,6 +129,7 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 		rootGroup: &rootGroup{
 			Group: server.Group(
 				"",
+				tenant.Middleware,
 				middleware.Log(logger),
 				middleware.Normalize(middleware.RedirectPermanent),
 			),
