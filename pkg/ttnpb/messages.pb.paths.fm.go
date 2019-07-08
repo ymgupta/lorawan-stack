@@ -5,7 +5,6 @@ package ttnpb
 var UplinkMessageFieldPathsNested = []string{
 	"correlation_ids",
 	"device_channel_index",
-	"gateway_channel_index",
 	"payload",
 	"payload.Payload",
 	"payload.Payload.join_accept_payload",
@@ -76,7 +75,6 @@ var UplinkMessageFieldPathsNested = []string{
 var UplinkMessageFieldPathsTopLevel = []string{
 	"correlation_ids",
 	"device_channel_index",
-	"gateway_channel_index",
 	"payload",
 	"raw_payload",
 	"received_at",
@@ -324,23 +322,6 @@ var ApplicationInvalidatedDownlinksFieldPathsNested = []string{
 var ApplicationInvalidatedDownlinksFieldPathsTopLevel = []string{
 	"downlinks",
 	"last_f_cnt_down",
-}
-var DownlinkQueueOperationFieldPathsNested = []string{
-	"downlinks",
-	"end_device_ids",
-	"end_device_ids.application_ids",
-	"end_device_ids.application_ids.application_id",
-	"end_device_ids.dev_addr",
-	"end_device_ids.dev_eui",
-	"end_device_ids.device_id",
-	"end_device_ids.join_eui",
-	"operation",
-}
-
-var DownlinkQueueOperationFieldPathsTopLevel = []string{
-	"downlinks",
-	"end_device_ids",
-	"operation",
 }
 var ApplicationUpFieldPathsNested = []string{
 	"correlation_ids",

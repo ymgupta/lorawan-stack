@@ -19,6 +19,7 @@ import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
 
 import sharedMessages from '../../../lib/shared-messages'
+import errorMessages from '../../../lib/errors/error-messages'
 import diff from '../../../lib/diff'
 
 import DeviceDataForm from '../../containers/device-data-form'
@@ -59,9 +60,6 @@ export default class DeviceGeneralSettings extends React.Component {
       delete updatedDevice.ids.dev_eui
       delete updatedDevice.root_keys
       delete updatedDevice.resets_join_nonces
-      if (updatedDevice.session.dev_addr) {
-        updatedDevice.ids.dev_addr = updatedDevice.session.dev_addr
-      }
     }
 
     await this.setState({ error: '' })
@@ -78,7 +76,7 @@ export default class DeviceGeneralSettings extends React.Component {
       })
     } catch (error) {
       resetForm()
-      const err = error instanceof Error ? sharedMessages.genericError : error
+      const err = error instanceof Error ? errorMessages.genericError : error
       await this.setState({ error: err })
     }
   }

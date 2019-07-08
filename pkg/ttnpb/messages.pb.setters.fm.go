@@ -86,16 +86,6 @@ func (dst *UplinkMessage) SetFields(src *UplinkMessage, paths ...string) error {
 			} else {
 				dst.CorrelationIDs = nil
 			}
-		case "gateway_channel_index":
-			if len(subs) > 0 {
-				return fmt.Errorf("'gateway_channel_index' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.GatewayChannelIndex = src.GatewayChannelIndex
-			} else {
-				var zero uint32
-				dst.GatewayChannelIndex = zero
-			}
 		case "device_channel_index":
 			if len(subs) > 0 {
 				return fmt.Errorf("'device_channel_index' has no subfields, but %s were specified", subs)
@@ -673,54 +663,6 @@ func (dst *ApplicationInvalidatedDownlinks) SetFields(src *ApplicationInvalidate
 			} else {
 				var zero uint32
 				dst.LastFCntDown = zero
-			}
-
-		default:
-			return fmt.Errorf("invalid field: '%s'", name)
-		}
-	}
-	return nil
-}
-
-func (dst *DownlinkQueueOperation) SetFields(src *DownlinkQueueOperation, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
-		switch name {
-		case "end_device_ids":
-			if len(subs) > 0 {
-				newDst := &dst.EndDeviceIdentifiers
-				var newSrc *EndDeviceIdentifiers
-				if src != nil {
-					newSrc = &src.EndDeviceIdentifiers
-				}
-				if err := newDst.SetFields(newSrc, subs...); err != nil {
-					return err
-				}
-			} else {
-				if src != nil {
-					dst.EndDeviceIdentifiers = src.EndDeviceIdentifiers
-				} else {
-					var zero EndDeviceIdentifiers
-					dst.EndDeviceIdentifiers = zero
-				}
-			}
-		case "operation":
-			if len(subs) > 0 {
-				return fmt.Errorf("'operation' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.Operation = src.Operation
-			} else {
-				var zero DownlinkQueueOperation_Operation
-				dst.Operation = zero
-			}
-		case "downlinks":
-			if len(subs) > 0 {
-				return fmt.Errorf("'downlinks' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.Downlinks = src.Downlinks
-			} else {
-				dst.Downlinks = nil
 			}
 
 		default:
