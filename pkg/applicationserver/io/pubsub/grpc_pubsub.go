@@ -21,6 +21,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 )
@@ -97,7 +98,7 @@ func (ps *PubSub) Set(ctx context.Context, req *ttnpb.SetApplicationPubSubReques
 			"pub_sub_id", req.PubSubID,
 		)).WithError(err).Warn("Failed to cancel integration")
 	}
-	ps.startTask(ps.ctx, req.ApplicationPubSubIdentifiers)
+	ps.startTask(tenant.NewContext(ps.ctx, tenant.FromContext(ctx)), req.ApplicationPubSubIdentifiers)
 
 	res := &ttnpb.ApplicationPubSub{}
 	if err := res.SetFields(pubsub, req.FieldMask.Paths...); err != nil {
