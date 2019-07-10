@@ -66,8 +66,8 @@ github.com/SermoDigital/jose v0.9.1/go.mod h1:ARgCUhI1MHQH+ONky/PAtmVHQrP5JlGY0F
 github.com/SermoDigital/jose v0.9.2-0.20161205224733-f6df55f235c2/go.mod h1:ARgCUhI1MHQH+ONky/PAtmVHQrP5JlGY0F3poXOp/fA=
 github.com/Shopify/sarama v1.19.0/go.mod h1:FVkBWblsNy7DGZRfXLU0O9RCGt5g3g3yEuWXgklEdEo=
 github.com/Shopify/toxiproxy v2.1.4+incompatible/go.mod h1:OXgGpZ6Cli1/URJOF1DMxUHB2q5Ap20/P/eIdh4G0pI=
-github.com/TheThingsIndustries/grpc-gateway v1.9.3-gogo h1:Tq6WBaw2k3rUw83R11TV3GzGlSMLW7z67ObL4JlqmkY=
-github.com/TheThingsIndustries/grpc-gateway v1.9.3-gogo/go.mod h1:Wv44KgvFSS8t9FiH6YJ8LZxSBHg6A0s+/0ETElbs7vk=
+github.com/TheThingsIndustries/grpc-gateway v1.9.4-gogo h1:r4CDd4p/J6AhuVMT6RLaOr6T/Z5qRqwwre4+knytv+s=
+github.com/TheThingsIndustries/grpc-gateway v1.9.4-gogo/go.mod h1:Wv44KgvFSS8t9FiH6YJ8LZxSBHg6A0s+/0ETElbs7vk=
 github.com/TheThingsIndustries/magepkg v0.0.0-20190214092847-6c0299b7c3ed h1:rsGbnyV9cP0ocol1W17uTbZ1iWcEeg+gp3ivzW6NQ6Q=
 github.com/TheThingsIndustries/magepkg v0.0.0-20190214092847-6c0299b7c3ed/go.mod h1:InVSk9cxzZR1y4QaHF4CbDQ/uFeoTnbJfnwiKM04UNo=
 github.com/TheThingsIndustries/mystique v0.0.0-20190516134627-66efd81c68ea h1:Bwdu0LN2AwuXWPPG03W9k7ahYzJodX3rSaLYuleb28g=
