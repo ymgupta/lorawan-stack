@@ -5045,7 +5045,7 @@
     },
     "description": {
       "package": "pkg/tenant",
-      "file": "allow_empty.tti.go"
+      "file": "tenant.tti.go"
     }
   },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {
@@ -5357,6 +5357,15 @@
   "error:pkg/unique:format": {
     "translations": {
       "en": "invalid format in value `{value}`"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/unique:missing_tenant_id": {
+    "translations": {
+      "en": "missing tenant ID"
     },
     "description": {
       "package": "pkg/unique",

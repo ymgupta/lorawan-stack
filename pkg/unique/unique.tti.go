@@ -16,8 +16,11 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
-var errUniqueIdentifier = errors.DefineInvalidArgument("unique_identifier", "invalid unique identifier `{uid}`")
-var errFormat = errors.DefineInvalidArgument("format", "invalid format in value `{value}`")
+var (
+	errUniqueIdentifier = errors.DefineInvalidArgument("unique_identifier", "invalid unique identifier `{uid}`")
+	errFormat           = errors.DefineInvalidArgument("format", "invalid format in value `{value}`")
+	errMissingTenantID  = errors.DefineInvalidArgument("missing_tenant_id", "missing tenant ID")
+)
 
 // ID returns the unique identifier of the specified identifiers.
 // This function panics if the resulting identifier is invalid.
@@ -39,20 +42,14 @@ func ID(ctx context.Context, id ttnpb.Identifiers) (res string) {
 	if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
 		return fmt.Sprintf("%s@%s", res, tenantID)
 	}
-	if err := tenant.UseEmptyID(); err != nil {
-		panic(err)
-	}
-	return res
+	panic(errMissingTenantID)
 }
 
 func parse(uid string) (tenantID, id string, err error) {
 	if sepIdx := strings.Index(uid, "@"); sepIdx != -1 {
 		return uid[sepIdx+1:], uid[:sepIdx], nil
 	}
-	if err := tenant.UseEmptyID(); err != nil {
-		return "", uid, err
-	}
-	return "", uid, nil
+	return "", "", errMissingTenantID
 }
 
 // ToTenantID returns the tenant identifier of the specified unique ID.

@@ -10,7 +10,6 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -58,22 +57,11 @@ func TestValidity(t *testing.T) {
 }
 
 func TestToTenantID(t *testing.T) {
-	tenant.AllowEmptyTenantID()
 	for _, tc := range []struct {
 		Name     string
 		UID      string
 		TenantID string
 	}{
-		{
-			Name:     "ApplicationWithoutTenant",
-			UID:      "foo-application",
-			TenantID: "",
-		},
-		{
-			Name:     "EndDeviceWithoutTenant",
-			UID:      "foo-application.foo-device",
-			TenantID: "",
-		},
 		{
 			Name:     "ApplicationWithTenant",
 			UID:      "foo-application@foo-tenant",
@@ -290,7 +278,7 @@ func TestValidatorForIdentifiers(t *testing.T) {
 				if run.Parser == nil {
 					t.Fatal("Parser Not Defined")
 				}
-				parsed, err := run.Parser(tc.InputUID)
+				parsed, err := run.Parser(tc.InputUID + "@foo-tenant")
 				if tc.ExpectedError == nil {
 					a.So(err, should.BeNil)
 					if !a.So(parsed, should.Resemble, run.ID(tc.InputUID)) {
@@ -421,7 +409,7 @@ func TestValidatorForDeviceIDs(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("%s", tc.Name), func(t *testing.T) {
-			devIDs, err := ToDeviceID(tc.InputUID)
+			devIDs, err := ToDeviceID(tc.InputUID + "@foo-tenant")
 			if tc.ExpectedError == nil {
 				if !a.So(err, should.BeNil) {
 					t.FailNow()
