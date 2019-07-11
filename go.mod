@@ -28,7 +28,6 @@ require (
 	cloud.google.com/go v0.39.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/PuerkitoBio/purell v1.1.1
-	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/TheThingsIndustries/magepkg v0.0.0-20190214092847-6c0299b7c3ed
 	github.com/TheThingsIndustries/mystique v0.0.0-20190516134627-66efd81c68ea
 	github.com/TheThingsIndustries/release-notes v0.0.2
@@ -45,8 +44,10 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-mail/mail v2.3.1+incompatible
 	github.com/go-redis/redis v6.15.3+incompatible
+	github.com/gobuffalo/envy v1.7.0 // indirect
 	github.com/gobwas/glob v0.2.3
 	github.com/gogo/protobuf v1.2.1
+	github.com/gohugoio/hugo v0.55.6
 	github.com/golang/gddo v0.0.0-20190419222130-af0f2af80721
 	github.com/golang/protobuf v1.3.1
 	github.com/goreleaser/goreleaser v0.111.0
