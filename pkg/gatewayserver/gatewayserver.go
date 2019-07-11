@@ -221,7 +221,7 @@ func (gs *GatewayServer) FillGatewayContext(ctx context.Context, ids ttnpb.Gatew
 			if gs.requireRegisteredGateways {
 				return nil, ttnpb.GatewayIdentifiers{}, errGatewayEUINotRegistered.WithAttributes("eui", *ids.EUI).WithCause(err)
 			}
-			ctx = tenant.NewContext(ctx, gs.Component.DefaultTenantID)
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: gs.GetBaseConfig(ctx).Tenancy.DefaultID})
 		} else {
 			return nil, ttnpb.GatewayIdentifiers{}, err
 		}

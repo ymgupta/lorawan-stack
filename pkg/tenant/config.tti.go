@@ -1,8 +1,8 @@
 // Copyright © 2019 The Things Industries B.V.
 
-package config
+package tenant
 
-// Tenancy represents configuration for tenancy.
-type Tenancy struct {
+// Config represents tenancy configuration.
+type Config struct {
 	DefaultID string `name:"default-id" description:"Default tenant ID"`
 }
