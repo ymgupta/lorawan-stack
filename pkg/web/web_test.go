@@ -24,7 +24,6 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/smartystreets/assertions"
-	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
@@ -37,7 +36,7 @@ func handler(c echo.Context) error {
 
 func TestGroup(t *testing.T) {
 	a := assertions.New(t)
-	s, err := New(test.Context(), config.HTTP{})
+	s, err := New(test.Context())
 	if !a.So(err, should.BeNil) {
 		t.Fatal("Could not create a web instance")
 	}
@@ -82,7 +81,7 @@ func TestIsZeros(t *testing.T) {
 
 func TestServeHTTP(t *testing.T) {
 	a := assertions.New(t)
-	s, err := New(test.Context(), config.HTTP{})
+	s, err := New(test.Context())
 	if !a.So(err, should.BeNil) {
 		t.Fatal("Could not create a web instance")
 	}
@@ -103,21 +102,20 @@ func TestServeHTTP(t *testing.T) {
 
 func TestRootGroup(t *testing.T) {
 	a := assertions.New(t)
-	s, err := New(test.Context(), config.HTTP{})
+	s, err := New(test.Context())
 	if !a.So(err, should.BeNil) {
 		t.Fatal("Could not create a web instance")
 	}
 
-	s.RootGroup("/sub").GET("/some", handler)
+	s.RootGroup("/sub")
 	a.So(s.server, should.NotHaveRoute, "GET", "/")
-	a.So(s.server, should.NotHaveRoute, "GET", "/sub")
-	a.So(s.server, should.HaveRoute, "GET", "/sub/some")
 	a.So(s.server, should.NotHaveRoute, "GET", "/sub/another")
+	a.So(s.server, should.HaveRoute, "GET", "/sub")
 }
 
 func TestStatic(t *testing.T) {
 	a := assertions.New(t)
-	s, err := New(test.Context(), config.HTTP{})
+	s, err := New(test.Context())
 	if !a.So(err, should.BeNil) {
 		t.Fatal("Could not create a web instance")
 	}
@@ -162,20 +160,12 @@ func TestCookies(t *testing.T) {
 	a := assertions.New(t)
 	// Errors on illegal hash key byte size
 	{
-		c := config.HTTP{}
-		c.Cookie.HashKey = random.Bytes(2)
-
-		_, err := New(test.Context(), c)
-
+		_, err := New(test.Context(), WithCookieKeys(random.Bytes(2), nil))
 		a.So(err, should.NotBeNil)
 	}
 	// Errors on non 32bit block key
 	{
-		c := config.HTTP{}
-		c.Cookie.BlockKey = random.Bytes(31)
-
-		_, err := New(test.Context(), c)
-
+		_, err := New(test.Context(), WithCookieKeys(nil, random.Bytes(31)))
 		a.So(err, should.NotBeNil)
 	}
 }

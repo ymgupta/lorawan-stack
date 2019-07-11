@@ -70,7 +70,7 @@ require (
 	github.com/jinzhu/gorm v1.9.10
 	github.com/kr/pretty v0.1.0
 	github.com/kr/pty v1.1.3 // indirect
-	github.com/labstack/echo/v4 v4.1.6
+	github.com/labstack/echo/v4 v4.1.2
 	github.com/labstack/gommon v0.2.9
 	github.com/lib/pq v1.1.1
 	github.com/magefile/mage v1.8.1-0.20190702025601-9a6d7fe3be74
