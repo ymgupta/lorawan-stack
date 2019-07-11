@@ -23,17 +23,22 @@ func fromRequest(r *http.Request) ttipb.TenantIdentifiers {
 }
 
 // Middleware is echo middleware for extracting tenant IDs from the request.
-func Middleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		ctx := c.Request().Context()
-		if id := FromContext(ctx); id.TenantID != "" {
-			return next(c)
+func Middleware(config Config) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			ctx := c.Request().Context()
+			if id := FromContext(ctx); id.TenantID != "" {
+				return next(c)
+			}
+			if id := config.DefaultID; id != "" {
+				c.SetRequest(c.Request().WithContext(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})))
+				return next(c)
+			}
+			if id := fromRequest(c.Request()); id.TenantID != "" {
+				c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
+				return next(c)
+			}
+			return errMissingTenantID
 		}
-		if id := fromRequest(c.Request()); id.TenantID != "" {
-			c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
-		} else if err := UseEmptyID(); err != nil {
-			return err
-		}
-		return next(c)
 	}
 }

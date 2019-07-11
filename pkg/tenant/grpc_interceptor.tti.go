@@ -45,32 +45,38 @@ func StreamClientInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grp
 }
 
 // UnaryServerInterceptor is a gRPC interceptor that extracts the tenant ID from the context.
-func UnaryServerInterceptor(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	if id := FromContext(ctx); !id.IsZero() {
-		return handler(ctx, req)
+func UnaryServerInterceptor(config Config) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+		if id := FromContext(ctx); !id.IsZero() {
+			return handler(ctx, req)
+		}
+		if id := config.DefaultID; id != "" {
+			return handler(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id}), req)
+		}
+		if id := fromRPCContext(ctx); !id.IsZero() {
+			return handler(NewContext(ctx, id), req)
+		}
+		return nil, errMissingTenantID
 	}
-	if id := fromRPCContext(ctx); !id.IsZero() {
-		return handler(NewContext(ctx, id), req)
-	}
-	if err := UseEmptyID(); err != nil {
-		return nil, err
-	}
-	return handler(ctx, req)
 }
 
 // StreamServerInterceptor is a gRPC interceptor that extracts the tenant ID from the context.
-func StreamServerInterceptor(srv interface{}, stream grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	ctx := stream.Context()
-	if id := FromContext(ctx); !id.IsZero() {
-		return handler(srv, stream)
+func StreamServerInterceptor(config Config) grpc.StreamServerInterceptor {
+	return func(srv interface{}, stream grpc.ServerStream, _ *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		ctx := stream.Context()
+		if id := FromContext(ctx); !id.IsZero() {
+			return handler(srv, stream)
+		}
+		if id := config.DefaultID; id != "" {
+			wrapped := grpc_middleware.WrapServerStream(stream)
+			wrapped.WrappedContext = NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
+			return handler(srv, wrapped)
+		}
+		if id := fromRPCContext(ctx); !id.IsZero() {
+			wrapped := grpc_middleware.WrapServerStream(stream)
+			wrapped.WrappedContext = NewContext(ctx, id)
+			return handler(srv, wrapped)
+		}
+		return errMissingTenantID
 	}
-	if id := fromRPCContext(ctx); !id.IsZero() {
-		wrapped := grpc_middleware.WrapServerStream(stream)
-		wrapped.WrappedContext = NewContext(ctx, id)
-		return handler(srv, wrapped)
-	}
-	if err := UseEmptyID(); err != nil {
-		return err
-	}
-	return handler(srv, stream)
 }

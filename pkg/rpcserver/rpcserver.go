@@ -67,6 +67,8 @@ type options struct {
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
 	sentry             *raven.Client
+
+	tenant tenant.Config
 }
 
 // Option for the gRPC server
@@ -140,7 +142,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 	}
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
-		tenant.StreamServerInterceptor,
+		tenant.StreamServerInterceptor(options.tenant),
 		rpcfillcontext.StreamServerInterceptor(options.contextFillers...),
 		grpc_ctxtags.StreamServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDStreamServerInterceptor(),
@@ -155,7 +157,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 	}
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
-		tenant.UnaryServerInterceptor,
+		tenant.UnaryServerInterceptor(options.tenant),
 		rpcfillcontext.UnaryServerInterceptor(options.contextFillers...),
 		grpc_ctxtags.UnaryServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDUnaryServerInterceptor(),
