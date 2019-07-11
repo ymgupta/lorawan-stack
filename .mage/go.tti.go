@@ -6,5 +6,5 @@ func init() {
 	if goTags == "" {
 		goTags = "tti"
 	}
-	goBinaries = append(goBinaries, "tti-lw-cli", "tti-lw-stack")
+	goBinaries = append(goBinaries, "./cmd/tti-lw-cli", "./cmd/tti-lw-stack")
 }
