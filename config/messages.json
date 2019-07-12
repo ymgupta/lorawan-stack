@@ -5039,6 +5039,15 @@
       "file": "javascript.go"
     }
   },
+  "error:pkg/tenant:missing_tenant_id": {
+    "translations": {
+      "en": "missing tenant ID"
+    },
+    "description": {
+      "package": "pkg/tenant",
+      "file": "tenant.tti.go"
+    }
+  },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {
     "translations": {
       "en": "no default firmware path specified"
@@ -5351,7 +5360,16 @@
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.go"
+      "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/unique:missing_tenant_id": {
+    "translations": {
+      "en": "missing tenant ID"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
     }
   },
   "error:pkg/unique:unique_identifier": {
@@ -5360,7 +5378,7 @@
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.go"
+      "file": "unique.tti.go"
     }
   },
   "error:pkg/validate:email": {

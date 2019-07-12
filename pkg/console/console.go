@@ -108,7 +108,8 @@ func (console *Console) configFromContext(ctx context.Context) *Config {
 	if config, ok := ctx.Value(ctxKey).(*Config); ok {
 		return config
 	}
-	return &console.config
+	config := console.config.Apply(ctx)
+	return &config
 }
 
 func (console *Console) oauth(c echo.Context) *oauth2.Config {
@@ -151,7 +152,7 @@ func (console *Console) RegisterRoutes(server *web.Server) {
 				c.Set("app_config", struct {
 					FrontendConfig
 				}{
-					FrontendConfig: frontendConfig,
+					FrontendConfig: frontendConfig.Apply(c.Request().Context()),
 				})
 				return next(c)
 			}

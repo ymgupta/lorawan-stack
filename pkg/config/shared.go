@@ -23,6 +23,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/fetch"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
 
 // Base represents base component configuration.
@@ -256,4 +257,6 @@ type ServiceBase struct {
 	DeviceRepository DeviceRepositoryConfig `name:"device-repository" description:"Source of the device repository"`
 	Rights           Rights                 `name:"rights"`
 	KeyVault         KeyVault               `name:"key-vault"`
+
+	Tenancy tenant.Config `name:"tenancy"`
 }

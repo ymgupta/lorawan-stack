@@ -31,6 +31,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mock"
 	. "go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -64,6 +65,9 @@ func TestAuthentication(t *testing.T) {
 			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
+			},
 		},
 	})
 	test.Must(nil, c.Start())
@@ -84,6 +88,11 @@ func TestAuthentication(t *testing.T) {
 	}{
 		{
 			UID: registeredGatewayUID,
+			Key: registeredGatewayKey,
+			OK:  true,
+		},
+		{
+			UID: registeredGatewayID.GatewayID,
 			Key: registeredGatewayKey,
 			OK:  true,
 		},

@@ -42,6 +42,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -59,6 +61,8 @@ type GatewayServer struct {
 	forward                   map[string][]types.DevAddrPrefix
 
 	registry ttnpb.GatewayRegistryClient
+
+	tenantRegistry ttipb.TenantRegistryClient
 
 	connections sync.Map
 }
@@ -210,6 +214,17 @@ func (gs *GatewayServer) FillGatewayContext(ctx context.Context, ids ttnpb.Gatew
 		return nil, ttnpb.GatewayIdentifiers{}, errEmptyIdentifiers
 	}
 	if ids.GatewayID == "" {
+		tenantCtx, err := gs.getContextForGatewayEUI(ctx, *ids.EUI, gs.WithClusterAuth())
+		if err == nil {
+			ctx = tenantCtx
+		} else if errors.IsNotFound(err) {
+			if gs.requireRegisteredGateways {
+				return nil, ttnpb.GatewayIdentifiers{}, errGatewayEUINotRegistered.WithAttributes("eui", *ids.EUI).WithCause(err)
+			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: gs.GetBaseConfig(ctx).Tenancy.DefaultID})
+		} else {
+			return nil, ttnpb.GatewayIdentifiers{}, err
+		}
 		extIDs, err := gs.getRegistry(ctx, nil).GetIdentifiersForEUI(ctx, &ttnpb.GetGatewayIdentifiersForEUIRequest{
 			EUI: *ids.EUI,
 		}, gs.WithClusterAuth())

@@ -306,10 +306,12 @@ func TestServer(t *testing.T) {
 			if tt.StoreSetup != nil {
 				tt.StoreSetup(store)
 			}
+			tenantStore := &mockTenantClient{}
 
 			s := NewServer(component.MustNew(test.GetLogger(t), &component.Config{}), append([]Option{
 				WithAuth(mockAuthFunc),
 				WithRegistries(store, store),
+				WithTenantRegistry(tenantStore),
 			}, tt.Options...)...)
 			req := httptest.NewRequest(http.MethodPost, "/update-info", strings.NewReader(updateInfoRequest))
 			req = req.WithContext(test.Context())

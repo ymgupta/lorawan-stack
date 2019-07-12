@@ -41,6 +41,7 @@ func (c *Component) initWeb() error {
 		web.WithContextFiller(c.FillContext),
 		web.WithCookieKeys(c.config.HTTP.Cookie.HashKey, c.config.HTTP.Cookie.BlockKey),
 		web.WithStatic(c.config.HTTP.Static.Mount, c.config.HTTP.Static.SearchPath...),
+		web.WithTenantConfig(c.config.Tenancy),
 	)
 	if err != nil {
 		return err

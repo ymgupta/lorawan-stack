@@ -124,6 +124,8 @@ var DefaultServiceBase = config.ServiceBase{
 	DeviceRepository: DefaultDeviceRepositoryConfig,
 	Rights:           DefaultRightsConfig,
 	KeyVault:         DefaultKeyVaultConfig,
+
+	Tenancy: DefaultTenancyConfig,
 }
 
 // DefaultPublicURL is the default public URL where the stack is served.

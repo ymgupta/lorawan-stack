@@ -133,7 +133,7 @@ func registerHashedFile(original, hashed string) {
 
 // Render is the echo.Renderer that renders the web UI.
 func (t *AppTemplate) Render(w io.Writer, _ string, pageData interface{}, c echo.Context) error {
-	templateData := c.Get("template_data").(TemplateData)
+	templateData := c.Get("template_data").(TemplateData).Apply(c.Request().Context())
 	cssFiles := make([]string, len(templateData.CSSFiles))
 	for i, cssFile := range templateData.CSSFiles {
 		if hashedFile, ok := hashedFiles[cssFile]; ok {

@@ -27,6 +27,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/web"
@@ -84,6 +85,8 @@ type Server struct {
 	// clients from the appropriate cluster peer.
 	registry ttnpb.GatewayRegistryClient
 	access   ttnpb.GatewayAccessClient
+
+	tenantRegistry ttipb.TenantRegistryClient
 
 	auth func(context.Context, types.EUI64, string) grpc.CallOption
 
