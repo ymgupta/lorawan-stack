@@ -50,11 +50,11 @@ func UnaryServerInterceptor(config Config) grpc.UnaryServerInterceptor {
 		if id := FromContext(ctx); !id.IsZero() {
 			return handler(ctx, req)
 		}
-		if id := config.DefaultID; id != "" {
-			return handler(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id}), req)
-		}
 		if id := fromRPCContext(ctx); !id.IsZero() {
 			return handler(NewContext(ctx, id), req)
+		}
+		if id := config.DefaultID; id != "" {
+			return handler(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id}), req)
 		}
 		return nil, errMissingTenantID
 	}
@@ -67,14 +67,14 @@ func StreamServerInterceptor(config Config) grpc.StreamServerInterceptor {
 		if id := FromContext(ctx); !id.IsZero() {
 			return handler(srv, stream)
 		}
-		if id := config.DefaultID; id != "" {
-			wrapped := grpc_middleware.WrapServerStream(stream)
-			wrapped.WrappedContext = NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
-			return handler(srv, wrapped)
-		}
 		if id := fromRPCContext(ctx); !id.IsZero() {
 			wrapped := grpc_middleware.WrapServerStream(stream)
 			wrapped.WrappedContext = NewContext(ctx, id)
+			return handler(srv, wrapped)
+		}
+		if id := config.DefaultID; id != "" {
+			wrapped := grpc_middleware.WrapServerStream(stream)
+			wrapped.WrappedContext = NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
 			return handler(srv, wrapped)
 		}
 		return errMissingTenantID
