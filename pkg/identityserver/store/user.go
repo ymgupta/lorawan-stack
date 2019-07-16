@@ -15,7 +15,6 @@
 package store
 
 import (
-	"context"
 	"time"
 
 	"github.com/gogo/protobuf/types"
@@ -26,6 +25,9 @@ import (
 type User struct {
 	Model
 	SoftDelete
+
+	// TenantID needed for Primary Email Address index.
+	TenantID string `gorm:"unique_index:uix_users_primary_email_address;type:VARCHAR(36)"`
 
 	Account Account `gorm:"polymorphic:Account;polymorphic_value:user"`
 
@@ -61,11 +63,7 @@ func init() {
 	registerModel(&User{})
 }
 
-// SetContext sets the context on both the Model and Account.
-func (usr *User) SetContext(ctx context.Context) {
-	usr.Model.SetContext(ctx)
-	usr.Account.SetContext(ctx)
-}
+// NOTE: SetContext was moved to user.tti.go.
 
 // functions to set fields from the user model into the user proto.
 var userPBSetters = map[string]func(*ttnpb.User, *User){

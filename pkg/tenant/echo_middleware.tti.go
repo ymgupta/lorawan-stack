@@ -30,12 +30,12 @@ func Middleware(config Config) echo.MiddlewareFunc {
 			if id := FromContext(ctx); id.TenantID != "" {
 				return next(c)
 			}
-			if id := config.DefaultID; id != "" {
-				c.SetRequest(c.Request().WithContext(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})))
-				return next(c)
-			}
 			if id := fromRequest(c.Request()); id.TenantID != "" {
 				c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
+				return next(c)
+			}
+			if id := config.DefaultID; id != "" {
+				c.SetRequest(c.Request().WithContext(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})))
 				return next(c)
 			}
 			return errMissingTenantID
