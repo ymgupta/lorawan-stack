@@ -23,6 +23,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -40,6 +42,14 @@ var (
 				return err
 			}
 			defer db.Close()
+
+			tenantID, err := cmd.Flags().GetString("tenant-id")
+			if err != nil {
+				return err
+			}
+			if tenantID != "" {
+				ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
+			}
 
 			clientID, err := cmd.Flags().GetString("id")
 			if err != nil {
@@ -132,6 +142,8 @@ var (
 )
 
 func init() {
+	createOAuthClient.Flags().String("tenant-id", DefaultConfig.Tenancy.DefaultID, "Tenant ID")
+	createOAuthClient.Flags().Lookup("tenant-id").Hidden = true
 	createOAuthClient.Flags().String("id", "console", "OAuth client ID")
 	createOAuthClient.Flags().String("name", "", "Name of the OAuth client")
 	createOAuthClient.Flags().String("owner", "", "Owner of the OAuth client")
