@@ -1358,6 +1358,15 @@
       "file": "applications_pubsub.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:no_tenant_id": {
+    "translations": {
+      "en": "no tenant ID set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "tenants.tti.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:no_token_id": {
     "translations": {
       "en": "no token ID set"
