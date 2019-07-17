@@ -63,8 +63,6 @@ func init() {
 	registerModel(&User{})
 }
 
-// NOTE: SetContext was moved to user.tti.go.
-
 // functions to set fields from the user model into the user proto.
 var userPBSetters = map[string]func(*ttnpb.User, *User){
 	nameField:                func(pb *ttnpb.User, usr *User) { pb.Name = usr.Name },

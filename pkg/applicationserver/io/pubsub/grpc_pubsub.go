@@ -100,11 +100,7 @@ func (ps *PubSub) Set(ctx context.Context, req *ttnpb.SetApplicationPubSubReques
 	}
 	ps.startTask(tenant.NewContext(ps.ctx, tenant.FromContext(ctx)), req.ApplicationPubSubIdentifiers)
 
-	res := &ttnpb.ApplicationPubSub{}
-	if err := res.SetFields(pubsub, req.FieldMask.Paths...); err != nil {
-		return nil, err
-	}
-	return res, nil
+	return pubsub, nil
 }
 
 // Delete implements ttnpb.ApplicationPubSubRegistryServer.
