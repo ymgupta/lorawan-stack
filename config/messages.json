@@ -3329,6 +3329,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:gateway_eui_not_found": {
+    "translations": {
+      "en": "gateway eui `{eui}` not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "tenant_store.tti.go"
+    }
+  },
   "error:pkg/identityserver/store:gateway_not_found": {
     "translations": {
       "en": "gateway `{gateway_id}` not found"
@@ -3482,6 +3491,15 @@
       "file": "client_registry.go"
     }
   },
+  "error:pkg/identityserver:insufficient_tenant_rights": {
+    "translations": {
+      "en": "insufficient tenant rights"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "tenant_access.tti.go"
+    }
+  },
   "error:pkg/identityserver:invalid_authorization": {
     "translations": {
       "en": "invalid authorization"
@@ -3525,6 +3543,15 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "invitation_registry.go"
+    }
+  },
+  "error:pkg/identityserver:no_tenant_rights": {
+    "translations": {
+      "en": "no tenant rights"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "tenant_access.tti.go"
     }
   },
   "error:pkg/identityserver:oauth_client_rejected": {
@@ -3633,6 +3660,15 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "user_registry.go"
+    }
+  },
+  "error:pkg/identityserver:tenant_admin_key": {
+    "translations": {
+      "en": "invalid tenant admin key"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "tenant_access.tti.go"
     }
   },
   "error:pkg/identityserver:token_expired": {

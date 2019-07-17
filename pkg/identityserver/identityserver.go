@@ -33,6 +33,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
@@ -73,6 +74,7 @@ type Config struct {
 		SendGrid     sendgrid.Config `name:"sendgrid"`
 		SMTP         smtp.Config     `name:"smtp"`
 	} `name:"email"`
+	Tenancy TenancyConfig `name:"tenancy"`
 }
 
 // IdentityServer implements the Identity Server component.
@@ -132,6 +134,10 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 		is.db.Close()
 	}()
 
+	if err := is.config.Tenancy.decodeAdminKeys(is.ctx); err != nil {
+		return nil, err
+	}
+
 	is.oauth = oauth.NewServer(is.Context(), struct {
 		store.UserStore
 		store.UserSessionStore
@@ -175,6 +181,10 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.OAuthAuthorizationRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.OAuthAuthorizationRegistry", rights.HookName, rights.Hook)
 
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", cluster.HookName, c.ClusterAuthUnaryHook())
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", "tenant-rights", is.tenantRightsHook)
+
 	c.RegisterGRPC(is)
 	c.RegisterWeb(is.oauth)
 
@@ -203,6 +213,8 @@ func (is *IdentityServer) RegisterServices(s *grpc.Server) {
 	ttnpb.RegisterEntityRegistrySearchServer(s, &registrySearch{IdentityServer: is, adminOnly: true})
 	ttnpb.RegisterOAuthAuthorizationRegistryServer(s, &oauthRegistry{IdentityServer: is})
 	ttnpb.RegisterContactInfoRegistryServer(s, &contactInfoRegistry{IdentityServer: is})
+
+	ttipb.RegisterTenantRegistryServer(s, &tenantRegistry{IdentityServer: is})
 }
 
 // RegisterHandlers registers gRPC handlers.
@@ -223,6 +235,8 @@ func (is *IdentityServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.Clien
 	ttnpb.RegisterEntityRegistrySearchHandler(is.Context(), s, conn)
 	ttnpb.RegisterOAuthAuthorizationRegistryHandler(is.Context(), s, conn)
 	ttnpb.RegisterContactInfoRegistryHandler(is.Context(), s, conn)
+
+	ttipb.RegisterTenantRegistryHandler(is.Context(), s, conn)
 }
 
 // Roles returns the roles that the Identity Server fulfills.
