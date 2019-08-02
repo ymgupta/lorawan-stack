@@ -29,6 +29,7 @@ import (
 	conf "go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/console"
 	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/pkg/identityserver"
@@ -46,6 +47,7 @@ type Config struct {
 	JS               joinserver.Config                 `name:"js"`
 	Console          console.Config                    `name:"console"`
 	GCS              gatewayconfigurationserver.Config `name:"gcs"`
+	DTC              devicetemplateconverter.Config    `name:"dtc"`
 	CS               cryptoserver.Config               `name:"cs"`
 }
 

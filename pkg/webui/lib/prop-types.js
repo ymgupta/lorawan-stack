@@ -27,13 +27,24 @@ PropTypes.message = PropTypes.oneOfType([
 ])
 
 PropTypes.error = PropTypes.oneOfType([
-  PropTypes.shape({
-    details: PropTypes.array.isRequired,
-    message: PropTypes.string.isRequired,
-    code: PropTypes.number.isRequired,
-  }),
+  PropTypes.oneOfType([
+    PropTypes.shape({
+      details: PropTypes.array.isRequired,
+      message: PropTypes.string.isRequired,
+      code: PropTypes.number.isRequired,
+    }),
+    PropTypes.shape({
+      details: PropTypes.array.isRequired,
+      message: PropTypes.string.isRequired,
+      grpc_code: PropTypes.number.isRequired,
+    }),
+  ]),
   PropTypes.message,
   PropTypes.string,
+  PropTypes.shape({
+    message: PropTypes.string,
+    stack: PropTypes.object,
+  }),
 ])
 
 PropTypes.link = PropTypes.shape({

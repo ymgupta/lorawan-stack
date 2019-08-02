@@ -67,7 +67,7 @@ const filterValidator = function (filters) {
     totalCount: base.totalCount || 0,
     fetching: base.fetching,
     fetchingSearch: base.fetchingSearch,
-    pathname: location.pathname,
+    pathname: state.router.location.pathname,
   }
 })
 @bind
@@ -160,12 +160,6 @@ class FetchTable extends Component {
     this.fetchItems()
   }
 
-  onItemAdd () {
-    const { dispatch, pathname, itemPathPrefix } = this.props
-
-    dispatch(push(`${pathname}${itemPathPrefix}/add`))
-  }
-
   onItemClick (index) {
     const {
       dispatch,
@@ -173,6 +167,7 @@ class FetchTable extends Component {
       items,
       entity,
       itemPathPrefix,
+      getItemPathPrefix,
       handlesPagination,
       pageSize,
     } = this.props
@@ -185,9 +180,15 @@ class FetchTable extends Component {
     }
 
     const entitySingle = entity.substr(0, entity.length - 1)
-    const item_id = items[itemIndex].id || items[itemIndex].ids[`${entitySingle}_id`]
+    let entityPath
+    if (Boolean(getItemPathPrefix)) {
+      entityPath = getItemPathPrefix(items[itemIndex])
+    } else {
+      const item_id = items[itemIndex].id || items[itemIndex].ids[`${entitySingle}_id`]
+      entityPath = `${itemPathPrefix}/${item_id}`
+    }
 
-    dispatch(push(`${pathname}${itemPathPrefix}/${item_id}`))
+    dispatch(push(`${pathname}${entityPath}`))
   }
 
   render () {
@@ -203,6 +204,8 @@ class FetchTable extends Component {
       tabs,
       searchable,
       handlesPagination,
+      itemPathPrefix,
+      pathname,
     } = this.props
     const { page, query, tab } = this.state
 
@@ -235,11 +238,11 @@ class FetchTable extends Component {
                 onChange={this.onQueryChange}
               />
             )}
-            <Button
-              onClick={this.onItemAdd}
+            <Button.Link
               className={style.addButton}
               message={addMessage}
               icon="add"
+              to={`${pathname}${itemPathPrefix}/add`}
             />
           </div>
         </div>
@@ -263,7 +266,7 @@ class FetchTable extends Component {
 
 
 FetchTable.defaultProps = {
-  pageSize: 15,
+  pageSize: 20,
   filterValidator,
   itemPathPrefix: '',
 }

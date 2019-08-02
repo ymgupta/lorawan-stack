@@ -1097,6 +1097,15 @@
       "file": "errors.tti.go"
     }
   },
+  "error:cmd/internal/shared:initialize_device_template_converter": {
+    "translations": {
+      "en": "could not initialize Device Template Converter"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.go"
+    }
+  },
   "error:cmd/internal/shared:initialize_gateway_configuration_server": {
     "translations": {
       "en": "could not initialize Gateway Configuration Server"
@@ -1232,6 +1241,15 @@
       "file": "end_devices.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:mapped_end_device_not_found": {
+    "translations": {
+      "en": "end device mapping not found"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_device_templates.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:no_api_key_id": {
     "translations": {
       "en": "no API key ID set"
@@ -1295,6 +1313,15 @@
       "file": "flags.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:no_data": {
+    "translations": {
+      "en": "no data for `{name}`"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "flags.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:no_email": {
     "translations": {
       "en": "no email set"
@@ -1320,6 +1347,24 @@
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
       "file": "end_devices.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:no_end_device_template_join_eui": {
+    "translations": {
+      "en": "no end device template JoinEUI set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_device_templates.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:no_end_device_template_start_dev_eui": {
+    "translations": {
+      "en": "no end device template start DevEUI set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_device_templates.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:no_gateway_id": {
@@ -1356,6 +1401,15 @@
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
       "file": "applications_pubsub.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:no_template_format_id": {
+    "translations": {
+      "en": "no template format ID set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_device_templates.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:no_tenant_id": {
@@ -1565,6 +1619,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/applicationserver/io/web:fetch": {
+    "translations": {
+      "en": "fetching failed"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/web",
+      "file": "templates.go"
+    }
+  },
   "error:pkg/applicationserver/io/web:format_not_found": {
     "translations": {
       "en": "format `{format}` not found"
@@ -1581,6 +1644,15 @@
     "description": {
       "package": "pkg/applicationserver/io/web",
       "file": "webhooks.go"
+    }
+  },
+  "error:pkg/applicationserver/io/web:parse_file": {
+    "translations": {
+      "en": "could not parse file"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/web",
+      "file": "templates.go"
     }
   },
   "error:pkg/applicationserver/io/web:queue_full": {
@@ -1976,7 +2048,7 @@
     },
     "description": {
       "package": "pkg/auth/rights",
-      "file": "hook.go"
+      "file": "fetcher.go"
     }
   },
   "error:pkg/auth/rights:no_gateway_rights": {
@@ -2249,6 +2321,33 @@
       "file": "tls.go"
     }
   },
+  "error:pkg/console:invalid_state": {
+    "translations": {
+      "en": "invalid state parameter in request"
+    },
+    "description": {
+      "package": "pkg/console",
+      "file": "callback.go"
+    }
+  },
+  "error:pkg/console:missing_code": {
+    "translations": {
+      "en": "missing code parameter in request"
+    },
+    "description": {
+      "package": "pkg/console",
+      "file": "callback.go"
+    }
+  },
+  "error:pkg/console:missing_state": {
+    "translations": {
+      "en": "missing state parameter in request"
+    },
+    "description": {
+      "package": "pkg/console",
+      "file": "callback.go"
+    }
+  },
   "error:pkg/console:no_oauth_config": {
     "translations": {
       "en": "no OAuth configuration found for the Console"
@@ -2256,6 +2355,15 @@
     "description": {
       "package": "pkg/console",
       "file": "console.go"
+    }
+  },
+  "error:pkg/console:oauth_authorization": {
+    "translations": {
+      "en": "OAuth authorization failed with `{error}`"
+    },
+    "description": {
+      "package": "pkg/console",
+      "file": "callback.go"
     }
   },
   "error:pkg/crypto/cryptoservices:no_app_key": {
@@ -2510,6 +2618,33 @@
       "file": "devicerepository.go"
     }
   },
+  "error:pkg/devicetemplateconverter:converter": {
+    "translations": {
+      "en": "converter `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/devicetemplateconverter",
+      "file": "devicetemplateconverter.go"
+    }
+  },
+  "error:pkg/devicetemplates:microchip_data": {
+    "translations": {
+      "en": "invalid Microchip data"
+    },
+    "description": {
+      "package": "pkg/devicetemplates",
+      "file": "microchip.go"
+    }
+  },
+  "error:pkg/devicetemplates:microchip_public_key": {
+    "translations": {
+      "en": "unknown Microchip public key ID `{id}`"
+    },
+    "description": {
+      "package": "pkg/devicetemplates",
+      "file": "microchip.go"
+    }
+  },
   "error:pkg/email/sendgrid:email_not_sent": {
     "translations": {
       "en": "email was not sent"
@@ -2690,15 +2825,6 @@
       "file": "mac.go"
     }
   },
-  "error:pkg/errors/web:http": {
-    "translations": {
-      "en": "HTTP error: {message}"
-    },
-    "description": {
-      "package": "pkg/errors/web",
-      "file": "middleware.go"
-    }
-  },
   "error:pkg/errors:odd_kv": {
     "translations": {
       "en": "Odd number of key-value elements"
@@ -2834,6 +2960,114 @@
       "file": "frequencyplans.go"
     }
   },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:data_rate": {
+    "translations": {
+      "en": "data rate not found"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "util.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:data_rate_index": {
+    "translations": {
+      "en": "data rate index is out of range"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "util.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:downlink_message": {
+    "translations": {
+      "en": "could not translate downlink message"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "downstream.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:frequency_plan": {
+    "translations": {
+      "en": "invalid frequency plan"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "messages.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:gateway_id": {
+    "translations": {
+      "en": "invalid gateway ID `{id}`"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "upstream.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:join_request_message": {
+    "translations": {
+      "en": "invalid join-request message received"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "upstream.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:uid": {
+    "translations": {
+      "en": "invalid uid `{uid}`"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "util.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:uplink_data_Frame": {
+    "translations": {
+      "en": "invalid uplink data frame received"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "upstream.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns/messages:uplink_message": {
+    "translations": {
+      "en": "invalid uplink message received"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns/messages",
+      "file": "upstream.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns:empty_gateway_eui": {
+    "translations": {
+      "en": "empty gateway EUI"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns",
+      "file": "basicstationlns.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns:invalid_gateway_id": {
+    "translations": {
+      "en": "invalid gateway id `{id}`"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns",
+      "file": "basicstationlns.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/basicstationlns:listener": {
+    "translations": {
+      "en": "failed to serve Basic Station frontend listener"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/basicstationlns",
+      "file": "basicstationlns.go"
+    }
+  },
   "error:pkg/gatewayserver/io/grpc:connect": {
     "translations": {
       "en": "failed to connect gateway `{gateway_uid}`"
@@ -2936,15 +3170,6 @@
   "error:pkg/gatewayserver/io/udp:downlink_path_expired": {
     "translations": {
       "en": "downlink path expired"
-    },
-    "description": {
-      "package": "pkg/gatewayserver/io/udp",
-      "file": "udp.go"
-    }
-  },
-  "error:pkg/gatewayserver/io/udp:no_clock_sync": {
-    "translations": {
-      "en": "no clock sync"
     },
     "description": {
       "package": "pkg/gatewayserver/io/udp",
@@ -3932,24 +4157,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/joinserver/provisioning:entry": {
-    "translations": {
-      "en": "invalid entry"
-    },
-    "description": {
-      "package": "pkg/joinserver/provisioning",
-      "file": "provisioning.go"
-    }
-  },
-  "error:pkg/joinserver/provisioning:microchip_public_key": {
-    "translations": {
-      "en": "unknown Microchip public key ID `{id}`"
-    },
-    "description": {
-      "package": "pkg/joinserver/provisioning",
-      "file": "microchip.go"
-    }
-  },
   "error:pkg/joinserver/redis:already_provisioned": {
     "translations": {
       "en": "device already provisioned"
@@ -4526,6 +4733,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:absolute_time": {
+    "translations": {
+      "en": "invalid absolute time set in application downlink"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:application_downlink_too_long": {
     "translations": {
       "en": "application downlink payload is too long"
@@ -4724,6 +4940,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:fixed_paths": {
+    "translations": {
+      "en": "invalid fixed paths set in application downlink"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:invalid_f_nwk_s_int_key": {
     "translations": {
       "en": "invalid FNwkSIntKey"
@@ -4850,24 +5075,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/networkserver:schedule_too_late": {
-    "translations": {
-      "en": "downlink is scheduled too late"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:schedule_too_soon": {
-    "translations": {
-      "en": "downlink is scheduled too soon"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/networkserver:unknown_chanel": {
     "translations": {
       "en": "channel is unknown"
@@ -4931,15 +5138,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/networkserver:uplink_not_found": {
-    "translations": {
-      "en": "uplink not found"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/oauth:auth_cookie": {
     "translations": {
       "en": "could not get auth cookie"
@@ -4967,6 +5165,15 @@
       "file": "storage.go"
     }
   },
+  "error:pkg/oauth:no_user_id_password_match": {
+    "translations": {
+      "en": "incorrect password or user ID"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.go"
+    }
+  },
   "error:pkg/oauth:not_authenticated": {
     "translations": {
       "en": "not authenticated"
@@ -4974,15 +5181,6 @@
     "description": {
       "package": "pkg/oauth",
       "file": "middleware.go"
-    }
-  },
-  "error:pkg/oauth:password": {
-    "translations": {
-      "en": "incorrect password"
-    },
-    "description": {
-      "package": "pkg/oauth",
-      "file": "user.go"
     }
   },
   "error:pkg/oauth:session_expired": {
@@ -5019,6 +5217,15 @@
     "description": {
       "package": "pkg/pfconfig/shared",
       "file": "shared.go"
+    }
+  },
+  "error:pkg/provisioning:entry": {
+    "translations": {
+      "en": "invalid entry"
+    },
+    "description": {
+      "package": "pkg/provisioning",
+      "file": "provisioning.go"
     }
   },
   "error:pkg/redis:not_found": {
@@ -5705,6 +5912,33 @@
       "file": "observability.go"
     }
   },
+  "event:as.end_device.create": {
+    "translations": {
+      "en": "create end device"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:as.end_device.delete": {
+    "translations": {
+      "en": "delete end device"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:as.end_device.update": {
+    "translations": {
+      "en": "update end device"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
   "event:as.link.fail": {
     "translations": {
       "en": "fail link"
@@ -6056,6 +6290,33 @@
       "file": "invitation_registry.go"
     }
   },
+  "event:js.end_device.create": {
+    "translations": {
+      "en": "create end device"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:js.end_device.delete": {
+    "translations": {
+      "en": "delete end device"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:js.end_device.update": {
+    "translations": {
+      "en": "update end device"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
   "event:js.join.accept": {
     "translations": {
       "en": "accept join-request"
@@ -6090,6 +6351,33 @@
     "description": {
       "package": "pkg/networkserver",
       "file": "observability.go"
+    }
+  },
+  "event:ns.end_device.create": {
+    "translations": {
+      "en": "create end device"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:ns.end_device.delete": {
+    "translations": {
+      "en": "delete end device"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "grpc_deviceregistry.go"
+    }
+  },
+  "event:ns.end_device.update": {
+    "translations": {
+      "en": "update end device"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "grpc_deviceregistry.go"
     }
   },
   "event:ns.mac.adr_param_setup.answer": {

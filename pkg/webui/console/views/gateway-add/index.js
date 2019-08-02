@@ -44,7 +44,7 @@ const m = defineMessages({
 @withBreadcrumb('gateways.add', function () {
   return (
     <Breadcrumb
-      path="/console/gateways/add"
+      path="/gateways/add"
       icon="add"
       content={sharedMessages.add}
     />
@@ -56,7 +56,7 @@ const m = defineMessages({
   return { userId }
 },
 dispatch => ({
-  createSuccess: gtwId => dispatch(push(`/console/gateways/${gtwId}`)),
+  createSuccess: gtwId => dispatch(push(`/gateways/${gtwId}`)),
 }))
 @bind
 export default class GatewayAdd extends React.Component {
@@ -89,21 +89,16 @@ export default class GatewayAdd extends React.Component {
 
   render () {
     const { error } = this.state
-    const { env } = this.props
-
-    const gs = env.config.gs
-
-    let gsServerAddress = ''
-    if (gs.enabled) {
-      gsServerAddress = new URL(gs.base_url).host
-    }
+    const { env: { config }} = this.props
 
     const initialValues = {
       ids: {
         gateway_id: undefined,
       },
       enforce_duty_cycle: true,
-      gateway_server_address: gsServerAddress,
+      gateway_server_address: config.gs.enabled
+        ? new URL(config.gs.base_url).hostname
+        : '',
       frequency_plan_id: undefined,
     }
 

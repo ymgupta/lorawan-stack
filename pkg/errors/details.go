@@ -14,16 +14,14 @@
 
 package errors
 
+import "github.com/golang/protobuf/proto"
+
 type detailer interface {
-	Details() []interface{}
+	Details() []proto.Message
 }
 
-func (e *Error) addDetails(details ...interface{}) {
-	if e.details == nil {
-		e.details = details
-	} else {
-		e.details = append(e.details, details...)
-	}
+func (e *Error) addDetails(details ...proto.Message) {
+	e.details = append(e.details, details...)
 	if e.stack == nil {
 		e.stack = callers(4)
 	}
@@ -32,31 +30,34 @@ func (e *Error) addDetails(details ...interface{}) {
 
 // WithDetails returns the error with the given details set.
 // This appends to any existing details in the Error.
-func (e Error) WithDetails(details ...interface{}) Error {
+func (e Error) WithDetails(details ...proto.Message) Error {
 	e.addDetails(details...)
 	return e
 }
 
 // WithDetails returns a new error from the definition, and sets the given details.
-func (d Definition) WithDetails(details ...interface{}) Error {
+func (d Definition) WithDetails(details ...proto.Message) Error {
 	e := build(d, 0) // Don't refactor this to build(...).WithDetails(...)
 	e.addDetails(details...)
 	return e
 }
 
 // Details of the error. Usually structs from ttnpb or google.golang.org/genproto/googleapis/rpc/errdetails.
-func (e Error) Details() (details []interface{}) {
+func (e Error) Details() (details []proto.Message) {
 	if e.cause != nil {
-		details = append(details, Details(e.cause))
+		details = append(details, Details(e.cause)...)
 	}
-	return append(details, e.details...)
+	if len(e.details) > 0 {
+		details = append(details, e.details...)
+	}
+	return
 }
 
 // Details are not present in the error definition, so this just returns nil.
-func (d Definition) Details() []interface{} { return nil }
+func (d Definition) Details() []proto.Message { return nil }
 
 // Details gets the details of the error.
-func Details(err error) []interface{} {
+func Details(err error) []proto.Message {
 	if c, ok := err.(detailer); ok {
 		return c.Details()
 	}

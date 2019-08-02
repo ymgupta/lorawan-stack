@@ -24,7 +24,7 @@ import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import Message from '../../../lib/components/message'
 import GatewayEvents from '../../containers/gateway-events'
 
-import { getGatewayId } from '../../../lib/selectors/id'
+import { selectSelectedGatewayId } from '../../store/selectors/gateways'
 
 import style from './gateway-data.styl'
 
@@ -32,17 +32,13 @@ const m = defineMessages({
   gtwData: 'Gateway Data',
 })
 
-@connect(function (state) {
-  const gateway = state.gateway.gateway
-
-  return {
-    gtwId: getGatewayId(gateway),
-  }
-})
+@connect(state => ({
+  gtwId: selectSelectedGatewayId(state),
+}))
 @withBreadcrumb('gateways.single.data', function (props) {
   return (
     <Breadcrumb
-      path={`/console/gateways/${props.gtwId}/data`}
+      path={`/gateways/${props.gtwId}/data`}
       icon="data"
       content={sharedMessages.data}
     />

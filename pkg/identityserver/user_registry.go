@@ -38,11 +38,22 @@ import (
 )
 
 var (
-	evtCreateUser = events.Define("user.create", "create user")
-	evtUpdateUser = events.Define("user.update", "update user")
-	evtDeleteUser = events.Define("user.delete", "delete user")
-
-	evtUpdateUserIncorrectPassword = events.Define("user.update.incorrect_password", "update user failure: incorrect password")
+	evtCreateUser = events.Define(
+		"user.create", "create user",
+		ttnpb.RIGHT_USER_INFO,
+	)
+	evtUpdateUser = events.Define(
+		"user.update", "update user",
+		ttnpb.RIGHT_USER_INFO,
+	)
+	evtDeleteUser = events.Define(
+		"user.delete", "delete user",
+		ttnpb.RIGHT_USER_INFO,
+	)
+	evtUpdateUserIncorrectPassword = events.Define(
+		"user.update.incorrect_password", "update user failure: incorrect password",
+		ttnpb.RIGHT_USER_INFO,
+	)
 )
 
 var (
@@ -425,6 +436,36 @@ func (is *IdentityServer) updateUserPassword(ctx context.Context, req *ttnpb.Upd
 			}
 			usr.TemporaryPassword, usr.TemporaryPasswordCreatedAt, usr.TemporaryPasswordExpiresAt = "", nil, nil
 			updateMask = temporaryPasswordFieldMask
+		}
+		if req.RevokeAllAccess {
+			sessionStore := store.GetUserSessionStore(db)
+			sessions, err := sessionStore.FindSessions(ctx, &req.UserIdentifiers)
+			if err != nil {
+				return err
+			}
+			for _, session := range sessions {
+				err = sessionStore.DeleteSession(ctx, &req.UserIdentifiers, session.SessionID)
+				if err != nil {
+					return err
+				}
+			}
+			oauthStore := store.GetOAuthStore(db)
+			authorizations, err := oauthStore.ListAuthorizations(ctx, &req.UserIdentifiers)
+			if err != nil {
+				return err
+			}
+			for _, auth := range authorizations {
+				tokens, err := oauthStore.ListAccessTokens(ctx, &auth.UserIDs, &auth.ClientIDs)
+				if err != nil {
+					return err
+				}
+				for _, token := range tokens {
+					err = oauthStore.DeleteAccessToken(ctx, token.ID)
+					if err != nil {
+						return err
+					}
+				}
+			}
 		}
 		usr.Password, usr.PasswordUpdatedAt, usr.RequirePasswordUpdate = string(hashedPassword), time.Now(), false
 		usr, err = store.GetUserStore(db).UpdateUser(ctx, usr, updateMask)

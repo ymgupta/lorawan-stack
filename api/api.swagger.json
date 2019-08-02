@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "The Things Network v3 API",
+    "title": "The Things Network Stack for LoRaWAN v3 API",
     "version": "version not set"
   },
   "schemes": [
@@ -299,6 +299,144 @@
         ]
       }
     },
+    "/applications/{application_ids.application_id}/collaborator": {
+      "get": {
+        "summary": "Get the rights of a collaborator (member) of the application.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+        "operationId": "GetCollaborator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApplicationAccess"
+        ]
+      }
+    },
+    "/applications/{application_ids.application_id}/collaborator/organization/{collaborator.organization_ids.organization_id}": {
+      "get": {
+        "summary": "Get the rights of a collaborator (member) of the application.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+        "operationId": "GetCollaborator3",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApplicationAccess"
+        ]
+      }
+    },
+    "/applications/{application_ids.application_id}/collaborator/user/{collaborator.user_ids.user_id}": {
+      "get": {
+        "summary": "Get the rights of a collaborator (member) of the application.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+        "operationId": "GetCollaborator2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "application_ids.application_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ApplicationAccess"
+        ]
+      }
+    },
     "/applications/{application_ids.application_id}/collaborators": {
       "get": {
         "operationId": "ListCollaborators",
@@ -339,7 +477,7 @@
         ]
       },
       "put": {
-        "summary": "Setting a collaborator without rights, removes them.",
+        "summary": "Set the rights of a collaborator (member) on the application.\nSetting a collaborator without rights, removes them.",
         "operationId": "SetCollaborator",
         "responses": {
           "200": {
@@ -1315,6 +1453,70 @@
         ]
       }
     },
+    "/as/webhook-templates": {
+      "get": {
+        "operationId": "ListTemplates",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ApplicationWebhookTemplates"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
+    "/as/webhook-templates/{ids.template_id}": {
+      "get": {
+        "operationId": "GetTemplate",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3ApplicationWebhookTemplate"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "ids.template_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "ApplicationWebhookRegistry"
+        ]
+      }
+    },
     "/as/webhooks/{application_ids.application_id}": {
       "get": {
         "operationId": "List",
@@ -1650,9 +1852,146 @@
         ]
       }
     },
+    "/clients/{client_ids.client_id}/collaborator": {
+      "get": {
+        "summary": "Get the OAuth client with the given identifiers, selecting the fields given\nby the field mask. The method may return more or less fields, depending on\nthe rights of the caller.",
+        "operationId": "GetCollaborator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "client_ids.client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ClientAccess"
+        ]
+      }
+    },
+    "/clients/{client_ids.client_id}/collaborator/organization/{collaborator.organization_ids.organization_id}": {
+      "get": {
+        "summary": "Get the OAuth client with the given identifiers, selecting the fields given\nby the field mask. The method may return more or less fields, depending on\nthe rights of the caller.",
+        "operationId": "GetCollaborator3",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "client_ids.client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ClientAccess"
+        ]
+      }
+    },
+    "/clients/{client_ids.client_id}/collaborator/user/{collaborator.user_ids.user_id}": {
+      "get": {
+        "summary": "Get the OAuth client with the given identifiers, selecting the fields given\nby the field mask. The method may return more or less fields, depending on\nthe rights of the caller.",
+        "operationId": "GetCollaborator2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "client_ids.client_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ClientAccess"
+        ]
+      }
+    },
     "/clients/{client_ids.client_id}/collaborators": {
       "get": {
-        "summary": "List OAuth clients. See request message for details.",
         "operationId": "ListCollaborators",
         "responses": {
           "200": {
@@ -1691,7 +2030,7 @@
         ]
       },
       "put": {
-        "summary": "Get the OAuth client with the given identifiers, selecting the fields given\nby the field mask. The method may return more or less fields, depending on\nthe rights of the caller.",
+        "summary": "List OAuth clients. See request message for details.",
         "operationId": "SetCollaborator",
         "responses": {
           "200": {
@@ -1826,6 +2165,50 @@
         },
         "tags": [
           "ContactInfoRegistry"
+        ]
+      }
+    },
+    "/edtc/convert": {
+      "post": {
+        "summary": "Get the end device with the given identifiers, selecting the fields given\nby the field mask.",
+        "operationId": "Convert",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "$ref": "#/x-stream-definitions/v3EndDeviceTemplate"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3ConvertEndDeviceTemplateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "EndDeviceTemplateConverter"
+        ]
+      }
+    },
+    "/edtc/formats": {
+      "get": {
+        "summary": "Create a new end device within an application.",
+        "operationId": "ListFormats",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3EndDeviceTemplateFormats"
+            }
+          }
+        },
+        "tags": [
+          "EndDeviceTemplateConverter"
         ]
       }
     },
@@ -2164,6 +2547,165 @@
         ]
       }
     },
+    "/gateways/{gateway_ids.gateway_id}/collaborator": {
+      "get": {
+        "operationId": "GetCollaborator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "gateway_ids.gateway_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gateway_ids.eui",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "GatewayAccess"
+        ]
+      }
+    },
+    "/gateways/{gateway_ids.gateway_id}/collaborator/organization/{collaborator.organization_ids.organization_id}": {
+      "get": {
+        "operationId": "GetCollaborator3",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "gateway_ids.gateway_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gateway_ids.eui",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "GatewayAccess"
+        ]
+      }
+    },
+    "/gateways/{gateway_ids.gateway_id}/collaborator/user/{collaborator.user_ids.user_id}": {
+      "get": {
+        "operationId": "GetCollaborator2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "gateway_ids.gateway_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "gateway_ids.eui",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "byte"
+          },
+          {
+            "name": "collaborator.organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "GatewayAccess"
+        ]
+      }
+    },
     "/gateways/{gateway_ids.gateway_id}/collaborators": {
       "get": {
         "operationId": "ListCollaborators",
@@ -2212,6 +2754,7 @@
         ]
       },
       "put": {
+        "summary": "Set the rights of a collaborator (member) on the gateway.\nSetting a collaborator without rights, removes them.",
         "operationId": "SetCollaborator",
         "responses": {
           "200": {
@@ -3472,6 +4015,86 @@
         ]
       }
     },
+    "/organizations/{organization_ids.organization_id}/collaborator": {
+      "get": {
+        "summary": "Get the rights of a collaborator (member) of the organization.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+        "operationId": "GetCollaborator",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrganizationAccess"
+        ]
+      }
+    },
+    "/organizations/{organization_ids.organization_id}/collaborator/user/{collaborator.user_ids.user_id}": {
+      "get": {
+        "summary": "Get the rights of a collaborator (member) of the organization.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+        "operationId": "GetCollaborator2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3GetCollaboratorResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "organization_ids.organization_id",
+            "description": "This ID shares namespace with user IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.user_id",
+            "description": "This ID shares namespace with organization IDs.",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "collaborator.user_ids.email",
+            "description": "Secondary identifier, which can only be used in specific requests.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "OrganizationAccess"
+        ]
+      }
+    },
     "/organizations/{organization_ids.organization_id}/collaborators": {
       "get": {
         "operationId": "ListCollaborators",
@@ -3513,7 +4136,7 @@
         ]
       },
       "put": {
-        "summary": "Set the rights of a collaborator (member) on the organization. Users\nare considered to be a collaborator if they have at least one right on the\norganization.\nNote that only users can collaborate (be member of) an organization.",
+        "summary": "Set the rights of a collaborator (member) on the organization.\nSetting a collaborator without rights, removes them.\nNote that only users can collaborate (be member of) an organization.",
         "operationId": "SetCollaborator",
         "responses": {
           "200": {
@@ -6375,6 +6998,17 @@
           "type": "string",
           "description": "The format to use for the body.\nSupported values depend on the Application Server configuration."
         },
+        "template_ids": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateIdentifiers",
+          "description": "The ID of the template that was used to create the Webhook."
+        },
+        "template_fields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The value of the fields used by the template. Maps field.id to the value."
+        },
         "uplink_message": {
           "$ref": "#/definitions/v3ApplicationWebhookMessage"
         },
@@ -6430,6 +7064,124 @@
         "path": {
           "type": "string",
           "description": "Path to append to the base URL."
+        }
+      }
+    },
+    "v3ApplicationWebhookTemplate": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateIdentifiers"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "logo_url": {
+          "type": "string"
+        },
+        "info_url": {
+          "type": "string"
+        },
+        "documentation_url": {
+          "type": "string"
+        },
+        "base_url": {
+          "type": "string",
+          "description": "The base URL of the template. Can contain template fields, in RFC 6570 format."
+        },
+        "headers": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "The HTTP headers used by the template. Both the key and the value can contain template fields."
+        },
+        "format": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ApplicationWebhookTemplateField"
+          }
+        },
+        "uplink_message": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "join_accept": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "downlink_ack": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "downlink_nack": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "downlink_sent": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "downlink_failed": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "downlink_queued": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        },
+        "location_solved": {
+          "$ref": "#/definitions/v3ApplicationWebhookTemplateMessage"
+        }
+      }
+    },
+    "v3ApplicationWebhookTemplateField": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "secret": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Secret decides if the field should be shown in plain-text or should stay hidden."
+        },
+        "default_value": {
+          "type": "string"
+        }
+      },
+      "description": "ApplicationWebhookTemplateField represents a custom field that needs to be filled by the user in order to use the template.\nA field can be an API key, an username or password, or any custom platform specific field (such as region).\nThe fields are meant to be replaced inside the URLs and headers when the webhook is created."
+    },
+    "v3ApplicationWebhookTemplateIdentifiers": {
+      "type": "object",
+      "properties": {
+        "template_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v3ApplicationWebhookTemplateMessage": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "description": "Path to append to the base URL. Can contain template fields, in RFC 6570 format."
+        }
+      }
+    },
+    "v3ApplicationWebhookTemplates": {
+      "type": "object",
+      "properties": {
+        "templates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ApplicationWebhookTemplate"
+          }
         }
       }
     },
@@ -6747,6 +7499,20 @@
         "CONTACT_TYPE_TECHNICAL"
       ],
       "default": "CONTACT_TYPE_OTHER"
+    },
+    "v3ConvertEndDeviceTemplateRequest": {
+      "type": "object",
+      "properties": {
+        "format_id": {
+          "type": "string",
+          "description": "ID of the format."
+        },
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Data to convert."
+        }
+      }
     },
     "v3CreateApplicationAPIKeyRequest": {
       "type": "object",
@@ -7267,9 +8033,31 @@
           "type": "boolean",
           "format": "boolean",
           "description": "Indicates whether this device represents a multicast group."
+        },
+        "claim_authentication_code": {
+          "$ref": "#/definitions/v3EndDeviceAuthenticationCode",
+          "description": "Authentication code to claim ownership of the end device. Stored in Join Server."
         }
       },
       "description": "Defines an End Device registration and its state on the network.\nThe persistence of the EndDevice is divided between the Network Server, Application Server and Join Server.\nSDKs are responsible for combining (if desired) the three."
+    },
+    "v3EndDeviceAuthenticationCode": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "format": "byte"
+        },
+        "valid_from": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "valid_to": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "description": "Authentication code for end devices."
     },
     "v3EndDeviceIdentifiers": {
       "type": "object",
@@ -7294,6 +8082,42 @@
           "type": "string",
           "format": "byte",
           "description": "The LoRaWAN DevAddr."
+        }
+      }
+    },
+    "v3EndDeviceTemplate": {
+      "type": "object",
+      "properties": {
+        "end_device": {
+          "$ref": "#/definitions/v3EndDevice"
+        },
+        "field_mask": {
+          "$ref": "#/definitions/protobufFieldMask"
+        },
+        "mapping_key": {
+          "type": "string"
+        }
+      }
+    },
+    "v3EndDeviceTemplateFormat": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "v3EndDeviceTemplateFormats": {
+      "type": "object",
+      "properties": {
+        "formats": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/v3EndDeviceTemplateFormat"
+          }
         }
       }
     },
@@ -7381,6 +8205,13 @@
           "type": "integer",
           "format": "int64",
           "description": "The status code of the error."
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          },
+          "description": "The details of the error."
         }
       },
       "description": "Error details that are communicated over gRPC (and HTTP) APIs.\nThe messages (for translation) are stored as \"error:\u003cnamespace\u003e:\u003cname\u003e\"."
@@ -7419,6 +8250,10 @@
             "type": "string",
             "format": "byte"
           }
+        },
+        "visibility": {
+          "$ref": "#/definitions/v3Rights",
+          "description": "The event will be visible to a caller that has any of these rights."
         }
       }
     },
@@ -7779,6 +8614,20 @@
         "dev_addr": {
           "type": "string",
           "format": "byte"
+        }
+      }
+    },
+    "v3GetCollaboratorResponse": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/v3OrganizationOrUserIdentifiers"
+        },
+        "rights": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3Right"
+          }
         }
       }
     },
@@ -9538,6 +10387,11 @@
         },
         "old": {
           "type": "string"
+        },
+        "revoke_all_access": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "Revoke active sessions and access tokens of user if true. To be used if credentials are suspected to be compromised."
         }
       }
     },
@@ -9752,6 +10606,18 @@
         }
       },
       "title": "Stream result of v3EndDevice"
+    },
+    "v3EndDeviceTemplate": {
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/v3EndDeviceTemplate"
+        },
+        "error": {
+          "$ref": "#/definitions/runtimeStreamError"
+        }
+      },
+      "title": "Stream result of v3EndDeviceTemplate"
     },
     "v3Event": {
       "type": "object",

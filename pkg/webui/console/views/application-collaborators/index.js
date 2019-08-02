@@ -31,7 +31,7 @@ import ApplicationCollaboratorEdit from '../application-collaborator-edit'
 
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/collaborators`}
+      path={`/applications/${appId}/collaborators`}
       icon="organization"
       content={sharedMessages.collaborators}
     />
@@ -47,7 +47,10 @@ export default class ApplicationCollaborators extends React.Component {
         <Switch>
           <Route exact path={`${match.path}`} component={ApplicationCollaboratorsList} />
           <Route path={`${match.path}/add`} component={ApplicationCollaboratorAdd} />
-          <Route path={`${match.path}/:collaboratorId`} component={ApplicationCollaboratorEdit} />
+          <Route
+            path={`${match.path}/:collaboratorType(user|organization)/:collaboratorId`}
+            component={ApplicationCollaboratorEdit}
+          />
         </Switch>
       </ErrorView>
     )

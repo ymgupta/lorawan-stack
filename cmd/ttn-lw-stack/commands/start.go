@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/console"
 	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	events_grpc "go.thethings.network/lorawan-stack/pkg/events/grpc"
@@ -47,17 +48,18 @@ var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unk
 
 var (
 	startCommand = &cobra.Command{
-		Use:   "start [is|gs|ns|as|js|console|gcs|all]... [flags]",
+		Use:   "start [is|gs|ns|as|js|console|gcs|dtc|all]... [flags]",
 		Short: "Start the Network Stack",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var start struct {
-				IdentityServer    bool
-				GatewayServer     bool
-				NetworkServer     bool
-				ApplicationServer bool
-				JoinServer        bool
-				Console           bool
-				GCS               bool
+				IdentityServer             bool
+				GatewayServer              bool
+				NetworkServer              bool
+				ApplicationServer          bool
+				JoinServer                 bool
+				Console                    bool
+				GatewayConfigurationServer bool
+				DeviceTemplateConverter    bool
 
 				CryptoServer bool
 			}
@@ -66,22 +68,26 @@ var (
 				switch strings.ToLower(arg) {
 				case "is", "identityserver":
 					start.IdentityServer = true
+					start.DeviceTemplateConverter = true
 				case "gs", "gatewayserver":
 					start.GatewayServer = true
 				case "ns", "networkserver":
 					start.NetworkServer = true
+					start.DeviceTemplateConverter = true
 				case "as", "applicationserver":
 					start.ApplicationServer = true
+					start.DeviceTemplateConverter = true
 				case "js", "joinserver":
 					start.JoinServer = true
+					start.DeviceTemplateConverter = true
 				case "console":
 					start.Console = true
 				case "gcs":
-					start.GCS = true
-
+					start.GatewayConfigurationServer = true
+				case "dtc":
+					start.DeviceTemplateConverter = true
 				case "cs", "cryptoserver":
 					start.CryptoServer = true
-
 				case "all":
 					start.IdentityServer = true
 					start.GatewayServer = true
@@ -89,7 +95,8 @@ var (
 					start.ApplicationServer = true
 					start.JoinServer = true
 					start.Console = true
-					start.GCS = true
+					start.GatewayConfigurationServer = true
+					start.DeviceTemplateConverter = true
 
 					start.CryptoServer = true
 				default:
@@ -211,13 +218,22 @@ var (
 				rootRedirect = web.Redirect("/", http.StatusFound, config.Console.UI.CanonicalURL)
 			}
 
-			if start.GCS {
+			if start.GatewayConfigurationServer {
 				logger.Info("Setting up Gateway Configuration Server")
 				gcs, err := gatewayconfigurationserver.New(c, &config.GCS)
 				if err != nil {
 					return shared.ErrInitializeGatewayConfigurationServer.WithCause(err)
 				}
 				_ = gcs
+			}
+
+			if start.DeviceTemplateConverter || startDefault {
+				logger.Info("Setting up Device Template Converter")
+				dtc, err := devicetemplateconverter.New(c, &config.DTC)
+				if err != nil {
+					return shared.ErrInitializeDeviceTemplateConverter.WithCause(err)
+				}
+				_ = dtc
 			}
 
 			if rootRedirect != nil {

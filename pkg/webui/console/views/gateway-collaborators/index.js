@@ -31,7 +31,7 @@ import GatewayCollaboratorEdit from '../gateway-collaborator-edit'
 
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}/collaborators`}
+      path={`/gateways/${gtwId}/collaborators`}
       icon="organization"
       content={sharedMessages.collaborators}
     />
@@ -47,7 +47,10 @@ export default class GatewayCollaborators extends React.Component {
         <Switch>
           <Route exact path={`${match.path}`} component={GatewayCollaboratorsList} />
           <Route path={`${match.path}/add`} component={GatewayCollaboratorAdd} />
-          <Route path={`${match.path}/:collaboratorId`} component={GatewayCollaboratorEdit} />
+          <Route
+            path={`${match.path}/:collaboratorType(user|organization)/:collaboratorId`}
+            component={GatewayCollaboratorEdit}
+          />
         </Switch>
       </ErrorView>
     )

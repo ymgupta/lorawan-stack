@@ -14,6 +14,8 @@
 
 
 import { createLogic } from 'redux-logic'
+import * as user from '../../actions/user'
+import { isUnauthenticatedError } from '../../../../lib/errors/utils'
 
 const getResultActionFromType = function (typeString, status) {
   if (typeString instanceof Array) {
@@ -57,14 +59,33 @@ const createRequestLogic = function (
   return createLogic({
     ...options,
     async process (deps, dispatch, done) {
-      const { meta: { _reject, _resolve }} = deps.action
+      const promiseAttached = deps.action.meta && deps.action.meta._attachPromise
+
       try {
         const res = await options.process(deps, dispatch)
+
+        // After successful request, dispatch success action
         dispatch(successAction(res))
-        _resolve(res)
+
+        // If we have a promise attached, resolve it
+        if (promiseAttached) {
+          const { meta: { _resolve }} = deps.action
+          _resolve(res)
+        }
       } catch (e) {
-        dispatch(failAction(e))
-        _reject(e)
+        if (isUnauthenticatedError(e)) {
+          // If there was an unauthenticated error, log the user out
+          dispatch(user.logoutSuccess())
+        } else {
+          // Otherweise, dispatch the fail action
+          dispatch(failAction(e))
+        }
+
+        // If we have a promise attached, reject it
+        if (promiseAttached) {
+          const { meta: { _reject }} = deps.action
+          _reject(e)
+        }
       }
 
       done()

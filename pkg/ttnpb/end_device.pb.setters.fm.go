@@ -1077,6 +1077,44 @@ func (dst *MACState) SetFields(src *MACState, paths ...string) error {
 	return nil
 }
 
+func (dst *EndDeviceAuthenticationCode) SetFields(src *EndDeviceAuthenticationCode, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "value":
+			if len(subs) > 0 {
+				return fmt.Errorf("'value' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Value = src.Value
+			} else {
+				dst.Value = nil
+			}
+		case "valid_from":
+			if len(subs) > 0 {
+				return fmt.Errorf("'valid_from' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ValidFrom = src.ValidFrom
+			} else {
+				dst.ValidFrom = nil
+			}
+		case "valid_to":
+			if len(subs) > 0 {
+				return fmt.Errorf("'valid_to' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ValidTo = src.ValidTo
+			} else {
+				dst.ValidTo = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
 func (dst *EndDevice) SetFields(src *EndDevice, paths ...string) error {
 	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
@@ -1615,6 +1653,27 @@ func (dst *EndDevice) SetFields(src *EndDevice, paths ...string) error {
 				var zero bool
 				dst.Multicast = zero
 			}
+		case "claim_authentication_code":
+			if len(subs) > 0 {
+				newDst := dst.ClaimAuthenticationCode
+				if newDst == nil {
+					newDst = &EndDeviceAuthenticationCode{}
+					dst.ClaimAuthenticationCode = newDst
+				}
+				var newSrc *EndDeviceAuthenticationCode
+				if src != nil {
+					newSrc = src.ClaimAuthenticationCode
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.ClaimAuthenticationCode = src.ClaimAuthenticationCode
+				} else {
+					dst.ClaimAuthenticationCode = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -1849,6 +1908,136 @@ func (dst *SetEndDeviceRequest) SetFields(src *SetEndDeviceRequest, paths ...str
 			} else {
 				var zero types.FieldMask
 				dst.FieldMask = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *EndDeviceTemplate) SetFields(src *EndDeviceTemplate, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "end_device":
+			if len(subs) > 0 {
+				newDst := &dst.EndDevice
+				var newSrc *EndDevice
+				if src != nil {
+					newSrc = &src.EndDevice
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.EndDevice = src.EndDevice
+				} else {
+					var zero EndDevice
+					dst.EndDevice = zero
+				}
+			}
+		case "field_mask":
+			if len(subs) > 0 {
+				return fmt.Errorf("'field_mask' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.FieldMask = src.FieldMask
+			} else {
+				var zero types.FieldMask
+				dst.FieldMask = zero
+			}
+		case "mapping_key":
+			if len(subs) > 0 {
+				return fmt.Errorf("'mapping_key' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MappingKey = src.MappingKey
+			} else {
+				var zero string
+				dst.MappingKey = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *EndDeviceTemplateFormat) SetFields(src *EndDeviceTemplateFormat, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "name":
+			if len(subs) > 0 {
+				return fmt.Errorf("'name' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Name = src.Name
+			} else {
+				var zero string
+				dst.Name = zero
+			}
+		case "description":
+			if len(subs) > 0 {
+				return fmt.Errorf("'description' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Description = src.Description
+			} else {
+				var zero string
+				dst.Description = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *EndDeviceTemplateFormats) SetFields(src *EndDeviceTemplateFormats, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "formats":
+			if len(subs) > 0 {
+				return fmt.Errorf("'formats' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Formats = src.Formats
+			} else {
+				dst.Formats = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *ConvertEndDeviceTemplateRequest) SetFields(src *ConvertEndDeviceTemplateRequest, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "format_id":
+			if len(subs) > 0 {
+				return fmt.Errorf("'format_id' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.FormatID = src.FormatID
+			} else {
+				var zero string
+				dst.FormatID = zero
+			}
+		case "data":
+			if len(subs) > 0 {
+				return fmt.Errorf("'data' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Data = src.Data
+			} else {
+				dst.Data = nil
 			}
 
 		default:

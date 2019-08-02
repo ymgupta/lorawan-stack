@@ -18,13 +18,13 @@ import bind from 'autobind-decorator'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 
-import Spinner from '../../../components/spinner'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import sharedMessages from '../../../lib/shared-messages'
 import CollaboratorForm from '../../components/collaborator-form'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
+import withRequest from '../../../lib/components/with-request'
 
 import { getApplicationsRightsList } from '../../store/actions/applications'
 import {
@@ -47,18 +47,22 @@ import api from '../../api'
     error: selectApplicationRightsError(state),
   }
 }, (dispatch, ownProps) => ({
-  redirectToList: appId => dispatch(push(`/console/applications/${appId}/collaborators`)),
+  redirectToList: appId => dispatch(push(`/applications/${appId}/collaborators`)),
   getApplicationsRightsList: appId => dispatch(getApplicationsRightsList(appId)),
 }), (stateProps, dispatchProps, ownProps) => ({
   ...stateProps, ...dispatchProps, ...ownProps,
   redirectToList: () => dispatchProps.redirectToList(stateProps.appId),
   getApplicationsRightsList: () => dispatchProps.getApplicationsRightsList(stateProps.appId),
 }))
+@withRequest(
+  ({ getApplicationsRightsList }) => getApplicationsRightsList(),
+  ({ fetching, rights }) => fetching || !Boolean(rights.length)
+)
 @withBreadcrumb('apps.single.collaborators.add', function (props) {
   const appId = props.appId
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/collaborators/add`}
+      path={`/applications/${appId}/collaborators/add`}
       icon="add"
       content={sharedMessages.add}
     />
@@ -71,29 +75,18 @@ export default class ApplicationCollaboratorAdd extends React.Component {
     error: '',
   }
 
-  componentDidMount () {
-    const { getApplicationsRightsList } = this.props
-
-    getApplicationsRightsList()
-  }
-
   async handleSubmit (collaborator) {
     const { appId } = this.props
 
     await api.application.collaborators.add(appId, collaborator)
-
   }
 
   render () {
-    const { rights, fetching, error, universalRights, redirectToList } = this.props
-
-    if (error) {
-      throw error
-    }
-
-    if (fetching && !rights.length) {
-      return <Spinner center />
-    }
+    const {
+      rights,
+      universalRights,
+      redirectToList,
+    } = this.props
 
     return (
       <Container>

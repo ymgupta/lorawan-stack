@@ -14,6 +14,7 @@
 
 import React from 'react'
 import { replace } from 'connected-react-router'
+import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { Col, Row, Container } from 'react-grid-system'
 import bind from 'autobind-decorator'
@@ -21,26 +22,41 @@ import bind from 'autobind-decorator'
 import sharedMessages from '../../../lib/shared-messages'
 import diff from '../../../lib/diff'
 import DeviceDataForm from '../../components/device-data-form'
+import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
+import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import api from '../../api'
 
 import { updateDevice } from '../../store/actions/device'
+import { attachPromise } from '../../store/actions/lib'
 import { selectSelectedApplicationId } from '../../store/selectors/applications'
+import { selectSelectedDevice, selectSelectedDeviceId } from '../../store/selectors/device'
 
 @connect(function (state) {
   return {
-    device: state.device.device,
+    device: selectSelectedDevice(state),
+    devId: selectSelectedDeviceId(state),
     appId: selectSelectedApplicationId(state),
   }
 }, dispatch => ({
-  onDeleteSuccess: appId => dispatch(replace(`/console/applications/${appId}/devices`)),
-  updateDevice: (appId, deviceId, patch) => dispatch(updateDevice(appId, deviceId, patch)),
+  ...bindActionCreators({ updateDevice: attachPromise(updateDevice) }, dispatch),
+  onDeleteSuccess: appId => dispatch(replace(`/applications/${appId}/devices`)),
 }),
 (stateProps, dispatchProps, ownProps) => ({
   ...stateProps, ...dispatchProps, ...ownProps,
   onDeleteSuccess: () => dispatchProps.onDeleteSuccess(stateProps.appId),
 })
 )
+@withBreadcrumb('device.single.general-settings', function (props) {
+  const { devId, appId } = props
+  return (
+    <Breadcrumb
+      path={`/applications/${appId}/devices/${devId}/general-settings`}
+      icon="general_settings"
+      content={sharedMessages.generalSettings}
+    />
+  )
+})
 @bind
 export default class DeviceGeneralSettings extends React.Component {
 

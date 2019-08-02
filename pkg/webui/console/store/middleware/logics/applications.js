@@ -25,9 +25,11 @@ import createEventsConnectLogics from './events'
 
 const getApplicationLogic = createRequestLogic({
   type: applications.GET_APP,
-  async process ({ action }) {
+  async process ({ action }, dispatch) {
     const { payload: { id }, meta: { selector }} = action
-    return api.application.get(id, selector)
+    const app = await api.application.get(id, selector)
+    dispatch(applications.startApplicationEventsStream(id))
+    return app
   },
 })
 
@@ -99,11 +101,30 @@ const getApplicationApiKeyLogic = createRequestLogic({
   },
 })
 
+const getApplicationCollaboratorLogic = createRequestLogic({
+  type: applications.GET_APP_COLLABORATOR,
+  async process ({ action }) {
+    const { id: appId, collaboratorId, isUser } = action.payload
+
+    const collaborator = isUser
+      ? await api.application.collaborators.getUser(appId, collaboratorId)
+      : await api.application.collaborators.getOrganization(appId, collaboratorId)
+
+    const { ids, ...rest } = collaborator
+
+    return {
+      id: collaboratorId,
+      isUser,
+      ...rest,
+    }
+  },
+})
+
 const getApplicationCollaboratorsLogic = createRequestLogic({
   type: applications.GET_APP_COLLABORATORS_LIST,
   async process ({ action }) {
-    const { id: appId } = action.payload
-    const res = await api.application.collaborators.list(appId)
+    const { id: appId, params } = action.payload
+    const res = await api.application.collaborators.list(appId, params)
     const collaborators = res.collaborators.map(function (collaborator) {
       const { ids, ...rest } = collaborator
       const isUser = !!ids.user_ids
@@ -178,6 +199,7 @@ export default [
   getApplicationsRightsLogic,
   getApplicationApiKeysLogic,
   getApplicationApiKeyLogic,
+  getApplicationCollaboratorLogic,
   getApplicationCollaboratorsLogic,
   getWebhooksLogic,
   getWebhookLogic,

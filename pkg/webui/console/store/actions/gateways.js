@@ -15,7 +15,12 @@
 import createGetRightsListRequestActions, { createGetRightsListActionType } from './rights'
 import createApiKeysRequestActions, { createGetApiKeysListActionType } from './api-keys'
 import createApiKeyRequestActions, { createGetApiKeyActionType } from './api-key'
-import { createGetCollaboratorsListActionType } from './collaborators'
+import {
+  createGetCollaboratorsListRequestActions,
+  createGetCollaboratorsListActionType,
+  createGetCollaboratorRequestActions,
+  createGetCollaboratorActionType,
+} from './collaborators'
 import { createRequestActions } from './lib'
 import {
   startEventsStream,
@@ -29,6 +34,12 @@ import {
   clearEvents,
   createClearEventsActionType,
 } from './events'
+import {
+  createPaginationRequestActions,
+  createPaginationBaseActionType,
+  createPaginationDeleteBaseActionType,
+  createPaginationDeleteActions,
+} from './pagination'
 
 export const SHARED_NAME = 'GATEWAY'
 
@@ -56,23 +67,32 @@ export const [{
   success: updateGatewaySuccess,
   failure: updateGatewayFailure,
 }] = createRequestActions(UPDATE_GTW_BASE,
-  (gatewayId, patch) => ({ gatewayId, patch }),
-  (gatewayId, patch, selector) => ({ selector })
+  (id, patch) => ({ id, patch }),
+  (id, patch, selector) => ({ selector })
 )
 
-export const GET_GTWS_LIST_BASE = 'GET_GATEWAYS_LIST'
+export const DELETE_GTW_BASE = createPaginationDeleteBaseActionType(SHARED_NAME)
+export const [{
+  request: DELETE_GTW,
+  success: DELETE_GTW_SUCCESS,
+  failure: DELETE_GTW_FAILURE,
+}, {
+  request: deleteGateway,
+  success: deleteGatewaySuccess,
+  failure: deleteGatewayFailure,
+}] = createPaginationDeleteActions(SHARED_NAME)
+
+
+export const GET_GTWS_LIST_BASE = createPaginationBaseActionType(SHARED_NAME)
 export const [{
   request: GET_GTWS_LIST,
   success: GET_GTWS_LIST_SUCCESS,
   failure: GET_GTWS_LIST_FAILURE,
 }, {
   request: getGatewaysList,
-  success: getGatewaysSuccess,
-  failure: getGatetaysFailure,
-}] = createRequestActions(GET_GTWS_LIST_BASE,
-  ({ page, limit, query } = {}) => ({ params: { page, limit, query }}),
-  ({ page, limit, query } = {}, selectors = []) => ({ selectors })
-)
+  success: getGatewaysListSuccess,
+  failure: getGatewaysListFailure,
+}] = createPaginationRequestActions(SHARED_NAME)
 
 export const GET_GTWS_RIGHTS_LIST_BASE = createGetRightsListActionType(SHARED_NAME)
 export const [{
@@ -119,6 +139,17 @@ export const [{
   failure: getGatewayApiKeysListFailure,
 }] = createApiKeysRequestActions(SHARED_NAME)
 
+export const GET_GTW_COLLABORATOR_BASE = createGetCollaboratorActionType(SHARED_NAME)
+export const [{
+  request: GET_GTW_COLLABORATOR,
+  success: GET_GTW_COLLABORATOR_SUCCESS,
+  failure: GET_GTW_COLLABORATOR_FAILURE,
+}, {
+  request: getGatewayCollaborator,
+  success: getGatewayCollaboratorSuccess,
+  failure: getGatewayCollaboratorFailure,
+}] = createGetCollaboratorRequestActions(SHARED_NAME)
+
 export const GET_GTW_COLLABORATORS_LIST_BASE = createGetCollaboratorsListActionType(SHARED_NAME)
 export const [{
   request: GET_GTW_COLLABORATORS_LIST,
@@ -128,21 +159,23 @@ export const [{
   request: getGatewayCollaboratorsList,
   success: getGatewayCollaboratorsListSuccess,
   failure: getGatewayCollaboratorsListFailure,
-}] = createRequestActions(GET_GTW_COLLABORATORS_LIST_BASE,
-  (gtwId, { page, limit } = {}) => ({ gtwId, params: { page, limit }}))
+}] = createGetCollaboratorsListRequestActions(SHARED_NAME)
 
-export const START_GTW_STATS = 'START_GATEWAY_STATISTICS'
+export const START_GTW_STATS_BASE = 'START_GATEWAY_STATISTICS'
+export const [{
+  request: START_GTW_STATS,
+  success: START_GTW_STATS_SUCCESS,
+  failure: START_GTW_STATS_FAILURE,
+}, {
+  request: startGatewayStatistics,
+  success: startGatewayStatisticsSuccess,
+  failure: startGatewayStatisticsFailure,
+}] = createRequestActions(START_GTW_STATS_BASE,
+  id => ({ id }),
+  (id, timeout) => ({ timeout })
+)
+
 export const STOP_GTW_STATS = 'STOP_GATEWAY_STATISTICS'
-export const UPDATE_GTW_STATS_UNAVAILABLE = 'UPDATE_GATEWAY_STATISTICS_UNAVAILABLE'
-
-export const startGatewayStatistics = (id, meta) => (
-  { type: START_GTW_STATS, id, meta }
-)
-
-export const updateGatewayStatisticsUnavailable = () => (
-  { type: UPDATE_GTW_STATS_UNAVAILABLE }
-)
-
 export const stopGatewayStatistics = () => (
   { type: STOP_GTW_STATS }
 )

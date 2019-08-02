@@ -26,25 +26,37 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
 )
 
 var (
-	evtCreateGatewayAPIKey       = events.Define("gateway.api-key.create", "create gateway API key")
-	evtUpdateGatewayAPIKey       = events.Define("gateway.api-key.update", "update gateway API key")
-	evtDeleteGatewayAPIKey       = events.Define("gateway.api-key.delete", "delete gateway API key")
-	evtUpdateGatewayCollaborator = events.Define("gateway.collaborator.update", "update gateway collaborator")
-	evtDeleteGatewayCollaborator = events.Define("gateway.collaborator.delete", "delete gateway collaborator")
+	evtCreateGatewayAPIKey = events.Define(
+		"gateway.api-key.create", "create gateway API key",
+		ttnpb.RIGHT_GATEWAY_SETTINGS_API_KEYS,
+	)
+	evtUpdateGatewayAPIKey = events.Define(
+		"gateway.api-key.update", "update gateway API key",
+		ttnpb.RIGHT_GATEWAY_SETTINGS_API_KEYS,
+	)
+	evtDeleteGatewayAPIKey = events.Define(
+		"gateway.api-key.delete", "delete gateway API key",
+		ttnpb.RIGHT_GATEWAY_SETTINGS_API_KEYS,
+	)
+	evtUpdateGatewayCollaborator = events.Define(
+		"gateway.collaborator.update", "update gateway collaborator",
+		ttnpb.RIGHT_GATEWAY_SETTINGS_COLLABORATORS,
+		ttnpb.RIGHT_USER_GATEWAYS_LIST,
+	)
+	evtDeleteGatewayCollaborator = events.Define(
+		"gateway.collaborator.delete", "delete gateway collaborator",
+		ttnpb.RIGHT_GATEWAY_SETTINGS_COLLABORATORS,
+		ttnpb.RIGHT_USER_GATEWAYS_LIST,
+	)
 )
 
 func (is *IdentityServer) listGatewayRights(ctx context.Context, ids *ttnpb.GatewayIdentifiers) (*ttnpb.Rights, error) {
-	rights, ok := rights.FromContext(ctx)
-	if !ok {
-		return &ttnpb.Rights{}, nil
-	}
-	gtwRights, ok := rights.GatewayRights[unique.ID(ctx, ids)]
-	if !ok || gtwRights == nil {
-		return &ttnpb.Rights{}, nil
+	gtwRights, err := rights.ListGateway(ctx, *ids)
+	if err != nil {
+		return nil, err
 	}
 	return gtwRights.Intersect(ttnpb.AllGatewayRights), nil
 }
@@ -160,6 +172,31 @@ func (is *IdentityServer) updateGatewayAPIKey(ctx context.Context, req *ttnpb.Up
 	return key, nil
 }
 
+func (is *IdentityServer) getGatewayCollaborator(ctx context.Context, req *ttnpb.GetGatewayCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	if err := rights.RequireGateway(ctx, req.GatewayIdentifiers, ttnpb.RIGHT_GATEWAY_SETTINGS_COLLABORATORS); err != nil {
+		return nil, err
+	}
+	res := &ttnpb.GetCollaboratorResponse{
+		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
+	}
+	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+		rights, err := store.GetMembershipStore(db).GetMember(
+			ctx,
+			&req.OrganizationOrUserIdentifiers,
+			req.GatewayIdentifiers,
+		)
+		if err != nil {
+			return err
+		}
+		res.Rights = rights.GetRights()
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (is *IdentityServer) setGatewayCollaborator(ctx context.Context, req *ttnpb.SetGatewayCollaboratorRequest) (*types.Empty, error) {
 	// Require that caller has rights to manage collaborators.
 	if err := rights.RequireGateway(ctx, req.GatewayIdentifiers, ttnpb.RIGHT_GATEWAY_SETTINGS_COLLABORATORS); err != nil {
@@ -181,7 +218,7 @@ func (is *IdentityServer) setGatewayCollaborator(ctx context.Context, req *ttnpb
 		return nil, err
 	}
 	if len(req.Collaborator.Rights) > 0 {
-		events.Publish(evtUpdateGatewayCollaborator(ctx, req.GatewayIdentifiers, nil))
+		events.Publish(evtUpdateGatewayCollaborator(ctx, ttnpb.CombineIdentifiers(req.GatewayIdentifiers, req.Collaborator), nil))
 		err = is.SendContactsEmail(ctx, req.EntityIdentifiers(), func(data emails.Data) email.MessageData {
 			data.SetEntity(req.EntityIdentifiers())
 			return &emails.CollaboratorChanged{Data: data, Collaborator: req.Collaborator}
@@ -190,7 +227,7 @@ func (is *IdentityServer) setGatewayCollaborator(ctx context.Context, req *ttnpb
 			log.FromContext(ctx).WithError(err).Error("Could not send collaborator updated notification email")
 		}
 	} else {
-		events.Publish(evtDeleteGatewayCollaborator(ctx, req.GatewayIdentifiers, nil))
+		events.Publish(evtDeleteGatewayCollaborator(ctx, ttnpb.CombineIdentifiers(req.GatewayIdentifiers, req.Collaborator), nil))
 	}
 	is.invalidateCachedMembershipsForAccount(ctx, &req.Collaborator.OrganizationOrUserIdentifiers)
 	return ttnpb.Empty, nil
@@ -249,6 +286,10 @@ func (ga *gatewayAccess) GetAPIKey(ctx context.Context, req *ttnpb.GetGatewayAPI
 
 func (ga *gatewayAccess) UpdateAPIKey(ctx context.Context, req *ttnpb.UpdateGatewayAPIKeyRequest) (*ttnpb.APIKey, error) {
 	return ga.updateGatewayAPIKey(ctx, req)
+}
+
+func (ga *gatewayAccess) GetCollaborator(ctx context.Context, req *ttnpb.GetGatewayCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	return ga.getGatewayCollaborator(ctx, req)
 }
 
 func (ga *gatewayAccess) SetCollaborator(ctx context.Context, req *ttnpb.SetGatewayCollaboratorRequest) (*types.Empty, error) {

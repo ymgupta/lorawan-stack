@@ -30,9 +30,18 @@ import (
 )
 
 var (
-	evtCreateClient = events.Define("client.create", "create OAuth client")
-	evtUpdateClient = events.Define("client.update", "update OAuth client")
-	evtDeleteClient = events.Define("client.delete", "delete OAuth client")
+	evtCreateClient = events.Define(
+		"client.create", "create OAuth client",
+		ttnpb.RIGHT_CLIENT_ALL,
+	)
+	evtUpdateClient = events.Define(
+		"client.update", "update OAuth client",
+		ttnpb.RIGHT_CLIENT_ALL,
+	)
+	evtDeleteClient = events.Define(
+		"client.delete", "delete OAuth client",
+		ttnpb.RIGHT_CLIENT_ALL,
+	)
 )
 
 func (is *IdentityServer) createClient(ctx context.Context, req *ttnpb.CreateClientRequest) (cli *ttnpb.Client, err error) {
@@ -198,9 +207,9 @@ func (is *IdentityServer) listClients(ctx context.Context, req *ttnpb.ListClient
 		if err != nil {
 			return err
 		}
-		for _, cli := range clis.Clients {
-			if !cliRights[unique.ID(ctx, cli.ClientIdentifiers)].IncludesAll(ttnpb.RIGHT_CLIENT_ALL) {
-				cli = cli.PublicSafe()
+		for i, cli := range clis.Clients {
+			if rights.RequireClient(ctx, cli.ClientIdentifiers, ttnpb.RIGHT_CLIENT_ALL) != nil {
+				clis.Clients[i] = cli.PublicSafe()
 			}
 		}
 		return nil
@@ -228,8 +237,13 @@ func (is *IdentityServer) updateClient(ctx context.Context, req *ttnpb.UpdateCli
 	}
 	updatedByAdmin := is.IsAdmin(ctx)
 
-	if ttnpb.HasAnyField(req.FieldMask.Paths, "grants") && !updatedByAdmin {
-		return nil, errUpdateClientAdminField.WithAttributes("field", "grants")
+	if !updatedByAdmin {
+		for _, path := range req.FieldMask.Paths {
+			switch path {
+			case "state", "skip_authorization", "endorsed", "grants":
+				return nil, errUpdateUserAdminField.WithAttributes("field", path)
+			}
+		}
 	}
 
 	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {

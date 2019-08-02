@@ -345,6 +345,53 @@
           ]
         },
         {
+          "name": "GetApplicationCollaboratorRequest",
+          "longName": "GetApplicationCollaboratorRequest",
+          "fullName": "ttn.lorawan.v3.GetApplicationCollaboratorRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "application_ids",
+              "description": "",
+              "label": "",
+              "type": "ApplicationIdentifiers",
+              "longType": "ApplicationIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "collaborator",
+              "description": "",
+              "label": "",
+              "type": "OrganizationOrUserIdentifiers",
+              "longType": "OrganizationOrUserIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationOrUserIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "GetApplicationRequest",
           "longName": "GetApplicationRequest",
           "fullName": "ttn.lorawan.v3.GetApplicationRequest",
@@ -833,8 +880,38 @@
               }
             },
             {
+              "name": "GetCollaborator",
+              "description": "Get the rights of a collaborator (member) of the application.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+              "requestType": "GetApplicationCollaboratorRequest",
+              "requestLongType": "GetApplicationCollaboratorRequest",
+              "requestFullType": "ttn.lorawan.v3.GetApplicationCollaboratorRequest",
+              "requestStreaming": false,
+              "responseType": "GetCollaboratorResponse",
+              "responseLongType": "GetCollaboratorResponse",
+              "responseFullType": "ttn.lorawan.v3.GetCollaboratorResponse",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/applications/{application_ids.application_id}/collaborator"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/applications/{application_ids.application_id}/collaborator/user/{collaborator.user_ids.user_id}"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/applications/{application_ids.application_id}/collaborator/organization/{collaborator.organization_ids.organization_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "SetCollaborator",
-              "description": "Setting a collaborator without rights, removes them.",
+              "description": "Set the rights of a collaborator (member) on the application.\nSetting a collaborator without rights, removes them.",
               "requestType": "SetApplicationCollaboratorRequest",
               "requestLongType": "SetApplicationCollaboratorRequest",
               "requestFullType": "ttn.lorawan.v3.SetApplicationCollaboratorRequest",
@@ -1597,7 +1674,11 @@
                 "validate.rules": [
                   {
                     "name": "string.max_len",
-                    "value": 10
+                    "value": 20
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
                   }
                 ]
               }
@@ -2253,6 +2334,38 @@
               "longType": "string",
               "fullType": "string",
               "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 20
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "template_ids",
+              "description": "The ID of the template that was used to create the Webhook.",
+              "label": "",
+              "type": "ApplicationWebhookTemplateIdentifiers",
+              "longType": "ApplicationWebhookTemplateIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "template_fields",
+              "description": "The value of the fields used by the template. Maps field.id to the value.",
+              "label": "repeated",
+              "type": "TemplateFieldsEntry",
+              "longType": "ApplicationWebhook.TemplateFieldsEntry",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry",
+              "ismap": true,
               "defaultValue": ""
             },
             {
@@ -2390,6 +2503,37 @@
           ]
         },
         {
+          "name": "TemplateFieldsEntry",
+          "longName": "ApplicationWebhook.TemplateFieldsEntry",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "value",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "ApplicationWebhookFormats",
           "longName": "ApplicationWebhookFormats",
           "fullName": "ttn.lorawan.v3.ApplicationWebhookFormats",
@@ -2493,6 +2637,468 @@
           ]
         },
         {
+          "name": "ApplicationWebhookTemplate",
+          "longName": "ApplicationWebhookTemplate",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplate",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ids",
+              "description": "",
+              "label": "",
+              "type": "ApplicationWebhookTemplateIdentifiers",
+              "longType": "ApplicationWebhookTemplateIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "name",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 20
+                  }
+                ]
+              }
+            },
+            {
+              "name": "description",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
+                  }
+                ]
+              }
+            },
+            {
+              "name": "logo_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.uri",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "info_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.uri",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "documentation_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.uri",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "base_url",
+              "description": "The base URL of the template. Can contain template fields, in RFC 6570 format.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.uri",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "headers",
+              "description": "The HTTP headers used by the template. Both the key and the value can contain template fields.",
+              "label": "repeated",
+              "type": "HeadersEntry",
+              "longType": "ApplicationWebhookTemplate.HeadersEntry",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry",
+              "ismap": true,
+              "defaultValue": ""
+            },
+            {
+              "name": "format",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 20
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "fields",
+              "description": "",
+              "label": "repeated",
+              "type": "ApplicationWebhookTemplateField",
+              "longType": "ApplicationWebhookTemplateField",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplateField",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "uplink_message",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "join_accept",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_ack",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_nack",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_sent",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_failed",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "downlink_queued",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "location_solved",
+              "description": "",
+              "label": "",
+              "type": "Message",
+              "longType": "ApplicationWebhookTemplate.Message",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "HeadersEntry",
+          "longName": "ApplicationWebhookTemplate.HeadersEntry",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "value",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Message",
+          "longName": "ApplicationWebhookTemplate.Message",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplate.Message",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "path",
+              "description": "Path to append to the base URL. Can contain template fields, in RFC 6570 format.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ApplicationWebhookTemplateField",
+          "longName": "ApplicationWebhookTemplateField",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplateField",
+          "description": "ApplicationWebhookTemplateField represents a custom field that needs to be filled by the user in order to use the template.\nA field can be an API key, an username or password, or any custom platform specific field (such as region).\nThe fields are meant to be replaced inside the URLs and headers when the webhook is created.",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "name",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 20
+                  }
+                ]
+              }
+            },
+            {
+              "name": "description",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
+                  }
+                ]
+              }
+            },
+            {
+              "name": "secret",
+              "description": "Secret decides if the field should be shown in plain-text or should stay hidden.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "default_value",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ApplicationWebhookTemplateIdentifiers",
+          "longName": "ApplicationWebhookTemplateIdentifiers",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "template_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "ApplicationWebhookTemplates",
+          "longName": "ApplicationWebhookTemplates",
+          "fullName": "ttn.lorawan.v3.ApplicationWebhookTemplates",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "templates",
+              "description": "",
+              "label": "repeated",
+              "type": "ApplicationWebhookTemplate",
+              "longType": "ApplicationWebhookTemplate",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplate",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "ApplicationWebhooks",
           "longName": "ApplicationWebhooks",
           "fullName": "ttn.lorawan.v3.ApplicationWebhooks",
@@ -2540,6 +3146,66 @@
                 ]
               }
             },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetApplicationWebhookTemplateRequest",
+          "longName": "GetApplicationWebhookTemplateRequest",
+          "fullName": "ttn.lorawan.v3.GetApplicationWebhookTemplateRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ids",
+              "description": "",
+              "label": "",
+              "type": "ApplicationWebhookTemplateIdentifiers",
+              "longType": "ApplicationWebhookTemplateIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ListApplicationWebhookTemplatesRequest",
+          "longName": "ListApplicationWebhookTemplatesRequest",
+          "fullName": "ttn.lorawan.v3.ListApplicationWebhookTemplatesRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
             {
               "name": "field_mask",
               "description": "",
@@ -2655,6 +3321,50 @@
                     {
                       "method": "GET",
                       "pattern": "/as/webhook-formats"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "GetTemplate",
+              "description": "",
+              "requestType": "GetApplicationWebhookTemplateRequest",
+              "requestLongType": "GetApplicationWebhookTemplateRequest",
+              "requestFullType": "ttn.lorawan.v3.GetApplicationWebhookTemplateRequest",
+              "requestStreaming": false,
+              "responseType": "ApplicationWebhookTemplate",
+              "responseLongType": "ApplicationWebhookTemplate",
+              "responseFullType": "ttn.lorawan.v3.ApplicationWebhookTemplate",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/as/webhook-templates/{ids.template_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "ListTemplates",
+              "description": "",
+              "requestType": "ListApplicationWebhookTemplatesRequest",
+              "requestLongType": "ListApplicationWebhookTemplatesRequest",
+              "requestFullType": "ttn.lorawan.v3.ListApplicationWebhookTemplatesRequest",
+              "requestStreaming": false,
+              "responseType": "ApplicationWebhookTemplates",
+              "responseLongType": "ApplicationWebhookTemplates",
+              "responseFullType": "ttn.lorawan.v3.ApplicationWebhookTemplates",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/as/webhook-templates"
                     }
                   ]
                 }
@@ -3104,6 +3814,53 @@
           ]
         },
         {
+          "name": "GetClientCollaboratorRequest",
+          "longName": "GetClientCollaboratorRequest",
+          "fullName": "ttn.lorawan.v3.GetClientCollaboratorRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "client_ids",
+              "description": "",
+              "label": "",
+              "type": "ClientIdentifiers",
+              "longType": "ClientIdentifiers",
+              "fullType": "ttn.lorawan.v3.ClientIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "collaborator",
+              "description": "",
+              "label": "",
+              "type": "OrganizationOrUserIdentifiers",
+              "longType": "OrganizationOrUserIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationOrUserIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "GetClientRequest",
           "longName": "GetClientRequest",
           "fullName": "ttn.lorawan.v3.GetClientRequest",
@@ -3398,8 +4155,38 @@
               }
             },
             {
+              "name": "GetCollaborator",
+              "description": "Get the rights of a collaborator (member) of the client.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+              "requestType": "GetClientCollaboratorRequest",
+              "requestLongType": "GetClientCollaboratorRequest",
+              "requestFullType": "ttn.lorawan.v3.GetClientCollaboratorRequest",
+              "requestStreaming": false,
+              "responseType": "GetCollaboratorResponse",
+              "responseLongType": "GetCollaboratorResponse",
+              "responseFullType": "ttn.lorawan.v3.GetCollaboratorResponse",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/clients/{client_ids.client_id}/collaborator"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/clients/{client_ids.client_id}/collaborator/user/{collaborator.user_ids.user_id}"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/clients/{client_ids.client_id}/collaborator/organization/{collaborator.organization_ids.organization_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "SetCollaborator",
-              "description": "Set the rights of a collaborator on the OAuth client. Users or organizations\nare considered to be a collaborator if they have at least one right on the\nOAuth client.",
+              "description": "Set the rights of a collaborator (member) on the client.\nSetting a collaborator without rights, removes them.",
               "requestType": "SetClientCollaboratorRequest",
               "requestLongType": "SetClientCollaboratorRequest",
               "requestFullType": "ttn.lorawan.v3.SetClientCollaboratorRequest",
@@ -3632,6 +4419,11 @@
             {
               "name": "CRYPTO_SERVER",
               "number": "7",
+              "description": ""
+            },
+            {
+              "name": "DEVICE_TEMPLATE_CONVERTER",
+              "number": "8",
               "description": ""
             }
           ]
@@ -4148,6 +4940,49 @@
       ],
       "extensions": [],
       "messages": [
+        {
+          "name": "ConvertEndDeviceTemplateRequest",
+          "longName": "ConvertEndDeviceTemplateRequest",
+          "fullName": "ttn.lorawan.v3.ConvertEndDeviceTemplateRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "format_id",
+              "description": "ID of the format.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "data",
+              "description": "Data to convert.",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
         {
           "name": "CreateEndDeviceRequest",
           "longName": "CreateEndDeviceRequest",
@@ -4771,6 +5606,16 @@
               "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "claim_authentication_code",
+              "description": "Authentication code to claim ownership of the end device. Stored in Join Server.",
+              "label": "",
+              "type": "EndDeviceAuthenticationCode",
+              "longType": "EndDeviceAuthenticationCode",
+              "fullType": "ttn.lorawan.v3.EndDeviceAuthenticationCode",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -4831,6 +5676,59 @@
               "type": "Location",
               "longType": "Location",
               "fullType": "ttn.lorawan.v3.Location",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "EndDeviceAuthenticationCode",
+          "longName": "EndDeviceAuthenticationCode",
+          "fullName": "ttn.lorawan.v3.EndDeviceAuthenticationCode",
+          "description": "Authentication code for end devices.",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "value",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "bytes.min_len",
+                    "value": 1
+                  },
+                  {
+                    "name": "bytes.max_len",
+                    "value": 8
+                  }
+                ]
+              }
+            },
+            {
+              "name": "valid_from",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "valid_to",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
               "ismap": false,
               "defaultValue": ""
             }
@@ -4947,6 +5845,174 @@
               "type": "string",
               "longType": "string",
               "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "EndDeviceTemplate",
+          "longName": "EndDeviceTemplate",
+          "fullName": "ttn.lorawan.v3.EndDeviceTemplate",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "end_device",
+              "description": "",
+              "label": "",
+              "type": "EndDevice",
+              "longType": "EndDevice",
+              "fullType": "ttn.lorawan.v3.EndDevice",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "mapping_key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EndDeviceTemplateFormat",
+          "longName": "EndDeviceTemplateFormat",
+          "fullName": "ttn.lorawan.v3.EndDeviceTemplateFormat",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "name",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
+                  }
+                ]
+              }
+            },
+            {
+              "name": "description",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 200
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "EndDeviceTemplateFormats",
+          "longName": "EndDeviceTemplateFormats",
+          "fullName": "ttn.lorawan.v3.EndDeviceTemplateFormats",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "formats",
+              "description": "",
+              "label": "repeated",
+              "type": "FormatsEntry",
+              "longType": "EndDeviceTemplateFormats.FormatsEntry",
+              "fullType": "ttn.lorawan.v3.EndDeviceTemplateFormats.FormatsEntry",
+              "ismap": true,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "map.keys.string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "map.keys.string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "FormatsEntry",
+          "longName": "EndDeviceTemplateFormats.FormatsEntry",
+          "fullName": "ttn.lorawan.v3.EndDeviceTemplateFormats.FormatsEntry",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "value",
+              "description": "",
+              "label": "",
+              "type": "EndDeviceTemplateFormat",
+              "longType": "EndDeviceTemplateFormat",
+              "fullType": "ttn.lorawan.v3.EndDeviceTemplateFormat",
               "ismap": false,
               "defaultValue": ""
             }
@@ -6703,6 +7769,59 @@
               }
             }
           ]
+        },
+        {
+          "name": "EndDeviceTemplateConverter",
+          "longName": "EndDeviceTemplateConverter",
+          "fullName": "ttn.lorawan.v3.EndDeviceTemplateConverter",
+          "description": "",
+          "methods": [
+            {
+              "name": "ListFormats",
+              "description": "Returns the configured formats to convert from.",
+              "requestType": "Empty",
+              "requestLongType": ".google.protobuf.Empty",
+              "requestFullType": "google.protobuf.Empty",
+              "requestStreaming": false,
+              "responseType": "EndDeviceTemplateFormats",
+              "responseLongType": "EndDeviceTemplateFormats",
+              "responseFullType": "ttn.lorawan.v3.EndDeviceTemplateFormats",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/edtc/formats"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Convert",
+              "description": "Converts the binary data to a stream of end device templates.",
+              "requestType": "ConvertEndDeviceTemplateRequest",
+              "requestLongType": "ConvertEndDeviceTemplateRequest",
+              "requestFullType": "ttn.lorawan.v3.ConvertEndDeviceTemplateRequest",
+              "requestStreaming": false,
+              "responseType": "EndDeviceTemplate",
+              "responseLongType": "EndDeviceTemplate",
+              "responseFullType": "ttn.lorawan.v3.EndDeviceTemplate",
+              "responseStreaming": true,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "POST",
+                      "pattern": "/edtc/convert",
+                      "body": "*"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
         }
       ]
     },
@@ -6865,6 +7984,16 @@
               "fullType": "uint32",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "details",
+              "description": "The details of the error.",
+              "label": "repeated",
+              "type": "Any",
+              "longType": "google.protobuf.Any",
+              "fullType": "google.protobuf.Any",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         }
@@ -6975,6 +8104,16 @@
               "longType": "Event.ContextEntry",
               "fullType": "ttn.lorawan.v3.Event.ContextEntry",
               "ismap": true,
+              "defaultValue": ""
+            },
+            {
+              "name": "visibility",
+              "description": "The event will be visible to a caller that has any of these rights.",
+              "label": "",
+              "type": "Rights",
+              "longType": "Rights",
+              "fullType": "ttn.lorawan.v3.Rights",
+              "ismap": false,
               "defaultValue": ""
             }
           ]
@@ -8355,6 +9494,53 @@
           ]
         },
         {
+          "name": "GetGatewayCollaboratorRequest",
+          "longName": "GetGatewayCollaboratorRequest",
+          "fullName": "ttn.lorawan.v3.GetGatewayCollaboratorRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "gateway_ids",
+              "description": "",
+              "label": "",
+              "type": "GatewayIdentifiers",
+              "longType": "GatewayIdentifiers",
+              "fullType": "ttn.lorawan.v3.GatewayIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "collaborator",
+              "description": "",
+              "label": "",
+              "type": "OrganizationOrUserIdentifiers",
+              "longType": "OrganizationOrUserIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationOrUserIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "GetGatewayIdentifiersForEUIRequest",
           "longName": "GetGatewayIdentifiersForEUIRequest",
           "fullName": "ttn.lorawan.v3.GetGatewayIdentifiersForEUIRequest",
@@ -8896,8 +10082,38 @@
               }
             },
             {
+              "name": "GetCollaborator",
+              "description": "Get the rights of a collaborator (member) of the gateway.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+              "requestType": "GetGatewayCollaboratorRequest",
+              "requestLongType": "GetGatewayCollaboratorRequest",
+              "requestFullType": "ttn.lorawan.v3.GetGatewayCollaboratorRequest",
+              "requestStreaming": false,
+              "responseType": "GetCollaboratorResponse",
+              "responseLongType": "GetCollaboratorResponse",
+              "responseFullType": "ttn.lorawan.v3.GetCollaboratorResponse",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/gateways/{gateway_ids.gateway_id}/collaborator"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/gateways/{gateway_ids.gateway_id}/collaborator/user/{collaborator.user_ids.user_id}"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/gateways/{gateway_ids.gateway_id}/collaborator/organization/{collaborator.organization_ids.organization_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "SetCollaborator",
-              "description": "Set the rights of a collaborator on the gateway. Users or organizations\nare considered to be a collaborator if they have at least one right on the\ngateway.",
+              "description": "Set the rights of a collaborator (member) on the gateway.\nSetting a collaborator without rights, removes them.",
               "requestType": "SetGatewayCollaboratorRequest",
               "requestLongType": "SetGatewayCollaboratorRequest",
               "requestFullType": "ttn.lorawan.v3.SetGatewayCollaboratorRequest",
@@ -9177,6 +10393,27 @@
               "type": "TxAcknowledgment",
               "longType": "TxAcknowledgment",
               "fullType": "ttn.lorawan.v3.TxAcknowledgment",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ScheduleDownlinkErrorDetails",
+          "longName": "ScheduleDownlinkErrorDetails",
+          "fullName": "ttn.lorawan.v3.ScheduleDownlinkErrorDetails",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "path_errors",
+              "description": "",
+              "label": "repeated",
+              "type": "ErrorDetails",
+              "longType": "ErrorDetails",
+              "fullType": "ttn.lorawan.v3.ErrorDetails",
               "ismap": false,
               "defaultValue": ""
             }
@@ -10639,7 +11876,10 @@
               "ismap": false,
               "defaultValue": ""
             }
-          ]
+          ],
+          "options": {
+            "deprecated": true
+          }
         },
         {
           "name": "IdentifiersFromData",
@@ -10915,7 +12155,7 @@
             },
             {
               "name": "Provision",
-              "description": "Provision returns end devices that are provisioned using the given vendor-specific data.\nThe devices are not set in the registry.",
+              "description": "This rpc is deprecated; use EndDeviceTemplateConverter service instead.\nTODO: Remove (https://github.com/TheThingsNetwork/lorawan-stack/issues/999)",
               "requestType": "ProvisionEndDevicesRequest",
               "requestLongType": "ProvisionEndDevicesRequest",
               "requestFullType": "ttn.lorawan.v3.ProvisionEndDevicesRequest",
@@ -10925,6 +12165,7 @@
               "responseFullType": "ttn.lorawan.v3.EndDevice",
               "responseStreaming": true,
               "options": {
+                "deprecated": true,
                 "google.api.http": {
                   "rules": [
                     {
@@ -18049,6 +19290,53 @@
           ]
         },
         {
+          "name": "GetOrganizationCollaboratorRequest",
+          "longName": "GetOrganizationCollaboratorRequest",
+          "fullName": "ttn.lorawan.v3.GetOrganizationCollaboratorRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "organization_ids",
+              "description": "",
+              "label": "",
+              "type": "OrganizationIdentifiers",
+              "longType": "OrganizationIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "collaborator",
+              "description": "NOTE: It is currently not possible to have organizations collaborating on\nother organizations.",
+              "label": "",
+              "type": "OrganizationOrUserIdentifiers",
+              "longType": "OrganizationOrUserIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationOrUserIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "GetOrganizationRequest",
           "longName": "GetOrganizationRequest",
           "fullName": "ttn.lorawan.v3.GetOrganizationRequest",
@@ -18706,8 +19994,34 @@
               }
             },
             {
+              "name": "GetCollaborator",
+              "description": "Get the rights of a collaborator (member) of the organization.\nPseudo-rights in the response (such as the \"_ALL\" right) are not expanded.",
+              "requestType": "GetOrganizationCollaboratorRequest",
+              "requestLongType": "GetOrganizationCollaboratorRequest",
+              "requestFullType": "ttn.lorawan.v3.GetOrganizationCollaboratorRequest",
+              "requestStreaming": false,
+              "responseType": "GetCollaboratorResponse",
+              "responseLongType": "GetCollaboratorResponse",
+              "responseFullType": "ttn.lorawan.v3.GetCollaboratorResponse",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/organizations/{organization_ids.organization_id}/collaborator"
+                    },
+                    {
+                      "method": "GET",
+                      "pattern": "/organizations/{organization_ids.organization_id}/collaborator/user/{collaborator.user_ids.user_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
               "name": "SetCollaborator",
-              "description": "Set the rights of a collaborator (member) on the organization. Users\nare considered to be a collaborator if they have at least one right on the\norganization.\nNote that only users can collaborate (be member of) an organization.",
+              "description": "Set the rights of a collaborator (member) on the organization.\nSetting a collaborator without rights, removes them.\nNote that only users can collaborate (be member of) an organization.",
               "requestType": "SetOrganizationCollaboratorRequest",
               "requestLongType": "SetOrganizationCollaboratorRequest",
               "requestFullType": "ttn.lorawan.v3.SetOrganizationCollaboratorRequest",
@@ -19578,6 +20892,37 @@
               "type": "Collaborator",
               "longType": "Collaborator",
               "fullType": "ttn.lorawan.v3.Collaborator",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetCollaboratorResponse",
+          "longName": "GetCollaboratorResponse",
+          "fullName": "ttn.lorawan.v3.GetCollaboratorResponse",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ids",
+              "description": "",
+              "label": "",
+              "type": "OrganizationOrUserIdentifiers",
+              "longType": "OrganizationOrUserIdentifiers",
+              "fullType": "ttn.lorawan.v3.OrganizationOrUserIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "rights",
+              "description": "",
+              "label": "repeated",
+              "type": "Right",
+              "longType": "Right",
+              "fullType": "ttn.lorawan.v3.Right",
               "ismap": false,
               "defaultValue": ""
             }
@@ -20779,6 +22124,16 @@
               "type": "string",
               "longType": "string",
               "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "revoke_all_access",
+              "description": "Revoke active sessions and access tokens of user if true. To be used if credentials are suspected to be compromised.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }
