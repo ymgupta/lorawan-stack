@@ -21,8 +21,24 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+)
+
+var (
+	evtCreateEndDevice = events.Define(
+		"ns.end_device.create", "create end device",
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+	)
+	evtUpdateEndDevice = events.Define(
+		"ns.end_device.update", "update end device",
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+	)
+	evtDeleteEndDevice = events.Define(
+		"ns.end_device.delete", "delete end device",
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+	)
 )
 
 // Get implements NsEndDeviceRegistryServer.
@@ -129,6 +145,7 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 		)
 	}
 
+	var evt events.Event
 	var addDownlinkTask bool
 	dev, err := ns.devices.SetByID(ctx, req.EndDevice.EndDeviceIdentifiers.ApplicationIdentifiers, req.EndDevice.EndDeviceIdentifiers.DeviceID, gets, func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 		sets := req.FieldMask.Paths
@@ -136,7 +153,10 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 			// TODO: Apply version IDs (https://github.com/TheThingsIndustries/lorawan-stack/issues/1544)
 		}
 
-		if dev != nil {
+		if dev == nil {
+			evt = evtCreateEndDevice(ctx, req.EndDevice.EndDeviceIdentifiers, nil)
+		} else {
+			evt = evtUpdateEndDevice(ctx, req.EndDevice.EndDeviceIdentifiers, req.FieldMask.Paths)
 			if err := ttnpb.ProhibitFields(req.FieldMask.Paths,
 				"ids.dev_addr",
 				"lorawan_phy_version",
@@ -345,10 +365,13 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 	if err != nil {
 		return nil, err
 	}
+	if evt != nil {
+		events.Publish(evt)
+	}
 	if addDownlinkTask {
 		startAt := time.Now().UTC()
 		log.FromContext(ctx).WithField("start_at", startAt).Debug("Add downlink task")
-		if err = ns.downlinkTasks.Add(ctx, dev.EndDeviceIdentifiers, startAt, false); err != nil {
+		if err = ns.downlinkTasks.Add(ctx, dev.EndDeviceIdentifiers, startAt, true); err != nil {
 			log.FromContext(ctx).WithError(err).Warn("Failed to add downlink task for device after set")
 		}
 	}
@@ -360,11 +383,18 @@ func (ns *NetworkServer) Delete(ctx context.Context, req *ttnpb.EndDeviceIdentif
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_DEVICES_WRITE); err != nil {
 		return nil, err
 	}
-	_, err := ns.devices.SetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, nil, func(*ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
+	var evt events.Event
+	_, err := ns.devices.SetByID(ctx, req.ApplicationIdentifiers, req.DeviceID, nil, func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
+		if dev != nil {
+			evt = evtDeleteEndDevice(ctx, req, nil)
+		}
 		return nil, nil, nil
 	})
 	if err != nil {
 		return nil, err
+	}
+	if evt != nil {
+		events.Publish(evt)
 	}
 	return ttnpb.Empty, err
 }

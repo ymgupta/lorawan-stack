@@ -26,7 +26,7 @@ const Namespace = "ttn_lw"
 var ttnInfo = prometheus.NewGauge(prometheus.GaugeOpts{
 	Namespace: Namespace,
 	Name:      "info",
-	Help:      "Information about the TTN environment.",
+	Help:      "Information about TTN Stack for LoRaWAN",
 	ConstLabels: prometheus.Labels{
 		"version":    version.TTN,
 		"build_date": version.BuildDate,

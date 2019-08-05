@@ -17,8 +17,14 @@ import TTN from 'ttn-lw'
 
 import token from '../lib/access-token'
 import getCookieValue from '../../lib/cookie'
+import {
+  selectApplicationConfig,
+  selectApplicationRootPath,
+} from '../../lib/selectors/env'
 
-const config = window.APP_CONFIG
+const config = selectApplicationConfig()
+const appRoot = selectApplicationRootPath()
+
 const stack = {
   is: config.is.enabled ? config.is.base_url : undefined,
   gs: config.gs.enabled ? config.gs.base_url : undefined,
@@ -41,10 +47,10 @@ const instance = axios.create({
 export default {
   console: {
     token () {
-      return instance.get('/console/api/auth/token')
+      return instance.get(`${appRoot}/api/auth/token`)
     },
     logout () {
-      return instance.post('/console/api/auth/logout')
+      return instance.post(`${appRoot}/api/auth/logout`)
     },
   },
   clients: {
@@ -92,6 +98,8 @@ export default {
       stats: ttnClient.Applications.Link.getStats.bind(ttnClient.Applications.Link),
     },
     collaborators: {
+      getOrganization: ttnClient.Applications.Collaborators.getByOrganizationId.bind(ttnClient.Applications.Collaborators),
+      getUser: ttnClient.Applications.Collaborators.getByUserId.bind(ttnClient.Applications.Collaborators),
       list: ttnClient.Applications.Collaborators.getAll.bind(ttnClient.Applications.Collaborators),
       add: ttnClient.Applications.Collaborators.add.bind(ttnClient.Applications.Collaborators),
       update: ttnClient.Applications.Collaborators.update.bind(ttnClient.Applications.Collaborators),
@@ -128,6 +136,8 @@ export default {
     stats: ttnClient.Gateways.getStatisticsById.bind(ttnClient.Gateways),
     eventsSubscribe: ttnClient.Gateways.openStream.bind(ttnClient.Gateways),
     collaborators: {
+      getOrganization: ttnClient.Gateways.Collaborators.getByOrganizationId.bind(ttnClient.Gateways.Collaborators),
+      getUser: ttnClient.Gateways.Collaborators.getByUserId.bind(ttnClient.Gateways.Collaborators),
       list: ttnClient.Gateways.Collaborators.getAll.bind(ttnClient.Gateways.Collaborators),
       add: ttnClient.Gateways.Collaborators.add.bind(ttnClient.Gateways.Collaborators),
       update: ttnClient.Gateways.Collaborators.update.bind(ttnClient.Gateways.Collaborators),

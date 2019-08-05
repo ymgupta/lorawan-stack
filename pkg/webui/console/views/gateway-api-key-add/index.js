@@ -18,13 +18,13 @@ import bind from 'autobind-decorator'
 import { connect } from 'react-redux'
 import { replace } from 'connected-react-router'
 
-import Spinner from '../../../components/spinner'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import sharedMessages from '../../../lib/shared-messages'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import { ApiKeyCreateForm } from '../../components/api-key-form'
+import withRequest from '../../../lib/components/with-request'
 
 import { getGatewaysRightsList } from '../../store/actions/gateways'
 import {
@@ -43,13 +43,21 @@ import api from '../../api'
   error: selectGatewayRightsError(state),
   rights: selectGatewayRights(state),
   universalRights: selectGatewayUniversalRights(state),
+}),
+dispatch => ({
+  getGatewaysRightsList: gtwId => dispatch(getGatewaysRightsList(gtwId)),
+  navigateToList: gtwId => dispatch(replace(`/gateways/${gtwId}/api-keys`)),
 }))
+@withRequest(
+  ({ gtwId, getGatewaysRightsList }) => getGatewaysRightsList(gtwId),
+  ({ fetching, rights }) => fetching || !Boolean(rights.length)
+)
 @withBreadcrumb('gtws.single.api-keys.add', function (props) {
   const gtwId = props.gtwId
 
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}/api-keys/add`}
+      path={`/gateways/${gtwId}/api-keys/add`}
       icon="add"
       content={sharedMessages.add}
     />
@@ -64,28 +72,14 @@ export default class GatewayApiKeyAdd extends React.Component {
     this.createGatewayKey = key => api.gateway.apiKeys.create(props.gtwId, key)
   }
 
-  componentDidMount () {
-    const { dispatch, gtwId } = this.props
-
-    dispatch(getGatewaysRightsList(gtwId))
-  }
-
   handleApprove () {
-    const { dispatch, gtwId } = this.props
+    const { navigateToList, gtwId } = this.props
 
-    dispatch(replace(`/console/gateways/${gtwId}/api-keys`))
+    navigateToList(gtwId)
   }
 
   render () {
-    const { rights, fetching, error, universalRights } = this.props
-
-    if (error) {
-      throw error
-    }
-
-    if (fetching || !rights.length) {
-      return <Spinner center />
-    }
+    const { rights, universalRights } = this.props
 
     return (
       <Container>

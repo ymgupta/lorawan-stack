@@ -12,6 +12,7 @@
   - [Message `CreateApplicationAPIKeyRequest`](#ttn.lorawan.v3.CreateApplicationAPIKeyRequest)
   - [Message `CreateApplicationRequest`](#ttn.lorawan.v3.CreateApplicationRequest)
   - [Message `GetApplicationAPIKeyRequest`](#ttn.lorawan.v3.GetApplicationAPIKeyRequest)
+  - [Message `GetApplicationCollaboratorRequest`](#ttn.lorawan.v3.GetApplicationCollaboratorRequest)
   - [Message `GetApplicationRequest`](#ttn.lorawan.v3.GetApplicationRequest)
   - [Message `ListApplicationAPIKeysRequest`](#ttn.lorawan.v3.ListApplicationAPIKeysRequest)
   - [Message `ListApplicationCollaboratorsRequest`](#ttn.lorawan.v3.ListApplicationCollaboratorsRequest)
@@ -46,11 +47,20 @@
   - [Message `ApplicationWebhook`](#ttn.lorawan.v3.ApplicationWebhook)
   - [Message `ApplicationWebhook.HeadersEntry`](#ttn.lorawan.v3.ApplicationWebhook.HeadersEntry)
   - [Message `ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message)
+  - [Message `ApplicationWebhook.TemplateFieldsEntry`](#ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry)
   - [Message `ApplicationWebhookFormats`](#ttn.lorawan.v3.ApplicationWebhookFormats)
   - [Message `ApplicationWebhookFormats.FormatsEntry`](#ttn.lorawan.v3.ApplicationWebhookFormats.FormatsEntry)
   - [Message `ApplicationWebhookIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookIdentifiers)
+  - [Message `ApplicationWebhookTemplate`](#ttn.lorawan.v3.ApplicationWebhookTemplate)
+  - [Message `ApplicationWebhookTemplate.HeadersEntry`](#ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry)
+  - [Message `ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message)
+  - [Message `ApplicationWebhookTemplateField`](#ttn.lorawan.v3.ApplicationWebhookTemplateField)
+  - [Message `ApplicationWebhookTemplateIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers)
+  - [Message `ApplicationWebhookTemplates`](#ttn.lorawan.v3.ApplicationWebhookTemplates)
   - [Message `ApplicationWebhooks`](#ttn.lorawan.v3.ApplicationWebhooks)
   - [Message `GetApplicationWebhookRequest`](#ttn.lorawan.v3.GetApplicationWebhookRequest)
+  - [Message `GetApplicationWebhookTemplateRequest`](#ttn.lorawan.v3.GetApplicationWebhookTemplateRequest)
+  - [Message `ListApplicationWebhookTemplatesRequest`](#ttn.lorawan.v3.ListApplicationWebhookTemplatesRequest)
   - [Message `ListApplicationWebhooksRequest`](#ttn.lorawan.v3.ListApplicationWebhooksRequest)
   - [Message `SetApplicationWebhookRequest`](#ttn.lorawan.v3.SetApplicationWebhookRequest)
   - [Service `ApplicationWebhookRegistry`](#ttn.lorawan.v3.ApplicationWebhookRegistry)
@@ -59,6 +69,7 @@
   - [Message `Client.AttributesEntry`](#ttn.lorawan.v3.Client.AttributesEntry)
   - [Message `Clients`](#ttn.lorawan.v3.Clients)
   - [Message `CreateClientRequest`](#ttn.lorawan.v3.CreateClientRequest)
+  - [Message `GetClientCollaboratorRequest`](#ttn.lorawan.v3.GetClientCollaboratorRequest)
   - [Message `GetClientRequest`](#ttn.lorawan.v3.GetClientRequest)
   - [Message `ListClientCollaboratorsRequest`](#ttn.lorawan.v3.ListClientCollaboratorsRequest)
   - [Message `ListClientsRequest`](#ttn.lorawan.v3.ListClientsRequest)
@@ -84,12 +95,18 @@
   - [Enum `ContactType`](#ttn.lorawan.v3.ContactType)
   - [Service `ContactInfoRegistry`](#ttn.lorawan.v3.ContactInfoRegistry)
 - [File `lorawan-stack/api/end_device.proto`](#lorawan-stack/api/end_device.proto)
+  - [Message `ConvertEndDeviceTemplateRequest`](#ttn.lorawan.v3.ConvertEndDeviceTemplateRequest)
   - [Message `CreateEndDeviceRequest`](#ttn.lorawan.v3.CreateEndDeviceRequest)
   - [Message `EndDevice`](#ttn.lorawan.v3.EndDevice)
   - [Message `EndDevice.AttributesEntry`](#ttn.lorawan.v3.EndDevice.AttributesEntry)
   - [Message `EndDevice.LocationsEntry`](#ttn.lorawan.v3.EndDevice.LocationsEntry)
+  - [Message `EndDeviceAuthenticationCode`](#ttn.lorawan.v3.EndDeviceAuthenticationCode)
   - [Message `EndDeviceBrand`](#ttn.lorawan.v3.EndDeviceBrand)
   - [Message `EndDeviceModel`](#ttn.lorawan.v3.EndDeviceModel)
+  - [Message `EndDeviceTemplate`](#ttn.lorawan.v3.EndDeviceTemplate)
+  - [Message `EndDeviceTemplateFormat`](#ttn.lorawan.v3.EndDeviceTemplateFormat)
+  - [Message `EndDeviceTemplateFormats`](#ttn.lorawan.v3.EndDeviceTemplateFormats)
+  - [Message `EndDeviceTemplateFormats.FormatsEntry`](#ttn.lorawan.v3.EndDeviceTemplateFormats.FormatsEntry)
   - [Message `EndDeviceVersion`](#ttn.lorawan.v3.EndDeviceVersion)
   - [Message `EndDeviceVersionIdentifiers`](#ttn.lorawan.v3.EndDeviceVersionIdentifiers)
   - [Message `EndDevices`](#ttn.lorawan.v3.EndDevices)
@@ -110,6 +127,7 @@
   - [Enum `PowerState`](#ttn.lorawan.v3.PowerState)
 - [File `lorawan-stack/api/end_device_services.proto`](#lorawan-stack/api/end_device_services.proto)
   - [Service `EndDeviceRegistry`](#ttn.lorawan.v3.EndDeviceRegistry)
+  - [Service `EndDeviceTemplateConverter`](#ttn.lorawan.v3.EndDeviceTemplateConverter)
 - [File `lorawan-stack/api/enums.proto`](#lorawan-stack/api/enums.proto)
   - [Enum `DownlinkPathConstraint`](#ttn.lorawan.v3.DownlinkPathConstraint)
   - [Enum `State`](#ttn.lorawan.v3.State)
@@ -140,6 +158,7 @@
   - [Message `GatewayVersionIdentifiers`](#ttn.lorawan.v3.GatewayVersionIdentifiers)
   - [Message `Gateways`](#ttn.lorawan.v3.Gateways)
   - [Message `GetGatewayAPIKeyRequest`](#ttn.lorawan.v3.GetGatewayAPIKeyRequest)
+  - [Message `GetGatewayCollaboratorRequest`](#ttn.lorawan.v3.GetGatewayCollaboratorRequest)
   - [Message `GetGatewayIdentifiersForEUIRequest`](#ttn.lorawan.v3.GetGatewayIdentifiersForEUIRequest)
   - [Message `GetGatewayRequest`](#ttn.lorawan.v3.GetGatewayRequest)
   - [Message `ListGatewayAPIKeysRequest`](#ttn.lorawan.v3.ListGatewayAPIKeysRequest)
@@ -156,6 +175,7 @@
 - [File `lorawan-stack/api/gatewayserver.proto`](#lorawan-stack/api/gatewayserver.proto)
   - [Message `GatewayDown`](#ttn.lorawan.v3.GatewayDown)
   - [Message `GatewayUp`](#ttn.lorawan.v3.GatewayUp)
+  - [Message `ScheduleDownlinkErrorDetails`](#ttn.lorawan.v3.ScheduleDownlinkErrorDetails)
   - [Message `ScheduleDownlinkResponse`](#ttn.lorawan.v3.ScheduleDownlinkResponse)
   - [Service `Gs`](#ttn.lorawan.v3.Gs)
   - [Service `GtwGs`](#ttn.lorawan.v3.GtwGs)
@@ -322,6 +342,7 @@
   - [Message `CreateOrganizationAPIKeyRequest`](#ttn.lorawan.v3.CreateOrganizationAPIKeyRequest)
   - [Message `CreateOrganizationRequest`](#ttn.lorawan.v3.CreateOrganizationRequest)
   - [Message `GetOrganizationAPIKeyRequest`](#ttn.lorawan.v3.GetOrganizationAPIKeyRequest)
+  - [Message `GetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.GetOrganizationCollaboratorRequest)
   - [Message `GetOrganizationRequest`](#ttn.lorawan.v3.GetOrganizationRequest)
   - [Message `ListOrganizationAPIKeysRequest`](#ttn.lorawan.v3.ListOrganizationAPIKeysRequest)
   - [Message `ListOrganizationCollaboratorsRequest`](#ttn.lorawan.v3.ListOrganizationCollaboratorsRequest)
@@ -346,6 +367,7 @@
   - [Message `APIKeys`](#ttn.lorawan.v3.APIKeys)
   - [Message `Collaborator`](#ttn.lorawan.v3.Collaborator)
   - [Message `Collaborators`](#ttn.lorawan.v3.Collaborators)
+  - [Message `GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse)
   - [Message `Rights`](#ttn.lorawan.v3.Rights)
   - [Enum `Right`](#ttn.lorawan.v3.Right)
 - [File `lorawan-stack/api/search_services.proto`](#lorawan-stack/api/search_services.proto)
@@ -470,6 +492,20 @@ Application is the message that defines an Application in the network.
 | ----- | ----------- |
 | `application_ids` | <p>`message.required`: `true`</p> |
 
+### <a name="ttn.lorawan.v3.GetApplicationCollaboratorRequest">Message `GetApplicationCollaboratorRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `application_ids` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) |  |  |
+| `collaborator` | [`OrganizationOrUserIdentifiers`](#ttn.lorawan.v3.OrganizationOrUserIdentifiers) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `application_ids` | <p>`message.required`: `true`</p> |
+| `collaborator` | <p>`message.required`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.GetApplicationRequest">Message `GetApplicationRequest`</a>
 
 | Field | Type | Label | Description |
@@ -585,7 +621,8 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | [`ListApplicationAPIKeysRequest`](#ttn.lorawan.v3.ListApplicationAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetApplicationAPIKeyRequest`](#ttn.lorawan.v3.GetApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `UpdateAPIKey` | [`UpdateApplicationAPIKeyRequest`](#ttn.lorawan.v3.UpdateApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing application API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
-| `SetCollaborator` | [`SetApplicationCollaboratorRequest`](#ttn.lorawan.v3.SetApplicationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Setting a collaborator without rights, removes them. |
+| `GetCollaborator` | [`GetApplicationCollaboratorRequest`](#ttn.lorawan.v3.GetApplicationCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the application. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
+| `SetCollaborator` | [`SetApplicationCollaboratorRequest`](#ttn.lorawan.v3.SetApplicationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the application. Setting a collaborator without rights, removes them. |
 | `ListCollaborators` | [`ListApplicationCollaboratorsRequest`](#ttn.lorawan.v3.ListApplicationCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
 
 #### HTTP bindings
@@ -597,6 +634,9 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | `GET` | `/api/v3/applications/{application_ids.application_id}/api-keys` |  |
 | `GetAPIKey` | `GET` | `/api/v3/applications/{application_ids.application_id}/api-keys/{key_id}` |  |
 | `UpdateAPIKey` | `PUT` | `/api/v3/applications/{application_ids.application_id}/api-keys/{api_key.id}` | `*` |
+| `GetCollaborator` | `GET` | `/api/v3/applications/{application_ids.application_id}/collaborator` |  |
+| `GetCollaborator` | `GET` | `/api/v3/applications/{application_ids.application_id}/collaborator/user/{collaborator.user_ids.user_id}` |  |
+| `GetCollaborator` | `GET` | `/api/v3/applications/{application_ids.application_id}/collaborator/organization/{collaborator.organization_ids.organization_id}` |  |
 | `SetCollaborator` | `PUT` | `/api/v3/applications/{application_ids.application_id}/collaborators` | `*` |
 | `ListCollaborators` | `GET` | `/api/v3/applications/{application_ids.application_id}/collaborators` |  |
 
@@ -773,7 +813,7 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Validations |
 | ----- | ----------- |
 | `ids` | <p>`message.required`: `true`</p> |
-| `format` | <p>`string.max_len`: `10`</p> |
+| `format` | <p>`string.max_len`: `20`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `base_topic` | <p>`string.max_len`: `100`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationPubSub.Message">Message `ApplicationPubSub.Message`</a>
@@ -907,6 +947,8 @@ The NATS provider settings.
 | `base_url` | [`string`](#string) |  | Base URL to which the message's path is appended. |
 | `headers` | [`ApplicationWebhook.HeadersEntry`](#ttn.lorawan.v3.ApplicationWebhook.HeadersEntry) | repeated | HTTP headers to use. |
 | `format` | [`string`](#string) |  | The format to use for the body. Supported values depend on the Application Server configuration. |
+| `template_ids` | [`ApplicationWebhookTemplateIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers) |  | The ID of the template that was used to create the Webhook. |
+| `template_fields` | [`ApplicationWebhook.TemplateFieldsEntry`](#ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry) | repeated | The value of the fields used by the template. Maps field.id to the value. |
 | `uplink_message` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
 | `join_accept` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
 | `downlink_ack` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
@@ -922,6 +964,7 @@ The NATS provider settings.
 | ----- | ----------- |
 | `ids` | <p>`message.required`: `true`</p> |
 | `base_url` | <p>`string.uri`: `true`</p> |
+| `format` | <p>`string.max_len`: `20`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationWebhook.HeadersEntry">Message `ApplicationWebhook.HeadersEntry`</a>
 
@@ -935,6 +978,13 @@ The NATS provider settings.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `path` | [`string`](#string) |  | Path to append to the base URL. |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry">Message `ApplicationWebhook.TemplateFieldsEntry`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `key` | [`string`](#string) |  |  |
+| `value` | [`string`](#string) |  |  |
 
 ### <a name="ttn.lorawan.v3.ApplicationWebhookFormats">Message `ApplicationWebhookFormats`</a>
 
@@ -963,6 +1013,96 @@ The NATS provider settings.
 | `application_ids` | <p>`message.required`: `true`</p> |
 | `webhook_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplate">Message `ApplicationWebhookTemplate`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ids` | [`ApplicationWebhookTemplateIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers) |  |  |
+| `name` | [`string`](#string) |  |  |
+| `description` | [`string`](#string) |  |  |
+| `logo_url` | [`string`](#string) |  |  |
+| `info_url` | [`string`](#string) |  |  |
+| `documentation_url` | [`string`](#string) |  |  |
+| `base_url` | [`string`](#string) |  | The base URL of the template. Can contain template fields, in RFC 6570 format. |
+| `headers` | [`ApplicationWebhookTemplate.HeadersEntry`](#ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry) | repeated | The HTTP headers used by the template. Both the key and the value can contain template fields. |
+| `format` | [`string`](#string) |  |  |
+| `fields` | [`ApplicationWebhookTemplateField`](#ttn.lorawan.v3.ApplicationWebhookTemplateField) | repeated |  |
+| `uplink_message` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `join_accept` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `downlink_ack` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `downlink_nack` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `downlink_sent` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `downlink_failed` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `downlink_queued` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+| `location_solved` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `ids` | <p>`message.required`: `true`</p> |
+| `name` | <p>`string.max_len`: `20`</p> |
+| `description` | <p>`string.max_len`: `100`</p> |
+| `logo_url` | <p>`string.uri`: `true`</p> |
+| `info_url` | <p>`string.uri`: `true`</p> |
+| `documentation_url` | <p>`string.uri`: `true`</p> |
+| `base_url` | <p>`string.uri`: `true`</p> |
+| `format` | <p>`string.max_len`: `20`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry">Message `ApplicationWebhookTemplate.HeadersEntry`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `key` | [`string`](#string) |  |  |
+| `value` | [`string`](#string) |  |  |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplate.Message">Message `ApplicationWebhookTemplate.Message`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `path` | [`string`](#string) |  | Path to append to the base URL. Can contain template fields, in RFC 6570 format. |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplateField">Message `ApplicationWebhookTemplateField`</a>
+
+ApplicationWebhookTemplateField represents a custom field that needs to be filled by the user in order to use the template.
+A field can be an API key, an username or password, or any custom platform specific field (such as region).
+The fields are meant to be replaced inside the URLs and headers when the webhook is created.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [`string`](#string) |  |  |
+| `name` | [`string`](#string) |  |  |
+| `description` | [`string`](#string) |  |  |
+| `secret` | [`bool`](#bool) |  | Secret decides if the field should be shown in plain-text or should stay hidden. |
+| `default_value` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+| `name` | <p>`string.max_len`: `20`</p> |
+| `description` | <p>`string.max_len`: `100`</p> |
+| `default_value` | <p>`string.max_len`: `100`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers">Message `ApplicationWebhookTemplateIdentifiers`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `template_id` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `template_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationWebhookTemplates">Message `ApplicationWebhookTemplates`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `templates` | [`ApplicationWebhookTemplate`](#ttn.lorawan.v3.ApplicationWebhookTemplate) | repeated |  |
+
 ### <a name="ttn.lorawan.v3.ApplicationWebhooks">Message `ApplicationWebhooks`</a>
 
 | Field | Type | Label | Description |
@@ -981,6 +1121,25 @@ The NATS provider settings.
 | Field | Validations |
 | ----- | ----------- |
 | `ids` | <p>`message.required`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.GetApplicationWebhookTemplateRequest">Message `GetApplicationWebhookTemplateRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ids` | [`ApplicationWebhookTemplateIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers) |  |  |
+| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `ids` | <p>`message.required`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.ListApplicationWebhookTemplatesRequest">Message `ListApplicationWebhookTemplatesRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
 
 ### <a name="ttn.lorawan.v3.ListApplicationWebhooksRequest">Message `ListApplicationWebhooksRequest`</a>
 
@@ -1013,6 +1172,8 @@ The NATS provider settings.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | `GetFormats` | [`.google.protobuf.Empty`](#google.protobuf.Empty) | [`ApplicationWebhookFormats`](#ttn.lorawan.v3.ApplicationWebhookFormats) |  |
+| `GetTemplate` | [`GetApplicationWebhookTemplateRequest`](#ttn.lorawan.v3.GetApplicationWebhookTemplateRequest) | [`ApplicationWebhookTemplate`](#ttn.lorawan.v3.ApplicationWebhookTemplate) |  |
+| `ListTemplates` | [`ListApplicationWebhookTemplatesRequest`](#ttn.lorawan.v3.ListApplicationWebhookTemplatesRequest) | [`ApplicationWebhookTemplates`](#ttn.lorawan.v3.ApplicationWebhookTemplates) |  |
 | `Get` | [`GetApplicationWebhookRequest`](#ttn.lorawan.v3.GetApplicationWebhookRequest) | [`ApplicationWebhook`](#ttn.lorawan.v3.ApplicationWebhook) |  |
 | `List` | [`ListApplicationWebhooksRequest`](#ttn.lorawan.v3.ListApplicationWebhooksRequest) | [`ApplicationWebhooks`](#ttn.lorawan.v3.ApplicationWebhooks) |  |
 | `Set` | [`SetApplicationWebhookRequest`](#ttn.lorawan.v3.SetApplicationWebhookRequest) | [`ApplicationWebhook`](#ttn.lorawan.v3.ApplicationWebhook) |  |
@@ -1023,6 +1184,8 @@ The NATS provider settings.
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
 | `GetFormats` | `GET` | `/api/v3/as/webhook-formats` |  |
+| `GetTemplate` | `GET` | `/api/v3/as/webhook-templates/{ids.template_id}` |  |
+| `ListTemplates` | `GET` | `/api/v3/as/webhook-templates` |  |
 | `Get` | `GET` | `/api/v3/as/webhooks/{ids.application_ids.application_id}/{ids.webhook_id}` |  |
 | `List` | `GET` | `/api/v3/as/webhooks/{application_ids.application_id}` |  |
 | `Set` | `PUT` | `/api/v3/as/webhooks/{webhook.ids.application_ids.application_id}/{webhook.ids.webhook_id}` | `*` |
@@ -1089,6 +1252,20 @@ An OAuth client on the network.
 | Field | Validations |
 | ----- | ----------- |
 | `client` | <p>`message.required`: `true`</p> |
+| `collaborator` | <p>`message.required`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.GetClientCollaboratorRequest">Message `GetClientCollaboratorRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `client_ids` | [`ClientIdentifiers`](#ttn.lorawan.v3.ClientIdentifiers) |  |  |
+| `collaborator` | [`OrganizationOrUserIdentifiers`](#ttn.lorawan.v3.OrganizationOrUserIdentifiers) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `client_ids` | <p>`message.required`: `true`</p> |
 | `collaborator` | <p>`message.required`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.GetClientRequest">Message `GetClientRequest`</a>
@@ -1183,7 +1360,8 @@ The OAuth2 flows an OAuth client can use to get an access token.
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | `ListRights` | [`ClientIdentifiers`](#ttn.lorawan.v3.ClientIdentifiers) | [`Rights`](#ttn.lorawan.v3.Rights) |  |
-| `SetCollaborator` | [`SetClientCollaboratorRequest`](#ttn.lorawan.v3.SetClientCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator on the OAuth client. Users or organizations are considered to be a collaborator if they have at least one right on the OAuth client. |
+| `GetCollaborator` | [`GetClientCollaboratorRequest`](#ttn.lorawan.v3.GetClientCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the client. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
+| `SetCollaborator` | [`SetClientCollaboratorRequest`](#ttn.lorawan.v3.SetClientCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the client. Setting a collaborator without rights, removes them. |
 | `ListCollaborators` | [`ListClientCollaboratorsRequest`](#ttn.lorawan.v3.ListClientCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
 
 #### HTTP bindings
@@ -1191,6 +1369,9 @@ The OAuth2 flows an OAuth client can use to get an access token.
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
 | `ListRights` | `GET` | `/api/v3/clients/{client_id}/rights` |  |
+| `GetCollaborator` | `GET` | `/api/v3/clients/{client_ids.client_id}/collaborator` |  |
+| `GetCollaborator` | `GET` | `/api/v3/clients/{client_ids.client_id}/collaborator/user/{collaborator.user_ids.user_id}` |  |
+| `GetCollaborator` | `GET` | `/api/v3/clients/{client_ids.client_id}/collaborator/organization/{collaborator.organization_ids.organization_id}` |  |
 | `SetCollaborator` | `PUT` | `/api/v3/clients/{client_ids.client_id}/collaborators` | `*` |
 | `ListCollaborators` | `GET` | `/api/v3/clients/{client_ids.client_id}/collaborators` |  |
 
@@ -1249,6 +1430,7 @@ PeerInfo
 | `APPLICATION_SERVER` | 5 |  |
 | `JOIN_SERVER` | 6 |  |
 | `CRYPTO_SERVER` | 7 |  |
+| `DEVICE_TEMPLATE_CONVERTER` | 8 |  |
 
 ## <a name="lorawan-stack/api/configuration_services.proto">File `lorawan-stack/api/configuration_services.proto`</a>
 
@@ -1341,6 +1523,19 @@ PeerInfo
 
 ## <a name="lorawan-stack/api/end_device.proto">File `lorawan-stack/api/end_device.proto`</a>
 
+### <a name="ttn.lorawan.v3.ConvertEndDeviceTemplateRequest">Message `ConvertEndDeviceTemplateRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `format_id` | [`string`](#string) |  | ID of the format. |
+| `data` | [`bytes`](#bytes) |  | Data to convert. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `format_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+
 ### <a name="ttn.lorawan.v3.CreateEndDeviceRequest">Message `CreateEndDeviceRequest`</a>
 
 | Field | Type | Label | Description |
@@ -1406,6 +1601,7 @@ SDKs are responsible for combining (if desired) the three.
 | `provisioner_id` | [`string`](#string) |  | ID of the provisioner. Stored in Join Server. |
 | `provisioning_data` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  | Vendor-specific provisioning data. Stored in Join Server. |
 | `multicast` | [`bool`](#bool) |  | Indicates whether this device represents a multicast group. |
+| `claim_authentication_code` | [`EndDeviceAuthenticationCode`](#ttn.lorawan.v3.EndDeviceAuthenticationCode) |  | Authentication code to claim ownership of the end device. Stored in Join Server. |
 
 #### Field Rules
 
@@ -1441,6 +1637,22 @@ SDKs are responsible for combining (if desired) the three.
 | `key` | [`string`](#string) |  |  |
 | `value` | [`Location`](#ttn.lorawan.v3.Location) |  |  |
 
+### <a name="ttn.lorawan.v3.EndDeviceAuthenticationCode">Message `EndDeviceAuthenticationCode`</a>
+
+Authentication code for end devices.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`bytes`](#bytes) |  |  |
+| `valid_from` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `valid_to` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`bytes.min_len`: `1`</p><p>`bytes.max_len`: `8`</p> |
+
 ### <a name="ttn.lorawan.v3.EndDeviceBrand">Message `EndDeviceBrand`</a>
 
 | Field | Type | Label | Description |
@@ -1464,6 +1676,54 @@ SDKs are responsible for combining (if desired) the three.
 | ----- | ----------- |
 | `brand_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+
+### <a name="ttn.lorawan.v3.EndDeviceTemplate">Message `EndDeviceTemplate`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `end_device` | [`EndDevice`](#ttn.lorawan.v3.EndDevice) |  |  |
+| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
+| `mapping_key` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `end_device` | <p>`message.required`: `true`</p> |
+| `mapping_key` | <p>`string.max_len`: `100`</p> |
+
+### <a name="ttn.lorawan.v3.EndDeviceTemplateFormat">Message `EndDeviceTemplateFormat`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `name` | [`string`](#string) |  |  |
+| `description` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `name` | <p>`string.max_len`: `100`</p> |
+| `description` | <p>`string.max_len`: `200`</p> |
+
+### <a name="ttn.lorawan.v3.EndDeviceTemplateFormats">Message `EndDeviceTemplateFormats`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `formats` | [`EndDeviceTemplateFormats.FormatsEntry`](#ttn.lorawan.v3.EndDeviceTemplateFormats.FormatsEntry) | repeated |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `formats` | <p>`map.keys.string.max_len`: `36`</p><p>`map.keys.string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+
+### <a name="ttn.lorawan.v3.EndDeviceTemplateFormats.FormatsEntry">Message `EndDeviceTemplateFormats.FormatsEntry`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `key` | [`string`](#string) |  |  |
+| `value` | [`EndDeviceTemplateFormat`](#ttn.lorawan.v3.EndDeviceTemplateFormat) |  |  |
 
 ### <a name="ttn.lorawan.v3.EndDeviceVersion">Message `EndDeviceVersion`</a>
 
@@ -1823,6 +2083,20 @@ Power state of the device.
 | `Update` | `PUT` | `/api/v3/applications/{end_device.ids.application_ids.application_id}/devices/{end_device.ids.device_id}` | `*` |
 | `Delete` | `DELETE` | `/api/v3/applications/{application_ids.application_id}/devices/{device_id}` |  |
 
+### <a name="ttn.lorawan.v3.EndDeviceTemplateConverter">Service `EndDeviceTemplateConverter`</a>
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `ListFormats` | [`.google.protobuf.Empty`](#google.protobuf.Empty) | [`EndDeviceTemplateFormats`](#ttn.lorawan.v3.EndDeviceTemplateFormats) | Returns the configured formats to convert from. |
+| `Convert` | [`ConvertEndDeviceTemplateRequest`](#ttn.lorawan.v3.ConvertEndDeviceTemplateRequest) | [`EndDeviceTemplate`](#ttn.lorawan.v3.EndDeviceTemplate) _stream_ | Converts the binary data to a stream of end device templates. |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `ListFormats` | `GET` | `/api/v3/edtc/formats` |  |
+| `Convert` | `POST` | `/api/v3/edtc/convert` | `*` |
+
 ## <a name="lorawan-stack/api/enums.proto">File `lorawan-stack/api/enums.proto`</a>
 
 ### <a name="ttn.lorawan.v3.DownlinkPathConstraint">Enum `DownlinkPathConstraint`</a>
@@ -1861,6 +2135,7 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 | `correlation_id` | [`string`](#string) |  | The correlation ID of the error can be used to correlate the error to stack traces the network may (or may not) store about recent errors. |
 | `cause` | [`ErrorDetails`](#ttn.lorawan.v3.ErrorDetails) |  | The error that caused this error. |
 | `code` | [`uint32`](#uint32) |  | The status code of the error. |
+| `details` | [`google.protobuf.Any`](#google.protobuf.Any) | repeated | The details of the error. |
 
 ## <a name="lorawan-stack/api/events.proto">File `lorawan-stack/api/events.proto`</a>
 
@@ -1875,6 +2150,7 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 | `correlation_ids` | [`string`](#string) | repeated |  |
 | `origin` | [`string`](#string) |  |  |
 | `context` | [`Event.ContextEntry`](#ttn.lorawan.v3.Event.ContextEntry) | repeated |  |
+| `visibility` | [`Rights`](#ttn.lorawan.v3.Rights) |  | The event will be visible to a caller that has any of these rights. |
 
 #### Field Rules
 
@@ -2176,6 +2452,20 @@ Identifies an end device model with version information.
 | ----- | ----------- |
 | `gateway_ids` | <p>`message.required`: `true`</p> |
 
+### <a name="ttn.lorawan.v3.GetGatewayCollaboratorRequest">Message `GetGatewayCollaboratorRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `gateway_ids` | [`GatewayIdentifiers`](#ttn.lorawan.v3.GatewayIdentifiers) |  |  |
+| `collaborator` | [`OrganizationOrUserIdentifiers`](#ttn.lorawan.v3.OrganizationOrUserIdentifiers) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `gateway_ids` | <p>`message.required`: `true`</p> |
+| `collaborator` | <p>`message.required`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.GetGatewayIdentifiersForEUIRequest">Message `GetGatewayIdentifiersForEUIRequest`</a>
 
 | Field | Type | Label | Description |
@@ -2304,7 +2594,8 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | [`ListGatewayAPIKeysRequest`](#ttn.lorawan.v3.ListGatewayAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetGatewayAPIKeyRequest`](#ttn.lorawan.v3.GetGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `UpdateAPIKey` | [`UpdateGatewayAPIKeyRequest`](#ttn.lorawan.v3.UpdateGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing gateway API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
-| `SetCollaborator` | [`SetGatewayCollaboratorRequest`](#ttn.lorawan.v3.SetGatewayCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator on the gateway. Users or organizations are considered to be a collaborator if they have at least one right on the gateway. |
+| `GetCollaborator` | [`GetGatewayCollaboratorRequest`](#ttn.lorawan.v3.GetGatewayCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the gateway. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
+| `SetCollaborator` | [`SetGatewayCollaboratorRequest`](#ttn.lorawan.v3.SetGatewayCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the gateway. Setting a collaborator without rights, removes them. |
 | `ListCollaborators` | [`ListGatewayCollaboratorsRequest`](#ttn.lorawan.v3.ListGatewayCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
 
 #### HTTP bindings
@@ -2316,6 +2607,9 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/api-keys` |  |
 | `GetAPIKey` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/api-keys/{key_id}` |  |
 | `UpdateAPIKey` | `PUT` | `/api/v3/gateways/{gateway_ids.gateway_id}/api-keys/{api_key.id}` | `*` |
+| `GetCollaborator` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/collaborator` |  |
+| `GetCollaborator` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/collaborator/user/{collaborator.user_ids.user_id}` |  |
+| `GetCollaborator` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/collaborator/organization/{collaborator.organization_ids.organization_id}` |  |
 | `SetCollaborator` | `PUT` | `/api/v3/gateways/{gateway_ids.gateway_id}/collaborators` | `*` |
 | `ListCollaborators` | `GET` | `/api/v3/gateways/{gateway_ids.gateway_id}/collaborators` |  |
 
@@ -2368,6 +2662,12 @@ GatewayUp may contain zero or more uplink messages and/or a status message for t
 | `uplink_messages` | [`UplinkMessage`](#ttn.lorawan.v3.UplinkMessage) | repeated | UplinkMessages received by the gateway. |
 | `gateway_status` | [`GatewayStatus`](#ttn.lorawan.v3.GatewayStatus) |  |  |
 | `tx_acknowledgment` | [`TxAcknowledgment`](#ttn.lorawan.v3.TxAcknowledgment) |  |  |
+
+### <a name="ttn.lorawan.v3.ScheduleDownlinkErrorDetails">Message `ScheduleDownlinkErrorDetails`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `path_errors` | [`ErrorDetails`](#ttn.lorawan.v3.ErrorDetails) | repeated |  |
 
 ### <a name="ttn.lorawan.v3.ScheduleDownlinkResponse">Message `ScheduleDownlinkResponse`</a>
 
@@ -2806,7 +3106,7 @@ The JsEndDeviceRegistry service allows clients to manage their end devices on th
 | ----------- | ------------ | ------------- | ------------|
 | `Get` | [`GetEndDeviceRequest`](#ttn.lorawan.v3.GetEndDeviceRequest) | [`EndDevice`](#ttn.lorawan.v3.EndDevice) | Get returns the device that matches the given identifiers. If there are multiple matches, an error will be returned. |
 | `Set` | [`SetEndDeviceRequest`](#ttn.lorawan.v3.SetEndDeviceRequest) | [`EndDevice`](#ttn.lorawan.v3.EndDevice) | Set creates or updates the device. |
-| `Provision` | [`ProvisionEndDevicesRequest`](#ttn.lorawan.v3.ProvisionEndDevicesRequest) | [`EndDevice`](#ttn.lorawan.v3.EndDevice) _stream_ | Provision returns end devices that are provisioned using the given vendor-specific data. The devices are not set in the registry. |
+| `Provision` | [`ProvisionEndDevicesRequest`](#ttn.lorawan.v3.ProvisionEndDevicesRequest) | [`EndDevice`](#ttn.lorawan.v3.EndDevice) _stream_ | This rpc is deprecated; use EndDeviceTemplateConverter service instead. TODO: Remove (https://github.com/TheThingsNetwork/lorawan-stack/issues/999) |
 | `Delete` | [`EndDeviceIdentifiers`](#ttn.lorawan.v3.EndDeviceIdentifiers) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Delete deletes the device that matches the given identifiers. If there are multiple matches, an error will be returned. |
 
 #### HTTP bindings
@@ -4511,6 +4811,20 @@ The NsEndDeviceRegistry service allows clients to manage their end devices on th
 | ----- | ----------- |
 | `organization_ids` | <p>`message.required`: `true`</p> |
 
+### <a name="ttn.lorawan.v3.GetOrganizationCollaboratorRequest">Message `GetOrganizationCollaboratorRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `organization_ids` | [`OrganizationIdentifiers`](#ttn.lorawan.v3.OrganizationIdentifiers) |  |  |
+| `collaborator` | [`OrganizationOrUserIdentifiers`](#ttn.lorawan.v3.OrganizationOrUserIdentifiers) |  | NOTE: It is currently not possible to have organizations collaborating on other organizations. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `organization_ids` | <p>`message.required`: `true`</p> |
+| `collaborator` | <p>`message.required`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.GetOrganizationRequest">Message `GetOrganizationRequest`</a>
 
 | Field | Type | Label | Description |
@@ -4660,7 +4974,8 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | [`ListOrganizationAPIKeysRequest`](#ttn.lorawan.v3.ListOrganizationAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetOrganizationAPIKeyRequest`](#ttn.lorawan.v3.GetOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `UpdateAPIKey` | [`UpdateOrganizationAPIKeyRequest`](#ttn.lorawan.v3.UpdateOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing organization API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
-| `SetCollaborator` | [`SetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.SetOrganizationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the organization. Users are considered to be a collaborator if they have at least one right on the organization. Note that only users can collaborate (be member of) an organization. |
+| `GetCollaborator` | [`GetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.GetOrganizationCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the organization. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
+| `SetCollaborator` | [`SetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.SetOrganizationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the organization. Setting a collaborator without rights, removes them. Note that only users can collaborate (be member of) an organization. |
 | `ListCollaborators` | [`ListOrganizationCollaboratorsRequest`](#ttn.lorawan.v3.ListOrganizationCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
 
 #### HTTP bindings
@@ -4672,6 +4987,8 @@ where the user or organization is collaborator on.
 | `ListAPIKeys` | `GET` | `/api/v3/organizations/{organization_ids.organization_id}/api-keys` |  |
 | `GetAPIKey` | `GET` | `/api/v3/organizations/{organization_ids.organization_id}/api-keys/{key_id}` |  |
 | `UpdateAPIKey` | `PUT` | `/api/v3/organizations/{organization_ids.organization_id}/api-keys/{api_key.id}` | `*` |
+| `GetCollaborator` | `GET` | `/api/v3/organizations/{organization_ids.organization_id}/collaborator` |  |
+| `GetCollaborator` | `GET` | `/api/v3/organizations/{organization_ids.organization_id}/collaborator/user/{collaborator.user_ids.user_id}` |  |
 | `SetCollaborator` | `PUT` | `/api/v3/organizations/{organization_ids.organization_id}/collaborators` | `*` |
 | `ListCollaborators` | `GET` | `/api/v3/organizations/{organization_ids.organization_id}/collaborators` |  |
 
@@ -4784,6 +5101,13 @@ where the user or organization is collaborator on.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `collaborators` | [`Collaborator`](#ttn.lorawan.v3.Collaborator) | repeated |  |
+
+### <a name="ttn.lorawan.v3.GetCollaboratorResponse">Message `GetCollaboratorResponse`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ids` | [`OrganizationOrUserIdentifiers`](#ttn.lorawan.v3.OrganizationOrUserIdentifiers) |  |  |
+| `rights` | [`Right`](#ttn.lorawan.v3.Right) | repeated |  |
 
 ### <a name="ttn.lorawan.v3.Rights">Message `Rights`</a>
 
@@ -5164,6 +5488,7 @@ This service is not implemented on all deployments.
 | `user_ids` | [`UserIdentifiers`](#ttn.lorawan.v3.UserIdentifiers) |  |  |
 | `new` | [`string`](#string) |  |  |
 | `old` | [`string`](#string) |  |  |
+| `revoke_all_access` | [`bool`](#bool) |  | Revoke active sessions and access tokens of user if true. To be used if credentials are suspected to be compromised. |
 
 #### Field Rules
 

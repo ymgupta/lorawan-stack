@@ -153,6 +153,7 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	c.AddContextFiller(func(ctx context.Context) context.Context {
 		ctx = is.withRequestAccessCache(ctx)
 		ctx = rights.NewContextWithFetcher(ctx, is)
+		ctx = rights.NewContextWithCache(ctx)
 		return ctx
 	})
 
@@ -162,7 +163,6 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	}{
 		{rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver")},
 		{cluster.HookName, c.ClusterAuthUnaryHook()},
-		{rights.HookName, rights.Hook},
 	} {
 		hooks.RegisterUnaryHook("/ttn.lorawan.v3.ApplicationRegistry", hook.name, hook.middleware)
 		hooks.RegisterUnaryHook("/ttn.lorawan.v3.ApplicationAccess", hook.name, hook.middleware)
@@ -179,7 +179,6 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.EntityAccess", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.EntityAccess", cluster.HookName, c.ClusterAuthUnaryHook())
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.OAuthAuthorizationRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
-	hooks.RegisterUnaryHook("/ttn.lorawan.v3.OAuthAuthorizationRegistry", rights.HookName, rights.Hook)
 
 	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
 	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", cluster.HookName, c.ClusterAuthUnaryHook())

@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import React from 'react'
-import { replace } from 'connected-react-router'
 import { defineMessages } from 'react-intl'
 import { connect } from 'react-redux'
 import bind from 'autobind-decorator'
@@ -32,11 +31,10 @@ import SubmitButton from '../../../components/submit-button'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import diff from '../../../lib/diff'
 
-import { updateGateway } from '../../store/actions/gateways'
+import { updateGateway, deleteGateway } from '../../store/actions/gateways'
+import { attachPromise } from '../../store/actions/lib'
 import { getGatewayId } from '../../../lib/selectors/id'
 import { selectSelectedGateway } from '../../store/selectors/gateways'
-
-import api from '../../api'
 
 const m = defineMessages({
   updateSuccess: 'Successfully updated gateway',
@@ -52,16 +50,16 @@ const m = defineMessages({
     gateway,
   }
 },
-dispatch => ({
-  onDeleteSuccess: () => dispatch(replace('/console/gateways')),
-  updateGateway: (gatewayId, patch) => dispatch(updateGateway(gatewayId, patch)),
-}))
+{
+  updateGateway: attachPromise(updateGateway),
+  deleteGateway: attachPromise(deleteGateway),
+})
 @withBreadcrumb('gateways.single.general-settings', function (props) {
   const { gtwId } = props
 
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}/general-settings`}
+      path={`/gateways/${gtwId}/general-settings`}
       icon="general_settings"
       content={sharedMessages.generalSettings}
     />
@@ -73,8 +71,8 @@ export default class GatewayGeneralSettings extends React.Component {
   static propTypes = {
     gtwId: PropTypes.string.isRequired,
     gateway: PropTypes.object.isRequired,
-    onDeleteSuccess: PropTypes.func.isRequired,
     updateGateway: PropTypes.func.isRequired,
+    deleteGateway: PropTypes.func.isRequired,
   }
 
   constructor (props) {
@@ -123,13 +121,12 @@ export default class GatewayGeneralSettings extends React.Component {
   }
 
   async handleDelete () {
-    const { gtwId, onDeleteSuccess } = this.props
+    const { gtwId, deleteGateway } = this.props
 
     await this.setState({ error: '' })
 
     try {
-      await api.gateway.delete(gtwId)
-      onDeleteSuccess()
+      await deleteGateway(gtwId)
     } catch (error) {
       this.formRef.current.setSubmitting(false)
       this.setState({ error })

@@ -26,24 +26,52 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
 )
 
 var (
-	evtUpdateClientCollaborator = events.Define("client.collaborator.update", "update client collaborator")
-	evtDeleteClientCollaborator = events.Define("client.collaborator.delete", "delete client collaborator")
+	evtUpdateClientCollaborator = events.Define(
+		"client.collaborator.update", "update client collaborator",
+		ttnpb.RIGHT_CLIENT_ALL,
+		ttnpb.RIGHT_USER_CLIENTS_LIST,
+	)
+	evtDeleteClientCollaborator = events.Define(
+		"client.collaborator.delete", "delete client collaborator",
+		ttnpb.RIGHT_CLIENT_ALL,
+		ttnpb.RIGHT_USER_CLIENTS_LIST,
+	)
 )
 
 func (is *IdentityServer) listClientRights(ctx context.Context, ids *ttnpb.ClientIdentifiers) (*ttnpb.Rights, error) {
-	rights, ok := rights.FromContext(ctx)
-	if !ok {
-		return &ttnpb.Rights{}, nil
-	}
-	cliRights, ok := rights.ClientRights[unique.ID(ctx, ids)]
-	if !ok || cliRights == nil {
-		return &ttnpb.Rights{}, nil
+	cliRights, err := rights.ListClient(ctx, *ids)
+	if err != nil {
+		return nil, err
 	}
 	return cliRights.Intersect(ttnpb.AllClientRights), nil
+}
+
+func (is *IdentityServer) getClientCollaborator(ctx context.Context, req *ttnpb.GetClientCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	if err := rights.RequireClient(ctx, req.ClientIdentifiers, ttnpb.RIGHT_CLIENT_ALL); err != nil {
+		return nil, err
+	}
+	res := &ttnpb.GetCollaboratorResponse{
+		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
+	}
+	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+		rights, err := store.GetMembershipStore(db).GetMember(
+			ctx,
+			&req.OrganizationOrUserIdentifiers,
+			req.ClientIdentifiers,
+		)
+		if err != nil {
+			return err
+		}
+		res.Rights = rights.GetRights()
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 func (is *IdentityServer) setClientCollaborator(ctx context.Context, req *ttnpb.SetClientCollaboratorRequest) (*types.Empty, error) {
@@ -67,7 +95,7 @@ func (is *IdentityServer) setClientCollaborator(ctx context.Context, req *ttnpb.
 		return nil, err
 	}
 	if len(req.Collaborator.Rights) > 0 {
-		events.Publish(evtUpdateClientCollaborator(ctx, req.ClientIdentifiers, nil))
+		events.Publish(evtUpdateClientCollaborator(ctx, ttnpb.CombineIdentifiers(req.ClientIdentifiers, req.Collaborator), nil))
 		err = is.SendContactsEmail(ctx, req.EntityIdentifiers(), func(data emails.Data) email.MessageData {
 			data.SetEntity(req.EntityIdentifiers())
 			return &emails.CollaboratorChanged{Data: data, Collaborator: req.Collaborator}
@@ -76,7 +104,7 @@ func (is *IdentityServer) setClientCollaborator(ctx context.Context, req *ttnpb.
 			log.FromContext(ctx).WithError(err).Error("Could not send collaborator updated notification email")
 		}
 	} else {
-		events.Publish(evtDeleteClientCollaborator(ctx, req.ClientIdentifiers, nil))
+		events.Publish(evtDeleteClientCollaborator(ctx, ttnpb.CombineIdentifiers(req.ClientIdentifiers, req.Collaborator), nil))
 	}
 	is.invalidateCachedMembershipsForAccount(ctx, &req.Collaborator.OrganizationOrUserIdentifiers)
 	return ttnpb.Empty, nil
@@ -119,6 +147,10 @@ type clientAccess struct {
 
 func (ca *clientAccess) ListRights(ctx context.Context, req *ttnpb.ClientIdentifiers) (*ttnpb.Rights, error) {
 	return ca.listClientRights(ctx, req)
+}
+
+func (ca *clientAccess) GetCollaborator(ctx context.Context, req *ttnpb.GetClientCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	return ca.getClientCollaborator(ctx, req)
 }
 
 func (ca *clientAccess) SetCollaborator(ctx context.Context, req *ttnpb.SetClientCollaboratorRequest) (*types.Empty, error) {

@@ -27,12 +27,12 @@ import { withBreadcrumb } from '../../../components/breadcrumbs/context'
   const { appId } = props.match.params
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/devices`}
+      path={`/applications/${appId}/devices`}
       content={sharedMessages.devices}
     />
   )
 })
-export default class Applications extends React.Component {
+export default class Devices extends React.Component {
 
   render () {
     const { path } = this.props.match

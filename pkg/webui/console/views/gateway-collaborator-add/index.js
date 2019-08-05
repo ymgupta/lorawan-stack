@@ -18,13 +18,13 @@ import bind from 'autobind-decorator'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 
-import Spinner from '../../../components/spinner'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import sharedMessages from '../../../lib/shared-messages'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import CollaboratorForm from '../../components/collaborator-form'
+import withRequest from '../../../lib/components/with-request'
 
 import {
   selectSelectedGatewayId,
@@ -50,17 +50,21 @@ import api from '../../api'
   }
 }, (dispatch, ownProps) => ({
   getGatewaysRightsList: gtwId => dispatch(getGatewaysRightsList(gtwId)),
-  redirectToList: gtwId => dispatch(push(`/console/gateways/${gtwId}/collaborators`)),
+  redirectToList: gtwId => dispatch(push(`/gateways/${gtwId}/collaborators`)),
 }), (stateProps, dispatchProps, ownProps) => ({
   ...stateProps, ...dispatchProps, ...ownProps,
   getGatewaysRightsList: () => dispatchProps.getGatewaysRightsList(stateProps.gtwId),
   redirectToList: () => dispatchProps.redirectToList(stateProps.gtwId),
 }))
+@withRequest(
+  ({ getGatewaysRightsList }) => getGatewaysRightsList(),
+  ({ fetching, rights }) => fetching || !Boolean(rights.length)
+)
 @withBreadcrumb('gtws.single.collaborators.add', function (props) {
   const gtwId = props.gtwId
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}/collaborators/add`}
+      path={`/gateways/${gtwId}/collaborators/add`}
       icon="add"
       content={sharedMessages.add}
     />
@@ -73,12 +77,6 @@ export default class GatewayCollaboratorAdd extends React.Component {
     error: '',
   }
 
-  componentDidMount () {
-    const { getGatewaysRightsList } = this.props
-
-    getGatewaysRightsList()
-  }
-
   handleSubmit (collaborator) {
     const { gtwId } = this.props
 
@@ -86,15 +84,11 @@ export default class GatewayCollaboratorAdd extends React.Component {
   }
 
   render () {
-    const { rights, fetching, error, redirectToList, universalRights } = this.props
-
-    if (error) {
-      throw error
-    }
-
-    if (fetching && !rights.length) {
-      return <Spinner center />
-    }
+    const {
+      rights,
+      redirectToList,
+      universalRights,
+    } = this.props
 
     return (
       <Container>

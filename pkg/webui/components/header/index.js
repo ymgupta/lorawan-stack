@@ -20,47 +20,14 @@ import NavigationBar from '../navigation/bar'
 import ProfileDropdown from '../profile-dropdown'
 import Input from '../input'
 import PropTypes from '../../lib/prop-types'
-import sharedMessages from '../../lib/shared-messages'
 
 import styles from './header.styl'
-
-const defaultNavigationEntries = [
-  {
-    title: sharedMessages.overview,
-    icon: 'overview',
-    path: '/console',
-    exact: true,
-  },
-  {
-    title: sharedMessages.applications,
-    icon: 'application',
-    path: '/console/applications',
-  },
-  {
-    title: sharedMessages.gateways,
-    icon: 'gateway',
-    path: '/console/gateways',
-  },
-]
-
-const defaultDropdownItems = handleLogout => [
-  {
-    title: sharedMessages.profileSettings,
-    icon: 'settings',
-    path: '/profile-settings',
-  },
-  {
-    title: sharedMessages.logout,
-    icon: 'power_settings_new',
-    action: handleLogout,
-  },
-]
 
 const Header = function ({
   className,
   handleLogout = () => null,
-  dropdownItems = defaultDropdownItems(handleLogout),
-  navigationEntries = defaultNavigationEntries,
+  dropdownItems,
+  navigationEntries,
   user,
   searchable,
   handleSearchRequest = () => null,
@@ -89,7 +56,7 @@ const Header = function ({
             <div className={styles.right}>
               { searchable && <Input icon="search" onEnter={handleSearchRequest} /> }
               <ProfileDropdown
-                dropdownItems={dropdownItems || defaultDropdownItems}
+                dropdownItems={dropdownItems}
                 userId={user.ids.user_id}
                 anchored={anchored}
               />
@@ -103,45 +70,27 @@ const Header = function ({
 
 Header.propTypes = {
   /**
-  * The User object, retrieved from the API. If it is
-  * `undefined`, then the guest header is rendered.
+  * The User object, retrieved from the API. If it is `undefined`, then the
+  * guest header is rendered
   */
   user: PropTypes.object,
   /**
   * A list of items for the dropdown
-  * @param {(string|Object)} title - The title to be displayed
-  * @param {string} icon - The icon name to be displayed next to the title
-  * @param {string} path - The path for a navigation tab
-  * @param {function} action - Alternatively, the function to be called on click
+  * See `<ProfileDropdown/>`'s `items` proptypes for details
   */
-  dropdownItems: PropTypes.arrayOf(PropTypes.shape({
-    title: PropTypes.message.isRequired,
-    icon: PropTypes.string,
-    path: PropTypes.string.isRequired,
-    action: PropTypes.func,
-  })),
+  dropdownItems: ProfileDropdown.propTypes.dropdownItems,
   /**
-   * A list of navigation bar entries.
-   * @param {(string|Object)} title - The title to be displayed
-   * @param {string} icon - The icon name to be displayed next to the title
-   * @param {string} path -  The path for a navigation tab
-   * @param {boolean} exact - Flag identifying whether the path should be matched exactly
+   * A list of navigation bar entries
+   * See `<NavigationBar/>`'s `entries` proptypes for details
    */
-  navigationEntries: PropTypes.arrayOf(PropTypes.shape({
-    path: PropTypes.string.isRequired,
-    title: PropTypes.message.isRequired,
-    action: PropTypes.func,
-    icon: PropTypes.string,
-  })),
+  entries: NavigationBar.propTypes.entries,
   /** Flag identifying whether links should be rendered as plain anchor link */
   anchored: PropTypes.bool,
   /**
   * A handler for when the user clicks the logout button
   */
   handleLogout: PropTypes.func,
-  /**
-  * A handler for when the user used the search input
-  */
+  /** A handler for when the user used the search input */
   handleSearchRequest: PropTypes.func,
   /** A flag identifying whether the header should display the search input */
   searchable: PropTypes.bool,

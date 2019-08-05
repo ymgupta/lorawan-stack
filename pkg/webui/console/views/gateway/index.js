@@ -15,14 +15,15 @@
 import React from 'react'
 import { Switch, Route } from 'react-router'
 import { connect } from 'react-redux'
+import { replace } from 'connected-react-router'
 
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import sharedMessages from '../../../lib/shared-messages'
 import { withSideNavigation } from '../../../components/navigation/side/context'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
-import Spinner from '../../../components/spinner'
-import Message from '../../../lib/components/message'
+import withRequest from '../../../lib/components/with-request'
+import withEnv from '../../../lib/components/env'
 
 import GatewayOverview from '../gateway-overview'
 import GatewayApiKeys from '../gateway-api-keys'
@@ -31,9 +32,9 @@ import GatewayLocation from '../gateway-location'
 import GatewayData from '../gateway-data'
 import GatewayGeneralSettings from '../gateway-general-settings'
 
+import { getGatewayId } from '../../../lib/selectors/id'
 import {
   getGateway,
-  startGatewayEventsStream,
   stopGatewayEventsStream,
 } from '../../store/actions/gateways'
 import {
@@ -41,26 +42,41 @@ import {
   selectGatewayError,
   selectSelectedGateway,
 } from '../../store/selectors/gateways'
-import withEnv, { EnvProvider } from '../../../lib/components/env'
 
 @connect(function (state, props) {
   const gtwId = props.match.params.gtwId
+  const selectedGateway = selectSelectedGateway(state)
+
+  const gateway = gtwId === getGatewayId(selectedGateway)
+    ? selectedGateway
+    : undefined
 
   return {
     gtwId,
-    gateway: selectSelectedGateway(state),
+    gateway,
     error: selectGatewayError(state),
     fetching: selectGatewayFetching(state),
   }
 },
 dispatch => ({
   getGateway: (id, meta) => dispatch(getGateway(id, meta)),
-  startStream: id => dispatch(startGatewayEventsStream(id)),
   stopStream: id => dispatch(stopGatewayEventsStream(id)),
+  redirectToList: () => dispatch(replace('/gateways')),
 }))
+@withRequest(
+  ({ gtwId, getGateway }) => getGateway(gtwId, [
+    'name',
+    'description',
+    'enforce_duty_cycle',
+    'frequency_plan_id',
+    'gateway_server_address',
+    'enforce_duty_cycle',
+    'antennas',
+  ]),
+  ({ fetching, gateway }) => fetching || !Boolean(gateway)
+)
 @withSideNavigation(function (props) {
-  const { match, gtwId } = props
-  const matchedUrl = match.url
+  const { match: { url: matchedUrl }, gtwId } = props
 
   return {
     header: { title: gtwId, icon: 'gateway' },
@@ -105,7 +121,7 @@ dispatch => ({
 
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}`}
+      path={`/gateways/${gtwId}`}
       icon="gateway"
       content={gtwId}
     />
@@ -114,20 +130,15 @@ dispatch => ({
 @withEnv
 export default class Gateway extends React.Component {
 
-  componentDidMount () {
-    const { getGateway, startStream, match } = this.props
-    const { gtwId } = match.params
+  componentDidUpdate (prevProps) {
+    const { gtwId, gateway, redirectToList } = this.props
 
-    startStream(gtwId)
-    getGateway(gtwId, [
-      'name',
-      'description',
-      'enforce_duty_cycle',
-      'frequency_plan_id',
-      'gateway_server_address',
-      'enforce_duty_cycle',
-      'antennas',
-    ])
+    const isSame = gtwId === getGatewayId(prevProps.gateway)
+    const isDeleted = Boolean(prevProps.gateway) && !Boolean(gateway)
+
+    if (isSame && isDeleted) {
+      redirectToList()
+    }
   }
 
   componentWillUnmount () {
@@ -137,25 +148,12 @@ export default class Gateway extends React.Component {
   }
 
   render () {
-    const { fetching, error, match, gateway, gtwId, env } = this.props
-
-    // show any gateway fetching error, e.g. not found, no rights, etc
-    if (error) {
-      throw error
-    }
-
-    if (fetching || !gateway) {
-      return (
-        <Spinner center>
-          <Message content={sharedMessages.loading} />
-        </Spinner>
-      )
-    }
+    const { match, gateway, gtwId, env } = this.props
 
     return (
-      <EnvProvider env={env}>
+      <React.Fragment>
         <IntlHelmet
-          titleTemplate={`%s - ${gateway.name || gtwId} - ${env.site_name}`}
+          titleTemplate={`%s - ${gateway.name || gtwId} - ${env.siteName}`}
         />
         <Switch>
           <Route exact path={`${match.path}`} component={GatewayOverview} />
@@ -165,7 +163,7 @@ export default class Gateway extends React.Component {
           <Route path={`${match.path}/data`} component={GatewayData} />
           <Route path={`${match.path}/general-settings`} component={GatewayGeneralSettings} />
         </Switch>
-      </EnvProvider>
+      </React.Fragment>
     )
   }
 }

@@ -39,6 +39,16 @@ var (
 	endDeviceFlattenPaths    = []string{"provisioning_data"}
 )
 
+func selectEndDeviceIDFlags() *pflag.FlagSet {
+	flagSet := &pflag.FlagSet{}
+	flagSet.Bool("application-id", false, "")
+	flagSet.Bool("device-id", false, "")
+	flagSet.Bool("join-eui", false, "")
+	flagSet.Bool("dev-eui", false, "")
+	addDeprecatedDeviceFlags(flagSet)
+	return flagSet
+}
+
 func endDeviceIDFlags() *pflag.FlagSet {
 	flagSet := &pflag.FlagSet{}
 	flagSet.String("application-id", "", "")
@@ -312,7 +322,9 @@ var (
 				}
 			}
 
-			if abp, _ := cmd.Flags().GetBool("abp"); abp {
+			abp, _ := cmd.Flags().GetBool("abp")
+			multicast, _ := cmd.Flags().GetBool("multicast")
+			if abp || multicast {
 				device.SupportsJoin = false
 				if config.NetworkServerEnabled {
 					paths = append(paths, "supports_join")
@@ -389,6 +401,11 @@ var (
 						"root_keys.app_key.key",
 						"root_keys.nwk_key.key",
 					)
+				}
+			}
+			if withClaimAuthenticationCode, _ := cmd.Flags().GetBool("with-claim-authentication-code"); withClaimAuthenticationCode {
+				device.ClaimAuthenticationCode = &ttnpb.EndDeviceAuthenticationCode{
+					Value: random.Bytes(4),
 				}
 			}
 
@@ -554,17 +571,20 @@ var (
 			return io.Write(os.Stdout, config.OutputFormat, res)
 		},
 	}
+	// TODO: Remove (https://github.com/TheThingsNetwork/lorawan-stack/issues/999)
 	endDevicesProvisionCommand = &cobra.Command{
 		Use:   "provision",
 		Short: "Provision end devices using vendor-specific data",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			logger.Warn("This command is deprecated. Please use `device template from-data` instead")
+
 			appID := getApplicationID(cmd.Flags(), nil)
 			if appID == nil {
 				return errNoApplicationID
 			}
 
 			provisionerID, _ := cmd.Flags().GetString("provisioner-id")
-			data, err := getData(cmd.Flags())
+			data, err := getDataBytes("", cmd.Flags())
 			if err != nil {
 				return err
 			}
@@ -741,13 +761,14 @@ func init() {
 	endDevicesCreateCommand.Flags().Bool("with-root-keys", false, "generate OTAA root keys")
 	endDevicesCreateCommand.Flags().Bool("abp", false, "configure end device as ABP")
 	endDevicesCreateCommand.Flags().Bool("with-session", false, "generate ABP session DevAddr and keys")
+	endDevicesCreateCommand.Flags().Bool("with-claim-authentication-code", false, "generate claim authentication code of 4 bytes")
 	endDevicesCommand.AddCommand(endDevicesCreateCommand)
 	endDevicesUpdateCommand.Flags().AddFlagSet(endDeviceIDFlags())
 	endDevicesUpdateCommand.Flags().AddFlagSet(setEndDeviceFlags)
 	endDevicesUpdateCommand.Flags().AddFlagSet(attributesFlags())
 	endDevicesCommand.AddCommand(endDevicesUpdateCommand)
 	endDevicesProvisionCommand.Flags().AddFlagSet(applicationIDFlags())
-	endDevicesProvisionCommand.Flags().AddFlagSet(dataFlags())
+	endDevicesProvisionCommand.Flags().AddFlagSet(dataFlags("", ""))
 	endDevicesProvisionCommand.Flags().String("provisioner-id", "", "provisioner service")
 	endDevicesProvisionCommand.Flags().String("join-eui", "", "(hex)")
 	endDevicesProvisionCommand.Flags().String("start-dev-eui", "", "starting DevEUI to provision (hex)")
@@ -758,6 +779,10 @@ func init() {
 	endDevicesCommand.AddCommand(applicationsDownlinkCommand)
 
 	Root.AddCommand(endDevicesCommand)
+
+	endDeviceTemplatesExtendCommand.Flags().AddFlagSet(setEndDeviceFlags)
+	endDeviceTemplatesCreateCommand.Flags().AddFlagSet(selectEndDeviceFlags)
+	endDeviceTemplatesExecuteCommand.Flags().AddFlagSet(setEndDeviceFlags)
 }
 
 var errAddressMismatchEndDevice = errors.DefineAborted("end_device_server_address_mismatch", "network/application/join server address mismatch")

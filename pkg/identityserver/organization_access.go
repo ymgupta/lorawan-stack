@@ -26,25 +26,37 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
 )
 
 var (
-	evtCreateOrganizationAPIKey       = events.Define("organization.api-key.create", "create organization API key")
-	evtUpdateOrganizationAPIKey       = events.Define("organization.api-key.update", "update organization API key")
-	evtDeleteOrganizationAPIKey       = events.Define("organization.api-key.delete", "delete organization API key")
-	evtUpdateOrganizationCollaborator = events.Define("organization.collaborator.update", "update organization collaborator")
-	evtDeleteOrganizationCollaborator = events.Define("organization.collaborator.delete", "delete organization collaborator")
+	evtCreateOrganizationAPIKey = events.Define(
+		"organization.api-key.create", "create organization API key",
+		ttnpb.RIGHT_ORGANIZATION_SETTINGS_API_KEYS,
+	)
+	evtUpdateOrganizationAPIKey = events.Define(
+		"organization.api-key.update", "update organization API key",
+		ttnpb.RIGHT_ORGANIZATION_SETTINGS_API_KEYS,
+	)
+	evtDeleteOrganizationAPIKey = events.Define(
+		"organization.api-key.delete", "delete organization API key",
+		ttnpb.RIGHT_ORGANIZATION_SETTINGS_API_KEYS,
+	)
+	evtUpdateOrganizationCollaborator = events.Define(
+		"organization.collaborator.update", "update organization collaborator",
+		ttnpb.RIGHT_ORGANIZATION_SETTINGS_MEMBERS,
+		ttnpb.RIGHT_USER_ORGANIZATIONS_LIST,
+	)
+	evtDeleteOrganizationCollaborator = events.Define(
+		"organization.collaborator.delete", "delete organization collaborator",
+		ttnpb.RIGHT_ORGANIZATION_SETTINGS_MEMBERS,
+		ttnpb.RIGHT_USER_ORGANIZATIONS_LIST,
+	)
 )
 
 func (is *IdentityServer) listOrganizationRights(ctx context.Context, ids *ttnpb.OrganizationIdentifiers) (*ttnpb.Rights, error) {
-	rights, ok := rights.FromContext(ctx)
-	if !ok {
-		return &ttnpb.Rights{}, nil
-	}
-	orgRights, ok := rights.OrganizationRights[unique.ID(ctx, ids)]
-	if !ok || orgRights == nil {
-		return &ttnpb.Rights{}, nil
+	orgRights, err := rights.ListOrganization(ctx, *ids)
+	if err != nil {
+		return nil, err
 	}
 	return orgRights.Intersect(ttnpb.AllEntityRights.Union(ttnpb.AllOrganizationRights)), nil
 }
@@ -160,6 +172,31 @@ func (is *IdentityServer) updateOrganizationAPIKey(ctx context.Context, req *ttn
 	return key, nil
 }
 
+func (is *IdentityServer) getOrganizationCollaborator(ctx context.Context, req *ttnpb.GetOrganizationCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	if err := rights.RequireOrganization(ctx, req.OrganizationIdentifiers, ttnpb.RIGHT_ORGANIZATION_SETTINGS_MEMBERS); err != nil {
+		return nil, err
+	}
+	res := &ttnpb.GetCollaboratorResponse{
+		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
+	}
+	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+		rights, err := store.GetMembershipStore(db).GetMember(
+			ctx,
+			&req.OrganizationOrUserIdentifiers,
+			req.OrganizationIdentifiers,
+		)
+		if err != nil {
+			return err
+		}
+		res.Rights = rights.GetRights()
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
 func (is *IdentityServer) setOrganizationCollaborator(ctx context.Context, req *ttnpb.SetOrganizationCollaboratorRequest) (*types.Empty, error) {
 	// Require that caller has rights to manage collaborators.
 	if err := rights.RequireOrganization(ctx, req.OrganizationIdentifiers, ttnpb.RIGHT_ORGANIZATION_SETTINGS_MEMBERS); err != nil {
@@ -181,6 +218,7 @@ func (is *IdentityServer) setOrganizationCollaborator(ctx context.Context, req *
 		return nil, err
 	}
 	if len(req.Collaborator.Rights) > 0 {
+		events.Publish(evtUpdateOrganizationCollaborator(ctx, ttnpb.CombineIdentifiers(req.OrganizationIdentifiers, req.Collaborator), nil))
 		err = is.SendContactsEmail(ctx, req.EntityIdentifiers(), func(data emails.Data) email.MessageData {
 			data.SetEntity(req.EntityIdentifiers())
 			return &emails.CollaboratorChanged{Data: data, Collaborator: req.Collaborator}
@@ -189,7 +227,7 @@ func (is *IdentityServer) setOrganizationCollaborator(ctx context.Context, req *
 			log.FromContext(ctx).WithError(err).Error("Could not send collaborator updated notification email")
 		}
 	} else {
-		events.Publish(evtDeleteOrganizationCollaborator(ctx, req.OrganizationIdentifiers, nil))
+		events.Publish(evtDeleteOrganizationCollaborator(ctx, ttnpb.CombineIdentifiers(req.OrganizationIdentifiers, req.Collaborator), nil))
 	}
 	is.invalidateCachedMembershipsForAccount(ctx, &req.Collaborator.OrganizationOrUserIdentifiers)
 	return ttnpb.Empty, nil
@@ -248,6 +286,10 @@ func (oa *organizationAccess) GetAPIKey(ctx context.Context, req *ttnpb.GetOrgan
 
 func (oa *organizationAccess) UpdateAPIKey(ctx context.Context, req *ttnpb.UpdateOrganizationAPIKeyRequest) (*ttnpb.APIKey, error) {
 	return oa.updateOrganizationAPIKey(ctx, req)
+}
+
+func (oa *organizationAccess) GetCollaborator(ctx context.Context, req *ttnpb.GetOrganizationCollaboratorRequest) (*ttnpb.GetCollaboratorResponse, error) {
+	return oa.getOrganizationCollaborator(ctx, req)
 }
 
 func (oa *organizationAccess) SetCollaborator(ctx context.Context, req *ttnpb.SetOrganizationCollaboratorRequest) (*types.Empty, error) {

@@ -26,6 +26,7 @@ import PAYLOAD_FORMATTER_TYPES from '../../constants/formatter-types'
 import toast from '../../../components/toast'
 
 import { updateDevice } from '../../store/actions/device'
+import { attachPromise } from '../../store/actions/lib'
 import { selectSelectedApplicationId } from '../../store/selectors/applications'
 import {
   selectSelectedDeviceId,
@@ -41,13 +42,13 @@ import {
     formatters,
   }
 },
-{ updateDevice })
+{ updateDevice: attachPromise(updateDevice) })
 @withBreadcrumb('device.single.payload-formatters.downlink', function (props) {
   const { appId, devId } = props
 
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}/devices/${devId}/payload-formatters/downlink`}
+      path={`/applications/${appId}/devices/${devId}/payload-formatters/downlink`}
       icon="downlink"
       content={sharedMessages.downlink}
     />

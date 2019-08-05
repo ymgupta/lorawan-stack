@@ -29,9 +29,18 @@ import (
 )
 
 var (
-	evtCreateApplication = events.Define("application.create", "create application")
-	evtUpdateApplication = events.Define("application.update", "update application")
-	evtDeleteApplication = events.Define("application.delete", "delete application")
+	evtCreateApplication = events.Define(
+		"application.create", "create application",
+		ttnpb.RIGHT_APPLICATION_INFO,
+	)
+	evtUpdateApplication = events.Define(
+		"application.update", "update application",
+		ttnpb.RIGHT_APPLICATION_INFO,
+	)
+	evtDeleteApplication = events.Define(
+		"application.delete", "delete application",
+		ttnpb.RIGHT_APPLICATION_INFO,
+	)
 )
 
 func (is *IdentityServer) createApplication(ctx context.Context, req *ttnpb.CreateApplicationRequest) (app *ttnpb.Application, err error) {
@@ -172,9 +181,9 @@ func (is *IdentityServer) listApplications(ctx context.Context, req *ttnpb.ListA
 		if err != nil {
 			return err
 		}
-		for _, app := range apps.Applications {
-			if !appRights[unique.ID(ctx, app.ApplicationIdentifiers)].IncludesAll(ttnpb.RIGHT_APPLICATION_INFO) {
-				app = app.PublicSafe()
+		for i, app := range apps.Applications {
+			if rights.RequireApplication(ctx, app.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_INFO) != nil {
+				apps.Applications[i] = app.PublicSafe()
 			}
 		}
 		return nil

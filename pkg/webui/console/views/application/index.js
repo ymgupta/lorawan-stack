@@ -18,12 +18,12 @@ import { Switch, Route } from 'react-router'
 import { replace } from 'connected-react-router'
 
 import sharedMessages from '../../../lib/shared-messages'
-import Message from '../../../lib/components/message'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import { withSideNavigation } from '../../../components/navigation/side/context'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
-import Spinner from '../../../components/spinner'
 import IntlHelmet from '../../../lib/components/intl-helmet'
+import withRequest from '../../../lib/components/with-request'
+import { withEnv } from '../../../lib/components/env'
 
 import ApplicationOverview from '../application-overview'
 import ApplicationGeneralSettings from '../application-general-settings'
@@ -34,9 +34,9 @@ import ApplicationData from '../application-data'
 import ApplicationPayloadFormatters from '../application-payload-formatters'
 import ApplicationIntegrations from '../application-integrations'
 
+import { getApplicationId } from '../../../lib/selectors/id'
 import {
   getApplication,
-  startApplicationEventsStream,
   stopApplicationEventsStream,
 } from '../../store/actions/applications'
 import {
@@ -46,7 +46,6 @@ import {
 } from '../../store/selectors/applications'
 
 import Devices from '../devices'
-import withEnv, { EnvProvider } from '../../../lib/components/env'
 
 @connect(function (state, props) {
   return {
@@ -57,11 +56,14 @@ import withEnv, { EnvProvider } from '../../../lib/components/env'
   }
 },
 dispatch => ({
-  startStream: id => dispatch(startApplicationEventsStream(id)),
   stopStream: id => dispatch(stopApplicationEventsStream(id)),
   getApplication: id => dispatch(getApplication(id, 'name,description')),
-  redirectToList: () => dispatch(replace('/console/applications')),
+  redirectToList: () => dispatch(replace('/applications')),
 }))
+@withRequest(
+  ({ appId, getApplication }) => getApplication(appId),
+  ({ fetching, application }) => fetching || !Boolean(application)
+)
 @withSideNavigation(function (props) {
   const matchedUrl = props.match.url
 
@@ -136,7 +138,7 @@ dispatch => ({
   const { appId } = props
   return (
     <Breadcrumb
-      path={`/console/applications/${appId}`}
+      path={`/applications/${appId}`}
       icon="application"
       content={appId}
     />
@@ -145,17 +147,13 @@ dispatch => ({
 @withEnv
 export default class Application extends React.Component {
 
-  componentDidMount () {
-    const { appId, startStream, getApplication } = this.props
-
-    getApplication(appId)
-    startStream(appId)
-  }
-
   componentDidUpdate (prevProps) {
-    const { application, redirectToList } = this.props
+    const { appId, application, redirectToList } = this.props
 
-    if (Boolean(prevProps.application) && !Boolean(application)) {
+    const isSame = appId === getApplicationId(prevProps.application)
+    const isDeleted = Boolean(prevProps.application) && !Boolean(application)
+
+    if (isSame && isDeleted) {
       redirectToList()
     }
   }
@@ -167,23 +165,12 @@ export default class Application extends React.Component {
   }
 
   render () {
-    const { fetching, match, error, application, appId, env } = this.props
-    if (error) {
-      throw error
-    }
-
-    if (fetching || !application) {
-      return (
-        <Spinner center>
-          <Message content={sharedMessages.loading} />
-        </Spinner>
-      )
-    }
+    const { match, application, appId, env } = this.props
 
     return (
-      <EnvProvider env={env}>
+      <React.Fragment>
         <IntlHelmet
-          titleTemplate={`%s - ${application.name || appId} - ${env.site_name}`}
+          titleTemplate={`%s - ${application.name || appId} - ${env.siteName}`}
         />
         <Switch>
           <Route exact path={`${match.path}`} component={ApplicationOverview} />
@@ -196,7 +183,7 @@ export default class Application extends React.Component {
           <Route path={`${match.path}/payload-formatters`} component={ApplicationPayloadFormatters} />
           <Route path={`${match.path}/integrations`} component={ApplicationIntegrations} />
         </Switch>
-      </EnvProvider>
+      </React.Fragment>
     )
   }
 }

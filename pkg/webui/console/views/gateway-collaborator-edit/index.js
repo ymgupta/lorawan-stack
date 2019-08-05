@@ -22,13 +22,13 @@ import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import sharedMessages from '../../../lib/shared-messages'
 import CollaboratorForm from '../../components/collaborator-form'
-import Spinner from '../../../components/spinner'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import toast from '../../../components/toast'
+import withRequest from '../../../lib/components/with-request'
 
 import {
-  getGatewayCollaboratorsList,
+  getGatewayCollaborator,
   getGatewaysRightsList,
 } from '../../store/actions/gateways'
 import {
@@ -37,25 +37,29 @@ import {
   selectGatewayUniversalRights,
   selectGatewayRightsFetching,
   selectGatewayRightsError,
+  selectGatewayUserCollaborator,
+  selectGatewayOrganizationCollaborator,
+  selectGatewayCollaboratorFetching,
+  selectGatewayCollaboratorError,
 } from '../../store/selectors/gateways'
 
 import api from '../../api'
 
 @connect(function (state, props) {
   const gtwId = selectSelectedGatewayId(state, props)
-  const { collaboratorId } = props.match.params
-  const collaboratorsFetching = state.collaborators.gateways.fetching
-  const collaboratorsError = state.collaborators.gateways.error
 
-  const gtwCollaborators = state.collaborators.gateways[gtwId]
-  const collaborator = gtwCollaborators ? gtwCollaborators.collaborators
-    .find(c => c.id === collaboratorId) : undefined
+  const { collaboratorId, collaboratorType } = props.match.params
 
-  const fetching = selectGatewayRightsFetching(state) || collaboratorsFetching
-  const error = selectGatewayRightsError(state) || collaboratorsError
+  const collaborator = collaboratorType === 'user'
+    ? selectGatewayUserCollaborator(state)
+    : selectGatewayOrganizationCollaborator(state)
+
+  const fetching = selectGatewayRightsFetching(state) || selectGatewayCollaboratorFetching(state)
+  const error = selectGatewayRightsError(state) || selectGatewayCollaboratorError(state)
 
   return {
     collaboratorId,
+    collaboratorType,
     collaborator,
     gtwId,
     rights: selectGatewayRights(state),
@@ -65,24 +69,32 @@ import api from '../../api'
   }
 
 }, (dispatch, ownProps) => ({
-  async loadData (gtwId) {
+  loadData (gtwId, collaboratorId, isUser) {
     dispatch(getGatewaysRightsList(gtwId))
-    dispatch(getGatewayCollaboratorsList(gtwId))
+    dispatch(getGatewayCollaborator(gtwId, collaboratorId, isUser))
   },
   redirectToList (gtwId) {
-    dispatch(replace(`/console/gateways/${gtwId}/collaborators`))
+    dispatch(replace(`/gateways/${gtwId}/collaborators`))
   },
 }), (stateProps, dispatchProps, ownProps) => ({
   ...stateProps, ...dispatchProps, ...ownProps,
-  loadData: () => dispatchProps.loadData(stateProps.gtwId),
+  loadData: () => dispatchProps.loadData(
+    stateProps.gtwId,
+    stateProps.collaboratorId,
+    stateProps.collaboratorType === 'user'
+  ),
   redirectToList: () => dispatchProps.redirectToList(stateProps.gtwId),
 }))
+@withRequest(
+  ({ loadData }) => loadData(),
+  ({ fetching, collaborator }) => fetching || !Boolean(collaborator)
+)
 @withBreadcrumb('gtws.single.collaborators.edit', function (props) {
-  const { gtwId, collaboratorId } = props
+  const { gtwId, collaboratorId, collaboratorType } = props
 
   return (
     <Breadcrumb
-      path={`/console/gateways/${gtwId}/collaborators/${collaboratorId}/edit`}
+      path={`/gateways/${gtwId}/collaborators/${collaboratorType}/${collaboratorId}`}
       icon="general_settings"
       content={sharedMessages.edit}
     />
@@ -93,12 +105,6 @@ export default class GatewayCollaboratorEdit extends React.Component {
 
   state = {
     error: '',
-  }
-
-  componentDidMount () {
-    const { loadData } = this.props
-
-    loadData()
   }
 
   handleSubmit (updatedCollaborator) {
@@ -121,15 +127,12 @@ export default class GatewayCollaboratorEdit extends React.Component {
   }
 
   render () {
-    const { collaborator, rights, fetching, error, redirectToList, universalRights } = this.props
-
-    if (error) {
-      throw error
-    }
-
-    if (fetching || !collaborator) {
-      return <Spinner center />
-    }
+    const {
+      collaborator,
+      rights,
+      redirectToList,
+      universalRights,
+    } = this.props
 
     return (
       <Container>

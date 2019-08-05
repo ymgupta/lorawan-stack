@@ -1,6 +1,6 @@
 {
   "name": "ttn-stack",
-  "version": "3.0.3",
+  "version": "3.1.0",
   "description": "The Thing Network Stack",
   "main": "index.js",
   "repository": "https://github.com/TheThingsNetwork/ttn.git",
@@ -77,6 +77,7 @@
     "formik": "^1.5.4",
     "history": "^4.7.2",
     "intl": "^1.2.5",
+    "lottie-web": "^5.5.7",
     "prop-types": "^15.6.0",
     "query-string": "^5.0.1",
     "react": "^16.8.6",
@@ -96,6 +97,7 @@
     "redux": "^4.0.1",
     "redux-actions": "^2.6.5",
     "redux-logic": "^2.1.1",
+    "scroll-into-view-if-needed": "^2.2.20",
     "ttn-lw": "file:sdk/js",
     "url-polyfill": "^1.1.5",
     "yup": "^0.26.6"
