@@ -1097,6 +1097,15 @@
       "file": "errors.tti.go"
     }
   },
+  "error:cmd/internal/shared:initialize_device_claiming_server": {
+    "translations": {
+      "en": "could not initialize Device Claiming Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.go"
+    }
+  },
   "error:cmd/internal/shared:initialize_device_template_converter": {
     "translations": {
       "en": "could not initialize Device Template Converter"

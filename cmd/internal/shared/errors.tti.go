@@ -6,5 +6,6 @@ import "go.thethings.network/lorawan-stack/pkg/errors"
 
 // Errors returned by component initialization.
 var (
-	ErrInitializeCryptoServer = errors.Define("initialize_crypto_server", "could not initialize Crypto Server")
+	ErrInitializeDeviceClaimingServer = errors.Define("initialize_device_claiming_server", "could not initialize Device Claiming Server")
+	ErrInitializeCryptoServer         = errors.Define("initialize_crypto_server", "could not initialize Crypto Server")
 )
