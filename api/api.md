@@ -94,6 +94,10 @@
   - [Enum `ContactMethod`](#ttn.lorawan.v3.ContactMethod)
   - [Enum `ContactType`](#ttn.lorawan.v3.ContactType)
   - [Service `ContactInfoRegistry`](#ttn.lorawan.v3.ContactInfoRegistry)
+- [File `lorawan-stack/api/deviceclaimingserver.proto`](#lorawan-stack/api/deviceclaimingserver.proto)
+  - [Message `ClaimEndDeviceRequest`](#ttn.lorawan.v3.ClaimEndDeviceRequest)
+  - [Message `ClaimEndDeviceRequest.AuthenticatedIdentifiers`](#ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers)
+  - [Service `EndDeviceClaimingServer`](#ttn.lorawan.v3.EndDeviceClaimingServer)
 - [File `lorawan-stack/api/end_device.proto`](#lorawan-stack/api/end_device.proto)
   - [Message `ConvertEndDeviceTemplateRequest`](#ttn.lorawan.v3.ConvertEndDeviceTemplateRequest)
   - [Message `CreateEndDeviceRequest`](#ttn.lorawan.v3.CreateEndDeviceRequest)
@@ -1431,6 +1435,7 @@ PeerInfo
 | `JOIN_SERVER` | 6 |  |
 | `CRYPTO_SERVER` | 7 |  |
 | `DEVICE_TEMPLATE_CONVERTER` | 8 |  |
+| `DEVICE_CLAIMING_SERVER` | 9 |  |
 
 ## <a name="lorawan-stack/api/configuration_services.proto">File `lorawan-stack/api/configuration_services.proto`</a>
 
@@ -1521,6 +1526,52 @@ PeerInfo
 | `RequestValidation` | `POST` | `/api/v3/contact_info/validation` |  |
 | `Validate` | `PATCH` | `/api/v3/contact_info/validation` |  |
 
+## <a name="lorawan-stack/api/deviceclaimingserver.proto">File `lorawan-stack/api/deviceclaimingserver.proto`</a>
+
+### <a name="ttn.lorawan.v3.ClaimEndDeviceRequest">Message `ClaimEndDeviceRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `authenticated_identifiers` | [`ClaimEndDeviceRequest.AuthenticatedIdentifiers`](#ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers) |  |  |
+| `qr_code` | [`bytes`](#bytes) |  |  |
+| `target_application_ids` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) |  |  |
+| `target_device_id` | [`string`](#string) |  |  |
+| `invalidate_authentication_code` | [`bool`](#bool) |  | If set, invalidate the authentication code with which the device gets claimed. This prohibits subsequent claiming requests. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `qr_code` | <p>`bytes.min_len`: `1`</p><p>`bytes.max_len`: `1024`</p> |
+| `target_application_ids` | <p>`message.required`: `true`</p> |
+| `target_device_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$|^$`</p> |
+
+### <a name="ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers">Message `ClaimEndDeviceRequest.AuthenticatedIdentifiers`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `join_eui` | [`bytes`](#bytes) |  |  |
+| `dev_eui` | [`bytes`](#bytes) |  |  |
+| `authentication_code` | [`bytes`](#bytes) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `authentication_code` | <p>`bytes.min_len`: `1`</p><p>`bytes.max_len`: `8`</p> |
+
+### <a name="ttn.lorawan.v3.EndDeviceClaimingServer">Service `EndDeviceClaimingServer`</a>
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `Claim` | [`ClaimEndDeviceRequest`](#ttn.lorawan.v3.ClaimEndDeviceRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Claims the end device by claim authentication code or QR code and transfers the device to the target application. |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `Claim` | `POST` | `/api/v3/edcs/claim` | `*` |
+
 ## <a name="lorawan-stack/api/end_device.proto">File `lorawan-stack/api/end_device.proto`</a>
 
 ### <a name="ttn.lorawan.v3.ConvertEndDeviceTemplateRequest">Message `ConvertEndDeviceTemplateRequest`</a>
@@ -1565,7 +1616,10 @@ SDKs are responsible for combining (if desired) the three.
 | `version_ids` | [`EndDeviceVersionIdentifiers`](#ttn.lorawan.v3.EndDeviceVersionIdentifiers) |  | Version Identifiers. Stored in Entity Registry, Network Server and Application Server. |
 | `service_profile_id` | [`string`](#string) |  | Default service profile. Stored in Entity Registry. |
 | `network_server_address` | [`string`](#string) |  | The address of the Network Server where this device is supposed to be registered. Stored in Entity Registry and Join Server. The typical format of the address is "host:port". If the port is omitted, the normal port inference (with DNS lookup, otherwise defaults) is used. The connection shall be established with transport layer security (TLS). Custom certificate authorities may be configured out-of-band. |
+| `network_server_kek_label` | [`string`](#string) |  | The KEK label of the Network Server to use for wrapping network session keys. Stored in Join Server. |
 | `application_server_address` | [`string`](#string) |  | The address of the Application Server where this device is supposed to be registered. Stored in Entity Registry and Join Server. The typical format of the address is "host:port". If the port is omitted, the normal port inference (with DNS lookup, otherwise defaults) is used. The connection shall be established with transport layer security (TLS). Custom certificate authorities may be configured out-of-band. |
+| `application_server_kek_label` | [`string`](#string) |  | The KEK label of the Application Server to use for wrapping the application session key. Stored in Join Server. |
+| `application_server_id` | [`string`](#string) |  | The AS-ID of the Application Server to use. Stored in Join Server. |
 | `join_server_address` | [`string`](#string) |  | The address of the Join Server where this device is supposed to be registered. Stored in Entity Registry. The typical format of the address is "host:port". If the port is omitted, the normal port inference (with DNS lookup, otherwise defaults) is used. The connection shall be established with transport layer security (TLS). Custom certificate authorities may be configured out-of-band. |
 | `locations` | [`EndDevice.LocationsEntry`](#ttn.lorawan.v3.EndDevice.LocationsEntry) | repeated | Location of the device. Stored in Entity Registry. |
 | `supports_class_b` | [`bool`](#bool) |  | Whether the device supports class B. Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any. |
@@ -1613,7 +1667,10 @@ SDKs are responsible for combining (if desired) the three.
 | `attributes` | <p>`map.keys.string.max_len`: `36`</p><p>`map.keys.string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `service_profile_id` | <p>`string.max_len`: `64`</p> |
 | `network_server_address` | <p>`string.pattern`: `^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$`</p> |
+| `network_server_kek_label` | <p>`string.max_len`: `2048`</p> |
 | `application_server_address` | <p>`string.pattern`: `^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$`</p> |
+| `application_server_kek_label` | <p>`string.max_len`: `2048`</p> |
+| `application_server_id` | <p>`string.max_len`: `100`</p> |
 | `join_server_address` | <p>`string.pattern`: `^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$`</p> |
 | `locations` | <p>`map.keys.string.max_len`: `36`</p><p>`map.keys.string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `lorawan_version` | <p>`enum.defined_only`: `true`</p> |
@@ -2128,7 +2185,7 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `namespace` | [`string`](#string) |  | Namespace of the error (typically the package name in the stack). |
+| `namespace` | [`string`](#string) |  | Namespace of the error (typically the package name in The Things Stack). |
 | `name` | [`string`](#string) |  | Name of the error. |
 | `message_format` | [`string`](#string) |  | The default (fallback) message format that should be used for the error. This is also used if the client does not have a translation for the error. |
 | `attributes` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  | Attributes that should be filled into the message format. Any extra attributes can be displayed as error details. |
@@ -3150,6 +3207,12 @@ The NsJs service connects a Network Server to a Join Server.
 | `key` | [`bytes`](#bytes) |  | The unencrypted AES key. |
 | `kek_label` | [`string`](#string) |  | The label of the RFC 3394 key-encryption-key (KEK) that was used to encrypt the key. |
 | `encrypted_key` | [`bytes`](#bytes) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `kek_label` | <p>`string.max_len`: `2048`</p> |
 
 ### <a name="ttn.lorawan.v3.RootKeys">Message `RootKeys`</a>
 

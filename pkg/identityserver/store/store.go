@@ -193,8 +193,8 @@ func entityTypeForID(id ttnpb.Identifiers) string {
 	return strings.Replace(id.EntityType(), " ", "_", -1)
 }
 
-func modelForID(id ttnpb.Identifiers) modelInterface {
-	switch t := entityTypeForID(id); t {
+func modelForEntityType(entityType string) modelInterface {
+	switch entityType {
 	case "application":
 		return &Application{}
 	case "client":
@@ -210,8 +210,12 @@ func modelForID(id ttnpb.Identifiers) modelInterface {
 	case "tenant":
 		return &Tenant{}
 	default:
-		panic(fmt.Sprintf("can't find model for entity type %s", t))
+		panic(fmt.Sprintf("can't find model for entity type %s", entityType))
 	}
+}
+
+func modelForID(id ttnpb.Identifiers) modelInterface {
+	return modelForEntityType(entityTypeForID(id))
 }
 
 var (

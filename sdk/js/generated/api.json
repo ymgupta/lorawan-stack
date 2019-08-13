@@ -4425,6 +4425,11 @@
               "name": "DEVICE_TEMPLATE_CONVERTER",
               "number": "8",
               "description": ""
+            },
+            {
+              "name": "DEVICE_CLAIMING_SERVER",
+              "number": "9",
+              "description": ""
             }
           ]
         }
@@ -4906,6 +4911,198 @@
       ]
     },
     {
+      "name": "lorawan-stack/api/deviceclaimingserver.proto",
+      "description": "",
+      "package": "ttn.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": true,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "ClaimEndDeviceRequest",
+          "longName": "ClaimEndDeviceRequest",
+          "fullName": "ttn.lorawan.v3.ClaimEndDeviceRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "authenticated_identifiers",
+              "description": "",
+              "label": "",
+              "type": "AuthenticatedIdentifiers",
+              "longType": "ClaimEndDeviceRequest.AuthenticatedIdentifiers",
+              "fullType": "ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "qr_code",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "bytes.min_len",
+                    "value": 1
+                  },
+                  {
+                    "name": "bytes.max_len",
+                    "value": 1024
+                  }
+                ]
+              }
+            },
+            {
+              "name": "target_application_ids",
+              "description": "",
+              "label": "",
+              "type": "ApplicationIdentifiers",
+              "longType": "ApplicationIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "target_device_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$|^$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "invalidate_authentication_code",
+              "description": "If set, invalidate the authentication code with which the device gets claimed. This prohibits subsequent claiming requests.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AuthenticatedIdentifiers",
+          "longName": "ClaimEndDeviceRequest.AuthenticatedIdentifiers",
+          "fullName": "ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "join_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "dev_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "authentication_code",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "bytes.min_len",
+                    "value": 1
+                  },
+                  {
+                    "name": "bytes.max_len",
+                    "value": 8
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "services": [
+        {
+          "name": "EndDeviceClaimingServer",
+          "longName": "EndDeviceClaimingServer",
+          "fullName": "ttn.lorawan.v3.EndDeviceClaimingServer",
+          "description": "",
+          "methods": [
+            {
+              "name": "Claim",
+              "description": "Claims the end device by claim authentication code or QR code and transfers the device to the target application.",
+              "requestType": "ClaimEndDeviceRequest",
+              "requestLongType": "ClaimEndDeviceRequest",
+              "requestFullType": "ttn.lorawan.v3.ClaimEndDeviceRequest",
+              "requestStreaming": false,
+              "responseType": "Empty",
+              "responseLongType": ".google.protobuf.Empty",
+              "responseFullType": "google.protobuf.Empty",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "POST",
+                      "pattern": "/edcs/claim",
+                      "body": "*"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
       "name": "lorawan-stack/api/end_device.proto",
       "description": "",
       "package": "ttn.lorawan.v3",
@@ -5164,6 +5361,24 @@
               }
             },
             {
+              "name": "network_server_kek_label",
+              "description": "The KEK label of the Network Server to use for wrapping network session keys.\nStored in Join Server.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 2048
+                  }
+                ]
+              }
+            },
+            {
               "name": "application_server_address",
               "description": "The address of the Application Server where this device is supposed to be registered.\nStored in Entity Registry and Join Server.\nThe typical format of the address is \"host:port\". If the port is omitted,\nthe normal port inference (with DNS lookup, otherwise defaults) is used.\nThe connection shall be established with transport layer security (TLS).\nCustom certificate authorities may be configured out-of-band.",
               "label": "",
@@ -5177,6 +5392,42 @@
                   {
                     "name": "string.pattern",
                     "value": "^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "application_server_kek_label",
+              "description": "The KEK label of the Application Server to use for wrapping the application session key.\nStored in Join Server.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 2048
+                  }
+                ]
+              }
+            },
+            {
+              "name": "application_server_id",
+              "description": "The AS-ID of the Application Server to use.\nStored in Join Server.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 100
                   }
                 ]
               }
@@ -7917,7 +8168,7 @@
           "fields": [
             {
               "name": "namespace",
-              "description": "Namespace of the error (typically the package name in the stack).",
+              "description": "Namespace of the error (typically the package name in The Things Stack).",
               "label": "",
               "type": "string",
               "longType": "string",
@@ -12353,7 +12604,15 @@
               "longType": "string",
               "fullType": "string",
               "ismap": false,
-              "defaultValue": ""
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 2048
+                  }
+                ]
+              }
             },
             {
               "name": "encrypted_key",

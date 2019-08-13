@@ -44,12 +44,14 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/web"
 )
 
-var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
+var (
+	errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
+)
 
 var (
 	startCommand = &cobra.Command{
 		Use:   "start [is|gs|ns|as|js|console|gcs|dtc|all]... [flags]",
-		Short: "Start the Network Stack",
+		Short: "Start The Things Stack",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var start struct {
 				IdentityServer             bool

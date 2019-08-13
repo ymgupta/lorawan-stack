@@ -75,7 +75,7 @@ nfpms:
   - vendor: The Things Industries
     homepage: https://www.thethingsindustries.com
     maintainer: The Things Industries <stack@thethingsindustries.com>
-    description: The Things Industries LoRaWAN Stack
+    description: The Things Stack for LoRaWAN
     license: TTI EULA
     formats:
       - deb
@@ -88,8 +88,8 @@ nfpms:
 
 snapcrafts:
   - name: tti-lw-stack
-    summary: The Things Industries LoRaWAN Stack
-    description: The Things Industries LoRaWAN Stack
+    summary: The Things Stack for LoRaWAN
+    description: The Things Stack for LoRaWAN
     grade: stable
     confinement: strict
     publish: true
@@ -109,7 +109,7 @@ brews:
       name: tti-ci
       email: stack@thethingsindustries.com
     homepage: https://www.thethingsindustries.com
-    description: The Things Industries LoRaWAN Stack
+    description: The Things Stack for LoRaWAN
     skip_upload: auto
     install: |
       bin.install "tti-lw-cli"

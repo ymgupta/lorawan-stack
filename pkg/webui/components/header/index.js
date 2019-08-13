@@ -16,6 +16,7 @@ import React from 'react'
 import classnames from 'classnames'
 
 import Logo from '../logo'
+import Link from '../link'
 import NavigationBar from '../navigation/bar'
 import ProfileDropdown from '../profile-dropdown'
 import Input from '../input'
@@ -25,7 +26,6 @@ import styles from './header.styl'
 
 const Header = function ({
   className,
-  handleLogout = () => null,
   dropdownItems,
   navigationEntries,
   user,
@@ -35,35 +35,35 @@ const Header = function ({
   ...rest
 }) {
   const isGuest = !Boolean(user)
+  const LinkComponent = anchored ? Link.BaseAnchor : Link
 
   return (
     <header {...rest} className={classnames(className, styles.bar)}>
-      {
-        isGuest ? (
-          <div className={styles.left}>
-            <div className={styles.logo}><Logo /></div>
-          </div>
-        ) : (
-          <React.Fragment>
-            <div className={styles.left}>
-              <div className={styles.logo}><Logo /></div>
-              <NavigationBar
-                className={styles.navList}
-                entries={navigationEntries}
-                anchored={anchored}
-              />
-            </div>
-            <div className={styles.right}>
-              { searchable && <Input icon="search" onEnter={handleSearchRequest} /> }
-              <ProfileDropdown
-                dropdownItems={dropdownItems}
-                userId={user.ids.user_id}
-                anchored={anchored}
-              />
-            </div>
-          </React.Fragment>
-        )
-      }
+      <div className={styles.left}>
+        <LinkComponent
+          {...anchored ? { href: '/' } : { to: '/' }}
+          className={styles.logo}
+        >
+          <Logo />
+        </LinkComponent>
+        { !isGuest && (
+          <NavigationBar
+            className={styles.navList}
+            entries={navigationEntries}
+            anchored={anchored}
+          />
+        )}
+      </div>
+      { !isGuest && (
+        <div className={styles.right}>
+          { searchable && <Input icon="search" onEnter={handleSearchRequest} /> }
+          <ProfileDropdown
+            dropdownItems={dropdownItems}
+            userId={user.ids.user_id}
+            anchored={anchored}
+          />
+        </div>
+      )}
     </header>
   )
 }
@@ -86,10 +86,6 @@ Header.propTypes = {
   entries: NavigationBar.propTypes.entries,
   /** Flag identifying whether links should be rendered as plain anchor link */
   anchored: PropTypes.bool,
-  /**
-  * A handler for when the user clicks the logout button
-  */
-  handleLogout: PropTypes.func,
   /** A handler for when the user used the search input */
   handleSearchRequest: PropTypes.func,
   /** A flag identifying whether the header should display the search input */

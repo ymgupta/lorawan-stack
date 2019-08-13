@@ -18,6 +18,8 @@ import Application from './entity/application'
 import Api from './api'
 import Token from './util/token'
 import Gateways from './service/gateways'
+import Js from './service/join-server'
+import Ns from './service/network-server'
 
 class TtnLw {
   constructor (token, {
@@ -35,6 +37,8 @@ class TtnLw {
     this.Application = Application.bind(null, this.Applications)
     this.Configuration = new Configuration(this.api.Configuration)
     this.Gateways = new Gateways(this.api, { defaultUserId, proxy, stackConfig })
+    this.Js = new Js(this.api.Js)
+    this.Ns = new Ns(this.api.Ns)
   }
 }
 
