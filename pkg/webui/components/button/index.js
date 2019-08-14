@@ -25,7 +25,7 @@ import Icon from '../icon'
 
 import style from './button.styl'
 
-function assembleClassnames ({
+function assembleClassnames({
   message,
   danger,
   warning,
@@ -36,6 +36,7 @@ function assembleClassnames ({
   large,
   className,
   error,
+  raw,
 }) {
   return classnames(style.button, className, {
     [style.danger]: danger,
@@ -47,6 +48,7 @@ function assembleClassnames ({
     [style.onlyIcon]: icon !== undefined && !message,
     [style.error]: error && !busy,
     [style.large]: large,
+    [style.raw]: raw,
   })
 }
 
@@ -61,8 +63,7 @@ const buttonChildren = ({ icon, busy, message }) => (
 @injectIntl
 @bind
 class Button extends React.PureComponent {
-
-  handleClick (evt) {
+  handleClick(evt) {
     const { busy, disabled, onClick } = this.props
 
     if (busy || disabled) {
@@ -72,16 +73,8 @@ class Button extends React.PureComponent {
     onClick(evt)
   }
 
-  render () {
-    const {
-      autoFocus,
-      disabled,
-      name,
-      type,
-      value,
-      title: rawTitle,
-      intl,
-    } = this.props
+  render() {
+    const { autoFocus, disabled, name, type, value, title: rawTitle, intl } = this.props
 
     let title = rawTitle
     if (typeof rawTitle === 'object' && rawTitle.id && rawTitle.defaultMessage) {
@@ -105,20 +98,14 @@ Button.defaultProps = {
   onClick: () => null,
 }
 
-Button.Link = function (props) {
+Button.Link = function(props) {
   const buttonClassNames = assembleClassnames(props)
   const { to } = props
-  return (
-    <Link
-      className={buttonClassNames}
-      to={to}
-      children={buttonChildren(props)}
-    />
-  )
+  return <Link className={buttonClassNames} to={to} children={buttonChildren(props)} />
 }
 Button.Link.displayName = 'Button.Link'
 
-Button.AnchorLink = function (props) {
+Button.AnchorLink = function(props) {
   const { target, title, name } = props
   const htmlProps = { target, title, name }
   const buttonClassNames = assembleClassnames(props)
@@ -152,6 +139,10 @@ const commonPropTypes = {
    * A flag specifying whether the `naked` styling should applied to the button
    */
   naked: PropTypes.bool,
+  /**
+   * A flag specifying whether the `raw` styling should applied to the button
+   */
+  raw: PropTypes.bool,
   /**
    * A flag specifying whether the `large` styling should applied to the button
    */

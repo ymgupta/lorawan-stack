@@ -20,6 +20,7 @@ import bind from 'autobind-decorator'
 import Icon from '../icon'
 import Spinner from '../spinner'
 import PropTypes from '../../lib/prop-types'
+import Button from '../button'
 import ByteInput from './byte'
 import Toggled from './toggled'
 
@@ -30,10 +31,7 @@ import style from './input.styl'
 class Input extends React.Component {
   static propTypes = {
     icon: PropTypes.string,
-    value: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.number,
-    ]),
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
     onChange: PropTypes.func,
@@ -49,6 +47,9 @@ class Input extends React.Component {
     loading: PropTypes.bool,
     title: PropTypes.message,
     code: PropTypes.bool,
+    action: PropTypes.shape({
+      ...Button.propTypes,
+    }),
   }
 
   static defaultProps = {
@@ -65,7 +66,7 @@ class Input extends React.Component {
 
   input = React.createRef()
 
-  focus () {
+  focus() {
     if (this.input.current) {
       this.input.current.focus()
     }
@@ -73,7 +74,7 @@ class Input extends React.Component {
     this.setState({ focus: true })
   }
 
-  blur () {
+  blur() {
     if (this.input.current) {
       this.input.current.blur()
     }
@@ -81,7 +82,7 @@ class Input extends React.Component {
     this.setState({ focus: false })
   }
 
-  render () {
+  render() {
     const {
       icon,
       value = '',
@@ -104,12 +105,11 @@ class Input extends React.Component {
       intl,
       horizontal,
       code,
+      action,
       ...rest
     } = this.props
 
-    const {
-      focus,
-    } = this.state
+    const { focus } = this.state
 
     let Component = component
     if (type === 'byte') {
@@ -129,70 +129,79 @@ class Input extends React.Component {
     }
 
     const v = valid && (Component.validate ? Component.validate(value, this.props) : true)
+    const hasAction = Boolean(action)
 
-    const classname = classnames(style.inputBox, className, {
+    const inputCls = classnames(style.inputBox, {
       [style.focus]: focus,
       [style.error]: error,
       [style.readOnly]: readOnly,
       [style.warn]: !error && warning,
       [style.disabled]: disabled,
       [style.code]: code,
+      [style.actionable]: hasAction,
     })
 
     return (
-      <div className={classname}>
-        {icon && <Icon className={style.icon} icon={icon} />}
-        <Component
-          ref={this.input}
-          key="i"
-          className={style.input}
-          type={type}
-          value={value}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-          onChange={this.onChange}
-          onKeyDown={this.onKeyDown}
-          placeholder={inputPlaceholder}
-          disabled={disabled}
-          readOnly={readOnly}
-          title={inputTitle}
-          {...rest}
-        />
-        { v && <Valid show={v} /> }
-        { loading && <Spinner className={style.spinner} small /> }
+      <div className={classnames(className, style.container)}>
+        <div className={inputCls}>
+          {icon && <Icon className={style.icon} icon={icon} />}
+          <Component
+            ref={this.input}
+            key="i"
+            className={style.input}
+            type={type}
+            value={value}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
+            onChange={this.onChange}
+            onKeyDown={this.onKeyDown}
+            placeholder={inputPlaceholder}
+            disabled={disabled}
+            readOnly={readOnly}
+            title={inputTitle}
+            {...rest}
+          />
+          {v && <Valid show={v} />}
+          {loading && <Spinner className={style.spinner} small />}
+        </div>
+        {hasAction && (
+          <div className={style.actions}>
+            <Button className={style.button} {...action} />
+          </div>
+        )}
       </div>
     )
   }
 
-  onFocus (evt) {
+  onFocus(evt) {
     const { onFocus } = this.props
 
     this.setState({ focus: true })
     onFocus(evt)
   }
 
-  onBlur (evt) {
+  onBlur(evt) {
     const { onBlur } = this.props
 
     this.setState({ focus: false })
     onBlur(evt)
   }
 
-  onChange (evt) {
+  onChange(evt) {
     const { onChange } = this.props
     const { value } = evt.target
 
     onChange(value)
   }
 
-  onKeyDown (evt) {
+  onKeyDown(evt) {
     if (evt.key === 'Enter') {
       this.props.onEnter(evt.target.value)
     }
   }
 }
 
-const Valid = function (props) {
+const Valid = function(props) {
   const classname = classnames(style.valid, {
     [style.show]: props.show,
   })

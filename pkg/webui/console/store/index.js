@@ -16,25 +16,22 @@
 
 import { createStore, applyMiddleware, compose } from 'redux'
 import { createLogicMiddleware } from 'redux-logic'
-import { connectRouter, routerMiddleware } from 'connected-react-router'
+import { routerMiddleware } from 'connected-react-router'
 
 import requestPromiseMiddleware from './middleware/request-promise-middleware'
 
-import reducer from './reducers'
+import createRootReducer from './reducers'
 import logics from './middleware/logics'
 
-const composeEnhancers = (process.env.NODE_ENV === 'development'
-  && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
+const composeEnhancers =
+  (process.env.NODE_ENV === 'development' && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
-export default function (history) {
+export default function(history) {
   const middleware = applyMiddleware(
     requestPromiseMiddleware,
     routerMiddleware(history),
     createLogicMiddleware(logics),
   )
 
-  return createStore(
-    connectRouter(history)(reducer),
-    composeEnhancers(middleware)
-  )
+  return createStore(createRootReducer(history), composeEnhancers(middleware))
 }
