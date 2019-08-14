@@ -12,6 +12,11 @@ import "lorawan-stack/api/tti/tenant.proto";
 
 option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
 
+message GetTenantIdentifiersForEndDeviceEUIsRequest {
+  bytes join_eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "JoinEUI"];
+  bytes dev_eui = 2 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "DevEUI"];
+}
+
 message GetTenantIdentifiersForGatewayEUIRequest {
   bytes eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "EUI"];
 }
@@ -45,5 +50,6 @@ service TenantRegistry {
     };
   };
 
+  rpc GetIdentifiersForEndDeviceEUIs(GetTenantIdentifiersForEndDeviceEUIsRequest) returns (TenantIdentifiers);
   rpc GetIdentifiersForGatewayEUI(GetTenantIdentifiersForGatewayEUIRequest) returns (TenantIdentifiers);
 }

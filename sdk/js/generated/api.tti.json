@@ -436,6 +436,37 @@
       "extensions": [],
       "messages": [
         {
+          "name": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "longName": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "join_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "dev_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "GetTenantIdentifiersForGatewayEUIRequest",
           "longName": "GetTenantIdentifiersForGatewayEUIRequest",
           "fullName": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
@@ -575,6 +606,18 @@
                   ]
                 }
               }
+            },
+            {
+              "name": "GetIdentifiersForEndDeviceEUIs",
+              "description": "",
+              "requestType": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestLongType": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestStreaming": false,
+              "responseType": "TenantIdentifiers",
+              "responseLongType": "TenantIdentifiers",
+              "responseFullType": "tti.lorawan.v3.TenantIdentifiers",
+              "responseStreaming": false
             },
             {
               "name": "GetIdentifiersForGatewayEUI",

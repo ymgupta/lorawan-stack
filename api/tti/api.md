@@ -15,6 +15,7 @@
   - [Message `Tenants`](#tti.lorawan.v3.Tenants)
   - [Message `UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest)
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
+  - [Message `GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest)
   - [Message `GetTenantIdentifiersForGatewayEUIRequest`](#tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
 - [Scalar Value Types](#scalar-value-types)
@@ -129,6 +130,13 @@ Tenant is the message that defines a Tenant in the network.
 
 ## <a name="lorawan-stack/api/tti/tenant_services.proto">File `lorawan-stack/api/tti/tenant_services.proto`</a>
 
+### <a name="tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest">Message `GetTenantIdentifiersForEndDeviceEUIsRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `join_eui` | [`bytes`](#bytes) |  |  |
+| `dev_eui` | [`bytes`](#bytes) |  |  |
+
 ### <a name="tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest">Message `GetTenantIdentifiersForGatewayEUIRequest`</a>
 
 | Field | Type | Label | Description |
@@ -144,6 +152,7 @@ Tenant is the message that defines a Tenant in the network.
 | `List` | [`ListTenantsRequest`](#tti.lorawan.v3.ListTenantsRequest) | [`Tenants`](#tti.lorawan.v3.Tenants) |  |
 | `Update` | [`UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest) | [`Tenant`](#tti.lorawan.v3.Tenant) |  |
 | `Delete` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
+| `GetIdentifiersForEndDeviceEUIs` | [`GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest) | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |
 | `GetIdentifiersForGatewayEUI` | [`GetTenantIdentifiersForGatewayEUIRequest`](#tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest) | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |
 
 #### HTTP bindings

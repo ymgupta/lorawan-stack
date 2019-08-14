@@ -2,6 +2,15 @@
 
 package ttipb
 
+var GetTenantIdentifiersForEndDeviceEUIsRequestFieldPathsNested = []string{
+	"dev_eui",
+	"join_eui",
+}
+
+var GetTenantIdentifiersForEndDeviceEUIsRequestFieldPathsTopLevel = []string{
+	"dev_eui",
+	"join_eui",
+}
 var GetTenantIdentifiersForGatewayEUIRequestFieldPathsNested = []string{
 	"eui",
 }
