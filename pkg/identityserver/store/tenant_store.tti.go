@@ -145,7 +145,22 @@ func (s *tenantStore) DeleteTenant(ctx context.Context, id *ttipb.TenantIdentifi
 	return s.deleteEntity(ctx, id)
 }
 
-var errGatewayEUINotFound = errors.DefineNotFound("gateway_eui_not_found", "gateway eui `{eui}` not found")
+var errEndDeviceEUIsNotFound = errors.DefineNotFound("end_device_euis_not_found", "end device JoinEUI `{join_eui}` and DevEUI `{dev_eui}` not found")
+
+func (s *tenantStore) GetTenantIDForEndDeviceEUIs(ctx context.Context, joinEUI, devEUI types.EUI64) (*ttipb.TenantIdentifiers, error) {
+	defer trace.StartRegion(ctx, "get tenant id for end device euis").End()
+	query := s.query(ctx, nil, withJoinEUI(EUI64(joinEUI)), withDevEUI(EUI64(devEUI))).Select("tenant_id")
+	var devModel EndDevice
+	if err := query.First(&devModel).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errEndDeviceEUIsNotFound.WithAttributes("join_eui", joinEUI.String(), "dev_eui", devEUI.String())
+		}
+		return nil, err
+	}
+	return &ttipb.TenantIdentifiers{TenantID: devModel.TenantID}, nil
+}
+
+var errGatewayEUINotFound = errors.DefineNotFound("gateway_eui_not_found", "gateway EUI `{eui}` not found")
 
 func (s *tenantStore) GetTenantIDForGatewayEUI(ctx context.Context, eui types.EUI64) (*ttipb.TenantIdentifiers, error) {
 	defer trace.StartRegion(ctx, "get tenant id for gateway eui").End()

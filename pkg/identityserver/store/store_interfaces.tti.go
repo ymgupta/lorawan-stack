@@ -20,5 +20,6 @@ type TenantStore interface {
 	GetTenant(ctx context.Context, id *ttipb.TenantIdentifiers, fieldMask *ptypes.FieldMask) (*ttipb.Tenant, error)
 	UpdateTenant(ctx context.Context, app *ttipb.Tenant, fieldMask *ptypes.FieldMask) (*ttipb.Tenant, error)
 	DeleteTenant(ctx context.Context, id *ttipb.TenantIdentifiers) error
+	GetTenantIDForEndDeviceEUIs(ctx context.Context, joinEUI, devEUI types.EUI64) (*ttipb.TenantIdentifiers, error)
 	GetTenantIDForGatewayEUI(ctx context.Context, eui types.EUI64) (*ttipb.TenantIdentifiers, error)
 }

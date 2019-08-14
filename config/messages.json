@@ -1103,7 +1103,7 @@
     },
     "description": {
       "package": "cmd/internal/shared",
-      "file": "errors.go"
+      "file": "errors.tti.go"
     }
   },
   "error:cmd/internal/shared:initialize_device_template_converter": {
@@ -3518,6 +3518,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/identityserver/store:end_device_euis_not_found": {
+    "translations": {
+      "en": "end device JoinEUI `{join_eui}` and DevEUI `{dev_eui}` not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "tenant_store.tti.go"
+    }
+  },
   "error:pkg/identityserver/store:end_device_not_found": {
     "translations": {
       "en": "end device `{application_id}:{device_id}` not found"
@@ -3529,7 +3538,7 @@
   },
   "error:pkg/identityserver/store:gateway_eui_not_found": {
     "translations": {
-      "en": "gateway eui `{eui}` not found"
+      "en": "gateway EUI `{eui}` not found"
     },
     "description": {
       "package": "pkg/identityserver/store",

@@ -150,6 +150,20 @@ func (is *IdentityServer) deleteTenant(ctx context.Context, ids *ttipb.TenantIde
 	return ttnpb.Empty, nil
 }
 
+func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Context, req *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest) (ids *ttipb.TenantIdentifiers, err error) {
+	if !tenantRightsFromContext(ctx).readCurrent {
+		return nil, errNoTenantRights
+	}
+	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+		ids, err = store.GetTenantStore(db).GetTenantIDForEndDeviceEUIs(ctx, req.JoinEUI, req.DevEUI)
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return ids, nil
+}
+
 func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context, req *ttipb.GetTenantIdentifiersForGatewayEUIRequest) (ids *ttipb.TenantIdentifiers, err error) {
 	if !tenantRightsFromContext(ctx).readCurrent {
 		return nil, errNoTenantRights
@@ -186,6 +200,10 @@ func (tr *tenantRegistry) Update(ctx context.Context, req *ttipb.UpdateTenantReq
 
 func (tr *tenantRegistry) Delete(ctx context.Context, req *ttipb.TenantIdentifiers) (*types.Empty, error) {
 	return tr.deleteTenant(ctx, req)
+}
+
+func (tr *tenantRegistry) GetIdentifiersForEndDeviceEUIs(ctx context.Context, req *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest) (*ttipb.TenantIdentifiers, error) {
+	return tr.getTenantIdentifiersForEndDeviceEUIs(ctx, req)
 }
 
 func (tr *tenantRegistry) GetIdentifiersForGatewayEUI(ctx context.Context, req *ttipb.GetTenantIdentifiersForGatewayEUIRequest) (*ttipb.TenantIdentifiers, error) {

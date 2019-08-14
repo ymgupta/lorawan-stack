@@ -130,3 +130,33 @@ func TestGetTenantIDForGatewayEUI(t *testing.T) {
 		a.So(*id, should.Resemble, tenant.FromContext(ctx))
 	})
 }
+
+func TestGetTenantIDForEndDeviceEUIs(t *testing.T) {
+	a := assertions.New(t)
+	ctx := test.Context()
+
+	WithDB(t, func(t *testing.T, db *gorm.DB) {
+		prepareTest(db, &Tenant{}, &EndDevice{})
+
+		joinEUI := types.EUI64{1, 2, 3, 4, 5, 6, 7, 8}
+		devEUI := types.EUI64{8, 7, 6, 5, 4, 3, 2, 1}
+
+		_, err := GetEndDeviceStore(db).CreateEndDevice(ctx, &ttnpb.EndDevice{
+			EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+				ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{
+					ApplicationID: "foo-app",
+				},
+				DeviceID: "foo",
+				JoinEUI:  &joinEUI,
+				DevEUI:   &devEUI,
+			},
+			Name: "Foo Device",
+		})
+		a.So(err, should.BeNil)
+
+		id, err := GetTenantStore(db).GetTenantIDForEndDeviceEUIs(ctx, joinEUI, devEUI)
+		a.So(err, should.BeNil)
+
+		a.So(*id, should.Resemble, tenant.FromContext(ctx))
+	})
+}
