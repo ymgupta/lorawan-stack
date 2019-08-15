@@ -87,7 +87,7 @@ var (
 			if password == "" {
 				return errMissingFlag.WithAttributes("flag", "password")
 			}
-			hashedPassword, err := auth.Hash(password)
+			hashedPassword, err := auth.Hash(ctx, password)
 			if err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ var (
 				UserIdentifiers:                ttnpb.UserIdentifiers{UserID: userID},
 				PrimaryEmailAddress:            email,
 				PrimaryEmailAddressValidatedAt: &now,
-				Password:                       string(hashedPassword),
+				Password:                       hashedPassword,
 				PasswordUpdatedAt:              now,
 				State:                          ttnpb.STATE_APPROVED,
 				Admin:                          true,
