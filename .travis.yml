@@ -17,6 +17,8 @@ env:
   - TEST_REDIS=1
   - PATH=/snap/bin:$PATH
   - HUGO_BASE_URL=https://thethingsindustries.github.io/lorawan-stack/
+  - DOCKER_IMAGE=thethingsindustries/lorawan-stack
+  - DOCKER_IMAGE_DEV=thethingsindustries/lorawan-stack-dev
 matrix:
   include:
   - env: RUNTYPE=js
@@ -127,9 +129,13 @@ after_success:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     snapcraft login --with snapcraft.login
     if [[ ! -z "$TRAVIS_TAG" ]]; then
-      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD))
+      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD) | sort)
     else
-      GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD))
+      GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
+      if [[ ! -z "$DOCKER_IMAGE_DEV" ]]; then
+        docker tag $DOCKER_IMAGE:latest $DOCKER_IMAGE_DEV:$TRAVIS_COMMIT
+        docker push $DOCKER_IMAGE_DEV:$TRAVIS_COMMIT
+      fi
     fi
   fi
 deploy:

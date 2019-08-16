@@ -126,10 +126,10 @@ dockers:
       - tti-lw-cli
       - tti-lw-stack
     image_templates:
-      - "thethingsindustries/lorawan-stack:latest"
-      - "thethingsindustries/lorawan-stack:{{ .Major }}"
-      - "thethingsindustries/lorawan-stack:{{ .Major }}.{{ .Minor }}"
-      - "thethingsindustries/lorawan-stack:{{ .Version }}"
+      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:latest'
+      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Major }}'
+      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
+      - '{{ or .Env.DOCKER_IMAGE "lorawan-stack" }}:{{ .Version }}'
     skip_push: auto
     extra_files:
       - public
