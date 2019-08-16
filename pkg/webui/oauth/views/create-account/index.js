@@ -14,7 +14,7 @@
 
 import React from 'react'
 import { Container, Col, Row } from 'react-grid-system'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Redirect } from 'react-router-dom'
 import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
 import { connect } from 'react-redux'
@@ -23,31 +23,21 @@ import * as Yup from 'yup'
 
 import api from '../../api'
 import sharedMessages from '../../../lib/shared-messages'
-
+import { digit, uppercase, special } from '../../lib/regexp'
 import Button from '../../../components/button'
 import Input from '../../../components/input'
 import Form from '../../../components/form'
 import SubmitButton from '../../../components/submit-button'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
+import Spinner from '../../../components/spinner'
 
 import style from './create-account.styl'
 
 const m = defineMessages({
-  createAccount: 'Create TTN Stack Account',
+  createAccount: 'Create The Things Stack Account',
   register: 'Register',
-  confirmPassword: 'Confirm Password',
-  validatePasswordMatch: 'Passwords should match',
-  validatePasswordDigit: 'Should contain at least one digit',
-  validatePasswordUppercase: 'Should contain at least one uppercase letter',
-  validatePasswordSpecial: 'Should contain at least one special character',
-  registrationApproved: 'You have successfully registered and can login now',
-  registrationPending: 'You have successfully sent the registration request. Please wait until an admin approves it.',
 })
-
-const digit = /(?=.*[\d])/
-const uppercase = /(?=.*[A-Z])/
-const special = /(?=.*[!@#$%^&*])/
 
 const validationSchema = Yup.object().shape({
   user_id: Yup.string()
@@ -59,15 +49,15 @@ const validationSchema = Yup.object().shape({
     .max(50, sharedMessages.validateTooLong),
   password: Yup.string()
     .min(8)
-    .matches(digit, m.validatePasswordDigit)
-    .matches(uppercase, m.validatePasswordUppercase)
-    .matches(special, m.validatePasswordSpecial)
+    .matches(digit, sharedMessages.validatePasswordDigit)
+    .matches(uppercase, sharedMessages.validatePasswordUppercase)
+    .matches(special, sharedMessages.validatePasswordSpecial)
     .required(sharedMessages.validateRequired),
   primary_email_address: Yup.string()
     .email(sharedMessages.validateEmail)
     .required(sharedMessages.validateRequired),
   password_confirm: Yup.string()
-    .oneOf([ Yup.ref('password'), null ], m.validatePasswordMatch)
+    .oneOf([Yup.ref('password'), null], sharedMessages.validatePasswordMatch)
     .min(8)
     .required(sharedMessages.validateRequired),
 })
@@ -80,33 +70,38 @@ const initialValues = {
   password_confirm: '',
 }
 
-const getSuccessMessage = function (state) {
+const getSuccessMessage = function(state) {
   switch (state) {
-  case 'STATE_REQUESTED':
-    return m.registrationPending
-  case 'STATE_APPROVED':
-    return m.registrationApproved
-  default:
-    return ''
+    case 'STATE_REQUESTED':
+      return m.registrationPending
+    case 'STATE_APPROVED':
+      return m.registrationApproved
+    default:
+      return ''
   }
 }
 
-@connect(null, {
-  push,
-  replace,
-})
 @withRouter
+@connect(
+  state => ({
+    fetching: state.user.fetching,
+    user: state.user.user,
+  }),
+  {
+    push,
+    replace,
+  },
+)
 @bind
 export default class CreateAccount extends React.PureComponent {
-  constructor (props) {
+  constructor(props) {
     super(props)
-
     this.state = {
       error: '',
     }
   }
 
-  async handleSubmit (values, { setSubmitting, setErrors }) {
+  async handleSubmit(values, { setSubmitting, setErrors }) {
     try {
       const { user_id, ...rest } = values
       const { push } = this.props
@@ -117,7 +112,6 @@ export default class CreateAccount extends React.PureComponent {
       push('/login', {
         info: getSuccessMessage(result.data.state),
       })
-
     } catch (error) {
       this.setState({
         error: error.response.data,
@@ -127,7 +121,7 @@ export default class CreateAccount extends React.PureComponent {
     }
   }
 
-  handleCancel () {
+  handleCancel() {
     const { replace, location } = this.props
     const state = location.state || {}
 
@@ -136,8 +130,27 @@ export default class CreateAccount extends React.PureComponent {
     replace(back)
   }
 
-  render () {
+  render() {
     const { error } = this.state
+    const { user, fetching } = this.props
+
+    if (fetching) {
+      return (
+        <Spinner center>
+          <Message content={sharedMessages.loading} />
+        </Spinner>
+      )
+    }
+
+    if (Boolean(user)) {
+      return (
+        <Redirect
+          to={{
+            pathname: '/',
+          }}
+        />
+      )
+    }
 
     return (
       <Container className={style.fullHeight}>
@@ -183,16 +196,13 @@ export default class CreateAccount extends React.PureComponent {
               />
               <Form.Field
                 required
-                title={m.confirmPassword}
+                title={sharedMessages.confirmPassword}
                 name="password_confirm"
                 type="password"
                 autoComplete="new-password"
                 component={Input}
               />
-              <Form.Submit
-                component={SubmitButton}
-                message={m.register}
-              />
+              <Form.Submit component={SubmitButton} message={m.register} />
               <Button naked secondary message={sharedMessages.cancel} onClick={this.handleCancel} />
             </Form>
           </Col>

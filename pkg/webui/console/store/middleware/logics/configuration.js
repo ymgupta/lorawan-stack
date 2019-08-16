@@ -13,19 +13,15 @@
 // limitations under the License.
 
 import * as configuration from '../../actions/configuration'
-import { get as cacheGet, set as cacheSet } from '../../../lib/cache'
 import api from '../../../api'
 
-import {
-  selectNsFrequencyPlans,
-  selectGsFrequencyPlans,
-} from '../../selectors/configuration'
+import { selectNsFrequencyPlans, selectGsFrequencyPlans } from '../../selectors/configuration'
 
 import createRequestLogic from './lib'
 
 const getNsFrequencyPlansLogic = createRequestLogic({
   type: configuration.GET_NS_FREQUENCY_PLANS,
-  validate ({ getState, action }, allow, reject) {
+  validate({ getState, action }, allow, reject) {
     const plansNs = selectNsFrequencyPlans(getState())
     if (plansNs && plansNs.length) {
       reject()
@@ -33,19 +29,16 @@ const getNsFrequencyPlansLogic = createRequestLogic({
       allow(action)
     }
   },
-  async process () {
-    let frequencyPlans = cacheGet('ns_frequency_plans')
-    if (!frequencyPlans) {
-      frequencyPlans = (await api.configuration.listNsFrequencyPlans()).frequency_plans
-      cacheSet('ns_frequency_plans', frequencyPlans)
-    }
+  async process() {
+    const frequencyPlans = (await api.configuration.listNsFrequencyPlans()).frequency_plans
+
     return frequencyPlans
   },
 })
 
 const getGsFrequencyPlansLogic = createRequestLogic({
   type: configuration.GET_GS_FREQUENCY_PLANS,
-  validate ({ getState, action }, allow, reject) {
+  validate({ getState, action }, allow, reject) {
     const plansGs = selectGsFrequencyPlans(getState())
     if (plansGs && plansGs.length) {
       reject()
@@ -53,18 +46,11 @@ const getGsFrequencyPlansLogic = createRequestLogic({
       allow(action)
     }
   },
-  async process () {
-    let frequencyPlans = cacheGet('gs_frequency_plans')
-    if (!frequencyPlans) {
-      frequencyPlans = (await api.configuration.listGsFrequencyPlans()).frequency_plans
-      cacheSet('gs_frequency_plans', frequencyPlans)
-    }
+  async process() {
+    const frequencyPlans = (await api.configuration.listGsFrequencyPlans()).frequency_plans
 
     return frequencyPlans
   },
 })
 
-export default [
-  getNsFrequencyPlansLogic,
-  getGsFrequencyPlansLogic,
-]
+export default [getNsFrequencyPlansLogic, getGsFrequencyPlansLogic]

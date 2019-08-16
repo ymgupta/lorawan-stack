@@ -27,8 +27,8 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	pbtypes "github.com/gogo/protobuf/types"
-	nats_server "github.com/nats-io/gnatsd/server"
-	nats_test_server "github.com/nats-io/nats-server/test"
+	nats_server "github.com/nats-io/nats-server/v2/server"
+	nats_test_server "github.com/nats-io/nats-server/v2/test"
 	nats_client "github.com/nats-io/nats.go"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver"
@@ -500,8 +500,11 @@ hardware_versions:
 							chs.downErr <- err
 							continue
 						}
-						err = nc.Publish(subject, buf)
-						chs.downErr <- err
+						chs.downErr <- nc.Publish(subject, buf)
+						err = nc.FlushTimeout(Timeout)
+						if err != nil {
+							chs.downErr <- err
+						}
 					}
 				}()
 				errCh := make(chan error, 1)

@@ -12,6 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+.container
+  display: flex
+
 .input-box
   border-input()
   box-sizing: border-box
@@ -46,13 +49,16 @@
 
   &.disabled
     background-color: $c-backdrop
-    opacity .6
+    opacity: .6
 
     .input
       cursor: not-allowed
 
   &.readOnly
     background-color: $c-backdrop
+
+  &.actionable
+    border-radius: $br.s 0 0 $br.s
 
 ::placeholder
   font-family: $font-family
@@ -101,13 +107,17 @@
   path
     fill: $c-active-blue
 
-.byte
+.byte, .code, .placeholder
   font-family: 'IBM Plex Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace
+
+.byte
   font-weight: 600
   letter-spacing: .05rem
 
+.code
+  font-size: $fs.s
+
 .placeholder
-  font-family: 'IBM Plex Mono', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace
   position: absolute
   left: .7rem
   white-space: pre
@@ -123,3 +133,11 @@ textarea.input
   padding: $cs.xs
   min-height: 5rem
   height: auto
+
+.actions
+  display: flex
+
+  .button
+    border-radius: 0 $br.s $br.s 0
+    height: 100%
+    margin-left: -1px

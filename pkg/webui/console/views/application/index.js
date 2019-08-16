@@ -15,7 +15,6 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
-import { replace } from 'connected-react-router'
 
 import sharedMessages from '../../../lib/shared-messages'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
@@ -34,11 +33,7 @@ import ApplicationData from '../application-data'
 import ApplicationPayloadFormatters from '../application-payload-formatters'
 import ApplicationIntegrations from '../application-integrations'
 
-import { getApplicationId } from '../../../lib/selectors/id'
-import {
-  getApplication,
-  stopApplicationEventsStream,
-} from '../../store/actions/applications'
+import { getApplication, stopApplicationEventsStream } from '../../store/actions/applications'
 import {
   selectSelectedApplication,
   selectApplicationFetching,
@@ -47,24 +42,25 @@ import {
 
 import Devices from '../devices'
 
-@connect(function (state, props) {
-  return {
-    appId: props.match.params.appId,
-    fetching: selectApplicationFetching(state),
-    application: selectSelectedApplication(state),
-    error: selectApplicationError(state),
-  }
-},
-dispatch => ({
-  stopStream: id => dispatch(stopApplicationEventsStream(id)),
-  getApplication: id => dispatch(getApplication(id, 'name,description')),
-  redirectToList: () => dispatch(replace('/applications')),
-}))
+@connect(
+  function(state, props) {
+    return {
+      appId: props.match.params.appId,
+      fetching: selectApplicationFetching(state),
+      application: selectSelectedApplication(state),
+      error: selectApplicationError(state),
+    }
+  },
+  dispatch => ({
+    stopStream: id => dispatch(stopApplicationEventsStream(id)),
+    getApplication: id => dispatch(getApplication(id, 'name,description')),
+  }),
+)
 @withRequest(
   ({ appId, getApplication }) => getApplication(appId),
-  ({ fetching, application }) => fetching || !Boolean(application)
+  ({ fetching, application }) => fetching || !Boolean(application),
 )
-@withSideNavigation(function (props) {
+@withSideNavigation(function(props) {
   const matchedUrl = props.match.url
 
   return {
@@ -134,44 +130,24 @@ dispatch => ({
     ],
   }
 })
-@withBreadcrumb('apps.single', function (props) {
+@withBreadcrumb('apps.single', function(props) {
   const { appId } = props
-  return (
-    <Breadcrumb
-      path={`/applications/${appId}`}
-      icon="application"
-      content={appId}
-    />
-  )
+  return <Breadcrumb path={`/applications/${appId}`} icon="application" content={appId} />
 })
 @withEnv
 export default class Application extends React.Component {
-
-  componentDidUpdate (prevProps) {
-    const { appId, application, redirectToList } = this.props
-
-    const isSame = appId === getApplicationId(prevProps.application)
-    const isDeleted = Boolean(prevProps.application) && !Boolean(application)
-
-    if (isSame && isDeleted) {
-      redirectToList()
-    }
-  }
-
-  componentWillUnmount () {
+  componentWillUnmount() {
     const { appId, stopStream } = this.props
 
     stopStream(appId)
   }
 
-  render () {
+  render() {
     const { match, application, appId, env } = this.props
 
     return (
       <React.Fragment>
-        <IntlHelmet
-          titleTemplate={`%s - ${application.name || appId} - ${env.siteName}`}
-        />
+        <IntlHelmet titleTemplate={`%s - ${application.name || appId} - ${env.siteName}`} />
         <Switch>
           <Route exact path={`${match.path}`} component={ApplicationOverview} />
           <Route path={`${match.path}/general-settings`} component={ApplicationGeneralSettings} />
@@ -180,7 +156,10 @@ export default class Application extends React.Component {
           <Route path={`${match.path}/devices`} component={Devices} />
           <Route path={`${match.path}/collaborators`} component={ApplicationCollaborators} />
           <Route path={`${match.path}/data`} component={ApplicationData} />
-          <Route path={`${match.path}/payload-formatters`} component={ApplicationPayloadFormatters} />
+          <Route
+            path={`${match.path}/payload-formatters`}
+            component={ApplicationPayloadFormatters}
+          />
           <Route path={`${match.path}/integrations`} component={ApplicationIntegrations} />
         </Switch>
       </React.Fragment>

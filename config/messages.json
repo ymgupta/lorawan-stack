@@ -2089,7 +2089,7 @@
   },
   "error:pkg/auth:invalid_hash": {
     "translations": {
-      "en": "invalid password hash"
+      "en": "invalid hash"
     },
     "description": {
       "package": "pkg/auth",
@@ -2107,7 +2107,7 @@
   },
   "error:pkg/auth:unknown_hashing_method": {
     "translations": {
-      "en": "password hashing method `{method}` unknown"
+      "en": "unknown hashing method `{method}`"
     },
     "description": {
       "package": "pkg/auth",
@@ -4112,6 +4112,24 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/interop:unexpected_result": {
+    "translations": {
+      "en": "unexpected result code {code}"
+    },
+    "description": {
+      "package": "pkg/interop",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/interop:unknown_config": {
+    "translations": {
+      "en": "configuration is unknown"
+    },
+    "description": {
+      "package": "pkg/interop",
+      "file": "client.go"
+    }
+  },
   "error:pkg/interop:unknown_dev_addr": {
     "translations": {
       "en": "unknown DevAddr"
@@ -4137,6 +4155,15 @@
     "description": {
       "package": "pkg/interop",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/interop:unknown_protocol": {
+    "translations": {
+      "en": "unknown protocol"
+    },
+    "description": {
+      "package": "pkg/interop",
+      "file": "client.go"
     }
   },
   "error:pkg/interop:unknown_receiver": {
@@ -4202,9 +4229,9 @@
       "file": "registry.go"
     }
   },
-  "error:pkg/joinserver:address_not_authorized": {
+  "error:pkg/joinserver:caller_not_authorized": {
     "translations": {
-      "en": "address `{address}` is not authorized for the entity"
+      "en": "caller `{name}` is not authorized for the entity"
     },
     "description": {
       "package": "pkg/joinserver",
@@ -4337,15 +4364,6 @@
       "file": "grpc_deviceregistry.go"
     }
   },
-  "error:pkg/joinserver:forward_join_request": {
-    "translations": {
-      "en": "failed to forward JoinRequest"
-    },
-    "description": {
-      "package": "pkg/joinserver",
-      "file": "errors.go"
-    }
-  },
   "error:pkg/joinserver:generate_session_key_id": {
     "translations": {
       "en": "failed to generate session key ID"
@@ -4421,6 +4439,15 @@
   "error:pkg/joinserver:no_app_s_key": {
     "translations": {
       "en": "no AppSKey specified"
+    },
+    "description": {
+      "package": "pkg/joinserver",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/joinserver:no_application_server_id": {
+    "translations": {
+      "en": "no AS-ID specified"
     },
     "description": {
       "package": "pkg/joinserver",
@@ -4607,9 +4634,9 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/joinserver:unknown_app_eui": {
+  "error:pkg/joinserver:unknown_join_eui": {
     "translations": {
-      "en": "AppEUI specified is not known"
+      "en": "JoinEUI specified is not known"
     },
     "description": {
       "package": "pkg/joinserver",

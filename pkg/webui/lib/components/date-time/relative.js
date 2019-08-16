@@ -13,38 +13,39 @@
 // limitations under the License.
 
 import React from 'react'
-import { FormattedRelative } from 'react-intl'
+import { FormattedRelativeTime } from 'react-intl'
 
 import PropTypes from '../../prop-types'
 import DateTime from '.'
 
-const RelativeTime = function (props) {
-  const {
-    className,
-    value,
-    updateInterval,
-    options,
-    children,
-  } = props
+function formatInSeconds(from, to) {
+  return Math.floor((from - to) / 1000)
+}
+
+const RelativeTime = function(props) {
+  const { className, value, unit, computeDelta, updateIntervalInSeconds, children } = props
 
   return (
-    <DateTime
-      className={className}
-      value={value}
-    >
-      {
-        dateTime => (
-          <FormattedRelative
-            value={dateTime}
-            updateInterval={updateInterval}
-            {...options}
+    <DateTime className={className} value={value}>
+      {dateTime => {
+        const from = new Date(dateTime)
+        const to = new Date()
+
+        const delta = computeDelta(from, to)
+
+        return (
+          <FormattedRelativeTime
+            value={delta}
+            numeric="auto"
+            updateIntervalInSeconds={updateIntervalInSeconds}
+            unit={unit}
           >
-            {formattedRelativeTime => (
+            {formattedRelativeTime =>
               children ? children(formattedRelativeTime) : formattedRelativeTime
-            )}
-          </FormattedRelative>
+            }
+          </FormattedRelativeTime>
         )
-      }
+      }}
     </DateTime>
   )
 }
@@ -56,14 +57,18 @@ RelativeTime.propTypes = {
     PropTypes.number, // support timestamps
     PropTypes.instanceOf(Date),
   ]).isRequired,
-  /** The interval that the component will re-render (ms) */
-  updateInterval: PropTypes.number,
-  // see https://github.com/yahoo/react-intl/wiki/Components#formattedrelative
-  options: PropTypes.object,
+  /** The interval that the component will re-render in seconds */
+  updateIntervalInSeconds: PropTypes.number,
+  /** The unit to calculate relative date time */
+  unit: PropTypes.oneOf(['second', 'minute', 'hour', 'day', 'week', 'month', 'year']),
+  /** A function to compute relative delta in specified time units in the `unit` prop */
+  computeDelta: PropTypes.func,
 }
 
 RelativeTime.defaultProps = {
-  updateInterval: 1000,
+  updateIntervalInSeconds: 1,
+  unit: 'second',
+  computeDelta: formatInSeconds,
 }
 
 export default RelativeTime

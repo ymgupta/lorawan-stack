@@ -79,9 +79,9 @@ var (
 					}
 				}
 			}
-			var hashedSecret auth.Password
+			var hashedSecret string
 			if secret != "" {
-				hashedSecret, err = auth.Hash(secret)
+				hashedSecret, err = auth.Hash(ctx, secret)
 				if err != nil {
 					return err
 				}
@@ -105,7 +105,7 @@ var (
 				cli, err := cliStore.CreateClient(ctx, &ttnpb.Client{
 					ClientIdentifiers: ttnpb.ClientIdentifiers{ClientID: clientID},
 					Name:              name,
-					Secret:            string(hashedSecret),
+					Secret:            hashedSecret,
 					RedirectURIs:      redirectURIs,
 					State:             ttnpb.STATE_APPROVED,
 					SkipAuthorization: authorized,

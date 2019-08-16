@@ -13,26 +13,25 @@
 // limitations under the License.
 
 import React from 'react'
+
 import SortButton from '.'
 
-export default function () {
+export default function() {
   const driver = {
     component: undefined,
     when: {
-      created (props) {
-        driver.component = shallow(
-          <SortButton {...props} />
-        )
+      created(props) {
+        driver.component = shallow(<SortButton {...props} />)
       },
-      buttonPressed () {
+      buttonPressed() {
         driver.component.simulate('click')
       },
     },
     is: {
-      active () {
+      active() {
         return driver.component.hasClass('buttonActive')
       },
-      descending () {
+      descending() {
         return driver.component.hasClass('buttonDesc')
       },
     },

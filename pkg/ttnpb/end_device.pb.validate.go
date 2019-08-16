@@ -1668,12 +1668,39 @@ func (m *EndDevice) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "network_server_kek_label":
+
+			if utf8.RuneCountInString(m.GetNetworkServerKEKLabel()) > 2048 {
+				return EndDeviceValidationError{
+					field:  "network_server_kek_label",
+					reason: "value length must be at most 2048 runes",
+				}
+			}
+
 		case "application_server_address":
 
 			if !_EndDevice_ApplicationServerAddress_Pattern.MatchString(m.GetApplicationServerAddress()) {
 				return EndDeviceValidationError{
 					field:  "application_server_address",
 					reason: "value does not match regex pattern \"^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\\\-]*[a-zA-Z0-9])\\\\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\\\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$\"",
+				}
+			}
+
+		case "application_server_kek_label":
+
+			if utf8.RuneCountInString(m.GetApplicationServerKEKLabel()) > 2048 {
+				return EndDeviceValidationError{
+					field:  "application_server_kek_label",
+					reason: "value length must be at most 2048 runes",
+				}
+			}
+
+		case "application_server_id":
+
+			if utf8.RuneCountInString(m.GetApplicationServerID()) > 100 {
+				return EndDeviceValidationError{
+					field:  "application_server_id",
+					reason: "value length must be at most 100 runes",
 				}
 			}
 
@@ -2472,6 +2499,92 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = GetEndDeviceRequestValidationError{}
+
+// ValidateFields checks the field values on
+// GetEndDeviceIdentifiersForEUIsRequest with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *GetEndDeviceIdentifiersForEUIsRequest) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = GetEndDeviceIdentifiersForEUIsRequestFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "join_eui":
+			// no validation rules for JoinEUI
+		case "dev_eui":
+			// no validation rules for DevEUI
+		default:
+			return GetEndDeviceIdentifiersForEUIsRequestValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// GetEndDeviceIdentifiersForEUIsRequestValidationError is the validation error
+// returned by GetEndDeviceIdentifiersForEUIsRequest.ValidateFields if the
+// designated constraints aren't met.
+type GetEndDeviceIdentifiersForEUIsRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) ErrorName() string {
+	return "GetEndDeviceIdentifiersForEUIsRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetEndDeviceIdentifiersForEUIsRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetEndDeviceIdentifiersForEUIsRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetEndDeviceIdentifiersForEUIsRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetEndDeviceIdentifiersForEUIsRequestValidationError{}
 
 // ValidateFields checks the field values on ListEndDevicesRequest with the
 // rules defined in the proto definition for this message. If any rules are

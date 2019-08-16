@@ -1226,6 +1226,16 @@ func (dst *EndDevice) SetFields(src *EndDevice, paths ...string) error {
 				var zero string
 				dst.NetworkServerAddress = zero
 			}
+		case "network_server_kek_label":
+			if len(subs) > 0 {
+				return fmt.Errorf("'network_server_kek_label' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.NetworkServerKEKLabel = src.NetworkServerKEKLabel
+			} else {
+				var zero string
+				dst.NetworkServerKEKLabel = zero
+			}
 		case "application_server_address":
 			if len(subs) > 0 {
 				return fmt.Errorf("'application_server_address' has no subfields, but %s were specified", subs)
@@ -1235,6 +1245,26 @@ func (dst *EndDevice) SetFields(src *EndDevice, paths ...string) error {
 			} else {
 				var zero string
 				dst.ApplicationServerAddress = zero
+			}
+		case "application_server_kek_label":
+			if len(subs) > 0 {
+				return fmt.Errorf("'application_server_kek_label' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ApplicationServerKEKLabel = src.ApplicationServerKEKLabel
+			} else {
+				var zero string
+				dst.ApplicationServerKEKLabel = zero
+			}
+		case "application_server_id":
+			if len(subs) > 0 {
+				return fmt.Errorf("'application_server_id' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ApplicationServerID = src.ApplicationServerID
+			} else {
+				var zero string
+				dst.ApplicationServerID = zero
 			}
 		case "join_server_address":
 			if len(subs) > 0 {
@@ -1800,6 +1830,37 @@ func (dst *GetEndDeviceRequest) SetFields(src *GetEndDeviceRequest, paths ...str
 			} else {
 				var zero types.FieldMask
 				dst.FieldMask = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *GetEndDeviceIdentifiersForEUIsRequest) SetFields(src *GetEndDeviceIdentifiersForEUIsRequest, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "join_eui":
+			if len(subs) > 0 {
+				return fmt.Errorf("'join_eui' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.JoinEUI = src.JoinEUI
+			} else {
+				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				dst.JoinEUI = zero
+			}
+		case "dev_eui":
+			if len(subs) > 0 {
+				return fmt.Errorf("'dev_eui' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DevEUI = src.DevEUI
+			} else {
+				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				dst.DevEUI = zero
 			}
 
 		default:

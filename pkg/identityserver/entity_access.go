@@ -108,7 +108,7 @@ func (is *IdentityServer) authInfo(ctx context.Context) (info *ttnpb.AuthInfoRes
 				return err
 			}
 			region := trace.StartRegion(ctx, "validate api key")
-			valid, err := auth.Password(apiKey.GetKey()).Validate(tokenKey)
+			valid, err := auth.Validate(apiKey.GetKey(), tokenKey)
 			region.End()
 			if err != nil {
 				return err
@@ -146,7 +146,7 @@ func (is *IdentityServer) authInfo(ctx context.Context) (info *ttnpb.AuthInfoRes
 				return err
 			}
 			region := trace.StartRegion(ctx, "validate access token")
-			valid, err := auth.Password(accessToken.GetAccessToken()).Validate(tokenKey)
+			valid, err := auth.Validate(accessToken.GetAccessToken(), tokenKey)
 			region.End()
 			if err != nil {
 				return err
@@ -283,83 +283,6 @@ func restrictRights(info *ttnpb.AuthInfoResponse, rights *ttnpb.Rights) {
 		token.Rights = ttnpb.RightsFrom(token.Rights...).Intersect(rights).GetRights()
 	}
 	info.UniversalRights = info.UniversalRights.Intersect(rights)
-}
-
-func entityRights(authInfo *ttnpb.AuthInfoResponse) (ttnpb.Identifiers, *ttnpb.Rights) {
-	if apiKey := authInfo.GetAPIKey(); apiKey != nil {
-		return apiKey.EntityIDs.Identifiers(), ttnpb.RightsFrom(apiKey.Rights...)
-	} else if accessToken := authInfo.GetOAuthAccessToken(); accessToken != nil {
-		return &accessToken.UserIDs, ttnpb.RightsFrom(accessToken.Rights...)
-	}
-	return nil, nil
-}
-
-func (is *IdentityServer) entityRights(ctx context.Context, authInfo *ttnpb.AuthInfoResponse) (res map[ttnpb.Identifiers]*ttnpb.Rights, err error) {
-	if access, ok := ctx.Value(requestAccessKey).(*requestAccess); ok {
-		if access.entityRights != nil {
-			return access.entityRights, nil
-		}
-		defer func() {
-			if err == nil {
-				access.entityRights = res
-			}
-		}()
-	}
-
-	ids, rights := entityRights(authInfo)
-	if ids == nil {
-		return nil, nil
-	}
-	entityRights := make(map[ttnpb.Identifiers]*ttnpb.Rights)
-	entityRights[ids] = rights
-	memberRights, err := is.memberRights(ctx, ids)
-	if err != nil {
-		return nil, err
-	}
-	for ids, memberRights := range memberRights {
-		entityRights[ids] = memberRights.Implied().Intersect(rights)
-	}
-	return entityRights, nil
-}
-
-func (is *IdentityServer) memberRights(ctx context.Context, ids ttnpb.Identifiers) (entityRights map[ttnpb.Identifiers]*ttnpb.Rights, err error) {
-	orgOrUsr, ok := ids.(interface {
-		OrganizationOrUserIdentifiers() *ttnpb.OrganizationOrUserIdentifiers
-	})
-	if !ok {
-		return nil, nil
-	}
-	ouIDs := orgOrUsr.OrganizationOrUserIdentifiers()
-
-	memberships := is.cachedMembershipsForAccount(ctx, ouIDs)
-	if memberships == nil {
-		err = is.withDatabase(ctx, func(db *gorm.DB) error {
-			memberships, err = store.GetMembershipStore(db).FindMemberRights(ctx, ouIDs, "")
-			if err != nil {
-				return err
-			}
-			return nil
-		})
-		if err != nil {
-			return nil, err
-		}
-		defer func() {
-			is.cacheMembershipsForAccount(ctx, ouIDs, memberships)
-		}()
-	}
-
-	entityRights = make(map[ttnpb.Identifiers]*ttnpb.Rights)
-	for ids, rights := range memberships {
-		entityRights[ids.Identifiers()] = rights
-		subMemberRights, err := is.memberRights(ctx, ids)
-		if err != nil {
-			return nil, err
-		}
-		for ids, memberRights := range subMemberRights {
-			entityRights[ids.Identifiers()] = memberRights.Implied().Intersect(rights.Implied())
-		}
-	}
-	return entityRights, nil
 }
 
 type entityAccess struct {

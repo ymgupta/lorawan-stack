@@ -31,7 +31,7 @@ import style from './login.styl'
 const m = defineMessages({
   welcome: 'Welcome to {stackConsole}',
   login: 'You need to be logged in to use this site',
-  loginWithStackAccount: 'Login with your TTN Stack Account',
+  loginWithStackAccount: 'Login with your The Things Stack Account',
 })
 
 @withEnv
@@ -40,8 +40,11 @@ const m = defineMessages({
 }))
 @bind
 export default class Login extends React.PureComponent {
-  render () {
-    const { user, env: { appRoot }} = this.props
+  render() {
+    const {
+      user,
+      env: { appRoot },
+    } = this.props
     const { next } = Query.parse(location.search)
     const redirectAppend = next ? `?next=${next}` : ''
 
@@ -58,7 +61,7 @@ export default class Login extends React.PureComponent {
             <Col>
               <Message
                 className={style.loginHeader}
-                values={{ stackConsole: 'TTN Stack Console' }}
+                values={{ stackConsole: 'The Things Stack Console' }}
                 component="h2"
                 content={m.welcome}
               />

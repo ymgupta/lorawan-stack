@@ -26,17 +26,18 @@ import Message from '../../../lib/components/message'
 import SubmitBar from '../../../components/submit-bar'
 import ModalButton from '../../../components/button/modal-button'
 import FrequencyPlansSelect from '../../containers/freq-plans-select'
+import DevAddrInput from '../../containers/dev-addr-input'
 
 import sharedMessages from '../../../lib/shared-messages'
 import errorMessages from '../../../lib/errors/error-messages'
 import { getDeviceId } from '../../../lib/selectors/id'
 import PropTypes from '../../../lib/prop-types'
 import m from './messages'
-import validationSchema from './validation-schema'
+import { createFormValidationSchema, updateFormValidationSchema } from './validation-schema'
 
 @bind
 class DeviceDataForm extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     const { initialValues } = this.props
@@ -52,29 +53,31 @@ class DeviceDataForm extends Component {
     }
   }
 
-  handleOTAASelect () {
+  handleOTAASelect() {
     this.setState({ otaa: true })
   }
 
-  handleABPSelect () {
+  handleABPSelect() {
     this.setState({ otaa: false })
   }
 
-  handleResetsJoinNoncesChange (evt) {
+  handleResetsJoinNoncesChange(evt) {
     this.setState({ resets_join_nonces: evt.target.checked })
   }
 
-  handleResetsFrameCountersChange (evt) {
+  handleResetsFrameCountersChange(evt) {
     this.setState({ resets_f_cnt: evt.target.checked })
   }
 
-  async handleSubmit (values, { setSubmitting, resetForm }) {
+  async handleSubmit(values, { setSubmitting, resetForm }) {
     const { onSubmit, onSubmitSuccess, initialValues, update } = this.props
+    const validationSchema = update ? updateFormValidationSchema : createFormValidationSchema
     const deviceId = getDeviceId(initialValues)
+    const castedValues = validationSchema.cast(values)
     await this.setState({ error: '' })
 
     try {
-      const device = await onSubmit(values)
+      const device = await onSubmit(castedValues)
       if (update) {
         resetForm(values)
         toast({
@@ -91,7 +94,7 @@ class DeviceDataForm extends Component {
     }
   }
 
-  async handleDelete () {
+  async handleDelete() {
     const { onDelete, onDeleteSuccess, initialValues } = this.props
     const deviceId = getDeviceId(initialValues)
 
@@ -109,19 +112,15 @@ class DeviceDataForm extends Component {
     }
   }
 
-  get ABPSection () {
+  get ABPSection() {
     const { resets_f_cnt } = this.state
     return (
       <React.Fragment>
-        <Form.Field
+        <DevAddrInput
           title={sharedMessages.devAddr}
           name="session.dev_addr"
-          type="byte"
-          min={4}
-          max={4}
           placeholder={m.leaveBlankPlaceholder}
           description={m.deviceAddrDescription}
-          component={Input}
         />
         <Form.Field
           title={sharedMessages.fwdNtwkKey}
@@ -174,7 +173,7 @@ class DeviceDataForm extends Component {
     )
   }
 
-  get OTAASection () {
+  get OTAASection() {
     const { resets_join_nonces } = this.state
     const { update } = this.props
     return (
@@ -238,7 +237,7 @@ class DeviceDataForm extends Component {
     )
   }
 
-  render () {
+  render() {
     const { otaa, error } = this.state
     const { initialValues, update } = this.props
 
@@ -279,14 +278,11 @@ class DeviceDataForm extends Component {
       <Form
         error={error}
         onSubmit={this.handleSubmit}
-        validationSchema={validationSchema}
+        validationSchema={update ? updateFormValidationSchema : createFormValidationSchema}
         submitEnabledWhenInvalid
         initialValues={formValues}
       >
-        <Message
-          component="h4"
-          content={sharedMessages.generalSettings}
-        />
+        <Message component="h4" content={sharedMessages.generalSettings} />
         <Form.Field
           title={sharedMessages.devID}
           name="ids.device_id"
@@ -311,10 +307,7 @@ class DeviceDataForm extends Component {
           description={m.deviceDescDescription}
           component={Input}
         />
-        <Message
-          component="h4"
-          content={m.lorawanOptions}
-        />
+        <Message component="h4" content={m.lorawanOptions} />
         <Form.Field
           title={sharedMessages.macVersion}
           name="lorawan_version"
@@ -349,11 +342,7 @@ class DeviceDataForm extends Component {
           name="frequency_plan_id"
           required
         />
-        <Form.Field
-          title={m.supportsClassC}
-          name="supports_class_c"
-          component={Checkbox}
-        />
+        <Form.Field title={m.supportsClassC} name="supports_class_c" component={Checkbox} />
         <Form.Field
           title={sharedMessages.networkServerAddress}
           placeholder={sharedMessages.addressPlaceholder}
@@ -366,26 +355,15 @@ class DeviceDataForm extends Component {
           name="application_server_address"
           component={Input}
         />
-        <Message
-          component="h4"
-          content={m.activationSettings}
-        />
+        <Message component="h4" content={m.activationSettings} />
         <Form.Field
           title={m.activationMode}
           disabled={update}
           name="activation_mode"
           component={Radio.Group}
         >
-          <Radio
-            label={m.otaa}
-            value="otaa"
-            onChange={this.handleOTAASelect}
-          />
-          <Radio
-            label={m.abp}
-            value="abp"
-            onChange={this.handleABPSelect}
-          />
+          <Radio label={m.otaa} value="otaa" onChange={this.handleOTAASelect} />
+          <Radio label={m.abp} value="abp" onChange={this.handleABPSelect} />
         </Form.Field>
         {otaa ? this.OTAASection : this.ABPSection}
         <SubmitBar>
@@ -398,7 +376,9 @@ class DeviceDataForm extends Component {
               type="button"
               icon="delete"
               message={m.deleteDevice}
-              modalData={{ message: { values: { deviceId: deviceName || deviceId }, ...m.deleteWarning }}}
+              modalData={{
+                message: { values: { deviceId: deviceName || deviceId }, ...m.deleteWarning },
+              }}
               onApprove={this.handleDelete}
               danger
               naked

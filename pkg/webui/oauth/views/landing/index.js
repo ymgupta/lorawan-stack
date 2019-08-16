@@ -15,30 +15,41 @@
 import React from 'react'
 import { connect } from 'react-redux'
 import bind from 'autobind-decorator'
+import { push } from 'connected-react-router'
 
 import Button from '../../../components/button'
 import WithAuth from '../../../lib/components/with-auth'
 
 import { logout } from '../../store/actions/user'
+import sharedMessages from '../../../lib/shared-messages'
 
 @connect(state => ({
   user: state.user.user,
 }))
 @bind
 export default class OAuth extends React.PureComponent {
-
-  async handleLogout () {
+  async handleLogout() {
     const { dispatch } = this.props
 
     dispatch(logout())
   }
 
-  render () {
-    const { user = { ids: {}}} = this.props
+  async handleUpdatePassword() {
+    const { dispatch } = this.props
+
+    dispatch(push('/update-password'))
+  }
+
+  render() {
+    const { user = { ids: {} } } = this.props
 
     return (
       <WithAuth>
-        <div>You are logged in as {user.ids.user_id}. <Button message="Logout" onClick={this.handleLogout} /></div>
+        <div>
+          You are logged in as {user.ids.user_id}.{' '}
+          <Button message={sharedMessages.logout} onClick={this.handleLogout} />
+          <Button message={sharedMessages.changePassword} onClick={this.handleUpdatePassword} />
+        </div>
       </WithAuth>
     )
   }

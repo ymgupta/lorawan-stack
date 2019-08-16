@@ -20,15 +20,16 @@ const defaultState = {
   webhooks: undefined,
 }
 
-const webhooks = function (state = defaultState, { type, payload }) {
+const webhooks = function(state = defaultState, { type, payload }) {
   switch (type) {
-  case GET_WEBHOOKS_LIST_SUCCESS:
-    return {
-      ...state,
-      webhooks: payload.webhooks,
-    }
-  default:
-    return state
+    case GET_WEBHOOKS_LIST_SUCCESS:
+      return {
+        ...state,
+        webhooks: payload.webhooks,
+        totalCount: payload.totalCount,
+      }
+    default:
+      return state
   }
 }
 
