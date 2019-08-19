@@ -65,7 +65,7 @@ func NewPopulatedDevAddr(r randy) *DevAddr {
 func NewPopulatedDevAddrPrefix(r randy) *DevAddrPrefix {
 	var prefix DevAddrPrefix
 	prefix.DevAddr = *NewPopulatedDevAddr(r)
-	prefix.Length = uint8(r.Int63())
+	prefix.Length = uint8(r.Int63() % 33)
 	return &prefix
 }
 
