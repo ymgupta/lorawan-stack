@@ -77,6 +77,14 @@ func NewPopulatedEUI64(r randy) *EUI64 {
 	return &eui
 }
 
+// NewPopulatedEUI64Prefix returns a random EUI64Prefix.
+func NewPopulatedEUI64Prefix(r randy) *EUI64Prefix {
+	var prefix EUI64Prefix
+	prefix.EUI64 = *NewPopulatedEUI64(r)
+	prefix.Length = uint8(r.Int63() % 65)
+	return &prefix
+}
+
 // NewPopulatedAES128Key returns a random AES128Key.
 func NewPopulatedAES128Key(r randy) *AES128Key {
 	var key AES128Key
