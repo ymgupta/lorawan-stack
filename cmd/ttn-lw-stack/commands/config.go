@@ -20,6 +20,8 @@ import (
 	shared_applicationserver "go.thethings.network/lorawan-stack/cmd/internal/shared/applicationserver"
 	shared_console "go.thethings.network/lorawan-stack/cmd/internal/shared/console"
 	shared_cryptoserver "go.thethings.network/lorawan-stack/cmd/internal/shared/cryptoserver"
+	shared_deviceclaimingserver "go.thethings.network/lorawan-stack/cmd/internal/shared/deviceclaimingserver"
+	shared_devicetemplateconverter "go.thethings.network/lorawan-stack/cmd/internal/shared/devicetemplateconverter"
 	shared_gatewayconfigurationserver "go.thethings.network/lorawan-stack/cmd/internal/shared/gatewayconfigurationserver"
 	shared_gatewayserver "go.thethings.network/lorawan-stack/cmd/internal/shared/gatewayserver"
 	shared_identityserver "go.thethings.network/lorawan-stack/cmd/internal/shared/identityserver"
@@ -29,6 +31,7 @@ import (
 	conf "go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/console"
 	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver"
@@ -48,6 +51,7 @@ type Config struct {
 	Console          console.Config                    `name:"console"`
 	GCS              gatewayconfigurationserver.Config `name:"gcs"`
 	DTC              devicetemplateconverter.Config    `name:"dtc"`
+	DCS              deviceclaimingserver.Config       `name:"dcs"`
 	CS               cryptoserver.Config               `name:"cs"`
 }
 
@@ -61,6 +65,8 @@ var DefaultConfig = Config{
 	JS:          shared_joinserver.DefaultJoinServerConfig,
 	Console:     shared_console.DefaultConsoleConfig,
 	GCS:         shared_gatewayconfigurationserver.DefaultGatewayConfigurationServerConfig,
+	DTC:         shared_devicetemplateconverter.DefaultDeviceTemplateConverterConfig,
+	DCS:         shared_deviceclaimingserver.DefaultDeviceClaimingServerConfig,
 	CS:          shared_cryptoserver.DefaultCryptoServerConfig,
 }
 

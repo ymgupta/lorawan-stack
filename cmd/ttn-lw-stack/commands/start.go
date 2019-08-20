@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/console"
 	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
@@ -50,7 +51,7 @@ var (
 
 var (
 	startCommand = &cobra.Command{
-		Use:   "start [is|gs|ns|as|js|console|gcs|dtc|all]... [flags]",
+		Use:   "start [is|gs|ns|as|js|console|gcs|dtc|dcs|all]... [flags]",
 		Short: "Start The Things Stack",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var start struct {
@@ -62,6 +63,7 @@ var (
 				Console                    bool
 				GatewayConfigurationServer bool
 				DeviceTemplateConverter    bool
+				DeviceClaimingServer       bool
 
 				CryptoServer bool
 			}
@@ -82,12 +84,15 @@ var (
 				case "js", "joinserver":
 					start.JoinServer = true
 					start.DeviceTemplateConverter = true
+					start.DeviceClaimingServer = true
 				case "console":
 					start.Console = true
 				case "gcs":
 					start.GatewayConfigurationServer = true
 				case "dtc":
 					start.DeviceTemplateConverter = true
+				case "dcs":
+					start.DeviceClaimingServer = true
 				case "cs", "cryptoserver":
 					start.CryptoServer = true
 				case "all":
@@ -99,6 +104,7 @@ var (
 					start.Console = true
 					start.GatewayConfigurationServer = true
 					start.DeviceTemplateConverter = true
+					start.DeviceClaimingServer = true
 
 					start.CryptoServer = true
 				default:
@@ -238,8 +244,13 @@ var (
 				_ = dtc
 			}
 
-			if rootRedirect != nil {
-				c.RegisterWeb(rootRedirect)
+			if start.DeviceClaimingServer || startDefault {
+				logger.Info("Setting up Device Claiming Server")
+				dcs, err := deviceclaimingserver.New(c, &config.DCS)
+				if err != nil {
+					return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
+				}
+				_ = dcs
 			}
 
 			if start.CryptoServer {
@@ -249,6 +260,10 @@ var (
 					return shared.ErrInitializeCryptoServer.WithCause(err)
 				}
 				_ = cryptoserver
+			}
+
+			if rootRedirect != nil {
+				c.RegisterWeb(rootRedirect)
 			}
 
 			logger.Info("Starting...")
