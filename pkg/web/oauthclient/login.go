@@ -12,5 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.container
-  height: 100%
+package oauthclient
+
+import (
+	"net/http"
+	"strings"
+
+	echo "github.com/labstack/echo/v4"
+)
+
+// HandleLogin is the handler for redirecting the user to the authorization
+// endpoint.
+func (oc *OAuthClient) HandleLogin(c echo.Context) error {
+	next := c.QueryParam("next")
+
+	// Only allow relative paths.
+	if !strings.HasPrefix(next, "/") && !strings.HasPrefix(next, "#") && !strings.HasPrefix(next, "?") {
+		next = ""
+	}
+
+	// Set state cookie.
+	state := newState(next)
+	if err := oc.setStateCookie(c, state); err != nil {
+		return err
+	}
+
+	return c.Redirect(http.StatusFound, oc.oauth(c).AuthCodeURL(state.Secret))
+}
