@@ -23,6 +23,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/devicerepository"
 	"go.thethings.network/lorawan-stack/pkg/fetch"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
@@ -283,5 +284,6 @@ type ServiceBase struct {
 	Rights           Rights                 `name:"rights"`
 	KeyVault         KeyVault               `name:"key-vault"`
 
-	Tenancy tenant.Config `name:"tenancy"`
+	Tenancy tenant.Config  `name:"tenancy"`
+	License license.Config `name:"license"`
 }
