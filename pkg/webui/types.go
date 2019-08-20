@@ -12,5 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.container
-  height: 100%
+package webui
+
+// APIConfig for upstream APIs.
+type APIConfig struct {
+	Enabled bool   `json:"enabled" name:"enabled" description:"Enable this API"`
+	BaseURL string `json:"base_url" name:"base-url" description:"Base URL to the HTTP API"`
+}

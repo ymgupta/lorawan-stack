@@ -12,29 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package console
+import React from 'react'
+import { Container } from 'react-grid-system'
 
-import (
-	"net/http"
-	"strings"
+import Breadcrumbs from '../../../components/breadcrumbs'
 
-	echo "github.com/labstack/echo/v4"
-)
+import style from './breadcrumb-view.styl'
 
-// Login redirects the user to the OAuth Authorize URL.
-func (console *Console) Login(c echo.Context) error {
-	next := c.QueryParam("next")
-
-	// Only allow relative paths.
-	if !strings.HasPrefix(next, "/") && !strings.HasPrefix(next, "#") && !strings.HasPrefix(next, "?") {
-		next = ""
-	}
-
-	// Set state cookie.
-	state := newState(next)
-	if err := console.setStateCookie(c, state); err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusFound, console.oauth(c).AuthCodeURL(state.Secret))
+const BreadcrumbView = ({ children }) => {
+  return (
+    <div className={style.container}>
+      <div className={style.breadcrumbsContainer}>
+        <Container>
+          <Breadcrumbs />
+        </Container>
+      </div>
+      <div className={style.contentContainer}>{children}</div>
+    </div>
+  )
 }
+
+export default BreadcrumbView
