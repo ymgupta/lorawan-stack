@@ -1,4 +1,7 @@
 {
+  "claim.views.login.index.welcome": "Welcome to {siteTitle}",
+  "claim.views.login.index.login": "You need to be logged in to use this site",
+  "claim.views.login.index.loginWithStackAccount": "Login with your The Things Stack Account",
   "components.data-sheet.index.noData": "No data available",
   "components.event.index.eventData": "Event Data",
   "components.events.index.truncated": "Events have been truncated",
