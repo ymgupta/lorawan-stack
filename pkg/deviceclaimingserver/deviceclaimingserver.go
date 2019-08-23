@@ -26,6 +26,7 @@ import (
 
 // Config is the configuration for the Device Claiming Server.
 type Config struct {
+	AuthorizedApplications AuthorizedApplicationRegistry `name:"-"`
 }
 
 // DeviceClaimingServer is the Device Claiming Server.
@@ -33,16 +34,19 @@ type DeviceClaimingServer struct {
 	*component.Component
 	ctx context.Context
 
+	authorizedAppsRegistry AuthorizedApplicationRegistry
+
 	grpc struct {
 		endDeviceClaimingServer *endDeviceClaimingServer
 	}
 }
 
 // New returns a new Device Claiming component.
-func New(c *component.Component, config *Config) (*DeviceClaimingServer, error) {
+func New(c *component.Component, conf *Config) (*DeviceClaimingServer, error) {
 	dcs := &DeviceClaimingServer{
-		Component: c,
-		ctx:       log.NewContextWithField(c.Context(), "namespace", "deviceclaimingserver"),
+		Component:              c,
+		ctx:                    log.NewContextWithField(c.Context(), "namespace", "deviceclaimingserver"),
+		authorizedAppsRegistry: conf.AuthorizedApplications,
 	}
 
 	dcs.grpc.endDeviceClaimingServer = &endDeviceClaimingServer{DCS: dcs}
