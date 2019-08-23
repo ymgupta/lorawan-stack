@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "lorawan-stack/api/tti/identifiers.proto",
+    "title": "lorawan-stack/api/tti/application_api_key.proto",
     "version": "version not set"
   },
   "schemes": [
