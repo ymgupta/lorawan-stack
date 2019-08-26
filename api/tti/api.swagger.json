@@ -158,6 +158,41 @@
         ]
       }
     },
+    "/tenants/{tenant_ids.tenant_id}/registry-totals": {
+      "get": {
+        "operationId": "GetRegistryTotals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3TenantRegistryTotals"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_ids.tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    },
     "/tenants/{tenant_id}": {
       "delete": {
         "operationId": "Delete",
@@ -314,6 +349,35 @@
       "properties": {
         "tenant_id": {
           "type": "string"
+        }
+      }
+    },
+    "v3TenantRegistryTotals": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "clients": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "end_devices": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "gateways": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "organizations": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "users": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },

@@ -486,6 +486,116 @@
               "defaultValue": ""
             }
           ]
+        },
+        {
+          "name": "GetTenantRegistryTotalsRequest",
+          "longName": "GetTenantRegistryTotalsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_ids",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "TenantRegistryTotals",
+          "longName": "TenantRegistryTotals",
+          "fullName": "tti.lorawan.v3.TenantRegistryTotals",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "applications",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "clients",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "end_devices",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "gateways",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "organizations",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "users",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
         }
       ],
       "services": [
@@ -535,6 +645,28 @@
                     {
                       "method": "GET",
                       "pattern": "/tenants/{tenant_ids.tenant_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "GetRegistryTotals",
+              "description": "",
+              "requestType": "GetTenantRegistryTotalsRequest",
+              "requestLongType": "GetTenantRegistryTotalsRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
+              "requestStreaming": false,
+              "responseType": "TenantRegistryTotals",
+              "responseLongType": "TenantRegistryTotals",
+              "responseFullType": "tti.lorawan.v3.TenantRegistryTotals",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/tenants/{tenant_ids.tenant_id}/registry-totals"
                     }
                   ]
                 }
