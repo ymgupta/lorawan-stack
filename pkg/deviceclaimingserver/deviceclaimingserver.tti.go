@@ -1,16 +1,4 @@
-// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Copyright © 2019 The Things Industries B.V.
 
 package deviceclaimingserver
 
@@ -20,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
@@ -35,6 +24,7 @@ type DeviceClaimingServer struct {
 	ctx context.Context
 
 	authorizedAppsRegistry AuthorizedApplicationRegistry
+	tenantRegistry         ttipb.TenantRegistryClient
 
 	grpc struct {
 		endDeviceClaimingServer *endDeviceClaimingServer
@@ -55,6 +45,8 @@ func New(c *component.Component, conf *Config) (*DeviceClaimingServer, error) {
 	return dcs, nil
 }
 
+type Option func(*DeviceClaimingServer)
+
 // Context returns the context of the Device Claiming Server.
 func (dcs *DeviceClaimingServer) Context() context.Context {
 	return dcs.ctx
@@ -73,4 +65,18 @@ func (dcs *DeviceClaimingServer) RegisterServices(s *grpc.Server) {
 // RegisterHandlers registers gRPC handlers.
 func (dcs *DeviceClaimingServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.ClientConn) {
 	ttnpb.RegisterEndDeviceClaimingServerHandler(dcs.Context(), s, conn)
+}
+
+// WithTenantRegistry overrides the Device Claiming Server's tenant registry.
+func WithTenantRegistry(registry ttipb.TenantRegistryClient) Option {
+	return func(s *DeviceClaimingServer) {
+		s.tenantRegistry = registry
+	}
+}
+
+func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) ttipb.TenantRegistryClient {
+	if dcs.tenantRegistry != nil {
+		return dcs.tenantRegistry
+	}
+	return ttipb.NewTenantRegistryClient(dcs.GetPeer(ctx, ttnpb.PeerInfo_ENTITY_REGISTRY, ids).Conn())
 }
