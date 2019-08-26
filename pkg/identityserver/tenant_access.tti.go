@@ -68,6 +68,7 @@ func (is *IdentityServer) tenantRightsHook(h grpc.UnaryHandler) grpc.UnaryHandle
 				return nil, errInvalidTenantAdminKey
 			}
 			rights.admin = true
+			rights.readCurrent, rights.writeCurrent = true, true
 		case strings.ToLower(cluster.AuthType):
 			if cluster.Authorized(ctx) == nil {
 				rights.readCurrent = true

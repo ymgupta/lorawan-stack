@@ -276,3 +276,32 @@ func TestTenantsPagination(t *testing.T) {
 		a.So(err, should.BeNil)
 	})
 }
+
+func TestTenantRegistryCount(t *testing.T) {
+	a := assertions.New(t)
+	ctx := test.Context()
+
+	testWithIdentityServer(t, func(is *IdentityServer, cc *grpc.ClientConn) {
+		is.config.Tenancy.AdminKeys = []string{"BEEFBEEFBEEFBEEFBEEFBEEFBEEFBEEF"}
+		a.So(is.config.Tenancy.decodeAdminKeys(ctx), should.BeNil)
+
+		reg := ttipb.NewTenantRegistryClient(cc)
+
+		creds := grpc.PerRPCCredentials(rpcmetadata.MD{
+			AuthType:  TenantAdminAuthType,
+			AuthValue: is.config.Tenancy.AdminKeys[0],
+		})
+
+		totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
+			TenantIdentifiers: tenant.FromContext(ctx),
+		}, creds)
+		a.So(err, should.BeNil)
+
+		a.So(totals.Applications, should.Equal, len(population.Applications))
+		a.So(totals.Clients, should.Equal, len(population.Clients))
+		a.So(totals.EndDevices, should.Equal, 0)
+		a.So(totals.Gateways, should.Equal, len(population.Gateways))
+		a.So(totals.Organizations, should.Equal, len(population.Organizations))
+		a.So(totals.Users, should.Equal, len(population.Users))
+	})
+}
