@@ -22,4 +22,5 @@ type TenantStore interface {
 	DeleteTenant(ctx context.Context, id *ttipb.TenantIdentifiers) error
 	GetTenantIDForEndDeviceEUIs(ctx context.Context, joinEUI, devEUI types.EUI64) (*ttipb.TenantIdentifiers, error)
 	GetTenantIDForGatewayEUI(ctx context.Context, eui types.EUI64) (*ttipb.TenantIdentifiers, error)
+	CountEntities(ctx context.Context, id *ttipb.TenantIdentifiers, entityType string) (uint64, error)
 }
