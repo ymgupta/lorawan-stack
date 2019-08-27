@@ -74,6 +74,7 @@ install:
 - |
   if [[ "$RUNTYPE" == "js" ]]; then
     $MAGE js:devDeps js:deps jsSDK:deps
+    $MAGE docs:deps
   fi
 - |
   if [[ "$RUNTYPE" == "release" ]]; then
@@ -100,7 +101,9 @@ script:
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE jsSDK:clean jsSDK:build; fi
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:translations; fi
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:test jsSDK:test; fi
-- if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:lint; fi
+- if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:lint jsSDK:lint; fi
+- if [[ "$RUNTYPE" == "js" ]]; then $MAGE version:files; fi
+- if [[ "$RUNTYPE" == "js" ]]; then $MAGE docs:build; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE headers:check; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE proto:goClean proto:go; fi
 - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE ttiProto:goClean ttiProto:go; fi
@@ -129,7 +132,7 @@ after_success:
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     snapcraft login --with snapcraft.login
     if [[ ! -z "$TRAVIS_TAG" ]]; then
-      GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD) | sort)
+      GO111MODULE=on go run github.com/goreleaser/goreleaser -p 1 --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD) | sort)
     else
       GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
       if [[ ! -z "$DOCKER_IMAGE_DEV" ]]; then

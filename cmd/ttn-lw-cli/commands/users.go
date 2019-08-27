@@ -121,6 +121,7 @@ var (
 		RunE: asBulk(func(cmd *cobra.Command, args []string) (err error) {
 			usrID := getUserID(cmd.Flags(), args)
 			var user ttnpb.User
+			user.State = ttnpb.STATE_APPROVED // This may not be honored by the server.
 			if inputDecoder != nil {
 				_, err := inputDecoder.Decode(&user)
 				if err != nil {
@@ -219,8 +220,9 @@ var (
 		},
 	}
 	usersForgotPasswordCommand = &cobra.Command{
-		Use:   "forgot-password [user-id]",
-		Short: "Request a temporary user password",
+		Use:               "forgot-password [user-id]",
+		Short:             "Request a temporary user password",
+		PersistentPreRunE: preRun(),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			usrID := getUserID(cmd.Flags(), args)
 			if usrID == nil {
@@ -241,10 +243,14 @@ var (
 		},
 	}
 	usersUpdatePasswordCommand = &cobra.Command{
-		Use:     "update-password [user-id]",
-		Aliases: []string{"change-password"},
-		Short:   "Update a user password",
+		Use:               "update-password [user-id]",
+		Aliases:           []string{"change-password"},
+		Short:             "Update a user password",
+		PersistentPreRunE: preRun(),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			refreshToken() // NOTE: ignore errors.
+			optionalAuth()
+
 			usrID := getUserID(cmd.Flags(), args)
 			if usrID == nil {
 				return errNoUserID
@@ -329,6 +335,7 @@ func init() {
 	usersCreateCommand.Flags().AddFlagSet(setUserFlags)
 	usersCreateCommand.Flags().AddFlagSet(attributesFlags())
 	usersCreateCommand.Flags().AddFlagSet(profilePictureFlags)
+	usersCreateCommand.Flags().Lookup("state").DefValue = ttnpb.STATE_APPROVED.String()
 	usersCommand.AddCommand(usersCreateCommand)
 	usersUpdateCommand.Flags().AddFlagSet(userIDFlags())
 	usersUpdateCommand.Flags().AddFlagSet(setUserFlags)

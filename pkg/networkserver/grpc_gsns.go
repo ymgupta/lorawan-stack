@@ -923,14 +923,14 @@ func (ns *NetworkServer) newDevAddr(context.Context, *ttnpb.EndDevice) types.Dev
 
 func (ns *NetworkServer) sendJoinRequest(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, req *ttnpb.JoinRequest) (*ttnpb.JoinResponse, error) {
 	logger := log.FromContext(ctx)
-	if js := ns.GetPeer(ctx, ttnpb.PeerInfo_JOIN_SERVER, ids); js != nil {
+	if js := ns.GetPeer(ctx, ttnpb.ClusterRole_JOIN_SERVER, ids); js != nil {
 		resp, err := ttnpb.NewNsJsClient(js.Conn()).HandleJoin(ctx, req, ns.WithClusterAuth())
 		if err == nil {
 			logger.Debug("Join-request accepted by cluster-local Join Server")
 			return resp, nil
 		}
+		logger.WithError(err).Info("Cluster-local Join Server did not accept join-request")
 		if !errors.IsNotFound(err) {
-			logger.WithError(err).Warn("Cluster-local Join Server did not accept join-request")
 			return nil, err
 		}
 	}
@@ -940,8 +940,8 @@ func (ns *NetworkServer) sendJoinRequest(ctx context.Context, ids ttnpb.EndDevic
 			logger.Debug("Join-request accepted by interop Join Server")
 			return resp, nil
 		}
+		logger.WithError(err).Warn("Interop Join Server did not accept join-request")
 		if !errors.IsNotFound(err) {
-			logger.WithError(err).Warn("Interop Join Server did not accept join-request")
 			return nil, err
 		}
 	}
@@ -1010,6 +1010,7 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 	}
 
 	req := &ttnpb.JoinRequest{
+		Payload:            up.Payload,
 		CFList:             frequencyplans.CFList(*fp, dev.LoRaWANPHYVersion),
 		CorrelationIDs:     events.CorrelationIDsFromContext(ctx),
 		DevAddr:            devAddr,

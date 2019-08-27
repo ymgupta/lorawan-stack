@@ -37,7 +37,7 @@ require (
 	github.com/client9/misspell v0.3.4
 	github.com/disintegration/imaging v1.6.0
 	github.com/eclipse/paho.mqtt.golang v1.2.0
-	github.com/envoyproxy/protoc-gen-validate v0.1.0
+	github.com/envoyproxy/protoc-gen-validate v0.2.0-java
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/getsentry/raven-go v0.2.0
 	github.com/go-redis/redis v0.0.0-20190503082931-75795aa4236d
@@ -47,7 +47,7 @@ require (
 	github.com/gohugoio/hugo v0.56.3
 	github.com/golang/gddo v0.0.0-20190419222130-af0f2af80721
 	github.com/golang/protobuf v1.3.2
-	github.com/goreleaser/goreleaser v0.115.0
+	github.com/goreleaser/goreleaser v0.116.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/websocket v1.4.0
 	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect

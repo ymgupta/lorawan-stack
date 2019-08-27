@@ -27,6 +27,14 @@ type endDeviceClaimingServer struct {
 	DCS *DeviceClaimingServer
 }
 
-func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (*pbtypes.Empty, error) {
+func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (*ttnpb.EndDeviceIdentifiers, error) {
+	return nil, status.Error(codes.Unimplemented, "unimplemented")
+}
+
+func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req *ttnpb.AuthorizeApplicationRequest) (*pbtypes.Empty, error) {
+	return nil, status.Error(codes.Unimplemented, "unimplemented")
+}
+
+func (s *endDeviceClaimingServer) UnauthorizeApplication(ctx context.Context, req *ttnpb.ApplicationIdentifiers) (*pbtypes.Empty, error) {
 	return nil, status.Error(codes.Unimplemented, "unimplemented")
 }

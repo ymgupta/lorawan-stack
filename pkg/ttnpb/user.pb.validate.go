@@ -32,6 +32,9 @@ var (
 	_ = types.DynamicAny{}
 )
 
+// define the regex for a UUID once up-front
+var _user_uuidPattern = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
+
 // ValidateFields checks the field values on User with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
 func (m *User) ValidateFields(paths ...string) error {
@@ -165,7 +168,7 @@ func (m *User) ValidateFields(paths ...string) error {
 			// no validation rules for Password
 		case "password_updated_at":
 
-			if v, ok := interface{}(&m.PasswordUpdatedAt).(interface{ ValidateFields(...string) error }); ok {
+			if v, ok := interface{}(m.GetPasswordUpdatedAt()).(interface{ ValidateFields(...string) error }); ok {
 				if err := v.ValidateFields(subs...); err != nil {
 					return UserValidationError{
 						field:  "password_updated_at",

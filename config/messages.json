@@ -1547,6 +1547,24 @@
       "file": "mqtt.go"
     }
   },
+  "error:pkg/applicationserver/io/pubsub/provider/mqtt:ca_pem_data": {
+    "translations": {
+      "en": "CA PEM data is invalid"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/pubsub/provider/mqtt",
+      "file": "tls.go"
+    }
+  },
+  "error:pkg/applicationserver/io/pubsub/provider/mqtt:nil_client": {
+    "translations": {
+      "en": "client is nil"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/pubsub/provider/mqtt",
+      "file": "driver.go"
+    }
+  },
   "error:pkg/applicationserver/io/pubsub/provider:provider_already_registered": {
     "translations": {
       "en": "provider `{provider_id}` already registered"
@@ -5138,6 +5156,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/oauth:access_denied": {
+    "translations": {
+      "en": "access denied"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
   "error:pkg/oauth:auth_cookie": {
     "translations": {
       "en": "could not get auth cookie"
@@ -5145,6 +5172,96 @@
     "description": {
       "package": "pkg/oauth",
       "file": "user.go"
+    }
+  },
+  "error:pkg/oauth:client_missing_grant": {
+    "translations": {
+      "en": "OAuth client does not have {grant} grant"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "oauth.go"
+    }
+  },
+  "error:pkg/oauth:client_not_approved": {
+    "translations": {
+      "en": "OAuth client was not approved"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "oauth.go"
+    }
+  },
+  "error:pkg/oauth:client_rejected": {
+    "translations": {
+      "en": "OAuth client was rejected"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "oauth.go"
+    }
+  },
+  "error:pkg/oauth:client_suspended": {
+    "translations": {
+      "en": "OAuth client was suspended"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "oauth.go"
+    }
+  },
+  "error:pkg/oauth:internal": {
+    "translations": {
+      "en": "internal error {id}"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:invalid client": {
+    "translations": {
+      "en": "invalid or unauthenticated client"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:invalid_grant": {
+    "translations": {
+      "en": "invalid, expired or revoked authorization code"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:invalid_redirect_uri": {
+    "translations": {
+      "en": "invalid redirect URI"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:invalid_request": {
+    "translations": {
+      "en": "invalid or missing request parameter"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:invalid_scope": {
+    "translations": {
+      "en": "invalid scope"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
     }
   },
   "error:pkg/oauth:no_access_token": {
@@ -5208,6 +5325,33 @@
     "description": {
       "package": "pkg/oauth",
       "file": "storage.go"
+    }
+  },
+  "error:pkg/oauth:unauthorized_client": {
+    "translations": {
+      "en": "client is not authorized to request a token using this method"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:unsupported_grant_type": {
+    "translations": {
+      "en": "unsupported grant type"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:unsupported_response_type": {
+    "translations": {
+      "en": "unsupported response type"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "server.go"
     }
   },
   "error:pkg/pfconfig/shared:unmarshal_not_implemented": {
@@ -5464,7 +5608,7 @@
   },
   "error:pkg/ttnpb:field_bound": {
     "translations": {
-      "en": "`{lorawan_field}` should be between `{min}` and `{max}`"
+      "en": "`{field}` should be between `{min}` and `{max}`"
     },
     "description": {
       "package": "pkg/ttnpb",
@@ -5473,7 +5617,7 @@
   },
   "error:pkg/ttnpb:field_with_max": {
     "translations": {
-      "en": "`{lorawan_field}` should be lower or equal to `{max}`"
+      "en": "`{field}` should be lower or equal to `{max}`"
     },
     "description": {
       "package": "pkg/ttnpb",
@@ -5509,7 +5653,7 @@
   },
   "error:pkg/ttnpb:parse": {
     "translations": {
-      "en": "could not parse `{lorawan_field}`"
+      "en": "could not parse `{value}` into `{field}`"
     },
     "description": {
       "package": "pkg/ttnpb",
@@ -5532,15 +5676,6 @@
     "description": {
       "package": "pkg/ttnpb",
       "file": "fieldmask_utils.go"
-    }
-  },
-  "error:pkg/ttnpb:unknown_field": {
-    "translations": {
-      "en": "unknown `{lorawan_field}`"
-    },
-    "description": {
-      "package": "pkg/ttnpb",
-      "file": "errors.go"
     }
   },
   "error:pkg/types:dev_addr_prefix": {
