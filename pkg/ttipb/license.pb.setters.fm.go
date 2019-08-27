@@ -76,6 +76,26 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 				var zero time.Time
 				dst.ValidUntil = zero
 			}
+		case "warn_for":
+			if len(subs) > 0 {
+				return fmt.Errorf("'warn_for' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.WarnFor = src.WarnFor
+			} else {
+				var zero time.Duration
+				dst.WarnFor = zero
+			}
+		case "limit_for":
+			if len(subs) > 0 {
+				return fmt.Errorf("'limit_for' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.LimitFor = src.LimitFor
+			} else {
+				var zero time.Duration
+				dst.LimitFor = zero
+			}
 		case "components":
 			if len(subs) > 0 {
 				return fmt.Errorf("'components' has no subfields, but %s were specified", subs)
@@ -111,6 +131,70 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 				dst.JoinEuiPrefixes = src.JoinEuiPrefixes
 			} else {
 				dst.JoinEuiPrefixes = nil
+			}
+		case "multi_tenancy":
+			if len(subs) > 0 {
+				return fmt.Errorf("'multi_tenancy' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MultiTenancy = src.MultiTenancy
+			} else {
+				var zero bool
+				dst.MultiTenancy = zero
+			}
+		case "max_applications":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_applications' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxApplications = src.MaxApplications
+			} else {
+				dst.MaxApplications = nil
+			}
+		case "max_clients":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_clients' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxClients = src.MaxClients
+			} else {
+				dst.MaxClients = nil
+			}
+		case "max_end_devices":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_end_devices' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxEndDevices = src.MaxEndDevices
+			} else {
+				dst.MaxEndDevices = nil
+			}
+		case "max_gateways":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_gateways' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxGateways = src.MaxGateways
+			} else {
+				dst.MaxGateways = nil
+			}
+		case "max_organizations":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_organizations' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxOrganizations = src.MaxOrganizations
+			} else {
+				dst.MaxOrganizations = nil
+			}
+		case "max_users":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_users' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxUsers = src.MaxUsers
+			} else {
+				dst.MaxUsers = nil
 			}
 
 		default:

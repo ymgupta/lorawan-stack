@@ -15,8 +15,8 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
-	_ "github.com/gogo/protobuf/types"
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
 	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
 	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
@@ -46,16 +46,34 @@ type License struct {
 	ValidFrom time.Time `protobuf:"bytes,4,opt,name=valid_from,json=validFrom,proto3,stdtime" json:"valid_from"`
 	// The license is not valid after this time.
 	ValidUntil time.Time `protobuf:"bytes,5,opt,name=valid_until,json=validUntil,proto3,stdtime" json:"valid_until"`
+	// For how long (before valid_until) to warn about license expiry.
+	WarnFor time.Duration `protobuf:"bytes,6,opt,name=warn_for,json=warnFor,proto3,stdduration" json:"warn_for"`
+	// For how long (before valid_until) to limit non-critical functionality.
+	LimitFor time.Duration `protobuf:"bytes,7,opt,name=limit_for,json=limitFor,proto3,stdduration" json:"limit_for"`
 	// If set, only the given components can be started.
-	Components []ttnpb.ClusterRole `protobuf:"varint,6,rep,packed,name=components,proto3,enum=ttn.lorawan.v3.ClusterRole" json:"components,omitempty"`
+	Components []ttnpb.ClusterRole `protobuf:"varint,8,rep,packed,name=components,proto3,enum=ttn.lorawan.v3.ClusterRole" json:"components,omitempty"`
 	// If set, the server addresses must match any of these regexps.
-	AddressRegexps []string `protobuf:"bytes,7,rep,name=address_regexps,json=addressRegexps,proto3" json:"address_regexps,omitempty"`
+	AddressRegexps []string `protobuf:"bytes,9,rep,name=address_regexps,json=addressRegexps,proto3" json:"address_regexps,omitempty"`
 	// If set, the configured DevAddr prefixes must match any of these prefixes.
-	DevAddrPrefixes []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,8,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
+	DevAddrPrefixes []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,10,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
 	// If set, the configured JoinEUI prefixes must match any of these prefixes.
-	JoinEuiPrefixes      []go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix `protobuf:"bytes,9,rep,name=join_eui_prefixes,json=joinEuiPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix" json:"join_eui_prefixes"`
-	XXX_NoUnkeyedLiteral struct{}                                                   `json:"-"`
-	XXX_sizecache        int32                                                      `json:"-"`
+	JoinEuiPrefixes []go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix `protobuf:"bytes,11,rep,name=join_eui_prefixes,json=joinEuiPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix" json:"join_eui_prefixes"`
+	// Indicates whether multi-tenancy support is included.
+	MultiTenancy bool `protobuf:"varint,12,opt,name=multi_tenancy,json=multiTenancy,proto3" json:"multi_tenancy,omitempty"`
+	// If set, restricts the maximum number of applications that can be created.
+	MaxApplications *types.UInt64Value `protobuf:"bytes,13,opt,name=max_applications,json=maxApplications,proto3" json:"max_applications,omitempty"`
+	// If set, restricts the maximum number of clients that can be created.
+	MaxClients *types.UInt64Value `protobuf:"bytes,14,opt,name=max_clients,json=maxClients,proto3" json:"max_clients,omitempty"`
+	// If set, restricts the maximum number of end_devices that can be created.
+	MaxEndDevices *types.UInt64Value `protobuf:"bytes,15,opt,name=max_end_devices,json=maxEndDevices,proto3" json:"max_end_devices,omitempty"`
+	// If set, restricts the maximum number of gateways that can be created.
+	MaxGateways *types.UInt64Value `protobuf:"bytes,16,opt,name=max_gateways,json=maxGateways,proto3" json:"max_gateways,omitempty"`
+	// If set, restricts the maximum number of organizations that can be created.
+	MaxOrganizations *types.UInt64Value `protobuf:"bytes,17,opt,name=max_organizations,json=maxOrganizations,proto3" json:"max_organizations,omitempty"`
+	// If set, restricts the maximum number of users that can be created.
+	MaxUsers             *types.UInt64Value `protobuf:"bytes,18,opt,name=max_users,json=maxUsers,proto3" json:"max_users,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
 }
 
 func (m *License) Reset()      { *m = License{} }
@@ -111,6 +129,20 @@ func (m *License) GetValidUntil() time.Time {
 	return time.Time{}
 }
 
+func (m *License) GetWarnFor() time.Duration {
+	if m != nil {
+		return m.WarnFor
+	}
+	return 0
+}
+
+func (m *License) GetLimitFor() time.Duration {
+	if m != nil {
+		return m.LimitFor
+	}
+	return 0
+}
+
 func (m *License) GetComponents() []ttnpb.ClusterRole {
 	if m != nil {
 		return m.Components
@@ -121,6 +153,55 @@ func (m *License) GetComponents() []ttnpb.ClusterRole {
 func (m *License) GetAddressRegexps() []string {
 	if m != nil {
 		return m.AddressRegexps
+	}
+	return nil
+}
+
+func (m *License) GetMultiTenancy() bool {
+	if m != nil {
+		return m.MultiTenancy
+	}
+	return false
+}
+
+func (m *License) GetMaxApplications() *types.UInt64Value {
+	if m != nil {
+		return m.MaxApplications
+	}
+	return nil
+}
+
+func (m *License) GetMaxClients() *types.UInt64Value {
+	if m != nil {
+		return m.MaxClients
+	}
+	return nil
+}
+
+func (m *License) GetMaxEndDevices() *types.UInt64Value {
+	if m != nil {
+		return m.MaxEndDevices
+	}
+	return nil
+}
+
+func (m *License) GetMaxGateways() *types.UInt64Value {
+	if m != nil {
+		return m.MaxGateways
+	}
+	return nil
+}
+
+func (m *License) GetMaxOrganizations() *types.UInt64Value {
+	if m != nil {
+		return m.MaxOrganizations
+	}
+	return nil
+}
+
+func (m *License) GetMaxUsers() *types.UInt64Value {
+	if m != nil {
+		return m.MaxUsers
 	}
 	return nil
 }
@@ -254,53 +335,67 @@ func init() {
 }
 
 var fileDescriptor_09ba50819c0c2e19 = []byte{
-	// 730 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x53, 0x3f, 0x4c, 0xfb, 0x46,
-	0x14, 0xbe, 0x4b, 0x1a, 0xf8, 0xe5, 0x40, 0xfc, 0xf1, 0x64, 0xa5, 0xed, 0x25, 0xa2, 0x95, 0xc8,
-	0xd0, 0xd8, 0x12, 0x54, 0x55, 0xd5, 0x2e, 0x25, 0x84, 0x4a, 0x51, 0x3a, 0x54, 0x6e, 0x59, 0xba,
-	0x58, 0x4e, 0xfc, 0xe2, 0x5c, 0xe3, 0xf8, 0x2c, 0xdf, 0x39, 0xe0, 0x8d, 0x11, 0x75, 0x62, 0xec,
-	0x58, 0x75, 0x62, 0x64, 0xa4, 0x1b, 0x23, 0x53, 0xc5, 0x88, 0x3a, 0xa4, 0xc4, 0x5e, 0x18, 0x19,
-	0x51, 0xa7, 0x2a, 0x8e, 0x43, 0x82, 0x28, 0xd5, 0x8f, 0xed, 0xde, 0xbb, 0xef, 0x7d, 0x9f, 0xdf,
-	0xe7, 0xef, 0xc8, 0x27, 0x2e, 0x0f, 0xac, 0x23, 0xcb, 0xab, 0x09, 0x69, 0x75, 0xfa, 0xba, 0xe5,
-	0x33, 0x5d, 0x4a, 0xa6, 0xbb, 0xac, 0x03, 0x9e, 0x00, 0xcd, 0x0f, 0xb8, 0xe4, 0xca, 0x9a, 0x94,
-	0x4c, 0xcb, 0x80, 0xda, 0x70, 0xb7, 0xb4, 0xe7, 0x30, 0xd9, 0x0b, 0xdb, 0x5a, 0x87, 0x0f, 0x74,
-	0xf0, 0x86, 0x3c, 0xf2, 0x03, 0x7e, 0x1c, 0xe9, 0x29, 0xb8, 0x53, 0x73, 0xc0, 0xab, 0x0d, 0x2d,
-	0x97, 0xd9, 0x96, 0x04, 0xfd, 0xc5, 0x61, 0x4a, 0x59, 0xaa, 0x2d, 0x50, 0x38, 0xdc, 0xe1, 0xd3,
-	0xe1, 0x76, 0xd8, 0x4d, 0xab, 0xb4, 0x48, 0x4f, 0x19, 0xbc, 0xec, 0x70, 0xee, 0xb8, 0x30, 0x47,
-	0x49, 0x36, 0x00, 0x21, 0xad, 0x81, 0x9f, 0x01, 0x3e, 0x7e, 0xb9, 0x07, 0x78, 0xe1, 0x40, 0x64,
-	0xd7, 0xdb, 0xff, 0xbd, 0x26, 0xb3, 0xc1, 0x93, 0xac, 0xcb, 0x20, 0xc8, 0x80, 0x5b, 0x7f, 0x16,
-	0xc8, 0xf2, 0x77, 0xd3, 0xe5, 0x95, 0x06, 0xc9, 0x31, 0x5b, 0xc5, 0x15, 0x5c, 0x5d, 0xd9, 0xd9,
-	0xd2, 0x9e, 0x7b, 0xa0, 0x65, 0xa0, 0xe6, 0x9c, 0xa1, 0xbe, 0xf1, 0x4f, 0xbd, 0xf0, 0x0b, 0xce,
-	0x6d, 0xe0, 0xeb, 0x51, 0x19, 0xdd, 0x8c, 0xca, 0xd8, 0xc8, 0x31, 0x5b, 0xe9, 0x11, 0x25, 0x73,
-	0xd3, 0x64, 0x42, 0x84, 0x10, 0x98, 0xcc, 0x16, 0x6a, 0x2e, 0x65, 0xad, 0xbe, 0xc6, 0x9a, 0x02,
-	0xff, 0x9f, 0x7b, 0xc3, 0x7d, 0x8e, 0x15, 0xca, 0x3e, 0x21, 0x9d, 0x00, 0x2c, 0x09, 0xb6, 0x69,
-	0x49, 0x35, 0x9f, 0x2a, 0x94, 0xb4, 0xa9, 0x73, 0xda, 0xcc, 0x39, 0xed, 0xc7, 0x99, 0x73, 0xf5,
-	0x77, 0x13, 0xae, 0xb3, 0xbf, 0xcb, 0xd8, 0x28, 0x66, 0x73, 0x7b, 0x72, 0x42, 0x92, 0xfe, 0x2a,
-	0xb3, 0x1b, 0xf0, 0x81, 0xfa, 0xc1, 0x5b, 0x48, 0xd2, 0xb9, 0x6f, 0x03, 0x3e, 0x50, 0x0e, 0xc8,
-	0xca, 0x94, 0x24, 0xf4, 0x24, 0x73, 0xd5, 0xc2, 0x1b, 0x58, 0xa6, 0xea, 0x87, 0x93, 0x39, 0xe5,
-	0x6b, 0x42, 0x3a, 0x7c, 0xe0, 0x73, 0x0f, 0x3c, 0x29, 0xd4, 0xa5, 0x4a, 0xbe, 0xba, 0xb6, 0xf3,
-	0xa1, 0x26, 0xa5, 0xb7, 0x68, 0xd9, 0xbe, 0x1b, 0x0a, 0x09, 0x81, 0xc1, 0x5d, 0x30, 0x16, 0xe0,
-	0xca, 0x36, 0x59, 0xb7, 0x6c, 0x3b, 0x00, 0x21, 0xcc, 0x00, 0x1c, 0x38, 0xf6, 0x85, 0xba, 0x5c,
-	0xc9, 0x57, 0x8b, 0xc6, 0x5a, 0xd6, 0x36, 0xa6, 0x5d, 0xc5, 0x23, 0x9b, 0x36, 0x0c, 0xcd, 0x49,
-	0xd7, 0xf4, 0x03, 0xe8, 0xb2, 0x63, 0x10, 0xea, 0xbb, 0x4a, 0xbe, 0xba, 0x5a, 0xaf, 0x4f, 0x3e,
-	0xeb, 0xaf, 0x51, 0xf9, 0x2b, 0x87, 0x6b, 0xb2, 0x07, 0xb2, 0xc7, 0x3c, 0x47, 0x68, 0x1e, 0xc8,
-	0x23, 0x1e, 0xf4, 0xf5, 0xe7, 0x99, 0xf2, 0xfb, 0x8e, 0x2e, 0x23, 0x1f, 0x84, 0xd6, 0x80, 0xe1,
-	0x9e, 0x6d, 0x07, 0xdf, 0xa7, 0x5c, 0xc6, 0xba, 0xbd, 0x58, 0x82, 0x50, 0x5c, 0xb2, 0xf9, 0x33,
-	0x67, 0x9e, 0x09, 0x21, 0x9b, 0xeb, 0x15, 0x53, 0xbd, 0x6f, 0x32, 0xbd, 0x2f, 0xdf, 0xa4, 0x77,
-	0x70, 0xd8, 0xfc, 0xe2, 0xf3, 0x99, 0xda, 0x84, 0xfa, 0x20, 0x64, 0x33, 0xb5, 0xad, 0x3f, 0x30,
-	0x21, 0x59, 0xaa, 0x5a, 0x10, 0x29, 0x2a, 0x59, 0xce, 0x72, 0x93, 0x06, 0x7b, 0xd5, 0x98, 0x95,
-	0x4a, 0x83, 0x10, 0xc1, 0x1c, 0xcf, 0x92, 0x61, 0x00, 0x93, 0x7c, 0xe6, 0xab, 0x2b, 0x3b, 0x9f,
-	0xbe, 0x92, 0xcf, 0x16, 0x44, 0xda, 0x0f, 0x33, 0xb0, 0xb1, 0x30, 0x57, 0x6a, 0x91, 0xe2, 0xd3,
-	0x85, 0x52, 0x21, 0x4b, 0x7d, 0x88, 0xcc, 0xec, 0x11, 0x15, 0xeb, 0xc5, 0x78, 0x54, 0x2e, 0xb4,
-	0x20, 0x6a, 0x36, 0x8c, 0x42, 0x1f, 0xa2, 0xa6, 0xad, 0x7c, 0x44, 0x8a, 0x4f, 0xc3, 0xe9, 0x9b,
-	0x58, 0x35, 0xe6, 0x8d, 0xfa, 0xef, 0xf8, 0x7a, 0x4c, 0xf1, 0xcd, 0x98, 0xe2, 0xdb, 0x31, 0x45,
-	0x77, 0x63, 0x8a, 0xee, 0xc7, 0x14, 0x3d, 0x8c, 0x29, 0x7a, 0x1c, 0x53, 0x7c, 0x12, 0x53, 0x7c,
-	0x1a, 0x53, 0x74, 0x1e, 0x53, 0x7c, 0x11, 0x53, 0x74, 0x19, 0x53, 0x74, 0x15, 0x53, 0x74, 0x1d,
-	0x53, 0x7c, 0x13, 0x53, 0x7c, 0x1b, 0x53, 0x74, 0x17, 0x53, 0x7c, 0x1f, 0x53, 0xf4, 0x10, 0x53,
-	0xfc, 0x18, 0x53, 0x74, 0x92, 0x50, 0x74, 0x9a, 0x50, 0x7c, 0x96, 0x50, 0xf4, 0x6b, 0x42, 0xf1,
-	0x6f, 0x09, 0x45, 0xe7, 0x09, 0x45, 0x17, 0x09, 0xc5, 0x97, 0x09, 0xc5, 0x57, 0x09, 0xc5, 0x3f,
-	0x7d, 0xf6, 0xbe, 0xee, 0x4b, 0xe6, 0xb7, 0xdb, 0x4b, 0x69, 0x9c, 0x77, 0xff, 0x0d, 0x00, 0x00,
-	0xff, 0xff, 0xa9, 0x08, 0xc3, 0xd5, 0x4a, 0x05, 0x00, 0x00,
+	// 960 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x94, 0x3f, 0x6c, 0xdb, 0x46,
+	0x14, 0xc6, 0x79, 0x76, 0x6d, 0x4b, 0x67, 0xf9, 0xdf, 0x4d, 0xac, 0x9b, 0x9e, 0x04, 0xa7, 0x40,
+	0x34, 0xd4, 0x14, 0xe0, 0x04, 0x41, 0xff, 0xa0, 0x6d, 0x2c, 0xcb, 0x09, 0x04, 0x17, 0x68, 0xc1,
+	0xc6, 0x1d, 0xba, 0x10, 0x67, 0xf1, 0x4c, 0x5f, 0x4d, 0xde, 0x11, 0x77, 0x47, 0x59, 0xea, 0x94,
+	0x31, 0xc8, 0x94, 0x31, 0x63, 0xd1, 0x29, 0x63, 0xc6, 0x74, 0xcb, 0xe8, 0xd1, 0x63, 0xd0, 0xc1,
+	0x8d, 0xa8, 0x25, 0x63, 0xc6, 0xa0, 0x53, 0xc1, 0x23, 0x65, 0xcb, 0x75, 0x1d, 0xc8, 0x1b, 0xef,
+	0xdd, 0xf7, 0xfd, 0x1e, 0xf1, 0x3d, 0xf2, 0xc1, 0x9b, 0xa1, 0x90, 0xe4, 0x88, 0xf0, 0x75, 0xa5,
+	0x49, 0xe7, 0xb0, 0x41, 0x62, 0xd6, 0xd0, 0x9a, 0x35, 0x42, 0xd6, 0xa1, 0x5c, 0x51, 0x27, 0x96,
+	0x42, 0x0b, 0xb4, 0xa8, 0x35, 0x73, 0x0a, 0xa1, 0xd3, 0xbd, 0xbd, 0xba, 0x19, 0x30, 0x7d, 0x90,
+	0xec, 0x39, 0x1d, 0x11, 0x35, 0x28, 0xef, 0x8a, 0x7e, 0x2c, 0x45, 0xaf, 0xdf, 0x30, 0xe2, 0xce,
+	0x7a, 0x40, 0xf9, 0x7a, 0x97, 0x84, 0xcc, 0x27, 0x9a, 0x36, 0x2e, 0x3d, 0xe4, 0xc8, 0xd5, 0xf5,
+	0x31, 0x44, 0x20, 0x02, 0x91, 0x9b, 0xf7, 0x92, 0x7d, 0x73, 0x32, 0x07, 0xf3, 0x54, 0xc8, 0x71,
+	0x20, 0x44, 0x10, 0xd2, 0x73, 0x95, 0x9f, 0x48, 0xa2, 0x99, 0xe0, 0xc5, 0x7d, 0xf5, 0xbf, 0xf7,
+	0x9a, 0x45, 0x54, 0x69, 0x12, 0xc5, 0x57, 0x01, 0x8e, 0x24, 0x89, 0x63, 0x2a, 0x55, 0x71, 0xff,
+	0xe9, 0xe5, 0x1c, 0x28, 0x4f, 0xa2, 0xd1, 0xf5, 0xad, 0xff, 0x8f, 0x89, 0xf9, 0x94, 0x6b, 0xb6,
+	0xcf, 0xce, 0x38, 0x6b, 0x4f, 0x20, 0x9c, 0xfb, 0x3e, 0x0f, 0x0f, 0xb5, 0xe0, 0x14, 0xf3, 0x6d,
+	0x50, 0x03, 0xf5, 0xf9, 0x8d, 0x35, 0xe7, 0x62, 0x86, 0x4e, 0x21, 0x6a, 0x9f, 0x13, 0x9a, 0xcb,
+	0xff, 0x34, 0x67, 0x9e, 0x80, 0xa9, 0x65, 0x70, 0x7c, 0x5a, 0xb5, 0x4e, 0x4e, 0xab, 0xc0, 0x9d,
+	0x62, 0x3e, 0x3a, 0x80, 0xa8, 0x98, 0x86, 0xc7, 0x94, 0x4a, 0xa8, 0xf4, 0x98, 0xaf, 0xec, 0x29,
+	0x43, 0xad, 0x5f, 0x45, 0x35, 0xc2, 0x0f, 0xb3, 0x97, 0xc3, 0x8b, 0x5a, 0x85, 0xb6, 0x20, 0xec,
+	0x48, 0x4a, 0x34, 0xf5, 0x3d, 0xa2, 0xed, 0x69, 0xd3, 0x61, 0xd5, 0xc9, 0x83, 0x73, 0x46, 0xc1,
+	0x39, 0x0f, 0x47, 0xc9, 0x36, 0x4b, 0x19, 0xeb, 0xe9, 0xdf, 0x55, 0xe0, 0x96, 0x0b, 0xdf, 0xa6,
+	0xce, 0x20, 0x66, 0xd4, 0xde, 0xbe, 0x14, 0x91, 0xfd, 0xd1, 0x75, 0x20, 0xc6, 0x77, 0x5f, 0x8a,
+	0x08, 0x6d, 0xc3, 0xf9, 0x1c, 0x92, 0x70, 0xcd, 0x42, 0x7b, 0xe6, 0x1a, 0x94, 0xbc, 0xfb, 0x6e,
+	0xe6, 0x43, 0xdf, 0xc2, 0xd2, 0x11, 0x91, 0xdc, 0xdb, 0x17, 0xd2, 0x9e, 0x35, 0x8c, 0x8f, 0x2f,
+	0x31, 0x5a, 0xc5, 0x87, 0x94, 0x23, 0x9e, 0x65, 0x88, 0xb9, 0xcc, 0x74, 0x5f, 0x48, 0x74, 0x0f,
+	0x96, 0x43, 0x16, 0x31, 0x6d, 0x00, 0x73, 0x93, 0x03, 0x4a, 0xc6, 0x95, 0x11, 0xbe, 0x86, 0xb0,
+	0x23, 0xa2, 0x58, 0x70, 0xca, 0xb5, 0xb2, 0x4b, 0xb5, 0xe9, 0xfa, 0xe2, 0xc6, 0x27, 0x8e, 0xd6,
+	0x7c, 0x7c, 0x68, 0x5b, 0x61, 0xa2, 0x34, 0x95, 0xae, 0x08, 0xa9, 0x3b, 0x26, 0x47, 0xb7, 0xe0,
+	0x12, 0xf1, 0x7d, 0x49, 0x95, 0xf2, 0x24, 0x0d, 0x68, 0x2f, 0x56, 0x76, 0xb9, 0x36, 0x5d, 0x2f,
+	0xbb, 0x8b, 0x45, 0xd9, 0xcd, 0xab, 0x88, 0xc3, 0x15, 0x9f, 0x76, 0xbd, 0xac, 0xea, 0xc5, 0x92,
+	0xee, 0xb3, 0x1e, 0x55, 0x36, 0xac, 0x4d, 0xd7, 0x2b, 0xcd, 0x66, 0xf6, 0x52, 0x7f, 0x9d, 0x56,
+	0xbf, 0x0a, 0x84, 0xa3, 0x0f, 0xa8, 0x3e, 0x60, 0x3c, 0x50, 0x0e, 0xa7, 0xfa, 0x48, 0xc8, 0xc3,
+	0xc6, 0xc5, 0xaf, 0x3a, 0x3e, 0x0c, 0x1a, 0xba, 0x1f, 0x53, 0xe5, 0xb4, 0x68, 0x77, 0xd3, 0xf7,
+	0xe5, 0x8f, 0x86, 0xe5, 0x2e, 0xf9, 0xe3, 0x47, 0xaa, 0x50, 0x08, 0x57, 0x7e, 0x15, 0x8c, 0x7b,
+	0x34, 0x61, 0xe7, 0xfd, 0xe6, 0x4d, 0xbf, 0x7b, 0x45, 0xbf, 0x2f, 0xae, 0xd5, 0x6f, 0x7b, 0xb7,
+	0x7d, 0xf7, 0xce, 0xa8, 0x5b, 0x86, 0xde, 0x4e, 0xd8, 0x59, 0xb7, 0x9b, 0x70, 0x21, 0x4a, 0x42,
+	0xcd, 0x3c, 0x4d, 0x39, 0xe1, 0x9d, 0xbe, 0x5d, 0xa9, 0x81, 0x7a, 0xc9, 0xad, 0x98, 0xe2, 0xc3,
+	0xbc, 0x86, 0x1e, 0xc0, 0xe5, 0x88, 0xf4, 0x3c, 0x12, 0xc7, 0x21, 0xeb, 0x98, 0x79, 0x28, 0x7b,
+	0xc1, 0x4c, 0xec, 0xc6, 0xa5, 0x89, 0xed, 0xb6, 0xb9, 0xbe, 0x7b, 0xe7, 0x67, 0x12, 0x26, 0xd4,
+	0x5d, 0x8a, 0x48, 0x6f, 0x73, 0xcc, 0x84, 0xbe, 0x81, 0xf3, 0x19, 0xa8, 0x13, 0x32, 0x33, 0xb2,
+	0xc5, 0x09, 0x18, 0x30, 0x22, 0xbd, 0xad, 0x5c, 0x8f, 0x5a, 0x30, 0x23, 0x7a, 0x94, 0xfb, 0x9e,
+	0x4f, 0xbb, 0xac, 0x43, 0x95, 0xbd, 0x34, 0x01, 0x62, 0x21, 0x22, 0xbd, 0x6d, 0xee, 0xb7, 0x72,
+	0x0b, 0xfa, 0x0e, 0x56, 0x32, 0x4a, 0x40, 0x34, 0x3d, 0x22, 0x7d, 0x65, 0x2f, 0x4f, 0x80, 0xc8,
+	0x5e, 0xfb, 0x41, 0x61, 0x40, 0x6d, 0xb8, 0x92, 0x01, 0x84, 0x0c, 0x08, 0x67, 0xbf, 0x15, 0x79,
+	0xac, 0x4c, 0x40, 0xc9, 0x52, 0xfc, 0x61, 0xdc, 0x85, 0xbe, 0x84, 0xe5, 0x0c, 0x95, 0x28, 0x2a,
+	0x95, 0x8d, 0x26, 0x40, 0x94, 0x22, 0xd2, 0xdb, 0xcd, 0xd4, 0x6b, 0x7f, 0x02, 0x08, 0x8b, 0x8d,
+	0xb4, 0x43, 0xfb, 0xc8, 0x86, 0x73, 0xc5, 0xce, 0x31, 0x4b, 0xb1, 0xe2, 0x8e, 0x8e, 0xa8, 0x05,
+	0xa1, 0x62, 0x01, 0x27, 0x3a, 0x91, 0x34, 0xdb, 0x6d, 0xd3, 0xf5, 0xf9, 0x8d, 0xcf, 0xae, 0xd8,
+	0x6d, 0x3b, 0xb4, 0xef, 0xfc, 0x34, 0x12, 0xbb, 0x63, 0xbe, 0xd5, 0x1d, 0x58, 0x3e, 0xbb, 0x40,
+	0x35, 0x38, 0x7b, 0x48, 0xfb, 0x5e, 0xb1, 0x80, 0xcb, 0xcd, 0x72, 0x7a, 0x5a, 0x9d, 0xd9, 0xa1,
+	0xfd, 0x76, 0xcb, 0x9d, 0x39, 0xa4, 0xfd, 0xb6, 0x8f, 0x6e, 0xc0, 0xf2, 0x99, 0xd9, 0xec, 0xd3,
+	0x8a, 0x7b, 0x5e, 0x68, 0xfe, 0x01, 0x8e, 0x07, 0x18, 0x9c, 0x0c, 0x30, 0x78, 0x3d, 0xc0, 0xd6,
+	0x9b, 0x01, 0xb6, 0xde, 0x0e, 0xb0, 0xf5, 0x6e, 0x80, 0xad, 0xf7, 0x03, 0x0c, 0x1e, 0xa5, 0x18,
+	0x3c, 0x4e, 0xb1, 0xf5, 0x3c, 0xc5, 0xe0, 0x45, 0x8a, 0xad, 0x97, 0x29, 0xb6, 0x5e, 0xa5, 0xd8,
+	0x3a, 0x4e, 0x31, 0x38, 0x49, 0x31, 0x78, 0x9d, 0x62, 0xeb, 0x4d, 0x8a, 0xc1, 0xdb, 0x14, 0x5b,
+	0xef, 0x52, 0x0c, 0xde, 0xa7, 0xd8, 0x7a, 0x34, 0xc4, 0xd6, 0xe3, 0x21, 0x06, 0x4f, 0x87, 0xd8,
+	0x7a, 0x36, 0xc4, 0xe0, 0xf7, 0x21, 0xb6, 0x9e, 0x0f, 0xb1, 0xf5, 0x62, 0x88, 0xc1, 0xcb, 0x21,
+	0x06, 0xaf, 0x86, 0x18, 0xfc, 0xf2, 0xf9, 0xa4, 0xff, 0x8d, 0x66, 0xf1, 0xde, 0xde, 0xac, 0x19,
+	0xc0, 0xed, 0x7f, 0x03, 0x00, 0x00, 0xff, 0xff, 0x55, 0x48, 0xa3, 0x8a, 0xc6, 0x07, 0x00, 0x00,
 }
 
 func (this *License) Equal(that interface{}) bool {
@@ -337,6 +432,12 @@ func (this *License) Equal(that interface{}) bool {
 	if !this.ValidUntil.Equal(that1.ValidUntil) {
 		return false
 	}
+	if this.WarnFor != that1.WarnFor {
+		return false
+	}
+	if this.LimitFor != that1.LimitFor {
+		return false
+	}
 	if len(this.Components) != len(that1.Components) {
 		return false
 	}
@@ -368,6 +469,27 @@ func (this *License) Equal(that interface{}) bool {
 		if !this.JoinEuiPrefixes[i].Equal(that1.JoinEuiPrefixes[i]) {
 			return false
 		}
+	}
+	if this.MultiTenancy != that1.MultiTenancy {
+		return false
+	}
+	if !this.MaxApplications.Equal(that1.MaxApplications) {
+		return false
+	}
+	if !this.MaxClients.Equal(that1.MaxClients) {
+		return false
+	}
+	if !this.MaxEndDevices.Equal(that1.MaxEndDevices) {
+		return false
+	}
+	if !this.MaxGateways.Equal(that1.MaxGateways) {
+		return false
+	}
+	if !this.MaxOrganizations.Equal(that1.MaxOrganizations) {
+		return false
+	}
+	if !this.MaxUsers.Equal(that1.MaxUsers) {
+		return false
 	}
 	return true
 }
@@ -485,26 +607,42 @@ func (m *License) MarshalTo(dAtA []byte) (int, error) {
 		return 0, err
 	}
 	i += n5
+	dAtA[i] = 0x32
+	i++
+	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(m.WarnFor)))
+	n6, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.WarnFor, dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n6
+	dAtA[i] = 0x3a
+	i++
+	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(m.LimitFor)))
+	n7, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.LimitFor, dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n7
 	if len(m.Components) > 0 {
-		dAtA7 := make([]byte, len(m.Components)*10)
-		var j6 int
+		dAtA9 := make([]byte, len(m.Components)*10)
+		var j8 int
 		for _, num := range m.Components {
 			for num >= 1<<7 {
-				dAtA7[j6] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA9[j8] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j6++
+				j8++
 			}
-			dAtA7[j6] = uint8(num)
-			j6++
+			dAtA9[j8] = uint8(num)
+			j8++
 		}
-		dAtA[i] = 0x32
+		dAtA[i] = 0x42
 		i++
-		i = encodeVarintLicense(dAtA, i, uint64(j6))
-		i += copy(dAtA[i:], dAtA7[:j6])
+		i = encodeVarintLicense(dAtA, i, uint64(j8))
+		i += copy(dAtA[i:], dAtA9[:j8])
 	}
 	if len(m.AddressRegexps) > 0 {
 		for _, s := range m.AddressRegexps {
-			dAtA[i] = 0x3a
+			dAtA[i] = 0x4a
 			i++
 			l = len(s)
 			for l >= 1<<7 {
@@ -519,7 +657,7 @@ func (m *License) MarshalTo(dAtA []byte) (int, error) {
 	}
 	if len(m.DevAddrPrefixes) > 0 {
 		for _, msg := range m.DevAddrPrefixes {
-			dAtA[i] = 0x42
+			dAtA[i] = 0x52
 			i++
 			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
 			n, err := msg.MarshalTo(dAtA[i:])
@@ -531,7 +669,7 @@ func (m *License) MarshalTo(dAtA []byte) (int, error) {
 	}
 	if len(m.JoinEuiPrefixes) > 0 {
 		for _, msg := range m.JoinEuiPrefixes {
-			dAtA[i] = 0x4a
+			dAtA[i] = 0x5a
 			i++
 			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
 			n, err := msg.MarshalTo(dAtA[i:])
@@ -540,6 +678,82 @@ func (m *License) MarshalTo(dAtA []byte) (int, error) {
 			}
 			i += n
 		}
+	}
+	if m.MultiTenancy {
+		dAtA[i] = 0x60
+		i++
+		if m.MultiTenancy {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	if m.MaxApplications != nil {
+		dAtA[i] = 0x6a
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxApplications.Size()))
+		n10, err := m.MaxApplications.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n10
+	}
+	if m.MaxClients != nil {
+		dAtA[i] = 0x72
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxClients.Size()))
+		n11, err := m.MaxClients.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n11
+	}
+	if m.MaxEndDevices != nil {
+		dAtA[i] = 0x7a
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxEndDevices.Size()))
+		n12, err := m.MaxEndDevices.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n12
+	}
+	if m.MaxGateways != nil {
+		dAtA[i] = 0x82
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxGateways.Size()))
+		n13, err := m.MaxGateways.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n13
+	}
+	if m.MaxOrganizations != nil {
+		dAtA[i] = 0x8a
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxOrganizations.Size()))
+		n14, err := m.MaxOrganizations.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n14
+	}
+	if m.MaxUsers != nil {
+		dAtA[i] = 0x92
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintLicense(dAtA, i, uint64(m.MaxUsers.Size()))
+		n15, err := m.MaxUsers.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n15
 	}
 	return i, nil
 }
@@ -631,27 +845,50 @@ func NewPopulatedLicense(r randyLicense, easy bool) *License {
 	this.ValidFrom = *v4
 	v5 := github_com_gogo_protobuf_types.NewPopulatedStdTime(r, easy)
 	this.ValidUntil = *v5
-	v6 := r.Intn(10)
-	this.Components = make([]ttnpb.ClusterRole, v6)
-	for i := 0; i < v6; i++ {
+	v6 := github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
+	this.WarnFor = *v6
+	v7 := github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
+	this.LimitFor = *v7
+	v8 := r.Intn(10)
+	this.Components = make([]ttnpb.ClusterRole, v8)
+	for i := 0; i < v8; i++ {
 		this.Components[i] = ttnpb.ClusterRole([]int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}[r.Intn(10)])
 	}
-	v7 := r.Intn(10)
-	this.AddressRegexps = make([]string, v7)
-	for i := 0; i < v7; i++ {
+	v9 := r.Intn(10)
+	this.AddressRegexps = make([]string, v9)
+	for i := 0; i < v9; i++ {
 		this.AddressRegexps[i] = randStringLicense(r)
 	}
-	v8 := r.Intn(10)
-	this.DevAddrPrefixes = make([]go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix, v8)
-	for i := 0; i < v8; i++ {
-		v9 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedDevAddrPrefix(r)
-		this.DevAddrPrefixes[i] = *v9
-	}
 	v10 := r.Intn(10)
-	this.JoinEuiPrefixes = make([]go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix, v10)
+	this.DevAddrPrefixes = make([]go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix, v10)
 	for i := 0; i < v10; i++ {
-		v11 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedEUI64Prefix(r)
-		this.JoinEuiPrefixes[i] = *v11
+		v11 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedDevAddrPrefix(r)
+		this.DevAddrPrefixes[i] = *v11
+	}
+	v12 := r.Intn(10)
+	this.JoinEuiPrefixes = make([]go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix, v12)
+	for i := 0; i < v12; i++ {
+		v13 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedEUI64Prefix(r)
+		this.JoinEuiPrefixes[i] = *v13
+	}
+	this.MultiTenancy = bool(r.Intn(2) == 0)
+	if r.Intn(10) != 0 {
+		this.MaxApplications = types.NewPopulatedUInt64Value(r, easy)
+	}
+	if r.Intn(10) != 0 {
+		this.MaxClients = types.NewPopulatedUInt64Value(r, easy)
+	}
+	if r.Intn(10) != 0 {
+		this.MaxEndDevices = types.NewPopulatedUInt64Value(r, easy)
+	}
+	if r.Intn(10) != 0 {
+		this.MaxGateways = types.NewPopulatedUInt64Value(r, easy)
+	}
+	if r.Intn(10) != 0 {
+		this.MaxOrganizations = types.NewPopulatedUInt64Value(r, easy)
+	}
+	if r.Intn(10) != 0 {
+		this.MaxUsers = types.NewPopulatedUInt64Value(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -660,15 +897,15 @@ func NewPopulatedLicense(r randyLicense, easy bool) *License {
 
 func NewPopulatedLicenseKey(r randyLicense, easy bool) *LicenseKey {
 	this := &LicenseKey{}
-	v12 := r.Intn(100)
-	this.License = make([]byte, v12)
-	for i := 0; i < v12; i++ {
+	v14 := r.Intn(100)
+	this.License = make([]byte, v14)
+	for i := 0; i < v14; i++ {
 		this.License[i] = byte(r.Intn(256))
 	}
 	if r.Intn(10) != 0 {
-		v13 := r.Intn(5)
-		this.Signatures = make([]*LicenseKey_Signature, v13)
-		for i := 0; i < v13; i++ {
+		v15 := r.Intn(5)
+		this.Signatures = make([]*LicenseKey_Signature, v15)
+		for i := 0; i < v15; i++ {
 			this.Signatures[i] = NewPopulatedLicenseKey_Signature(r, easy)
 		}
 	}
@@ -680,9 +917,9 @@ func NewPopulatedLicenseKey(r randyLicense, easy bool) *LicenseKey {
 func NewPopulatedLicenseKey_Signature(r randyLicense, easy bool) *LicenseKey_Signature {
 	this := &LicenseKey_Signature{}
 	this.KeyID = randStringLicense(r)
-	v14 := r.Intn(100)
-	this.Signature = make([]byte, v14)
-	for i := 0; i < v14; i++ {
+	v16 := r.Intn(100)
+	this.Signature = make([]byte, v16)
+	for i := 0; i < v16; i++ {
 		this.Signature[i] = byte(r.Intn(256))
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -709,9 +946,9 @@ func randUTF8RuneLicense(r randyLicense) rune {
 	return rune(ru + 61)
 }
 func randStringLicense(r randyLicense) string {
-	v15 := r.Intn(100)
-	tmps := make([]rune, v15)
-	for i := 0; i < v15; i++ {
+	v17 := r.Intn(100)
+	tmps := make([]rune, v17)
+	for i := 0; i < v17; i++ {
 		tmps[i] = randUTF8RuneLicense(r)
 	}
 	return string(tmps)
@@ -733,11 +970,11 @@ func randFieldLicense(dAtA []byte, r randyLicense, fieldNumber int, wire int) []
 	switch wire {
 	case 0:
 		dAtA = encodeVarintPopulateLicense(dAtA, uint64(key))
-		v16 := r.Int63()
+		v18 := r.Int63()
 		if r.Intn(2) == 0 {
-			v16 *= -1
+			v18 *= -1
 		}
-		dAtA = encodeVarintPopulateLicense(dAtA, uint64(v16))
+		dAtA = encodeVarintPopulateLicense(dAtA, uint64(v18))
 	case 1:
 		dAtA = encodeVarintPopulateLicense(dAtA, uint64(key))
 		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
@@ -778,6 +1015,10 @@ func (m *License) Size() (n int) {
 	n += 1 + l + sovLicense(uint64(l))
 	l = github_com_gogo_protobuf_types.SizeOfStdTime(m.ValidUntil)
 	n += 1 + l + sovLicense(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.WarnFor)
+	n += 1 + l + sovLicense(uint64(l))
+	l = github_com_gogo_protobuf_types.SizeOfStdDuration(m.LimitFor)
+	n += 1 + l + sovLicense(uint64(l))
 	if len(m.Components) > 0 {
 		l = 0
 		for _, e := range m.Components {
@@ -802,6 +1043,33 @@ func (m *License) Size() (n int) {
 			l = e.Size()
 			n += 1 + l + sovLicense(uint64(l))
 		}
+	}
+	if m.MultiTenancy {
+		n += 2
+	}
+	if m.MaxApplications != nil {
+		l = m.MaxApplications.Size()
+		n += 1 + l + sovLicense(uint64(l))
+	}
+	if m.MaxClients != nil {
+		l = m.MaxClients.Size()
+		n += 1 + l + sovLicense(uint64(l))
+	}
+	if m.MaxEndDevices != nil {
+		l = m.MaxEndDevices.Size()
+		n += 1 + l + sovLicense(uint64(l))
+	}
+	if m.MaxGateways != nil {
+		l = m.MaxGateways.Size()
+		n += 2 + l + sovLicense(uint64(l))
+	}
+	if m.MaxOrganizations != nil {
+		l = m.MaxOrganizations.Size()
+		n += 2 + l + sovLicense(uint64(l))
+	}
+	if m.MaxUsers != nil {
+		l = m.MaxUsers.Size()
+		n += 2 + l + sovLicense(uint64(l))
 	}
 	return n
 }
@@ -865,10 +1133,19 @@ func (this *License) String() string {
 		`CreatedAt:` + strings.Replace(strings.Replace(this.CreatedAt.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
 		`ValidFrom:` + strings.Replace(strings.Replace(this.ValidFrom.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
 		`ValidUntil:` + strings.Replace(strings.Replace(this.ValidUntil.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`WarnFor:` + strings.Replace(strings.Replace(this.WarnFor.String(), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
+		`LimitFor:` + strings.Replace(strings.Replace(this.LimitFor.String(), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
 		`Components:` + fmt.Sprintf("%v", this.Components) + `,`,
 		`AddressRegexps:` + fmt.Sprintf("%v", this.AddressRegexps) + `,`,
 		`DevAddrPrefixes:` + fmt.Sprintf("%v", this.DevAddrPrefixes) + `,`,
 		`JoinEuiPrefixes:` + fmt.Sprintf("%v", this.JoinEuiPrefixes) + `,`,
+		`MultiTenancy:` + fmt.Sprintf("%v", this.MultiTenancy) + `,`,
+		`MaxApplications:` + strings.Replace(fmt.Sprintf("%v", this.MaxApplications), "UInt64Value", "types.UInt64Value", 1) + `,`,
+		`MaxClients:` + strings.Replace(fmt.Sprintf("%v", this.MaxClients), "UInt64Value", "types.UInt64Value", 1) + `,`,
+		`MaxEndDevices:` + strings.Replace(fmt.Sprintf("%v", this.MaxEndDevices), "UInt64Value", "types.UInt64Value", 1) + `,`,
+		`MaxGateways:` + strings.Replace(fmt.Sprintf("%v", this.MaxGateways), "UInt64Value", "types.UInt64Value", 1) + `,`,
+		`MaxOrganizations:` + strings.Replace(fmt.Sprintf("%v", this.MaxOrganizations), "UInt64Value", "types.UInt64Value", 1) + `,`,
+		`MaxUsers:` + strings.Replace(fmt.Sprintf("%v", this.MaxUsers), "UInt64Value", "types.UInt64Value", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1098,6 +1375,72 @@ func (m *License) Unmarshal(dAtA []byte) error {
 			}
 			iNdEx = postIndex
 		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field WarnFor", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.WarnFor, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field LimitFor", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(&m.LimitFor, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
 			if wireType == 0 {
 				var v ttnpb.ClusterRole
 				for shift := uint(0); ; shift += 7 {
@@ -1166,7 +1509,7 @@ func (m *License) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Components", wireType)
 			}
-		case 7:
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field AddressRegexps", wireType)
 			}
@@ -1198,7 +1541,7 @@ func (m *License) Unmarshal(dAtA []byte) error {
 			}
 			m.AddressRegexps = append(m.AddressRegexps, string(dAtA[iNdEx:postIndex]))
 			iNdEx = postIndex
-		case 8:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field DevAddrPrefixes", wireType)
 			}
@@ -1233,7 +1576,7 @@ func (m *License) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 9:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field JoinEuiPrefixes", wireType)
 			}
@@ -1265,6 +1608,242 @@ func (m *License) Unmarshal(dAtA []byte) error {
 			var v go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix
 			m.JoinEuiPrefixes = append(m.JoinEuiPrefixes, v)
 			if err := m.JoinEuiPrefixes[len(m.JoinEuiPrefixes)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MultiTenancy", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.MultiTenancy = bool(v != 0)
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxApplications", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxApplications == nil {
+				m.MaxApplications = &types.UInt64Value{}
+			}
+			if err := m.MaxApplications.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxClients", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxClients == nil {
+				m.MaxClients = &types.UInt64Value{}
+			}
+			if err := m.MaxClients.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxEndDevices", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxEndDevices == nil {
+				m.MaxEndDevices = &types.UInt64Value{}
+			}
+			if err := m.MaxEndDevices.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 16:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxGateways", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxGateways == nil {
+				m.MaxGateways = &types.UInt64Value{}
+			}
+			if err := m.MaxGateways.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 17:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxOrganizations", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxOrganizations == nil {
+				m.MaxOrganizations = &types.UInt64Value{}
+			}
+			if err := m.MaxOrganizations.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 18:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxUsers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLicense
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthLicense
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthLicense
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxUsers == nil {
+				m.MaxUsers = &types.UInt64Value{}
+			}
+			if err := m.MaxUsers.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

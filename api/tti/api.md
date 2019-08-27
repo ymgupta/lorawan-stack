@@ -77,10 +77,19 @@
 | `created_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
 | `valid_from` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | The license is not valid before this time. |
 | `valid_until` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | The license is not valid after this time. |
+| `warn_for` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | For how long (before valid_until) to warn about license expiry. |
+| `limit_for` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | For how long (before valid_until) to limit non-critical functionality. |
 | `components` | [`ttn.lorawan.v3.ClusterRole`](#ttn.lorawan.v3.ClusterRole) | repeated | If set, only the given components can be started. |
 | `address_regexps` | [`string`](#string) | repeated | If set, the server addresses must match any of these regexps. |
 | `dev_addr_prefixes` | [`bytes`](#bytes) | repeated | If set, the configured DevAddr prefixes must match any of these prefixes. |
 | `join_eui_prefixes` | [`bytes`](#bytes) | repeated | If set, the configured JoinEUI prefixes must match any of these prefixes. |
+| `multi_tenancy` | [`bool`](#bool) |  | Indicates whether multi-tenancy support is included. |
+| `max_applications` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of applications that can be created. |
+| `max_clients` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of clients that can be created. |
+| `max_end_devices` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of end_devices that can be created. |
+| `max_gateways` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of gateways that can be created. |
+| `max_organizations` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of organizations that can be created. |
+| `max_users` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of users that can be created. |
 
 #### Field Rules
 

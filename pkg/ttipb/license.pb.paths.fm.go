@@ -12,8 +12,17 @@ var LicenseFieldPathsNested = []string{
 	"join_eui_prefixes",
 	"license_issuer_ids",
 	"license_issuer_ids.license_issuer_id",
+	"limit_for",
+	"max_applications",
+	"max_clients",
+	"max_end_devices",
+	"max_gateways",
+	"max_organizations",
+	"max_users",
+	"multi_tenancy",
 	"valid_from",
 	"valid_until",
+	"warn_for",
 }
 
 var LicenseFieldPathsTopLevel = []string{
@@ -24,8 +33,17 @@ var LicenseFieldPathsTopLevel = []string{
 	"id",
 	"join_eui_prefixes",
 	"license_issuer_ids",
+	"limit_for",
+	"max_applications",
+	"max_clients",
+	"max_end_devices",
+	"max_gateways",
+	"max_organizations",
+	"max_users",
+	"multi_tenancy",
 	"valid_from",
 	"valid_until",
+	"warn_for",
 }
 var LicenseKeyFieldPathsNested = []string{
 	"license",

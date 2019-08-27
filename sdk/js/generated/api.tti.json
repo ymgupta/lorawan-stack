@@ -200,6 +200,26 @@
               "defaultValue": ""
             },
             {
+              "name": "warn_for",
+              "description": "For how long (before valid_until) to warn about license expiry.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "limit_for",
+              "description": "For how long (before valid_until) to limit non-critical functionality.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "components",
               "description": "If set, only the given components can be started.",
               "label": "repeated",
@@ -236,6 +256,76 @@
               "type": "bytes",
               "longType": "bytes",
               "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "multi_tenancy",
+              "description": "Indicates whether multi-tenancy support is included.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_applications",
+              "description": "If set, restricts the maximum number of applications that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_clients",
+              "description": "If set, restricts the maximum number of clients that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_end_devices",
+              "description": "If set, restricts the maximum number of end_devices that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_gateways",
+              "description": "If set, restricts the maximum number of gateways that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_organizations",
+              "description": "If set, restricts the maximum number of organizations that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_users",
+              "description": "If set, restricts the maximum number of users that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
               "ismap": false,
               "defaultValue": ""
             }

@@ -110,6 +110,30 @@ func (m *License) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "warn_for":
+
+			if v, ok := interface{}(&m.WarnFor).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "warn_for",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "limit_for":
+
+			if v, ok := interface{}(&m.LimitFor).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "limit_for",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		case "components":
 
 		case "address_regexps":
@@ -117,6 +141,80 @@ func (m *License) ValidateFields(paths ...string) error {
 		case "dev_addr_prefixes":
 
 		case "join_eui_prefixes":
+
+		case "multi_tenancy":
+			// no validation rules for MultiTenancy
+		case "max_applications":
+
+			if v, ok := interface{}(m.GetMaxApplications()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_applications",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_clients":
+
+			if v, ok := interface{}(m.GetMaxClients()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_clients",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_end_devices":
+
+			if v, ok := interface{}(m.GetMaxEndDevices()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_end_devices",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_gateways":
+
+			if v, ok := interface{}(m.GetMaxGateways()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_gateways",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_organizations":
+
+			if v, ok := interface{}(m.GetMaxOrganizations()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_organizations",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_users":
+
+			if v, ok := interface{}(m.GetMaxUsers()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "max_users",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
 
 		default:
 			return LicenseValidationError{
