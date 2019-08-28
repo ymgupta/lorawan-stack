@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/email/sendgrid"
 	"go.thethings.network/lorawan-stack/pkg/email/smtp"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/oauth"
 	"go.thethings.network/lorawan-stack/pkg/redis"
@@ -123,6 +124,10 @@ func (is *IdentityServer) configFromContext(ctx context.Context) *Config {
 
 // New returns new *IdentityServer.
 func New(c *component.Component, config *Config) (is *IdentityServer, err error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_ENTITY_REGISTRY, ttnpb.ClusterRole_ACCESS); err != nil {
+		return nil, err
+	}
+
 	is = &IdentityServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "identityserver"),

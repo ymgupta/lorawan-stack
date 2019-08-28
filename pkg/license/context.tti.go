@@ -4,10 +4,13 @@ package license
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"sync"
 	"time"
 
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
@@ -61,4 +64,25 @@ func Mutate(ctx context.Context, update func(license ttipb.License) ttipb.Licens
 	license = update(license)
 	lc.license = &license
 	lc.mu.Unlock()
+}
+
+// RequireComponent requires components to be included in the license.
+func RequireComponent(ctx context.Context, components ...ttnpb.ClusterRole) error {
+	license := FromContext(ctx)
+	if err := checkValidity(&license); err != nil {
+		return err
+	}
+	if len(license.Components) == 0 {
+		return nil
+	}
+nextComponent:
+	for _, component := range components {
+		for _, licensed := range license.Components {
+			if component == licensed {
+				continue nextComponent
+			}
+		}
+		return fmt.Errorf("the %s component is not included in this license", strings.Title(strings.Replace(component.String(), "_", " ", -1)))
+	}
+	return nil
 }

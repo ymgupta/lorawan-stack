@@ -6,6 +6,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -25,6 +26,10 @@ type CryptoServer struct {
 
 // New returns new *CryptoServer.
 func New(c *component.Component, conf *Config) (*CryptoServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_CRYPTO_SERVER); err != nil {
+		return nil, err
+	}
+
 	cs := &CryptoServer{
 		Component: c,
 	}

@@ -7,8 +7,23 @@ import (
 	"crypto/ecdsa"
 	"encoding/asn1"
 	"errors"
+	"fmt"
 	"math/big"
+	"time"
+
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
+
+func checkValidity(license *ttipb.License) error {
+	now := time.Now()
+	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
+		return fmt.Errorf("license is valid from %s", validFrom)
+	}
+	if validUntil := license.GetValidUntil(); now.After(validUntil) {
+		return fmt.Errorf("license is valid until %s", validUntil)
+	}
+	return nil
+}
 
 func getHash(pub crypto.PublicKey) (crypto.Hash, error) {
 	switch pub := pub.(type) {

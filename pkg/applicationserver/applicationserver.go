@@ -40,6 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/interop"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/messageprocessors"
 	"go.thethings.network/lorawan-stack/pkg/messageprocessors/cayennelpp"
@@ -91,6 +92,10 @@ var (
 
 // New returns new *ApplicationServer.
 func New(c *component.Component, conf *Config) (as *ApplicationServer, err error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_APPLICATION_SERVER); err != nil {
+		return nil, err
+	}
+
 	linkMode, err := conf.GetLinkMode()
 	if err != nil {
 		return nil, err

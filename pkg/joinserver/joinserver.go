@@ -41,6 +41,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/interop"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
@@ -87,6 +88,10 @@ func (js *JoinServer) Context() context.Context {
 
 // New returns new *JoinServer.
 func New(c *component.Component, conf *Config) (*JoinServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_JOIN_SERVER); err != nil {
+		return nil, err
+	}
+
 	js := &JoinServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "joinserver"),

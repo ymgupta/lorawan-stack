@@ -7,8 +7,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"errors"
-	"fmt"
-	"time"
 
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
@@ -41,12 +39,8 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 	if license == nil {
 		return ttipb.License{}, errors.New("no license")
 	}
-	now := time.Now()
-	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
-		return ttipb.License{}, fmt.Errorf("license is valid from %s", validFrom)
-	}
-	if validUntil := license.GetValidUntil(); now.After(validUntil) {
-		return ttipb.License{}, fmt.Errorf("license is valid until %s", validUntil)
+	if err := checkValidity(license); err != nil {
+		return ttipb.License{}, err
 	}
 	var anyValid bool
 	for _, sig := range licenseKey.GetSignatures() {

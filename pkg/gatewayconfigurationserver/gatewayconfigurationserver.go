@@ -22,6 +22,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 	bscups "go.thethings.network/lorawan-stack/pkg/basicstation/cups"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/pfconfig/semtechudp"
 	ttgcups "go.thethings.network/lorawan-stack/pkg/thethingsgateway/cups"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -59,6 +60,10 @@ func (gcs *GatewayConfigurationServer) RegisterRoutes(server *web.Server) {
 
 // New returns new *GatewayConfigurationServer.
 func New(c *component.Component, conf *Config) (*GatewayConfigurationServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_GATEWAY_SERVER); err != nil { // TODO: Do we need a ClusterRole for this? (!!!)
+		return nil, err
+	}
+
 	gcs := &GatewayConfigurationServer{
 		Component: c,
 		config:    conf,
