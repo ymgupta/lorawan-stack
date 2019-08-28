@@ -196,6 +196,133 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 			} else {
 				dst.MaxUsers = nil
 			}
+		case "metering":
+			if len(subs) > 0 {
+				newDst := dst.Metering
+				if newDst == nil {
+					newDst = &MeteringConfiguration{}
+					dst.Metering = newDst
+				}
+				var newSrc *MeteringConfiguration
+				if src != nil {
+					newSrc = src.Metering
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Metering = src.Metering
+				} else {
+					dst.Metering = nil
+				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *LicenseUpdate) SetFields(src *LicenseUpdate, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "valid_until":
+			if len(subs) > 0 {
+				return fmt.Errorf("'valid_until' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ValidUntil = src.ValidUntil
+			} else {
+				dst.ValidUntil = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "interval":
+			if len(subs) > 0 {
+				return fmt.Errorf("'interval' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Interval = src.Interval
+			} else {
+				dst.Interval = nil
+			}
+		case "on_success":
+			if len(subs) > 0 {
+				newDst := dst.OnSuccess
+				if newDst == nil {
+					newDst = &LicenseUpdate{}
+					dst.OnSuccess = newDst
+				}
+				var newSrc *LicenseUpdate
+				if src != nil {
+					newSrc = src.OnSuccess
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.OnSuccess = src.OnSuccess
+				} else {
+					dst.OnSuccess = nil
+				}
+			}
+
+		case "metering":
+			if len(subs) == 0 && src == nil {
+				dst.Metering = nil
+				continue
+			} else if len(subs) == 0 {
+				dst.Metering = src.Metering
+				continue
+			}
+
+			subPathMap := _processPaths(subs)
+			if len(subPathMap) > 1 {
+				return fmt.Errorf("more than one field specified for oneof field '%s'", name)
+			}
+			for oneofName, oneofSubs := range subPathMap {
+				switch oneofName {
+				case "aws":
+					if _, ok := dst.Metering.(*MeteringConfiguration_Aws); !ok {
+						dst.Metering = &MeteringConfiguration_Aws{}
+					}
+					if len(oneofSubs) > 0 {
+						newDst := dst.Metering.(*MeteringConfiguration_Aws).Aws
+						if newDst == nil {
+							newDst = &MeteringConfiguration_AWS{}
+							dst.Metering.(*MeteringConfiguration_Aws).Aws = newDst
+						}
+						var newSrc *MeteringConfiguration_AWS
+						if src != nil {
+							newSrc = src.GetAws()
+						}
+						if err := newDst.SetFields(newSrc, subs...); err != nil {
+							return err
+						}
+					} else {
+						if src != nil {
+							dst.Metering.(*MeteringConfiguration_Aws).Aws = src.GetAws()
+						} else {
+							dst.Metering.(*MeteringConfiguration_Aws).Aws = nil
+						}
+					}
+
+				default:
+					return fmt.Errorf("invalid oneof field: '%s.%s'", name, oneofName)
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -224,6 +351,37 @@ func (dst *LicenseKey) SetFields(src *LicenseKey, paths ...string) error {
 				dst.Signatures = src.Signatures
 			} else {
 				dst.Signatures = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *MeteringData) SetFields(src *MeteringData, paths ...string) error {
+	if len(paths) != 0 {
+		return fmt.Errorf("message MeteringData has no fields, but paths %s were specified", paths)
+	}
+	if src != nil {
+		*dst = *src
+	}
+	return nil
+}
+
+func (dst *MeteringConfiguration_AWS) SetFields(src *MeteringConfiguration_AWS, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "sku":
+			if len(subs) > 0 {
+				return fmt.Errorf("'sku' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.SKU = src.SKU
+			} else {
+				var zero string
+				dst.SKU = zero
 			}
 
 		default:

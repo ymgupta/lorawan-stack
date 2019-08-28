@@ -58,6 +58,28 @@ message License {
   google.protobuf.UInt64Value max_organizations = 17;
   // If set, restricts the maximum number of users that can be created.
   google.protobuf.UInt64Value max_users = 18;
+
+  // If set, requires checking in with a metering service.
+  MeteringConfiguration metering = 19;
+}
+
+message LicenseUpdate {
+  // How long the license validity should be extended (relative to the current time) on update.
+  google.protobuf.Duration valid_until = 1;
+}
+
+message MeteringConfiguration {
+  // How frequently to report to the metering service.
+  google.protobuf.Duration interval = 1;
+  // How to update the license on success.
+  LicenseUpdate on_success = 2;
+
+  message AWS {
+    string sku = 1 [(gogoproto.customname) = "SKU"];
+  }
+  oneof metering {
+    AWS aws = 3;
+  }
 }
 
 message LicenseKey {
@@ -75,4 +97,8 @@ message LicenseKey {
   // contain any signature with a known key_id or if it contains any invalid
   // signature.
   repeated Signature signatures = 2;
+}
+
+message MeteringData {
+  // TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)
 }

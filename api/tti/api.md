@@ -12,6 +12,10 @@
   - [Message `License`](#tti.lorawan.v3.License)
   - [Message `LicenseKey`](#tti.lorawan.v3.LicenseKey)
   - [Message `LicenseKey.Signature`](#tti.lorawan.v3.LicenseKey.Signature)
+  - [Message `LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate)
+  - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
+  - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
+  - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
   - [Message `CreateTenantRequest`](#tti.lorawan.v3.CreateTenantRequest)
   - [Message `GetTenantRequest`](#tti.lorawan.v3.GetTenantRequest)
@@ -90,6 +94,7 @@
 | `max_gateways` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of gateways that can be created. |
 | `max_organizations` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of organizations that can be created. |
 | `max_users` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of users that can be created. |
+| `metering` | [`MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration) |  | If set, requires checking in with a metering service. |
 
 #### Field Rules
 
@@ -111,6 +116,30 @@
 | ----- | ---- | ----- | ----------- |
 | `key_id` | [`string`](#string) |  | The ID of the key used to sign license. |
 | `signature` | [`bytes`](#bytes) |  | Signature for license using the key identified by key_id. |
+
+### <a name="tti.lorawan.v3.LicenseUpdate">Message `LicenseUpdate`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `valid_until` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | How long the license validity should be extended (relative to the current time) on update. |
+
+### <a name="tti.lorawan.v3.MeteringConfiguration">Message `MeteringConfiguration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `interval` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | How frequently to report to the metering service. |
+| `on_success` | [`LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate) |  | How to update the license on success. |
+| `aws` | [`MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS) |  |  |
+
+### <a name="tti.lorawan.v3.MeteringConfiguration.AWS">Message `MeteringConfiguration.AWS`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `sku` | [`string`](#string) |  |  |
+
+### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
+
+TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)
 
 ## <a name="lorawan-stack/api/tti/tenant.proto">File `lorawan-stack/api/tti/tenant.proto`</a>
 

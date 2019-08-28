@@ -216,6 +216,18 @@ func (m *License) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "metering":
+
+			if v, ok := interface{}(m.GetMetering()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseValidationError{
+						field:  "metering",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return LicenseValidationError{
 				field:  name,
@@ -279,6 +291,225 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = LicenseValidationError{}
+
+// ValidateFields checks the field values on LicenseUpdate with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *LicenseUpdate) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = LicenseUpdateFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "valid_until":
+
+			if v, ok := interface{}(m.GetValidUntil()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return LicenseUpdateValidationError{
+						field:  "valid_until",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return LicenseUpdateValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// LicenseUpdateValidationError is the validation error returned by
+// LicenseUpdate.ValidateFields if the designated constraints aren't met.
+type LicenseUpdateValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LicenseUpdateValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LicenseUpdateValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LicenseUpdateValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LicenseUpdateValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LicenseUpdateValidationError) ErrorName() string { return "LicenseUpdateValidationError" }
+
+// Error satisfies the builtin error interface
+func (e LicenseUpdateValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLicenseUpdate.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LicenseUpdateValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LicenseUpdateValidationError{}
+
+// ValidateFields checks the field values on MeteringConfiguration with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = MeteringConfigurationFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "interval":
+
+			if v, ok := interface{}(m.GetInterval()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MeteringConfigurationValidationError{
+						field:  "interval",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "on_success":
+
+			if v, ok := interface{}(m.GetOnSuccess()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MeteringConfigurationValidationError{
+						field:  "on_success",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "metering":
+			if len(subs) == 0 {
+				subs = []string{
+					"aws",
+				}
+			}
+			for name, subs := range _processPaths(subs) {
+				_ = subs
+				switch name {
+				case "aws":
+
+					if v, ok := interface{}(m.GetAws()).(interface{ ValidateFields(...string) error }); ok {
+						if err := v.ValidateFields(subs...); err != nil {
+							return MeteringConfigurationValidationError{
+								field:  "aws",
+								reason: "embedded message failed validation",
+								cause:  err,
+							}
+						}
+					}
+
+				}
+			}
+		default:
+			return MeteringConfigurationValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// MeteringConfigurationValidationError is the validation error returned by
+// MeteringConfiguration.ValidateFields if the designated constraints aren't met.
+type MeteringConfigurationValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringConfigurationValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringConfigurationValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringConfigurationValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringConfigurationValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringConfigurationValidationError) ErrorName() string {
+	return "MeteringConfigurationValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MeteringConfigurationValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringConfiguration.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringConfigurationValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringConfigurationValidationError{}
 
 // ValidateFields checks the field values on LicenseKey with the rules defined
 // in the proto definition for this message. If any rules are violated, an
@@ -377,6 +608,154 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = LicenseKeyValidationError{}
+
+// ValidateFields checks the field values on MeteringData with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MeteringData) ValidateFields(paths ...string) error {
+	if len(paths) > 0 {
+		return fmt.Errorf("message MeteringData has no fields, but paths %s were specified", paths)
+	}
+	return nil
+}
+
+// MeteringDataValidationError is the validation error returned by
+// MeteringData.ValidateFields if the designated constraints aren't met.
+type MeteringDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringDataValidationError) ErrorName() string { return "MeteringDataValidationError" }
+
+// Error satisfies the builtin error interface
+func (e MeteringDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringDataValidationError{}
+
+// ValidateFields checks the field values on MeteringConfiguration_AWS with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *MeteringConfiguration_AWS) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = MeteringConfiguration_AWSFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "sku":
+			// no validation rules for SKU
+		default:
+			return MeteringConfiguration_AWSValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// MeteringConfiguration_AWSValidationError is the validation error returned by
+// MeteringConfiguration_AWS.ValidateFields if the designated constraints
+// aren't met.
+type MeteringConfiguration_AWSValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringConfiguration_AWSValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringConfiguration_AWSValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringConfiguration_AWSValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringConfiguration_AWSValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringConfiguration_AWSValidationError) ErrorName() string {
+	return "MeteringConfiguration_AWSValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MeteringConfiguration_AWSValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringConfiguration_AWS.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringConfiguration_AWSValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringConfiguration_AWSValidationError{}
 
 // ValidateFields checks the field values on LicenseKey_Signature with the
 // rules defined in the proto definition for this message. If any rules are

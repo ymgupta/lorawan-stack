@@ -328,6 +328,16 @@
               "fullType": "google.protobuf.UInt64Value",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "metering",
+              "description": "If set, requires checking in with a metering service.",
+              "label": "",
+              "type": "MeteringConfiguration",
+              "longType": "MeteringConfiguration",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -392,6 +402,99 @@
               "defaultValue": ""
             }
           ]
+        },
+        {
+          "name": "LicenseUpdate",
+          "longName": "LicenseUpdate",
+          "fullName": "tti.lorawan.v3.LicenseUpdate",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "valid_until",
+              "description": "How long the license validity should be extended (relative to the current time) on update.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "MeteringConfiguration",
+          "longName": "MeteringConfiguration",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "interval",
+              "description": "How frequently to report to the metering service.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "on_success",
+              "description": "How to update the license on success.",
+              "label": "",
+              "type": "LicenseUpdate",
+              "longType": "LicenseUpdate",
+              "fullType": "tti.lorawan.v3.LicenseUpdate",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "aws",
+              "description": "",
+              "label": "",
+              "type": "AWS",
+              "longType": "MeteringConfiguration.AWS",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration.AWS",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AWS",
+          "longName": "MeteringConfiguration.AWS",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration.AWS",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "sku",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "MeteringData",
+          "longName": "MeteringData",
+          "fullName": "tti.lorawan.v3.MeteringData",
+          "description": "TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)",
+          "hasExtensions": false,
+          "hasFields": false,
+          "extensions": [],
+          "fields": []
         }
       ],
       "services": []
