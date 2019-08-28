@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	echo "github.com/labstack/echo/v4"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
@@ -27,12 +28,14 @@ func Middleware(config Config) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			ctx := c.Request().Context()
-			if id := FromContext(ctx); id.TenantID != "" {
-				return next(c)
-			}
-			if id := fromRequest(c.Request()); id.TenantID != "" {
-				c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
-				return next(c)
+			if license.RequireMultiTenancy(ctx) == nil {
+				if id := FromContext(ctx); id.TenantID != "" {
+					return next(c)
+				}
+				if id := fromRequest(c.Request()); id.TenantID != "" {
+					c.SetRequest(c.Request().WithContext(NewContext(ctx, id)))
+					return next(c)
+				}
 			}
 			if id := config.DefaultID; id != "" {
 				c.SetRequest(c.Request().WithContext(NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})))

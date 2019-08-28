@@ -4,6 +4,7 @@ package license
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"sync"
@@ -83,6 +84,18 @@ nextComponent:
 			}
 		}
 		return fmt.Errorf("the %s component is not included in this license", strings.Title(strings.Replace(component.String(), "_", " ", -1)))
+	}
+	return nil
+}
+
+// RequireMultiTenancy requires multi-tenancy to be included in the license.
+func RequireMultiTenancy(ctx context.Context) error {
+	license := FromContext(ctx)
+	if err := checkValidity(&license); err != nil {
+		return err
+	}
+	if !license.MultiTenancy {
+		return errors.New("multi-tenancy is not included in this license")
 	}
 	return nil
 }
