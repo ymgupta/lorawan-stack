@@ -490,11 +490,22 @@
           "name": "MeteringData",
           "longName": "MeteringData",
           "fullName": "tti.lorawan.v3.MeteringData",
-          "description": "TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)",
+          "description": "",
           "hasExtensions": false,
-          "hasFields": false,
+          "hasFields": true,
           "extensions": [],
-          "fields": []
+          "fields": [
+            {
+              "name": "totals",
+              "description": "",
+              "label": "",
+              "type": "TenantRegistryTotals",
+              "longType": "TenantRegistryTotals",
+              "fullType": "tti.lorawan.v3.TenantRegistryTotals",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
         }
       ],
       "services": []

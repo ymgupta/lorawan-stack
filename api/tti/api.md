@@ -139,7 +139,9 @@
 
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 
-TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `totals` | [`TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals) |  |  |
 
 ## <a name="lorawan-stack/api/tti/tenant.proto">File `lorawan-stack/api/tti/tenant.proto`</a>
 

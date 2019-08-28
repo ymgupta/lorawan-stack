@@ -11,6 +11,7 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 import "lorawan-stack/api/enums.proto";
 import "lorawan-stack/api/tti/identifiers.proto";
+import "lorawan-stack/api/tti/tenant.proto";
 
 option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
 
@@ -100,5 +101,5 @@ message LicenseKey {
 }
 
 message MeteringData {
-  // TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/lorawan-stack/pull/1696)
+  TenantRegistryTotals totals = 1;
 }

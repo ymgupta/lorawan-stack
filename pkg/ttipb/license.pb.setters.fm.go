@@ -361,11 +361,33 @@ func (dst *LicenseKey) SetFields(src *LicenseKey, paths ...string) error {
 }
 
 func (dst *MeteringData) SetFields(src *MeteringData, paths ...string) error {
-	if len(paths) != 0 {
-		return fmt.Errorf("message MeteringData has no fields, but paths %s were specified", paths)
-	}
-	if src != nil {
-		*dst = *src
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "totals":
+			if len(subs) > 0 {
+				newDst := dst.Totals
+				if newDst == nil {
+					newDst = &TenantRegistryTotals{}
+					dst.Totals = newDst
+				}
+				var newSrc *TenantRegistryTotals
+				if src != nil {
+					newSrc = src.Totals
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Totals = src.Totals
+				} else {
+					dst.Totals = nil
+				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
 	}
 	return nil
 }

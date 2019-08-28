@@ -613,8 +613,35 @@ var _ interface {
 // defined in the proto definition for this message. If any rules are
 // violated, an error is returned.
 func (m *MeteringData) ValidateFields(paths ...string) error {
-	if len(paths) > 0 {
-		return fmt.Errorf("message MeteringData has no fields, but paths %s were specified", paths)
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = MeteringDataFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "totals":
+
+			if v, ok := interface{}(m.GetTotals()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MeteringDataValidationError{
+						field:  "totals",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return MeteringDataValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
 	}
 	return nil
 }
