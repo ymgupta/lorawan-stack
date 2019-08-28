@@ -50,8 +50,8 @@ func New(c *component.Component, conf *Config) (*CryptoServer, error) {
 }
 
 // Roles of the gRPC service.
-func (cs *CryptoServer) Roles() []ttnpb.PeerInfo_Role {
-	return []ttnpb.PeerInfo_Role{ttnpb.PeerInfo_CRYPTO_SERVER}
+func (cs *CryptoServer) Roles() []ttnpb.ClusterRole {
+	return []ttnpb.ClusterRole{ttnpb.ClusterRole_CRYPTO_SERVER}
 }
 
 // RegisterServices registers services provided by cs at s.

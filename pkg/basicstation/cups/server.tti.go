@@ -23,7 +23,7 @@ func (s *Server) getTenantRegistry(ctx context.Context, ids *ttnpb.GatewayIdenti
 	if s.tenantRegistry != nil {
 		return s.tenantRegistry
 	}
-	return ttipb.NewTenantRegistryClient(s.component.GetPeer(ctx, ttnpb.PeerInfo_ENTITY_REGISTRY, ids).Conn())
+	return ttipb.NewTenantRegistryClient(s.component.GetPeer(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids).Conn())
 }
 
 func (s *Server) getContextForGatewayEUI(ctx context.Context, eui types.EUI64, opts ...grpc.CallOption) (context.Context, error) {

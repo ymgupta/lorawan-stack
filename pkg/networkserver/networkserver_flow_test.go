@@ -68,8 +68,8 @@ func AssertSetDevice(ctx context.Context, conn *grpc.ClientConn, getPeerCh <-cha
 	}()
 
 	if !a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-		func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-			return a.So(role, should.Equal, ttnpb.PeerInfo_ACCESS) && a.So(ids, should.BeNil)
+		func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+			return a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS) && a.So(ids, should.BeNil)
 		},
 		NewISPeer(ctx, &test.MockApplicationAccessServer{
 			ListRightsFunc: test.MakeApplicationAccessListRightsChFunc(listRightsCh),
@@ -289,8 +289,8 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 		}).Stop()
 
 		if !a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-			func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-				return a.So(role, should.Equal, ttnpb.PeerInfo_JOIN_SERVER) &&
+			func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+				return a.So(role, should.Equal, ttnpb.ClusterRole_JOIN_SERVER) &&
 					a.So(ids, should.Resemble, ttnpb.EndDeviceIdentifiers{
 						DeviceID:               devID,
 						ApplicationIdentifiers: appID,
@@ -312,6 +312,16 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 				a.So(req.DevAddr.NwkID(), should.Resemble, netID.ID()) &&
 				a.So(req.DevAddr.NetIDType(), should.Equal, netID.Type()) &&
 				a.So(req, should.Resemble, &ttnpb.JoinRequest{
+					Payload: &ttnpb.Message{
+						Payload: &ttnpb.Message_JoinRequestPayload{
+							JoinRequestPayload: &ttnpb.JoinRequestPayload{
+								JoinEUI:  types.EUI64{0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+								DevEUI:   types.EUI64{0x42, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
+								DevNonce: [2]byte{0x00, 0x01},
+							},
+						},
+						MIC: []byte{3, 2, 1, 0},
+					},
 					RawPayload:         payload,
 					DevAddr:            req.DevAddr,
 					SelectedMACVersion: ttnpb.MAC_V1_0_2,
@@ -415,8 +425,8 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 		}
 
 		if !a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-			func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-				return a.So(role, should.Equal, ttnpb.PeerInfo_GATEWAY_SERVER) &&
+			func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+				return a.So(role, should.Equal, ttnpb.ClusterRole_GATEWAY_SERVER) &&
 					a.So(ids, should.Resemble, ttnpb.GatewayIdentifiers{
 						GatewayID: "test-gtw-1",
 					})
@@ -427,8 +437,8 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 		}
 
 		if !a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-			func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-				return a.So(role, should.Equal, ttnpb.PeerInfo_GATEWAY_SERVER) &&
+			func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+				return a.So(role, should.Equal, ttnpb.ClusterRole_GATEWAY_SERVER) &&
 					a.So(ids, should.Resemble, ttnpb.GatewayIdentifiers{
 						GatewayID: "test-gtw-2",
 					})
@@ -641,8 +651,8 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 		}
 
 		a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-			func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-				return a.So(role, should.Equal, ttnpb.PeerInfo_GATEWAY_SERVER) &&
+			func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+				return a.So(role, should.Equal, ttnpb.ClusterRole_GATEWAY_SERVER) &&
 					a.So(ids, should.Resemble, ttnpb.GatewayIdentifiers{
 						GatewayID: "test-gtw-3",
 					})
@@ -651,8 +661,8 @@ func handleOTAAClassA868FlowTest1_0_2(ctx context.Context, reg DeviceRegistry, t
 		), should.BeTrue)
 
 		a.So(test.AssertClusterGetPeerRequest(ctx, getPeerCh,
-			func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
-				return a.So(role, should.Equal, ttnpb.PeerInfo_GATEWAY_SERVER) &&
+			func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
+				return a.So(role, should.Equal, ttnpb.ClusterRole_GATEWAY_SERVER) &&
 					a.So(ids, should.Resemble, ttnpb.GatewayIdentifiers{
 						GatewayID: "test-gtw-2",
 					})

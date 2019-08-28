@@ -502,7 +502,7 @@ func TestHandleUplink(t *testing.T) {
 		Response chan<- *pbtypes.Empty
 	}
 
-	var errTest = errors.New("testError")
+	errTest := errors.New("testError")
 
 	for _, tc := range []struct {
 		Name    string
@@ -826,6 +826,7 @@ func TestHandleUplink(t *testing.T) {
 								DevAddr:            req.DevAddr,
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_0_2,
 							})
@@ -929,6 +930,7 @@ func TestHandleUplink(t *testing.T) {
 								},
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_1,
 							})
@@ -1011,9 +1013,9 @@ func TestHandleUplink(t *testing.T) {
 					}
 				}
 
-				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
+				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, reqCtx) &&
-						a.So(role, should.Equal, ttnpb.PeerInfo_JOIN_SERVER) &&
+						a.So(role, should.Equal, ttnpb.ClusterRole_JOIN_SERVER) &&
 						a.So(ids, should.Resemble, getDevice.EndDeviceIdentifiers)
 				},
 					nil,
@@ -1039,6 +1041,7 @@ func TestHandleUplink(t *testing.T) {
 								DevAddr:            req.DevAddr,
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_0_3,
 							})
@@ -1120,9 +1123,9 @@ func TestHandleUplink(t *testing.T) {
 					}
 				}
 
-				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
+				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, reqCtx) &&
-						a.So(role, should.Equal, ttnpb.PeerInfo_JOIN_SERVER) &&
+						a.So(role, should.Equal, ttnpb.ClusterRole_JOIN_SERVER) &&
 						a.So(ids, should.Resemble, getDevice.EndDeviceIdentifiers)
 				},
 					nil,
@@ -1151,6 +1154,7 @@ func TestHandleUplink(t *testing.T) {
 								},
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_1,
 							})
@@ -1235,9 +1239,9 @@ func TestHandleUplink(t *testing.T) {
 					}
 				}
 
-				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.PeerInfo_Role, ids ttnpb.Identifiers) bool {
+				if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer, func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, reqCtx) &&
-						a.So(role, should.Equal, ttnpb.PeerInfo_JOIN_SERVER) &&
+						a.So(role, should.Equal, ttnpb.ClusterRole_JOIN_SERVER) &&
 						a.So(ids, should.Resemble, getDevice.EndDeviceIdentifiers)
 				},
 					nil,
@@ -1270,6 +1274,7 @@ func TestHandleUplink(t *testing.T) {
 								},
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_1,
 							})
@@ -1485,6 +1490,7 @@ func TestHandleUplink(t *testing.T) {
 								DevAddr:            req.DevAddr,
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_0_2,
 							})
@@ -1668,6 +1674,7 @@ func TestHandleUplink(t *testing.T) {
 								},
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_1,
 							})
@@ -1884,6 +1891,7 @@ func TestHandleUplink(t *testing.T) {
 								DevAddr:            req.DevAddr,
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_0_2,
 							})
@@ -2103,6 +2111,7 @@ func TestHandleUplink(t *testing.T) {
 								},
 								NetID:              netID,
 								RawPayload:         msg.RawPayload,
+								Payload:            makeJoinRequest(true).Payload,
 								RxDelay:            ttnpb.RX_DELAY_3,
 								SelectedMACVersion: ttnpb.MAC_V1_1,
 							})

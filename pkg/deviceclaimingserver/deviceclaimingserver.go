@@ -57,8 +57,8 @@ func (dcs *DeviceClaimingServer) Context() context.Context {
 }
 
 // Roles returns the roles that the Device Claiming Server fulfills.
-func (dcs *DeviceClaimingServer) Roles() []ttnpb.PeerInfo_Role {
-	return []ttnpb.PeerInfo_Role{ttnpb.PeerInfo_DEVICE_CLAIMING_SERVER}
+func (dcs *DeviceClaimingServer) Roles() []ttnpb.ClusterRole {
+	return []ttnpb.ClusterRole{ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER}
 }
 
 // RegisterServices registers services provided by dcs at s.

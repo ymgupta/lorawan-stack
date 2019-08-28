@@ -504,6 +504,17 @@
         "location_solved",
         "location_solved.topic",
         "provider",
+        "provider.mqtt",
+        "provider.mqtt.client_id",
+        "provider.mqtt.password",
+        "provider.mqtt.publish_qos",
+        "provider.mqtt.server_url",
+        "provider.mqtt.subscribe_qos",
+        "provider.mqtt.tls_ca",
+        "provider.mqtt.tls_client_cert",
+        "provider.mqtt.tls_client_key",
+        "provider.mqtt.use_tls",
+        "provider.mqtt.username",
         "provider.nats",
         "provider.nats.server_url",
         "updated_at",
@@ -549,6 +560,17 @@
         "location_solved",
         "location_solved.topic",
         "provider",
+        "provider.mqtt",
+        "provider.mqtt.client_id",
+        "provider.mqtt.password",
+        "provider.mqtt.publish_qos",
+        "provider.mqtt.server_url",
+        "provider.mqtt.subscribe_qos",
+        "provider.mqtt.tls_ca",
+        "provider.mqtt.tls_client_cert",
+        "provider.mqtt.tls_client_key",
+        "provider.mqtt.use_tls",
+        "provider.mqtt.username",
         "provider.nats",
         "provider.nats.server_url",
         "updated_at",
@@ -604,6 +626,17 @@
         "location_solved",
         "location_solved.topic",
         "provider",
+        "provider.mqtt",
+        "provider.mqtt.client_id",
+        "provider.mqtt.password",
+        "provider.mqtt.publish_qos",
+        "provider.mqtt.server_url",
+        "provider.mqtt.subscribe_qos",
+        "provider.mqtt.tls_ca",
+        "provider.mqtt.tls_client_cert",
+        "provider.mqtt.tls_client_key",
+        "provider.mqtt.use_tls",
+        "provider.mqtt.username",
         "provider.nats",
         "provider.nats.server_url",
         "updated_at",
@@ -1110,6 +1143,31 @@
           "pattern": "/edcs/claim",
           "body": "*",
           "parameters": []
+        }
+      ]
+    },
+    "AuthorizeApplication": {
+      "file": "lorawan-stack/api/deviceclaimingserver.proto",
+      "http": [
+        {
+          "method": "post",
+          "pattern": "/edcs/applications/{application_ids.application_id}/authorize",
+          "body": "*",
+          "parameters": [
+            "application_ids.application_id"
+          ]
+        }
+      ]
+    },
+    "UnauthorizeApplication": {
+      "file": "lorawan-stack/api/deviceclaimingserver.proto",
+      "http": [
+        {
+          "method": "delete",
+          "pattern": "/edcs/applications/{application_id}/authorize",
+          "parameters": [
+            "application_id"
+          ]
         }
       ]
     }
@@ -2863,7 +2921,6 @@
         "ids.email",
         "ids.user_id",
         "name",
-        "password_updated_at",
         "primary_email_address",
         "primary_email_address_validated_at",
         "profile_picture",
@@ -2873,6 +2930,7 @@
         "profile_picture.sizes",
         "require_password_update",
         "state",
+        "temporary_password",
         "temporary_password_created_at",
         "temporary_password_expires_at",
         "updated_at"

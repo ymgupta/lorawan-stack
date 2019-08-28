@@ -33,6 +33,7 @@
   - [Service `AsEndDeviceRegistry`](#ttn.lorawan.v3.AsEndDeviceRegistry)
 - [File `lorawan-stack/api/applicationserver_pubsub.proto`](#lorawan-stack/api/applicationserver_pubsub.proto)
   - [Message `ApplicationPubSub`](#ttn.lorawan.v3.ApplicationPubSub)
+  - [Message `ApplicationPubSub.MQTTProvider`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider)
   - [Message `ApplicationPubSub.Message`](#ttn.lorawan.v3.ApplicationPubSub.Message)
   - [Message `ApplicationPubSub.NATSProvider`](#ttn.lorawan.v3.ApplicationPubSub.NATSProvider)
   - [Message `ApplicationPubSubFormats`](#ttn.lorawan.v3.ApplicationPubSubFormats)
@@ -42,6 +43,7 @@
   - [Message `GetApplicationPubSubRequest`](#ttn.lorawan.v3.GetApplicationPubSubRequest)
   - [Message `ListApplicationPubSubsRequest`](#ttn.lorawan.v3.ListApplicationPubSubsRequest)
   - [Message `SetApplicationPubSubRequest`](#ttn.lorawan.v3.SetApplicationPubSubRequest)
+  - [Enum `ApplicationPubSub.MQTTProvider.QoS`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider.QoS)
   - [Service `ApplicationPubSubRegistry`](#ttn.lorawan.v3.ApplicationPubSubRegistry)
 - [File `lorawan-stack/api/applicationserver_web.proto`](#lorawan-stack/api/applicationserver_web.proto)
   - [Message `ApplicationWebhook`](#ttn.lorawan.v3.ApplicationWebhook)
@@ -82,7 +84,6 @@
 - [File `lorawan-stack/api/cluster.proto`](#lorawan-stack/api/cluster.proto)
   - [Message `PeerInfo`](#ttn.lorawan.v3.PeerInfo)
   - [Message `PeerInfo.TagsEntry`](#ttn.lorawan.v3.PeerInfo.TagsEntry)
-  - [Enum `PeerInfo.Role`](#ttn.lorawan.v3.PeerInfo.Role)
 - [File `lorawan-stack/api/configuration_services.proto`](#lorawan-stack/api/configuration_services.proto)
   - [Message `FrequencyPlanDescription`](#ttn.lorawan.v3.FrequencyPlanDescription)
   - [Message `ListFrequencyPlansRequest`](#ttn.lorawan.v3.ListFrequencyPlansRequest)
@@ -95,6 +96,7 @@
   - [Enum `ContactType`](#ttn.lorawan.v3.ContactType)
   - [Service `ContactInfoRegistry`](#ttn.lorawan.v3.ContactInfoRegistry)
 - [File `lorawan-stack/api/deviceclaimingserver.proto`](#lorawan-stack/api/deviceclaimingserver.proto)
+  - [Message `AuthorizeApplicationRequest`](#ttn.lorawan.v3.AuthorizeApplicationRequest)
   - [Message `ClaimEndDeviceRequest`](#ttn.lorawan.v3.ClaimEndDeviceRequest)
   - [Message `ClaimEndDeviceRequest.AuthenticatedIdentifiers`](#ttn.lorawan.v3.ClaimEndDeviceRequest.AuthenticatedIdentifiers)
   - [Service `EndDeviceClaimingServer`](#ttn.lorawan.v3.EndDeviceClaimingServer)
@@ -134,6 +136,7 @@
   - [Service `EndDeviceRegistry`](#ttn.lorawan.v3.EndDeviceRegistry)
   - [Service `EndDeviceTemplateConverter`](#ttn.lorawan.v3.EndDeviceTemplateConverter)
 - [File `lorawan-stack/api/enums.proto`](#lorawan-stack/api/enums.proto)
+  - [Enum `ClusterRole`](#ttn.lorawan.v3.ClusterRole)
   - [Enum `DownlinkPathConstraint`](#ttn.lorawan.v3.DownlinkPathConstraint)
   - [Enum `State`](#ttn.lorawan.v3.State)
 - [File `lorawan-stack/api/error.proto`](#lorawan-stack/api/error.proto)
@@ -801,6 +804,7 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | `updated_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
 | `format` | [`string`](#string) |  | The format to use for the body. Supported values depend on the Application Server configuration. |
 | `nats` | [`ApplicationPubSub.NATSProvider`](#ttn.lorawan.v3.ApplicationPubSub.NATSProvider) |  |  |
+| `mqtt` | [`ApplicationPubSub.MQTTProvider`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider) |  |  |
 | `base_topic` | [`string`](#string) |  | Base topic name to which the messages topic is appended. |
 | `downlink_push` | [`ApplicationPubSub.Message`](#ttn.lorawan.v3.ApplicationPubSub.Message) |  | The topic to which the Application Server subscribes for downlink queue push operations. |
 | `downlink_replace` | [`ApplicationPubSub.Message`](#ttn.lorawan.v3.ApplicationPubSub.Message) |  | The topic to which the Application Server subscribes for downlink queue replace operations. |
@@ -820,6 +824,32 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | `ids` | <p>`message.required`: `true`</p> |
 | `format` | <p>`string.max_len`: `20`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `base_topic` | <p>`string.max_len`: `100`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationPubSub.MQTTProvider">Message `ApplicationPubSub.MQTTProvider`</a>
+
+The MQTT provider settings.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `server_url` | [`string`](#string) |  |  |
+| `client_id` | [`string`](#string) |  |  |
+| `username` | [`string`](#string) |  |  |
+| `password` | [`string`](#string) |  |  |
+| `subscribe_qos` | [`ApplicationPubSub.MQTTProvider.QoS`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider.QoS) |  |  |
+| `publish_qos` | [`ApplicationPubSub.MQTTProvider.QoS`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider.QoS) |  |  |
+| `use_tls` | [`bool`](#bool) |  |  |
+| `tls_ca` | [`bytes`](#bytes) |  | The server Root CA certificate. PEM formatted. |
+| `tls_client_cert` | [`bytes`](#bytes) |  | The client certificate. PEM formatted. |
+| `tls_client_key` | [`bytes`](#bytes) |  | The client private key. PEM formatted. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `server_url` | <p>`string.uri`: `true`</p> |
+| `client_id` | <p>`string.max_len`: `23`</p> |
+| `username` | <p>`string.max_len`: `100`</p> |
+| `password` | <p>`string.max_len`: `100`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationPubSub.Message">Message `ApplicationPubSub.Message`</a>
 
@@ -918,6 +948,14 @@ The NATS provider settings.
 | Field | Validations |
 | ----- | ----------- |
 | `pubsub` | <p>`message.required`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationPubSub.MQTTProvider.QoS">Enum `ApplicationPubSub.MQTTProvider.QoS`</a>
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `AT_MOST_ONCE` | 0 |  |
+| `AT_LEAST_ONCE` | 1 |  |
+| `EXACTLY_ONCE` | 2 |  |
 
 ### <a name="ttn.lorawan.v3.ApplicationPubSubRegistry">Service `ApplicationPubSubRegistry`</a>
 
@@ -1413,7 +1451,7 @@ PeerInfo
 | ----- | ---- | ----- | ----------- |
 | `grpc_port` | [`uint32`](#uint32) |  | Port on which the gRPC server is exposed. |
 | `tls` | [`bool`](#bool) |  | Indicates whether the gRPC server uses TLS. |
-| `roles` | [`PeerInfo.Role`](#ttn.lorawan.v3.PeerInfo.Role) | repeated | Roles of the peer. |
+| `roles` | [`ClusterRole`](#ttn.lorawan.v3.ClusterRole) | repeated | Roles of the peer. |
 | `tags` | [`PeerInfo.TagsEntry`](#ttn.lorawan.v3.PeerInfo.TagsEntry) | repeated | Tags of the peer |
 
 ### <a name="ttn.lorawan.v3.PeerInfo.TagsEntry">Message `PeerInfo.TagsEntry`</a>
@@ -1422,21 +1460,6 @@ PeerInfo
 | ----- | ---- | ----- | ----------- |
 | `key` | [`string`](#string) |  |  |
 | `value` | [`string`](#string) |  |  |
-
-### <a name="ttn.lorawan.v3.PeerInfo.Role">Enum `PeerInfo.Role`</a>
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| `NONE` | 0 |  |
-| `ENTITY_REGISTRY` | 1 |  |
-| `ACCESS` | 2 |  |
-| `GATEWAY_SERVER` | 3 |  |
-| `NETWORK_SERVER` | 4 |  |
-| `APPLICATION_SERVER` | 5 |  |
-| `JOIN_SERVER` | 6 |  |
-| `CRYPTO_SERVER` | 7 |  |
-| `DEVICE_TEMPLATE_CONVERTER` | 8 |  |
-| `DEVICE_CLAIMING_SERVER` | 9 |  |
 
 ## <a name="lorawan-stack/api/configuration_services.proto">File `lorawan-stack/api/configuration_services.proto`</a>
 
@@ -1529,6 +1552,20 @@ PeerInfo
 
 ## <a name="lorawan-stack/api/deviceclaimingserver.proto">File `lorawan-stack/api/deviceclaimingserver.proto`</a>
 
+### <a name="ttn.lorawan.v3.AuthorizeApplicationRequest">Message `AuthorizeApplicationRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `application_ids` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) |  |  |
+| `api_key` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `application_ids` | <p>`message.required`: `true`</p> |
+| `api_key` | <p>`string.min_len`: `1`</p> |
+
 ### <a name="ttn.lorawan.v3.ClaimEndDeviceRequest">Message `ClaimEndDeviceRequest`</a>
 
 | Field | Type | Label | Description |
@@ -1565,13 +1602,17 @@ PeerInfo
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| `Claim` | [`ClaimEndDeviceRequest`](#ttn.lorawan.v3.ClaimEndDeviceRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Claims the end device by claim authentication code or QR code and transfers the device to the target application. |
+| `Claim` | [`ClaimEndDeviceRequest`](#ttn.lorawan.v3.ClaimEndDeviceRequest) | [`EndDeviceIdentifiers`](#ttn.lorawan.v3.EndDeviceIdentifiers) | Claims the end device by claim authentication code or QR code and transfers the device to the target application. |
+| `AuthorizeApplication` | [`AuthorizeApplicationRequest`](#ttn.lorawan.v3.AuthorizeApplicationRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
+| `UnauthorizeApplication` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
 
 #### HTTP bindings
 
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
 | `Claim` | `POST` | `/api/v3/edcs/claim` | `*` |
+| `AuthorizeApplication` | `POST` | `/api/v3/edcs/applications/{application_ids.application_id}/authorize` | `*` |
+| `UnauthorizeApplication` | `DELETE` | `/api/v3/edcs/applications/{application_id}/authorize` |  |
 
 ## <a name="lorawan-stack/api/end_device.proto">File `lorawan-stack/api/end_device.proto`</a>
 
@@ -2165,6 +2206,21 @@ Power state of the device.
 
 ## <a name="lorawan-stack/api/enums.proto">File `lorawan-stack/api/enums.proto`</a>
 
+### <a name="ttn.lorawan.v3.ClusterRole">Enum `ClusterRole`</a>
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `NONE` | 0 |  |
+| `ENTITY_REGISTRY` | 1 |  |
+| `ACCESS` | 2 |  |
+| `GATEWAY_SERVER` | 3 |  |
+| `NETWORK_SERVER` | 4 |  |
+| `APPLICATION_SERVER` | 5 |  |
+| `JOIN_SERVER` | 6 |  |
+| `CRYPTO_SERVER` | 7 |  |
+| `DEVICE_TEMPLATE_CONVERTER` | 8 |  |
+| `DEVICE_CLAIMING_SERVER` | 9 |  |
+
 ### <a name="ttn.lorawan.v3.DownlinkPathConstraint">Enum `DownlinkPathConstraint`</a>
 
 | Name | Number | Description |
@@ -2222,7 +2278,7 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 
 | Field | Validations |
 | ----- | ----------- |
-| `time` | <p>`message.required`: `true`</p> |
+| `time` | <p>`timestamp.required`: `true`</p> |
 | `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 
 ### <a name="ttn.lorawan.v3.Event.ContextEntry">Message `Event.ContextEntry`</a>
@@ -2393,9 +2449,9 @@ Connection stats as monitored by the Gateway Server.
 
 | Field | Validations |
 | ----- | ----------- |
-| `min` | <p>`message.required`: `true`</p> |
-| `max` | <p>`message.required`: `true`</p> |
-| `median` | <p>`message.required`: `true`</p> |
+| `min` | <p>`duration.required`: `true`</p> |
+| `max` | <p>`duration.required`: `true`</p> |
+| `median` | <p>`duration.required`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.GatewayModel">Message `GatewayModel`</a>
 
@@ -2446,7 +2502,7 @@ Connection stats as monitored by the Gateway Server.
 
 | Field | Validations |
 | ----- | ----------- |
-| `time` | <p>`message.required`: `true`</p> |
+| `time` | <p>`timestamp.required`: `true`</p> |
 | `versions` | <p>`map.keys.string.max_len`: `36`</p><p>`map.keys.string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 | `metrics` | <p>`map.keys.string.max_len`: `36`</p><p>`map.keys.string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 
@@ -2745,7 +2801,7 @@ GatewayUp may contain zero or more uplink messages and/or a status message for t
 
 | Field | Validations |
 | ----- | ----------- |
-| `delay` | <p>`message.required`: `true`</p> |
+| `delay` | <p>`duration.required`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.Gs">Service `Gs`</a>
 
@@ -2945,7 +3001,7 @@ OrganizationOrUserIdentifiers contains either organization or user identifiers.
 
 | Field | Validations |
 | ----- | ----------- |
-| `raw_payload` |  |
+| `raw_payload` | <p>`bytes.len`: `23`</p> |
 | `downlink_settings` | <p>`message.required`: `true`</p> |
 | `rx_delay` | <p>`enum.defined_only`: `true`</p> |
 | `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
@@ -3425,7 +3481,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `cid` | <p>`enum.defined_only`: `true`</p> |
+| `cid` | <p>`enum.defined_only`: `true`</p><p>`enum.not_in`: `[0]`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.ADRParamSetupReq">Message `MACCommand.ADRParamSetupReq`</a>
 
@@ -3542,7 +3598,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `time` | <p>`message.required`: `true`</p> |
+| `time` | <p>`timestamp.required`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.DutyCycleReq">Message `MACCommand.DutyCycleReq`</a>
 
@@ -3728,7 +3784,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `minor_version` | <p>`enum.defined_only`: `true`</p> |
+| `minor_version` | <p>`enum.defined_only`: `true`</p><p>`enum.in`: `[1]`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.ResetInd">Message `MACCommand.ResetInd`</a>
 
@@ -3740,7 +3796,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `minor_version` | <p>`enum.defined_only`: `true`</p> |
+| `minor_version` | <p>`enum.defined_only`: `true`</p><p>`enum.in`: `[1]`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.RxParamSetupAns">Message `MACCommand.RxParamSetupAns`</a>
 
@@ -3838,7 +3894,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 | Field | Validations |
 | ----- | ----------- |
 | `m_hdr` | <p>`message.required`: `true`</p> |
-| `mic` |  |
+| `mic` | <p>`bytes.len`: `4`</p> |
 
 ### <a name="ttn.lorawan.v3.RejoinRequestPayload">Message `RejoinRequestPayload`</a>
 
@@ -4324,7 +4380,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | Field | Validations |
 | ----- | ----------- |
 | `session_key_id` | <p>`bytes.max_len`: `2048`</p> |
-| `f_port` | <p>`uint32.lte`: `255`</p><p>`uint32.gte`: `1`</p> |
+| `f_port` | <p>`uint32.lte`: `255`</p><p>`uint32.gte`: `1`</p><p>`uint32.not_in`: `[224]`</p> |
 | `priority` | <p>`enum.defined_only`: `true`</p> |
 | `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 
@@ -4446,7 +4502,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | Field | Validations |
 | ----- | ----------- |
 | `session_key_id` | <p>`bytes.max_len`: `2048`</p> |
-| `f_port` | <p>`uint32.lte`: `255`</p><p>`uint32.gte`: `1`</p> |
+| `f_port` | <p>`uint32.lte`: `255`</p><p>`uint32.gte`: `1`</p><p>`uint32.not_in`: `[224]`</p> |
 | `rx_metadata` | <p>`repeated.min_items`: `1`</p> |
 | `settings` | <p>`message.required`: `true`</p> |
 

@@ -34,5 +34,5 @@ func TestDeviceTemplateConverter(t *testing.T) {
 	test.Must(c.Start(), nil)
 	defer c.Close()
 
-	mustHavePeer(ctx, c, ttnpb.PeerInfo_DEVICE_CLAIMING_SERVER)
+	mustHavePeer(ctx, c, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
 }
