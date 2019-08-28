@@ -174,3 +174,17 @@ func (s *tenantStore) GetTenantIDForGatewayEUI(ctx context.Context, eui types.EU
 	}
 	return &ttipb.TenantIdentifiers{TenantID: gtwModel.TenantID}, nil
 }
+
+func (s *tenantStore) CountEntities(ctx context.Context, id *ttipb.TenantIdentifiers, entityType string) (uint64, error) {
+	defer trace.StartRegion(ctx, "count entities for tenant id").End()
+	var total uint64
+	query := s.query(ctx, nil, withTenantID(id.TenantID))
+	switch entityType {
+	case "organization", "user":
+		query = query.Model(Account{}).Where(Account{AccountType: entityType})
+	default:
+		query = query.Model(modelForEntityType(entityType))
+	}
+	err := query.Count(&total).Error
+	return total, err
+}

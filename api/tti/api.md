@@ -17,6 +17,8 @@
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
   - [Message `GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest)
   - [Message `GetTenantIdentifiersForGatewayEUIRequest`](#tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest)
+  - [Message `GetTenantRegistryTotalsRequest`](#tti.lorawan.v3.GetTenantRegistryTotalsRequest)
+  - [Message `TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
 - [Scalar Value Types](#scalar-value-types)
 
@@ -143,12 +145,37 @@ Tenant is the message that defines a Tenant in the network.
 | ----- | ---- | ----- | ----------- |
 | `eui` | [`bytes`](#bytes) |  |  |
 
+### <a name="tti.lorawan.v3.GetTenantRegistryTotalsRequest">Message `GetTenantRegistryTotalsRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `tenant_ids` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |  |
+| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `tenant_ids` | <p>`message.required`: `true`</p> |
+
+### <a name="tti.lorawan.v3.TenantRegistryTotals">Message `TenantRegistryTotals`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `applications` | [`uint64`](#uint64) |  |  |
+| `clients` | [`uint64`](#uint64) |  |  |
+| `end_devices` | [`uint64`](#uint64) |  |  |
+| `gateways` | [`uint64`](#uint64) |  |  |
+| `organizations` | [`uint64`](#uint64) |  |  |
+| `users` | [`uint64`](#uint64) |  |  |
+
 ### <a name="tti.lorawan.v3.TenantRegistry">Service `TenantRegistry`</a>
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
 | `Create` | [`CreateTenantRequest`](#tti.lorawan.v3.CreateTenantRequest) | [`Tenant`](#tti.lorawan.v3.Tenant) |  |
 | `Get` | [`GetTenantRequest`](#tti.lorawan.v3.GetTenantRequest) | [`Tenant`](#tti.lorawan.v3.Tenant) |  |
+| `GetRegistryTotals` | [`GetTenantRegistryTotalsRequest`](#tti.lorawan.v3.GetTenantRegistryTotalsRequest) | [`TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals) |  |
 | `List` | [`ListTenantsRequest`](#tti.lorawan.v3.ListTenantsRequest) | [`Tenants`](#tti.lorawan.v3.Tenants) |  |
 | `Update` | [`UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest) | [`Tenant`](#tti.lorawan.v3.Tenant) |  |
 | `Delete` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
@@ -161,6 +188,7 @@ Tenant is the message that defines a Tenant in the network.
 | ----------- | ------ | ------- | ---- |
 | `Create` | `POST` | `/api/v3/tenants` | `*` |
 | `Get` | `GET` | `/api/v3/tenants/{tenant_ids.tenant_id}` |  |
+| `GetRegistryTotals` | `GET` | `/api/v3/tenants/{tenant_ids.tenant_id}/registry-totals` |  |
 | `List` | `GET` | `/api/v3/tenants` |  |
 | `Update` | `PUT` | `/api/v3/tenants/{tenant.ids.tenant_id}` | `*` |
 | `Delete` | `DELETE` | `/api/v3/tenants/{tenant_id}` |  |
