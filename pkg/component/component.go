@@ -279,6 +279,11 @@ func (c *Component) Start() (err error) {
 	}
 	c.logger.Debug("Joined cluster")
 
+	if err := c.startMetering(); err != nil {
+		c.logger.WithError(err).Error("Could not start metering")
+		return err
+	}
+
 	c.logger.Debug("Starting tasks")
 	c.startTasks()
 	c.logger.Debug("Started tasks")

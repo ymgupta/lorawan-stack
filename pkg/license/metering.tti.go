@@ -88,8 +88,8 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) error {
 		now := time.Now()
 		s.mu.Lock()
 		s.apply = func(license ttipb.License) ttipb.License {
-			if s.config.OnSuccess.ValidUntil != nil {
-				license.ValidUntil = now.Add(*s.config.OnSuccess.ValidUntil)
+			if s.config.OnSuccess.ExtendValidUntil != nil {
+				license.ValidUntil = now.Add(*s.config.OnSuccess.ExtendValidUntil)
 			}
 			return license
 		}
