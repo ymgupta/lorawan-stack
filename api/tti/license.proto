@@ -66,12 +66,12 @@ message License {
 
 message LicenseUpdate {
   // How long the license validity should be extended (relative to the current time) on update.
-  google.protobuf.Duration valid_until = 1;
+  google.protobuf.Duration valid_until = 1 [(gogoproto.stdduration) = true];
 }
 
 message MeteringConfiguration {
   // How frequently to report to the metering service.
-  google.protobuf.Duration interval = 1;
+  google.protobuf.Duration interval = 1 [(gogoproto.stdduration) = true];
   // How to update the license on success.
   LicenseUpdate on_success = 2;
 
