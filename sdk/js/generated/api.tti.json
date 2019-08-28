@@ -540,6 +540,97 @@
           ]
         },
         {
+          "name": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "longName": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "join_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "dev_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantIdentifiersForGatewayEUIRequest",
+          "longName": "GetTenantIdentifiersForGatewayEUIRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantRegistryTotalsRequest",
+          "longName": "GetTenantRegistryTotalsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_ids",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
           "name": "GetTenantRequest",
           "longName": "GetTenantRequest",
           "fullName": "tti.lorawan.v3.GetTenantRequest",
@@ -814,171 +905,6 @@
           ]
         },
         {
-          "name": "Tenants",
-          "longName": "Tenants",
-          "fullName": "tti.lorawan.v3.Tenants",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": true,
-          "extensions": [],
-          "fields": [
-            {
-              "name": "tenants",
-              "description": "",
-              "label": "repeated",
-              "type": "Tenant",
-              "longType": "Tenant",
-              "fullType": "tti.lorawan.v3.Tenant",
-              "ismap": false,
-              "defaultValue": ""
-            }
-          ]
-        },
-        {
-          "name": "UpdateTenantRequest",
-          "longName": "UpdateTenantRequest",
-          "fullName": "tti.lorawan.v3.UpdateTenantRequest",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": true,
-          "extensions": [],
-          "fields": [
-            {
-              "name": "tenant",
-              "description": "",
-              "label": "",
-              "type": "Tenant",
-              "longType": "Tenant",
-              "fullType": "tti.lorawan.v3.Tenant",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "message.required",
-                    "value": true
-                  }
-                ]
-              }
-            },
-            {
-              "name": "field_mask",
-              "description": "",
-              "label": "",
-              "type": "FieldMask",
-              "longType": "google.protobuf.FieldMask",
-              "fullType": "google.protobuf.FieldMask",
-              "ismap": false,
-              "defaultValue": ""
-            }
-          ]
-        }
-      ],
-      "services": []
-    },
-    {
-      "name": "lorawan-stack/api/tti/tenant_services.proto",
-      "description": "",
-      "package": "tti.lorawan.v3",
-      "hasEnums": false,
-      "hasExtensions": false,
-      "hasMessages": true,
-      "hasServices": true,
-      "enums": [],
-      "extensions": [],
-      "messages": [
-        {
-          "name": "GetTenantIdentifiersForEndDeviceEUIsRequest",
-          "longName": "GetTenantIdentifiersForEndDeviceEUIsRequest",
-          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": true,
-          "extensions": [],
-          "fields": [
-            {
-              "name": "join_eui",
-              "description": "",
-              "label": "",
-              "type": "bytes",
-              "longType": "bytes",
-              "fullType": "bytes",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
-              "name": "dev_eui",
-              "description": "",
-              "label": "",
-              "type": "bytes",
-              "longType": "bytes",
-              "fullType": "bytes",
-              "ismap": false,
-              "defaultValue": ""
-            }
-          ]
-        },
-        {
-          "name": "GetTenantIdentifiersForGatewayEUIRequest",
-          "longName": "GetTenantIdentifiersForGatewayEUIRequest",
-          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": true,
-          "extensions": [],
-          "fields": [
-            {
-              "name": "eui",
-              "description": "",
-              "label": "",
-              "type": "bytes",
-              "longType": "bytes",
-              "fullType": "bytes",
-              "ismap": false,
-              "defaultValue": ""
-            }
-          ]
-        },
-        {
-          "name": "GetTenantRegistryTotalsRequest",
-          "longName": "GetTenantRegistryTotalsRequest",
-          "fullName": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": true,
-          "extensions": [],
-          "fields": [
-            {
-              "name": "tenant_ids",
-              "description": "",
-              "label": "",
-              "type": "TenantIdentifiers",
-              "longType": "TenantIdentifiers",
-              "fullType": "tti.lorawan.v3.TenantIdentifiers",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "message.required",
-                    "value": true
-                  }
-                ]
-              }
-            },
-            {
-              "name": "field_mask",
-              "description": "",
-              "label": "",
-              "type": "FieldMask",
-              "longType": "google.protobuf.FieldMask",
-              "fullType": "google.protobuf.FieldMask",
-              "ismap": false,
-              "defaultValue": ""
-            }
-          ]
-        },
-        {
           "name": "TenantRegistryTotals",
           "longName": "TenantRegistryTotals",
           "fullName": "tti.lorawan.v3.TenantRegistryTotals",
@@ -1048,8 +974,81 @@
               "defaultValue": ""
             }
           ]
+        },
+        {
+          "name": "Tenants",
+          "longName": "Tenants",
+          "fullName": "tti.lorawan.v3.Tenants",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenants",
+              "description": "",
+              "label": "repeated",
+              "type": "Tenant",
+              "longType": "Tenant",
+              "fullType": "tti.lorawan.v3.Tenant",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UpdateTenantRequest",
+          "longName": "UpdateTenantRequest",
+          "fullName": "tti.lorawan.v3.UpdateTenantRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant",
+              "description": "",
+              "label": "",
+              "type": "Tenant",
+              "longType": "Tenant",
+              "fullType": "tti.lorawan.v3.Tenant",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
         }
       ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/tenant_services.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": false,
+      "hasServices": true,
+      "enums": [],
+      "extensions": [],
+      "messages": [],
       "services": [
         {
           "name": "TenantRegistry",

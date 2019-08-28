@@ -8,6 +8,7 @@ import (
 
 	types "github.com/gogo/protobuf/types"
 	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
 )
 
 func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
@@ -286,6 +287,168 @@ func (dst *UpdateTenantRequest) SetFields(src *UpdateTenantRequest, paths ...str
 			} else {
 				var zero types.FieldMask
 				dst.FieldMask = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *GetTenantIdentifiersForEndDeviceEUIsRequest) SetFields(src *GetTenantIdentifiersForEndDeviceEUIsRequest, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "join_eui":
+			if len(subs) > 0 {
+				return fmt.Errorf("'join_eui' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.JoinEUI = src.JoinEUI
+			} else {
+				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				dst.JoinEUI = zero
+			}
+		case "dev_eui":
+			if len(subs) > 0 {
+				return fmt.Errorf("'dev_eui' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DevEUI = src.DevEUI
+			} else {
+				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				dst.DevEUI = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *GetTenantIdentifiersForGatewayEUIRequest) SetFields(src *GetTenantIdentifiersForGatewayEUIRequest, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "eui":
+			if len(subs) > 0 {
+				return fmt.Errorf("'eui' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.EUI = src.EUI
+			} else {
+				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				dst.EUI = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotalsRequest, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "tenant_ids":
+			if len(subs) > 0 {
+				newDst := &dst.TenantIdentifiers
+				var newSrc *TenantIdentifiers
+				if src != nil {
+					newSrc = &src.TenantIdentifiers
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.TenantIdentifiers = src.TenantIdentifiers
+				} else {
+					var zero TenantIdentifiers
+					dst.TenantIdentifiers = zero
+				}
+			}
+		case "field_mask":
+			if len(subs) > 0 {
+				return fmt.Errorf("'field_mask' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.FieldMask = src.FieldMask
+			} else {
+				var zero types.FieldMask
+				dst.FieldMask = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *TenantRegistryTotals) SetFields(src *TenantRegistryTotals, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "applications":
+			if len(subs) > 0 {
+				return fmt.Errorf("'applications' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Applications = src.Applications
+			} else {
+				var zero uint64
+				dst.Applications = zero
+			}
+		case "clients":
+			if len(subs) > 0 {
+				return fmt.Errorf("'clients' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Clients = src.Clients
+			} else {
+				var zero uint64
+				dst.Clients = zero
+			}
+		case "end_devices":
+			if len(subs) > 0 {
+				return fmt.Errorf("'end_devices' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.EndDevices = src.EndDevices
+			} else {
+				var zero uint64
+				dst.EndDevices = zero
+			}
+		case "gateways":
+			if len(subs) > 0 {
+				return fmt.Errorf("'gateways' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Gateways = src.Gateways
+			} else {
+				var zero uint64
+				dst.Gateways = zero
+			}
+		case "organizations":
+			if len(subs) > 0 {
+				return fmt.Errorf("'organizations' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Organizations = src.Organizations
+			} else {
+				var zero uint64
+				dst.Organizations = zero
+			}
+		case "users":
+			if len(subs) > 0 {
+				return fmt.Errorf("'users' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Users = src.Users
+			} else {
+				var zero uint64
+				dst.Users = zero
 			}
 
 		default:

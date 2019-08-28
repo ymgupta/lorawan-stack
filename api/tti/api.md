@@ -18,17 +18,17 @@
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
   - [Message `CreateTenantRequest`](#tti.lorawan.v3.CreateTenantRequest)
+  - [Message `GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest)
+  - [Message `GetTenantIdentifiersForGatewayEUIRequest`](#tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest)
+  - [Message `GetTenantRegistryTotalsRequest`](#tti.lorawan.v3.GetTenantRegistryTotalsRequest)
   - [Message `GetTenantRequest`](#tti.lorawan.v3.GetTenantRequest)
   - [Message `ListTenantsRequest`](#tti.lorawan.v3.ListTenantsRequest)
   - [Message `Tenant`](#tti.lorawan.v3.Tenant)
   - [Message `Tenant.AttributesEntry`](#tti.lorawan.v3.Tenant.AttributesEntry)
+  - [Message `TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals)
   - [Message `Tenants`](#tti.lorawan.v3.Tenants)
   - [Message `UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest)
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
-  - [Message `GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest)
-  - [Message `GetTenantIdentifiersForGatewayEUIRequest`](#tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest)
-  - [Message `GetTenantRegistryTotalsRequest`](#tti.lorawan.v3.GetTenantRegistryTotalsRequest)
-  - [Message `TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
 - [Scalar Value Types](#scalar-value-types)
 
@@ -155,6 +155,32 @@ TODO: TenantRegistryTotals totals = 1; (https://github.com/TheThingsIndustries/l
 | ----- | ----------- |
 | `tenant` | <p>`message.required`: `true`</p> |
 
+### <a name="tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest">Message `GetTenantIdentifiersForEndDeviceEUIsRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `join_eui` | [`bytes`](#bytes) |  |  |
+| `dev_eui` | [`bytes`](#bytes) |  |  |
+
+### <a name="tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest">Message `GetTenantIdentifiersForGatewayEUIRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `eui` | [`bytes`](#bytes) |  |  |
+
+### <a name="tti.lorawan.v3.GetTenantRegistryTotalsRequest">Message `GetTenantRegistryTotalsRequest`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `tenant_ids` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |  |
+| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `tenant_ids` | <p>`message.required`: `true`</p> |
+
 ### <a name="tti.lorawan.v3.GetTenantRequest">Message `GetTenantRequest`</a>
 
 | Field | Type | Label | Description |
@@ -216,6 +242,17 @@ Tenant is the message that defines a Tenant in the network.
 | `key` | [`string`](#string) |  |  |
 | `value` | [`string`](#string) |  |  |
 
+### <a name="tti.lorawan.v3.TenantRegistryTotals">Message `TenantRegistryTotals`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `applications` | [`uint64`](#uint64) |  |  |
+| `clients` | [`uint64`](#uint64) |  |  |
+| `end_devices` | [`uint64`](#uint64) |  |  |
+| `gateways` | [`uint64`](#uint64) |  |  |
+| `organizations` | [`uint64`](#uint64) |  |  |
+| `users` | [`uint64`](#uint64) |  |  |
+
 ### <a name="tti.lorawan.v3.Tenants">Message `Tenants`</a>
 
 | Field | Type | Label | Description |
@@ -236,43 +273,6 @@ Tenant is the message that defines a Tenant in the network.
 | `tenant` | <p>`message.required`: `true`</p> |
 
 ## <a name="lorawan-stack/api/tti/tenant_services.proto">File `lorawan-stack/api/tti/tenant_services.proto`</a>
-
-### <a name="tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest">Message `GetTenantIdentifiersForEndDeviceEUIsRequest`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `join_eui` | [`bytes`](#bytes) |  |  |
-| `dev_eui` | [`bytes`](#bytes) |  |  |
-
-### <a name="tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest">Message `GetTenantIdentifiersForGatewayEUIRequest`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `eui` | [`bytes`](#bytes) |  |  |
-
-### <a name="tti.lorawan.v3.GetTenantRegistryTotalsRequest">Message `GetTenantRegistryTotalsRequest`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `tenant_ids` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |  |
-| `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `tenant_ids` | <p>`message.required`: `true`</p> |
-
-### <a name="tti.lorawan.v3.TenantRegistryTotals">Message `TenantRegistryTotals`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `applications` | [`uint64`](#uint64) |  |  |
-| `clients` | [`uint64`](#uint64) |  |  |
-| `end_devices` | [`uint64`](#uint64) |  |  |
-| `gateways` | [`uint64`](#uint64) |  |  |
-| `organizations` | [`uint64`](#uint64) |  |  |
-| `users` | [`uint64`](#uint64) |  |  |
 
 ### <a name="tti.lorawan.v3.TenantRegistry">Service `TenantRegistry`</a>
 

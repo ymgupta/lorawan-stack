@@ -61,3 +61,26 @@ message UpdateTenantRequest {
   Tenant tenant = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
   google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
 }
+
+message GetTenantIdentifiersForEndDeviceEUIsRequest {
+  bytes join_eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "JoinEUI"];
+  bytes dev_eui = 2 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "DevEUI"];
+}
+
+message GetTenantIdentifiersForGatewayEUIRequest {
+  bytes eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "EUI"];
+}
+
+message GetTenantRegistryTotalsRequest {
+  TenantIdentifiers tenant_ids = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
+}
+
+message TenantRegistryTotals {
+  uint64 applications = 1;
+  uint64 clients = 2;
+  uint64 end_devices = 3;
+  uint64 gateways = 4;
+  uint64 organizations = 5;
+  uint64 users = 6;
+}
