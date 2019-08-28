@@ -496,6 +496,37 @@
           "extensions": [],
           "fields": [
             {
+              "name": "tenants",
+              "description": "",
+              "label": "repeated",
+              "type": "TenantMeteringData",
+              "longType": "MeteringData.TenantMeteringData",
+              "fullType": "tti.lorawan.v3.MeteringData.TenantMeteringData",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "TenantMeteringData",
+          "longName": "MeteringData.TenantMeteringData",
+          "fullName": "tti.lorawan.v3.MeteringData.TenantMeteringData",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_id",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "totals",
               "description": "",
               "label": "",

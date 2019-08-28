@@ -101,5 +101,9 @@ message LicenseKey {
 }
 
 message MeteringData {
-  TenantRegistryTotals totals = 1;
+  message TenantMeteringData {
+    TenantIdentifiers tenant_id = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false];
+    TenantRegistryTotals totals = 2;
+  }
+  repeated TenantMeteringData tenants = 1;
 }

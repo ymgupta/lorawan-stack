@@ -84,17 +84,11 @@ var LicenseKeyFieldPathsTopLevel = []string{
 	"signatures",
 }
 var MeteringDataFieldPathsNested = []string{
-	"totals",
-	"totals.applications",
-	"totals.clients",
-	"totals.end_devices",
-	"totals.gateways",
-	"totals.organizations",
-	"totals.users",
+	"tenants",
 }
 
 var MeteringDataFieldPathsTopLevel = []string{
-	"totals",
+	"tenants",
 }
 var MeteringConfiguration_AWSFieldPathsNested = []string{
 	"sku",
@@ -111,4 +105,20 @@ var LicenseKey_SignatureFieldPathsNested = []string{
 var LicenseKey_SignatureFieldPathsTopLevel = []string{
 	"key_id",
 	"signature",
+}
+var MeteringData_TenantMeteringDataFieldPathsNested = []string{
+	"tenant_id",
+	"tenant_id.tenant_id",
+	"totals",
+	"totals.applications",
+	"totals.clients",
+	"totals.end_devices",
+	"totals.gateways",
+	"totals.organizations",
+	"totals.users",
+}
+
+var MeteringData_TenantMeteringDataFieldPathsTopLevel = []string{
+	"tenant_id",
+	"totals",
 }

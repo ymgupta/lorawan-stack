@@ -363,26 +363,14 @@ func (dst *LicenseKey) SetFields(src *LicenseKey, paths ...string) error {
 func (dst *MeteringData) SetFields(src *MeteringData, paths ...string) error {
 	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
-		case "totals":
+		case "tenants":
 			if len(subs) > 0 {
-				newDst := dst.Totals
-				if newDst == nil {
-					newDst = &TenantRegistryTotals{}
-					dst.Totals = newDst
-				}
-				var newSrc *TenantRegistryTotals
-				if src != nil {
-					newSrc = src.Totals
-				}
-				if err := newDst.SetFields(newSrc, subs...); err != nil {
-					return err
-				}
+				return fmt.Errorf("'tenants' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Tenants = src.Tenants
 			} else {
-				if src != nil {
-					dst.Totals = src.Totals
-				} else {
-					dst.Totals = nil
-				}
+				dst.Tenants = nil
 			}
 
 		default:
@@ -434,6 +422,56 @@ func (dst *LicenseKey_Signature) SetFields(src *LicenseKey_Signature, paths ...s
 				dst.Signature = src.Signature
 			} else {
 				dst.Signature = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *MeteringData_TenantMeteringData) SetFields(src *MeteringData_TenantMeteringData, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "tenant_id":
+			if len(subs) > 0 {
+				newDst := &dst.TenantIdentifiers
+				var newSrc *TenantIdentifiers
+				if src != nil {
+					newSrc = &src.TenantIdentifiers
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.TenantIdentifiers = src.TenantIdentifiers
+				} else {
+					var zero TenantIdentifiers
+					dst.TenantIdentifiers = zero
+				}
+			}
+		case "totals":
+			if len(subs) > 0 {
+				newDst := dst.Totals
+				if newDst == nil {
+					newDst = &TenantRegistryTotals{}
+					dst.Totals = newDst
+				}
+				var newSrc *TenantRegistryTotals
+				if src != nil {
+					newSrc = src.Totals
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Totals = src.Totals
+				} else {
+					dst.Totals = nil
+				}
 			}
 
 		default:

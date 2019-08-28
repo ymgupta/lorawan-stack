@@ -16,6 +16,7 @@
   - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
   - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
+  - [Message `MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
   - [Message `CreateTenantRequest`](#tti.lorawan.v3.CreateTenantRequest)
   - [Message `GetTenantIdentifiersForEndDeviceEUIsRequest`](#tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest)
@@ -141,6 +142,13 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| `tenants` | [`MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData) | repeated |  |
+
+### <a name="tti.lorawan.v3.MeteringData.TenantMeteringData">Message `MeteringData.TenantMeteringData`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `tenant_id` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |  |
 | `totals` | [`TenantRegistryTotals`](#tti.lorawan.v3.TenantRegistryTotals) |  |  |
 
 ## <a name="lorawan-stack/api/tti/tenant.proto">File `lorawan-stack/api/tti/tenant.proto`</a>

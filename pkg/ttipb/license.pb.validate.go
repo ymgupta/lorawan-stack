@@ -624,16 +624,21 @@ func (m *MeteringData) ValidateFields(paths ...string) error {
 	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		_ = subs
 		switch name {
-		case "totals":
+		case "tenants":
 
-			if v, ok := interface{}(m.GetTotals()).(interface{ ValidateFields(...string) error }); ok {
-				if err := v.ValidateFields(subs...); err != nil {
-					return MeteringDataValidationError{
-						field:  "totals",
-						reason: "embedded message failed validation",
-						cause:  err,
+			for idx, item := range m.GetTenants() {
+				_, _ = idx, item
+
+				if v, ok := interface{}(item).(interface{ ValidateFields(...string) error }); ok {
+					if err := v.ValidateFields(subs...); err != nil {
+						return MeteringDataValidationError{
+							field:  fmt.Sprintf("tenants[%v]", idx),
+							reason: "embedded message failed validation",
+							cause:  err,
+						}
 					}
 				}
+
 			}
 
 		default:
@@ -868,3 +873,109 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = LicenseKey_SignatureValidationError{}
+
+// ValidateFields checks the field values on MeteringData_TenantMeteringData
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, an error is returned.
+func (m *MeteringData_TenantMeteringData) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = MeteringData_TenantMeteringDataFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "tenant_id":
+
+			if v, ok := interface{}(&m.TenantIdentifiers).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MeteringData_TenantMeteringDataValidationError{
+						field:  "tenant_id",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "totals":
+
+			if v, ok := interface{}(m.GetTotals()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return MeteringData_TenantMeteringDataValidationError{
+						field:  "totals",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return MeteringData_TenantMeteringDataValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// MeteringData_TenantMeteringDataValidationError is the validation error
+// returned by MeteringData_TenantMeteringData.ValidateFields if the
+// designated constraints aren't met.
+type MeteringData_TenantMeteringDataValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringData_TenantMeteringDataValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringData_TenantMeteringDataValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringData_TenantMeteringDataValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringData_TenantMeteringDataValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringData_TenantMeteringDataValidationError) ErrorName() string {
+	return "MeteringData_TenantMeteringDataValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MeteringData_TenantMeteringDataValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringData_TenantMeteringData.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringData_TenantMeteringDataValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringData_TenantMeteringDataValidationError{}
