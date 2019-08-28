@@ -189,42 +189,42 @@ func (is *IdentityServer) getTenantRegistryTotals(ctx context.Context, req *ttip
 	err := is.withDatabase(ctx, func(db *gorm.DB) (err error) {
 		store := store.GetTenantStore(db)
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "applications") {
-			applications, err := store.CountEntities(ctx, &req.TenantIdentifiers, "application")
+			applications, err := store.CountEntities(ctx, req.TenantIdentifiers, "application")
 			if err != nil {
 				return err
 			}
 			totals.Applications = applications
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "clients") {
-			clients, err := store.CountEntities(ctx, &req.TenantIdentifiers, "client")
+			clients, err := store.CountEntities(ctx, req.TenantIdentifiers, "client")
 			if err != nil {
 				return err
 			}
 			totals.Clients = clients
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "end_devices") {
-			endDevices, err := store.CountEntities(ctx, &req.TenantIdentifiers, "end_device")
+			endDevices, err := store.CountEntities(ctx, req.TenantIdentifiers, "end_device")
 			if err != nil {
 				return err
 			}
 			totals.EndDevices = endDevices
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "gateways") {
-			gateways, err := store.CountEntities(ctx, &req.TenantIdentifiers, "gateway")
+			gateways, err := store.CountEntities(ctx, req.TenantIdentifiers, "gateway")
 			if err != nil {
 				return err
 			}
 			totals.Gateways = gateways
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "organizations") {
-			organizations, err := store.CountEntities(ctx, &req.TenantIdentifiers, "organization")
+			organizations, err := store.CountEntities(ctx, req.TenantIdentifiers, "organization")
 			if err != nil {
 				return err
 			}
 			totals.Organizations = organizations
 		}
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "users") {
-			users, err := store.CountEntities(ctx, &req.TenantIdentifiers, "user")
+			users, err := store.CountEntities(ctx, req.TenantIdentifiers, "user")
 			if err != nil {
 				return err
 			}

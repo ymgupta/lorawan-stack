@@ -185,12 +185,6 @@
 | `tenant_ids` | [`TenantIdentifiers`](#tti.lorawan.v3.TenantIdentifiers) |  |  |
 | `field_mask` | [`google.protobuf.FieldMask`](#google.protobuf.FieldMask) |  |  |
 
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `tenant_ids` | <p>`message.required`: `true`</p> |
-
 ### <a name="tti.lorawan.v3.GetTenantRequest">Message `GetTenantRequest`</a>
 
 | Field | Type | Label | Description |

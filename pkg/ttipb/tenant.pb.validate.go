@@ -925,7 +925,7 @@ func (m *GetTenantRegistryTotalsRequest) ValidateFields(paths ...string) error {
 		switch name {
 		case "tenant_ids":
 
-			if v, ok := interface{}(&m.TenantIdentifiers).(interface{ ValidateFields(...string) error }); ok {
+			if v, ok := interface{}(m.TenantIdentifiers).(interface{ ValidateFields(...string) error }); ok {
 				if err := v.ValidateFields(subs...); err != nil {
 					return GetTenantRegistryTotalsRequestValidationError{
 						field:  "tenant_ids",

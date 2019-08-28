@@ -72,7 +72,7 @@ message GetTenantIdentifiersForGatewayEUIRequest {
 }
 
 message GetTenantRegistryTotalsRequest {
-  TenantIdentifiers tenant_ids = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  TenantIdentifiers tenant_ids = 1 [(gogoproto.embed) = true];
   google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
 }
 

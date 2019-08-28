@@ -650,15 +650,7 @@
               "longType": "TenantIdentifiers",
               "fullType": "tti.lorawan.v3.TenantIdentifiers",
               "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "message.required",
-                    "value": true
-                  }
-                ]
-              }
+              "defaultValue": ""
             },
             {
               "name": "field_mask",

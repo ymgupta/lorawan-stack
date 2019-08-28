@@ -292,8 +292,9 @@ func TestTenantRegistryCount(t *testing.T) {
 			AuthValue: is.config.Tenancy.AdminKeys[0],
 		})
 
+		tenantID := tenant.FromContext(ctx)
 		totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
-			TenantIdentifiers: tenant.FromContext(ctx),
+			TenantIdentifiers: &tenantID,
 		}, creds)
 		a.So(err, should.BeNil)
 
