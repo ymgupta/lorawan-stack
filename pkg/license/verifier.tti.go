@@ -39,7 +39,7 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 	if license == nil {
 		return ttipb.License{}, errors.New("no license")
 	}
-	if err := checkValidity(license); err != nil {
+	if err := CheckValidity(license); err != nil {
 		return ttipb.License{}, err
 	}
 	var anyValid bool

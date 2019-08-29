@@ -14,7 +14,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
-func checkValidity(license *ttipb.License) error {
+// CheckValidity checks the validity of the license.
+func CheckValidity(license *ttipb.License) error {
 	now := time.Now()
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
 		return fmt.Errorf("license is valid from %s", validFrom)

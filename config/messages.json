@@ -3563,6 +3563,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:entity_quota": {
+    "translations": {
+      "en": "quota for {entity_type} entities reached"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "hooks.tti.go"
+    }
+  },
   "error:pkg/identityserver/store:gateway_eui_not_found": {
     "translations": {
       "en": "gateway EUI `{eui}` not found"

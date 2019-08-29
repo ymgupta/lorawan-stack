@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -30,6 +31,12 @@ var defaultLicense = ttipb.License{
 		{DevAddr: types.DevAddr{0, 0, 0, 0}, Length: 7},
 		{DevAddr: types.DevAddr{0, 0, 0, 2}, Length: 7},
 	},
+	MaxApplications:  &pbtypes.UInt64Value{Value: 100},
+	MaxClients:       &pbtypes.UInt64Value{Value: 100},
+	MaxEndDevices:    &pbtypes.UInt64Value{Value: 1000},
+	MaxGateways:      &pbtypes.UInt64Value{Value: 100},
+	MaxOrganizations: &pbtypes.UInt64Value{Value: 10},
+	MaxUsers:         &pbtypes.UInt64Value{Value: 10},
 }
 
 // NewContextWithLicense returns a context derived from parent that contains license.
@@ -51,7 +58,7 @@ func FromContext(ctx context.Context) ttipb.License {
 // RequireComponent requires components to be included in the license.
 func RequireComponent(ctx context.Context, components ...ttnpb.ClusterRole) error {
 	license := FromContext(ctx)
-	if err := checkValidity(&license); err != nil {
+	if err := CheckValidity(&license); err != nil {
 		return err
 	}
 	if len(license.Components) == 0 {
@@ -72,7 +79,7 @@ nextComponent:
 // RequireMultiTenancy requires multi-tenancy to be included in the license.
 func RequireMultiTenancy(ctx context.Context) error {
 	license := FromContext(ctx)
-	if err := checkValidity(&license); err != nil {
+	if err := CheckValidity(&license); err != nil {
 		return err
 	}
 	if !license.MultiTenancy {
