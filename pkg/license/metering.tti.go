@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -48,10 +49,16 @@ func (s *meteringSetup) Apply(license ttipb.License) ttipb.License {
 }
 
 // CollectAndReport collects metrics from the cluster and reports them to the MeteringReporter.
-func (s *meteringSetup) CollectAndReport(ctx context.Context) error {
+func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	if s.reporter == nil {
 		return errors.New("metering service reporter is not properly set up")
 	}
+
+	defer func() {
+		if err != nil {
+			log.FromContext(ctx).WithError(err).Error("Could not communicate with metering service.")
+		}
+	}()
 
 	var meteringData ttipb.MeteringData
 
