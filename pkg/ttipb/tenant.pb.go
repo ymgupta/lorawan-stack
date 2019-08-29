@@ -19,6 +19,7 @@ import (
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
 	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -387,6 +388,218 @@ func (m *UpdateTenantRequest) GetFieldMask() types.FieldMask {
 	return types.FieldMask{}
 }
 
+type GetTenantIdentifiersForEndDeviceEUIsRequest struct {
+	JoinEUI              go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=join_eui,json=joinEui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"join_eui"`
+	DevEUI               go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,2,opt,name=dev_eui,json=devEui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"dev_eui"`
+	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
+	XXX_sizecache        int32                                              `json:"-"`
+}
+
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Reset() {
+	*m = GetTenantIdentifiersForEndDeviceEUIsRequest{}
+}
+func (*GetTenantIdentifiersForEndDeviceEUIsRequest) ProtoMessage() {}
+func (*GetTenantIdentifiersForEndDeviceEUIsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0b2ae00655d4b280, []int{6}
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest.Merge(m, src)
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest proto.InternalMessageInfo
+
+type GetTenantIdentifiersForGatewayEUIRequest struct {
+	EUI                  go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=eui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"eui"`
+	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
+	XXX_sizecache        int32                                              `json:"-"`
+}
+
+func (m *GetTenantIdentifiersForGatewayEUIRequest) Reset() {
+	*m = GetTenantIdentifiersForGatewayEUIRequest{}
+}
+func (*GetTenantIdentifiersForGatewayEUIRequest) ProtoMessage() {}
+func (*GetTenantIdentifiersForGatewayEUIRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0b2ae00655d4b280, []int{7}
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetTenantIdentifiersForGatewayEUIRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTenantIdentifiersForGatewayEUIRequest.Merge(m, src)
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetTenantIdentifiersForGatewayEUIRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetTenantIdentifiersForGatewayEUIRequest proto.InternalMessageInfo
+
+type GetTenantRegistryTotalsRequest struct {
+	TenantIdentifiers    `protobuf:"bytes,1,opt,name=tenant_ids,json=tenantIds,proto3,embedded=tenant_ids" json:"tenant_ids"`
+	FieldMask            types.FieldMask `protobuf:"bytes,2,opt,name=field_mask,json=fieldMask,proto3" json:"field_mask"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
+}
+
+func (m *GetTenantRegistryTotalsRequest) Reset()      { *m = GetTenantRegistryTotalsRequest{} }
+func (*GetTenantRegistryTotalsRequest) ProtoMessage() {}
+func (*GetTenantRegistryTotalsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0b2ae00655d4b280, []int{8}
+}
+func (m *GetTenantRegistryTotalsRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetTenantRegistryTotalsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetTenantRegistryTotalsRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetTenantRegistryTotalsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetTenantRegistryTotalsRequest.Merge(m, src)
+}
+func (m *GetTenantRegistryTotalsRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetTenantRegistryTotalsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetTenantRegistryTotalsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetTenantRegistryTotalsRequest proto.InternalMessageInfo
+
+func (m *GetTenantRegistryTotalsRequest) GetFieldMask() types.FieldMask {
+	if m != nil {
+		return m.FieldMask
+	}
+	return types.FieldMask{}
+}
+
+type TenantRegistryTotals struct {
+	Applications         uint64   `protobuf:"varint,1,opt,name=applications,proto3" json:"applications,omitempty"`
+	Clients              uint64   `protobuf:"varint,2,opt,name=clients,proto3" json:"clients,omitempty"`
+	EndDevices           uint64   `protobuf:"varint,3,opt,name=end_devices,json=endDevices,proto3" json:"end_devices,omitempty"`
+	Gateways             uint64   `protobuf:"varint,4,opt,name=gateways,proto3" json:"gateways,omitempty"`
+	Organizations        uint64   `protobuf:"varint,5,opt,name=organizations,proto3" json:"organizations,omitempty"`
+	Users                uint64   `protobuf:"varint,6,opt,name=users,proto3" json:"users,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *TenantRegistryTotals) Reset()      { *m = TenantRegistryTotals{} }
+func (*TenantRegistryTotals) ProtoMessage() {}
+func (*TenantRegistryTotals) Descriptor() ([]byte, []int) {
+	return fileDescriptor_0b2ae00655d4b280, []int{9}
+}
+func (m *TenantRegistryTotals) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *TenantRegistryTotals) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_TenantRegistryTotals.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalTo(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *TenantRegistryTotals) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TenantRegistryTotals.Merge(m, src)
+}
+func (m *TenantRegistryTotals) XXX_Size() int {
+	return m.Size()
+}
+func (m *TenantRegistryTotals) XXX_DiscardUnknown() {
+	xxx_messageInfo_TenantRegistryTotals.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TenantRegistryTotals proto.InternalMessageInfo
+
+func (m *TenantRegistryTotals) GetApplications() uint64 {
+	if m != nil {
+		return m.Applications
+	}
+	return 0
+}
+
+func (m *TenantRegistryTotals) GetClients() uint64 {
+	if m != nil {
+		return m.Clients
+	}
+	return 0
+}
+
+func (m *TenantRegistryTotals) GetEndDevices() uint64 {
+	if m != nil {
+		return m.EndDevices
+	}
+	return 0
+}
+
+func (m *TenantRegistryTotals) GetGateways() uint64 {
+	if m != nil {
+		return m.Gateways
+	}
+	return 0
+}
+
+func (m *TenantRegistryTotals) GetOrganizations() uint64 {
+	if m != nil {
+		return m.Organizations
+	}
+	return 0
+}
+
+func (m *TenantRegistryTotals) GetUsers() uint64 {
+	if m != nil {
+		return m.Users
+	}
+	return 0
+}
+
 func init() {
 	proto.RegisterType((*Tenant)(nil), "tti.lorawan.v3.Tenant")
 	golang_proto.RegisterType((*Tenant)(nil), "tti.lorawan.v3.Tenant")
@@ -402,6 +615,14 @@ func init() {
 	golang_proto.RegisterType((*CreateTenantRequest)(nil), "tti.lorawan.v3.CreateTenantRequest")
 	proto.RegisterType((*UpdateTenantRequest)(nil), "tti.lorawan.v3.UpdateTenantRequest")
 	golang_proto.RegisterType((*UpdateTenantRequest)(nil), "tti.lorawan.v3.UpdateTenantRequest")
+	proto.RegisterType((*GetTenantIdentifiersForEndDeviceEUIsRequest)(nil), "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest")
+	golang_proto.RegisterType((*GetTenantIdentifiersForEndDeviceEUIsRequest)(nil), "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest")
+	proto.RegisterType((*GetTenantIdentifiersForGatewayEUIRequest)(nil), "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest")
+	golang_proto.RegisterType((*GetTenantIdentifiersForGatewayEUIRequest)(nil), "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest")
+	proto.RegisterType((*GetTenantRegistryTotalsRequest)(nil), "tti.lorawan.v3.GetTenantRegistryTotalsRequest")
+	golang_proto.RegisterType((*GetTenantRegistryTotalsRequest)(nil), "tti.lorawan.v3.GetTenantRegistryTotalsRequest")
+	proto.RegisterType((*TenantRegistryTotals)(nil), "tti.lorawan.v3.TenantRegistryTotals")
+	golang_proto.RegisterType((*TenantRegistryTotals)(nil), "tti.lorawan.v3.TenantRegistryTotals")
 }
 
 func init() { proto.RegisterFile("lorawan-stack/api/tti/tenant.proto", fileDescriptor_0b2ae00655d4b280) }
@@ -410,63 +631,78 @@ func init() {
 }
 
 var fileDescriptor_0b2ae00655d4b280 = []byte{
-	// 888 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0x3d, 0x6c, 0xdb, 0x46,
-	0x14, 0xe6, 0x59, 0x92, 0x65, 0x9d, 0xf3, 0x63, 0x5c, 0xfa, 0x43, 0x28, 0xed, 0x59, 0x25, 0x8c,
-	0x54, 0x09, 0x2c, 0x2a, 0x50, 0x50, 0xa0, 0x4d, 0xd1, 0xba, 0xa2, 0x91, 0x16, 0x01, 0xda, 0x85,
-	0x49, 0x51, 0xa0, 0x41, 0x6a, 0x9c, 0xa8, 0x13, 0x7d, 0x90, 0x44, 0xb2, 0xbc, 0x47, 0xa7, 0x6e,
-	0x51, 0x20, 0xe8, 0x14, 0x74, 0x4a, 0xb7, 0xa0, 0x4b, 0x8b, 0x2e, 0xcd, 0x98, 0x31, 0x63, 0x46,
-	0x8f, 0x1e, 0x33, 0xa5, 0x11, 0xb9, 0x78, 0xcc, 0x18, 0x78, 0x2a, 0x78, 0x24, 0x6b, 0xc9, 0x76,
-	0x86, 0xc0, 0xdd, 0xee, 0xdd, 0xfb, 0xde, 0x77, 0xef, 0x7d, 0xef, 0xbd, 0xc3, 0xc6, 0xc8, 0x0f,
-	0xd9, 0x1d, 0xe6, 0xb5, 0x24, 0x30, 0x67, 0xd8, 0x66, 0x81, 0x68, 0x03, 0x88, 0x36, 0x70, 0x8f,
-	0x79, 0x60, 0x06, 0xa1, 0x0f, 0x3e, 0x39, 0x03, 0x20, 0xcc, 0x1c, 0x67, 0x6e, 0x5d, 0xa9, 0x77,
-	0x5d, 0x01, 0x9b, 0x51, 0xcf, 0x74, 0xfc, 0x71, 0x9b, 0x7b, 0x5b, 0xfe, 0x76, 0x10, 0xfa, 0x3f,
-	0x6c, 0xb7, 0x15, 0xd8, 0x69, 0xb9, 0xdc, 0x6b, 0x6d, 0xb1, 0x91, 0xe8, 0x33, 0xe0, 0xed, 0x23,
-	0x87, 0x8c, 0xb2, 0xde, 0x9a, 0xa2, 0x70, 0x7d, 0xd7, 0xcf, 0x82, 0x7b, 0xd1, 0x40, 0x59, 0xca,
-	0x50, 0xa7, 0x1c, 0xde, 0x70, 0x7d, 0xdf, 0x1d, 0xf1, 0x03, 0xd4, 0x40, 0xf0, 0x51, 0x7f, 0x63,
-	0xcc, 0xe4, 0x30, 0x47, 0xbc, 0x73, 0x18, 0x21, 0x21, 0x8c, 0x9c, 0xbc, 0x82, 0xfa, 0xf2, 0x61,
-	0x2f, 0x88, 0x31, 0x97, 0xc0, 0xc6, 0x41, 0x0e, 0x58, 0x39, 0x2a, 0x83, 0xe3, 0x7b, 0xc0, 0x1c,
-	0xd8, 0x10, 0xde, 0xa0, 0x48, 0xe3, 0xdd, 0xa3, 0x28, 0xee, 0x45, 0x63, 0x99, 0xbb, 0xdf, 0x3f,
-	0x5e, 0x4b, 0xd1, 0xe7, 0x1e, 0x88, 0x81, 0xe0, 0x61, 0x0e, 0x34, 0x7e, 0xab, 0xe0, 0xf9, 0x9b,
-	0x4a, 0x61, 0x72, 0x0d, 0x97, 0x44, 0x5f, 0xea, 0xa8, 0x81, 0x9a, 0x8b, 0x9d, 0xf7, 0xcc, 0x59,
-	0xa5, 0xcd, 0x0c, 0x74, 0xfd, 0x80, 0xc0, 0x5a, 0xda, 0xb7, 0x2a, 0xbf, 0xa2, 0xb9, 0x25, 0xb4,
-	0xf3, 0x6c, 0x59, 0xdb, 0x7d, 0xb6, 0x8c, 0xec, 0x34, 0x9e, 0xac, 0x63, 0xec, 0x84, 0x9c, 0x01,
-	0xef, 0x6f, 0x30, 0xd0, 0xe7, 0x14, 0x5b, 0xdd, 0xcc, 0xaa, 0x36, 0x8b, 0xaa, 0xcd, 0x9b, 0x45,
-	0xd5, 0xd6, 0x42, 0x1a, 0x7e, 0xff, 0x9f, 0x65, 0x64, 0xd7, 0xf2, 0xb8, 0x2e, 0xa4, 0x24, 0x51,
-	0xd0, 0x2f, 0x48, 0x4a, 0xaf, 0x43, 0x92, 0xc7, 0x75, 0x81, 0x9c, 0xc7, 0x65, 0x8f, 0x8d, 0xb9,
-	0x5e, 0x6e, 0xa0, 0x66, 0xcd, 0xaa, 0xee, 0x5b, 0xe5, 0x70, 0x4e, 0xef, 0xd8, 0xea, 0x92, 0x5c,
-	0xc2, 0x8b, 0x7d, 0x2e, 0x9d, 0x50, 0x04, 0x20, 0x7c, 0x4f, 0xaf, 0x28, 0xcc, 0xc2, 0xbe, 0x55,
-	0x09, 0x4b, 0xfa, 0xee, 0x59, 0x7b, 0xda, 0x49, 0x00, 0x63, 0x06, 0x10, 0x8a, 0x5e, 0x04, 0x5c,
-	0xea, 0xf3, 0x8d, 0x52, 0x73, 0xb1, 0x73, 0xe1, 0x78, 0x81, 0xcc, 0xee, 0x7f, 0xc0, 0x6b, 0x1e,
-	0x84, 0xdb, 0xd6, 0xea, 0xbe, 0x75, 0xf1, 0x77, 0x74, 0xc1, 0x58, 0x09, 0x0d, 0x7d, 0xa5, 0x43,
-	0xbf, 0xbb, 0xc5, 0x5a, 0x3f, 0x5e, 0x6e, 0x7d, 0x74, 0xbb, 0xb9, 0x76, 0xf5, 0x56, 0xeb, 0xf6,
-	0x5a, 0x61, 0x5e, 0xfc, 0xa9, 0xb3, 0xfa, 0xf3, 0x8a, 0x3d, 0xf5, 0x0e, 0xf9, 0x14, 0x9f, 0x9a,
-	0x6e, 0xbc, 0x5e, 0x55, 0xef, 0x9e, 0x37, 0x01, 0xbc, 0xe9, 0x77, 0xd7, 0x33, 0xcc, 0x75, 0x6f,
-	0xe0, 0xdb, 0x8b, 0xce, 0x81, 0x41, 0x3e, 0xc0, 0x15, 0x09, 0x0c, 0xb8, 0xbe, 0xd0, 0x40, 0xcd,
-	0x33, 0x9d, 0x37, 0x0f, 0x07, 0xde, 0x48, 0x9d, 0xaa, 0xe4, 0x5f, 0xd2, 0x2e, 0xda, 0x19, 0x9a,
-	0x74, 0xf1, 0x29, 0x87, 0x05, 0xac, 0x27, 0x46, 0x02, 0x04, 0x97, 0x7a, 0x4d, 0x89, 0xff, 0xf6,
-	0x11, 0xf1, 0x6f, 0xa8, 0xa9, 0xb6, 0xca, 0xa9, 0xf2, 0xf6, 0x4c, 0x48, 0xfd, 0x13, 0x7c, 0xf6,
-	0x90, 0x0c, 0x64, 0x09, 0x97, 0x86, 0x7c, 0x5b, 0x0d, 0x57, 0xcd, 0x4e, 0x8f, 0xe4, 0x0d, 0x5c,
-	0xd9, 0x62, 0xa3, 0x88, 0xab, 0x11, 0xa9, 0xd9, 0x99, 0x71, 0x75, 0xee, 0x43, 0x64, 0x7c, 0x8c,
-	0xab, 0x99, 0x98, 0x92, 0x5c, 0xc6, 0xd5, 0x6c, 0xff, 0xd3, 0xb9, 0x4c, 0xcb, 0x7f, 0xeb, 0x78,
-	0xd9, 0xed, 0x02, 0x66, 0xfc, 0x8d, 0xf0, 0xd2, 0x17, 0x1c, 0xf2, 0x6b, 0xfe, 0x7d, 0xc4, 0x25,
-	0x10, 0x1b, 0xe3, 0xcc, 0xbf, 0x71, 0xc2, 0x09, 0xaf, 0x41, 0x0e, 0x92, 0x64, 0x0d, 0xe3, 0x83,
-	0xd5, 0x7f, 0xe5, 0x9c, 0x7f, 0x9e, 0x42, 0xbe, 0x62, 0x72, 0x98, 0x0b, 0x55, 0x1b, 0x14, 0x17,
-	0xc6, 0x1f, 0x08, 0x93, 0x2f, 0x85, 0xcc, 0x53, 0x95, 0x45, 0xae, 0xb3, 0xbc, 0xe8, 0xb5, 0x79,
-	0x53, 0x61, 0xfd, 0xb0, 0xcf, 0xc3, 0x42, 0x58, 0x65, 0x10, 0x8a, 0x2b, 0x23, 0x31, 0x16, 0xd9,
-	0x32, 0x9d, 0x56, 0x6d, 0xbf, 0x54, 0xd2, 0xf7, 0xaa, 0x76, 0x76, 0x4d, 0x08, 0x2e, 0x07, 0xcc,
-	0xcd, 0x96, 0xe5, 0xb4, 0xad, 0xce, 0xc6, 0x37, 0xf8, 0xdc, 0xba, 0x5a, 0xc9, 0x59, 0x35, 0x3f,
-	0xc3, 0xf3, 0x99, 0x0c, 0x79, 0x76, 0xaf, 0xe8, 0xc9, 0x31, 0xf2, 0xe5, 0x71, 0xc6, 0x03, 0x84,
-	0xcf, 0x7d, 0xad, 0xf6, 0xf4, 0x7f, 0x66, 0x3e, 0x71, 0x57, 0xac, 0xbf, 0xd0, 0xce, 0x84, 0xa2,
-	0xdd, 0x09, 0x45, 0x4f, 0x27, 0x54, 0x7b, 0x3e, 0xa1, 0xda, 0xde, 0x84, 0x6a, 0x2f, 0x26, 0x54,
-	0x7b, 0x39, 0xa1, 0xe8, 0x6e, 0x4c, 0xd1, 0xbd, 0x98, 0x6a, 0x0f, 0x63, 0x8a, 0x1e, 0xc5, 0x54,
-	0x7b, 0x1c, 0x53, 0xed, 0x49, 0x4c, 0xb5, 0x9d, 0x98, 0xa2, 0xdd, 0x98, 0xa2, 0xa7, 0x31, 0xd5,
-	0x9e, 0xc7, 0x14, 0xed, 0xc5, 0x54, 0x7b, 0x11, 0x53, 0xf4, 0x32, 0xa6, 0xda, 0xdd, 0x84, 0x6a,
-	0xf7, 0x12, 0x8a, 0xee, 0x27, 0x54, 0x7b, 0x90, 0x50, 0xf4, 0x67, 0x42, 0xb5, 0x87, 0x09, 0xd5,
-	0x1e, 0x25, 0x14, 0x3d, 0x4e, 0x28, 0x7a, 0x92, 0x50, 0xf4, 0xed, 0xaa, 0xeb, 0x9b, 0xb0, 0xc9,
-	0x61, 0x53, 0x78, 0xae, 0x34, 0x3d, 0x0e, 0x77, 0xfc, 0x70, 0xd8, 0x9e, 0xfd, 0xc5, 0x83, 0xa1,
-	0x9b, 0xfe, 0xe2, 0x41, 0xaf, 0x37, 0xaf, 0x2a, 0xb9, 0xf2, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0xe9, 0x2d, 0x37, 0xde, 0x33, 0x07, 0x00, 0x00,
+	// 1130 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x55, 0x3f, 0x8c, 0x1b, 0xc5,
+	0x17, 0xde, 0xf1, 0xdf, 0xf3, 0xdc, 0x25, 0x39, 0x4d, 0xf2, 0xfb, 0xb1, 0x72, 0x60, 0x7c, 0xac,
+	0x4e, 0xc1, 0x09, 0xf1, 0x3a, 0x72, 0x00, 0x41, 0x10, 0x04, 0x3b, 0x71, 0xa2, 0x43, 0xd0, 0x6c,
+	0x72, 0x42, 0x22, 0x0a, 0x66, 0xbc, 0x3b, 0xde, 0x0c, 0xb6, 0x77, 0x97, 0x9d, 0x59, 0x07, 0x07,
+	0x21, 0x22, 0xaa, 0x88, 0x2a, 0x74, 0x11, 0x0d, 0x88, 0x86, 0x94, 0x69, 0x90, 0x52, 0xa6, 0x4c,
+	0x83, 0x74, 0x65, 0x44, 0x71, 0xc4, 0xeb, 0xe6, 0x2a, 0x94, 0x32, 0xba, 0x0a, 0xed, 0xec, 0xfa,
+	0xce, 0xbe, 0x3f, 0x12, 0xd1, 0x51, 0xd0, 0xcd, 0x9b, 0xf9, 0xde, 0xf7, 0xde, 0xfb, 0xde, 0x7b,
+	0xbb, 0x50, 0xeb, 0xb9, 0x3e, 0xb9, 0x49, 0x9c, 0x0a, 0x17, 0xc4, 0xec, 0x56, 0x89, 0xc7, 0xaa,
+	0x42, 0xb0, 0xaa, 0xa0, 0x0e, 0x71, 0x84, 0xee, 0xf9, 0xae, 0x70, 0xd1, 0x61, 0x21, 0x98, 0x9e,
+	0xe0, 0xf4, 0xc1, 0xd9, 0x62, 0xdd, 0x66, 0xe2, 0x46, 0xd0, 0xd6, 0x4d, 0xb7, 0x5f, 0xa5, 0xce,
+	0xc0, 0x1d, 0x7a, 0xbe, 0xfb, 0xd5, 0xb0, 0x2a, 0xc1, 0x66, 0xc5, 0xa6, 0x4e, 0x65, 0x40, 0x7a,
+	0xcc, 0x22, 0x82, 0x56, 0x77, 0x1d, 0x62, 0xca, 0x62, 0x65, 0x8a, 0xc2, 0x76, 0x6d, 0x37, 0x76,
+	0x6e, 0x07, 0x1d, 0x69, 0x49, 0x43, 0x9e, 0x12, 0xf8, 0x92, 0xed, 0xba, 0x76, 0x8f, 0x6e, 0xa3,
+	0x3a, 0x8c, 0xf6, 0xac, 0x56, 0x9f, 0xf0, 0x6e, 0x82, 0x78, 0x79, 0x27, 0x82, 0x0b, 0x3f, 0x30,
+	0x93, 0x0a, 0x8a, 0xa5, 0x9d, 0xaf, 0x82, 0xf5, 0x29, 0x17, 0xa4, 0xef, 0x25, 0x80, 0xe5, 0xdd,
+	0x32, 0x98, 0xae, 0x23, 0x88, 0x29, 0x5a, 0xcc, 0xe9, 0x4c, 0xd2, 0x78, 0x65, 0x37, 0x8a, 0x3a,
+	0x41, 0x9f, 0x27, 0xcf, 0xaf, 0xed, 0xad, 0x25, 0xb3, 0xa8, 0x23, 0x58, 0x87, 0x51, 0x3f, 0x01,
+	0x6a, 0x3f, 0x64, 0x61, 0xee, 0xaa, 0x54, 0x18, 0x35, 0x61, 0x9a, 0x59, 0x5c, 0x05, 0x4b, 0xa0,
+	0x3c, 0x5f, 0x7b, 0x55, 0x9f, 0x55, 0x5a, 0x8f, 0x41, 0x2b, 0xdb, 0x04, 0x8d, 0xc5, 0xcd, 0x46,
+	0xf6, 0x7b, 0x90, 0x5a, 0x04, 0x8f, 0xd7, 0x4b, 0xca, 0xda, 0x7a, 0x09, 0x18, 0x91, 0x3f, 0xba,
+	0x00, 0xa1, 0xe9, 0x53, 0x22, 0xa8, 0xd5, 0x22, 0x42, 0x4d, 0x49, 0xb6, 0xa2, 0x1e, 0x57, 0xad,
+	0x4f, 0xaa, 0xd6, 0xaf, 0x4e, 0xaa, 0x6e, 0xcc, 0x45, 0xee, 0x77, 0xff, 0x2c, 0x01, 0xa3, 0x90,
+	0xf8, 0xd5, 0x45, 0x44, 0x12, 0x78, 0xd6, 0x84, 0x24, 0xfd, 0x22, 0x24, 0x89, 0x5f, 0x5d, 0xa0,
+	0xe3, 0x30, 0xe3, 0x90, 0x3e, 0x55, 0x33, 0x4b, 0xa0, 0x5c, 0x68, 0xe4, 0x37, 0x1b, 0x19, 0x3f,
+	0xa5, 0xd6, 0x0c, 0x79, 0x89, 0x4e, 0xc1, 0x79, 0x8b, 0x72, 0xd3, 0x67, 0x9e, 0x60, 0xae, 0xa3,
+	0x66, 0x25, 0x66, 0x6e, 0xb3, 0x91, 0xf5, 0xd3, 0xea, 0xda, 0x11, 0x63, 0xfa, 0x11, 0x09, 0x08,
+	0x89, 0x10, 0x3e, 0x6b, 0x07, 0x82, 0x72, 0x35, 0xb7, 0x94, 0x2e, 0xcf, 0xd7, 0x4e, 0xec, 0x2d,
+	0x90, 0x5e, 0xdf, 0x02, 0x36, 0x1d, 0xe1, 0x0f, 0x1b, 0xa7, 0x37, 0x1b, 0x27, 0x7f, 0x04, 0x27,
+	0xb4, 0x65, 0x5f, 0x53, 0x97, 0x6b, 0xf8, 0xb3, 0x6b, 0xa4, 0x72, 0xeb, 0x4c, 0xe5, 0x9d, 0xeb,
+	0xe5, 0xf3, 0xe7, 0xae, 0x55, 0xae, 0x9f, 0x9f, 0x98, 0x27, 0xbf, 0xae, 0x9d, 0xfe, 0x66, 0xd9,
+	0x98, 0x8a, 0x83, 0xde, 0x87, 0x0b, 0xd3, 0x8d, 0x57, 0xf3, 0x32, 0xee, 0x71, 0x5d, 0x08, 0x67,
+	0x3a, 0xee, 0x85, 0x18, 0xb3, 0xe2, 0x74, 0x5c, 0x63, 0xde, 0xdc, 0x36, 0xd0, 0x9b, 0x30, 0xcb,
+	0x05, 0x11, 0x54, 0x9d, 0x5b, 0x02, 0xe5, 0xc3, 0xb5, 0xff, 0xed, 0x74, 0xbc, 0x12, 0x3d, 0xca,
+	0x92, 0xbf, 0x8b, 0xba, 0x68, 0xc4, 0x68, 0x54, 0x87, 0x0b, 0x26, 0xf1, 0x48, 0x9b, 0xf5, 0x98,
+	0x60, 0x94, 0xab, 0x05, 0x29, 0xfe, 0x4b, 0xbb, 0xc4, 0xbf, 0x22, 0xa7, 0xba, 0x91, 0x89, 0x94,
+	0x37, 0x66, 0x5c, 0x8a, 0xef, 0xc1, 0x23, 0x3b, 0x64, 0x40, 0x8b, 0x30, 0xdd, 0xa5, 0x43, 0x39,
+	0x5c, 0x05, 0x23, 0x3a, 0xa2, 0x63, 0x30, 0x3b, 0x20, 0xbd, 0x80, 0xca, 0x11, 0x29, 0x18, 0xb1,
+	0x71, 0x2e, 0xf5, 0x36, 0xd0, 0xde, 0x85, 0xf9, 0x58, 0x4c, 0x8e, 0xce, 0xc0, 0x7c, 0xbc, 0xff,
+	0xd1, 0x5c, 0x46, 0xe5, 0xff, 0x7f, 0x6f, 0xd9, 0x8d, 0x09, 0x4c, 0xfb, 0x15, 0xc0, 0xc5, 0xcb,
+	0x54, 0x24, 0xd7, 0xf4, 0xcb, 0x80, 0x72, 0x81, 0x0c, 0x08, 0xe3, 0xf7, 0xd6, 0x01, 0x27, 0xbc,
+	0x20, 0x12, 0x10, 0x47, 0xe7, 0x21, 0xdc, 0x5e, 0xfd, 0x7d, 0xe7, 0xfc, 0x52, 0x04, 0xf9, 0x98,
+	0xf0, 0x6e, 0x22, 0x54, 0xa1, 0x33, 0xb9, 0xd0, 0x7e, 0x02, 0x10, 0x7d, 0xc4, 0x78, 0x92, 0x2a,
+	0x9f, 0xe4, 0x3a, 0xcb, 0x0b, 0x5e, 0x98, 0x37, 0x12, 0xd6, 0xf5, 0x2d, 0xea, 0x4f, 0x84, 0x95,
+	0x06, 0xc2, 0x30, 0xdb, 0x63, 0x7d, 0x16, 0x2f, 0xd3, 0x21, 0xd9, 0xf6, 0x53, 0x69, 0x75, 0x23,
+	0x6f, 0xc4, 0xd7, 0x08, 0xc1, 0x8c, 0x47, 0xec, 0x78, 0x59, 0x0e, 0x19, 0xf2, 0xac, 0x7d, 0x02,
+	0x8f, 0x5e, 0x90, 0x2b, 0x39, 0xab, 0xe6, 0x07, 0x30, 0x17, 0xcb, 0x90, 0x64, 0xb7, 0x4f, 0x4f,
+	0xf6, 0x90, 0x2f, 0xf1, 0xd3, 0xee, 0x01, 0x78, 0x74, 0x55, 0xee, 0xe9, 0xbf, 0xcc, 0x7c, 0xf0,
+	0xae, 0xfc, 0x05, 0xe0, 0xeb, 0x5b, 0xf3, 0x33, 0x35, 0x0c, 0x97, 0x5c, 0xbf, 0xe9, 0x58, 0x17,
+	0xe9, 0x80, 0x99, 0xb4, 0xb9, 0xba, 0xb2, 0xd5, 0xae, 0xcf, 0xe1, 0xdc, 0x17, 0x2e, 0x73, 0x5a,
+	0x34, 0x60, 0x32, 0xe9, 0x85, 0x46, 0x33, 0xa2, 0xfc, 0x63, 0xbd, 0x54, 0xb3, 0x5d, 0x5d, 0xdc,
+	0xa0, 0xe2, 0x06, 0x73, 0x6c, 0xae, 0x3b, 0x54, 0xdc, 0x74, 0xfd, 0x6e, 0x75, 0xf6, 0xc3, 0xec,
+	0x75, 0xed, 0xaa, 0x18, 0x7a, 0x94, 0xeb, 0xcd, 0xd5, 0x95, 0xb7, 0xde, 0x08, 0xd7, 0x4b, 0xf9,
+	0x0f, 0x5d, 0xe6, 0x34, 0x57, 0x57, 0x8c, 0x7c, 0x44, 0xdb, 0x0c, 0x18, 0xba, 0x0e, 0xf3, 0x16,
+	0x1d, 0xc8, 0x00, 0x29, 0x19, 0xe0, 0xe2, 0x81, 0x02, 0xe4, 0x2e, 0xd2, 0x41, 0xc4, 0x9f, 0xb3,
+	0xe8, 0xa0, 0x19, 0x30, 0xed, 0x5b, 0x58, 0xde, 0xa7, 0xde, 0xcb, 0x44, 0xd0, 0x9b, 0x64, 0x18,
+	0x81, 0x93, 0x62, 0xaf, 0xc0, 0xf4, 0x76, 0x9d, 0xf5, 0x03, 0xa5, 0x91, 0x8e, 0x68, 0x23, 0x36,
+	0xed, 0x37, 0x00, 0xf1, 0xd4, 0xc6, 0xda, 0x8c, 0x0b, 0x7f, 0x78, 0xd5, 0x15, 0xa4, 0xc7, 0xff,
+	0xd3, 0xfb, 0xfb, 0x3b, 0x80, 0xc7, 0xf6, 0x4a, 0x1a, 0x69, 0x70, 0x81, 0x78, 0x5e, 0x8f, 0x99,
+	0x24, 0xfa, 0x7b, 0xc4, 0xf9, 0x66, 0x8c, 0x99, 0x3b, 0xa4, 0xc2, 0xbc, 0xd9, 0x63, 0x34, 0xfa,
+	0xb0, 0xa5, 0xe4, 0xf3, 0xc4, 0x44, 0x25, 0x38, 0x4f, 0x1d, 0xab, 0x65, 0xc9, 0x49, 0xe3, 0x72,
+	0x5d, 0x33, 0x06, 0xa4, 0x93, 0xd9, 0xe3, 0xa8, 0x08, 0xe7, 0xec, 0xb8, 0x33, 0x5c, 0x6e, 0x6b,
+	0xc6, 0xd8, 0xb2, 0xd1, 0x32, 0x3c, 0xe4, 0xfa, 0x36, 0x71, 0xd8, 0xad, 0x24, 0x76, 0x56, 0x02,
+	0x66, 0x2f, 0xa3, 0x2f, 0x44, 0xc0, 0xa9, 0x1f, 0xfd, 0xca, 0xa2, 0xd7, 0xd8, 0x68, 0xfc, 0x02,
+	0x1e, 0x8f, 0x30, 0x58, 0x1b, 0x61, 0xf0, 0x64, 0x84, 0x95, 0xa7, 0x23, 0xac, 0x6c, 0x8c, 0xb0,
+	0xf2, 0x6c, 0x84, 0x95, 0xe7, 0x23, 0x0c, 0x6e, 0x87, 0x18, 0xdc, 0x09, 0xb1, 0x72, 0x3f, 0xc4,
+	0xe0, 0x41, 0x88, 0x95, 0x87, 0x21, 0x56, 0x1e, 0x85, 0x58, 0x79, 0x1c, 0x62, 0xb0, 0x16, 0x62,
+	0xf0, 0x24, 0xc4, 0xca, 0xd3, 0x10, 0x83, 0x8d, 0x10, 0x2b, 0xcf, 0x42, 0x0c, 0x9e, 0x87, 0x58,
+	0xb9, 0x3d, 0xc6, 0xca, 0x9d, 0x31, 0x06, 0x77, 0xc7, 0x58, 0xb9, 0x37, 0xc6, 0xe0, 0xe7, 0x31,
+	0x56, 0xee, 0x8f, 0xb1, 0xf2, 0x60, 0x8c, 0xc1, 0xc3, 0x31, 0x06, 0x8f, 0xc6, 0x18, 0x7c, 0x7a,
+	0xfa, 0x9f, 0x8e, 0x8f, 0x60, 0x5e, 0xbb, 0x9d, 0x93, 0x9d, 0x39, 0xfb, 0x77, 0x00, 0x00, 0x00,
+	0xff, 0xff, 0x06, 0x30, 0x83, 0xe2, 0x2d, 0x0a, 0x00, 0x00,
 }
 
 func (this *Tenant) Equal(that interface{}) bool {
@@ -663,6 +899,123 @@ func (this *UpdateTenantRequest) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.FieldMask.Equal(&that1.FieldMask) {
+		return false
+	}
+	return true
+}
+func (this *GetTenantIdentifiersForEndDeviceEUIsRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetTenantIdentifiersForEndDeviceEUIsRequest)
+	if !ok {
+		that2, ok := that.(GetTenantIdentifiersForEndDeviceEUIsRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.JoinEUI.Equal(that1.JoinEUI) {
+		return false
+	}
+	if !this.DevEUI.Equal(that1.DevEUI) {
+		return false
+	}
+	return true
+}
+func (this *GetTenantIdentifiersForGatewayEUIRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetTenantIdentifiersForGatewayEUIRequest)
+	if !ok {
+		that2, ok := that.(GetTenantIdentifiersForGatewayEUIRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.EUI.Equal(that1.EUI) {
+		return false
+	}
+	return true
+}
+func (this *GetTenantRegistryTotalsRequest) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*GetTenantRegistryTotalsRequest)
+	if !ok {
+		that2, ok := that.(GetTenantRegistryTotalsRequest)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.TenantIdentifiers.Equal(&that1.TenantIdentifiers) {
+		return false
+	}
+	if !this.FieldMask.Equal(&that1.FieldMask) {
+		return false
+	}
+	return true
+}
+func (this *TenantRegistryTotals) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*TenantRegistryTotals)
+	if !ok {
+		that2, ok := that.(TenantRegistryTotals)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if this.Applications != that1.Applications {
+		return false
+	}
+	if this.Clients != that1.Clients {
+		return false
+	}
+	if this.EndDevices != that1.EndDevices {
+		return false
+	}
+	if this.Gateways != that1.Gateways {
+		return false
+	}
+	if this.Organizations != that1.Organizations {
+		return false
+	}
+	if this.Users != that1.Users {
 		return false
 	}
 	return true
@@ -929,6 +1282,148 @@ func (m *UpdateTenantRequest) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintTenant(dAtA, i, uint64(m.JoinEUI.Size()))
+	n11, err := m.JoinEUI.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n11
+	dAtA[i] = 0x12
+	i++
+	i = encodeVarintTenant(dAtA, i, uint64(m.DevEUI.Size()))
+	n12, err := m.DevEUI.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n12
+	return i, nil
+}
+
+func (m *GetTenantIdentifiersForGatewayEUIRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetTenantIdentifiersForGatewayEUIRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintTenant(dAtA, i, uint64(m.EUI.Size()))
+	n13, err := m.EUI.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n13
+	return i, nil
+}
+
+func (m *GetTenantRegistryTotalsRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetTenantRegistryTotalsRequest) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	dAtA[i] = 0xa
+	i++
+	i = encodeVarintTenant(dAtA, i, uint64(m.TenantIdentifiers.Size()))
+	n14, err := m.TenantIdentifiers.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n14
+	dAtA[i] = 0x12
+	i++
+	i = encodeVarintTenant(dAtA, i, uint64(m.FieldMask.Size()))
+	n15, err := m.FieldMask.MarshalTo(dAtA[i:])
+	if err != nil {
+		return 0, err
+	}
+	i += n15
+	return i, nil
+}
+
+func (m *TenantRegistryTotals) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *TenantRegistryTotals) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Applications != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintTenant(dAtA, i, m.Applications)
+	}
+	if m.Clients != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintTenant(dAtA, i, m.Clients)
+	}
+	if m.EndDevices != 0 {
+		dAtA[i] = 0x18
+		i++
+		i = encodeVarintTenant(dAtA, i, m.EndDevices)
+	}
+	if m.Gateways != 0 {
+		dAtA[i] = 0x20
+		i++
+		i = encodeVarintTenant(dAtA, i, m.Gateways)
+	}
+	if m.Organizations != 0 {
+		dAtA[i] = 0x28
+		i++
+		i = encodeVarintTenant(dAtA, i, m.Organizations)
+	}
+	if m.Users != 0 {
+		dAtA[i] = 0x30
+		i++
+		i = encodeVarintTenant(dAtA, i, m.Users)
+	}
+	return i, nil
+}
+
 func encodeVarintTenant(dAtA []byte, offset int, v uint64) int {
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
@@ -1027,6 +1522,50 @@ func NewPopulatedUpdateTenantRequest(r randyTenant, easy bool) *UpdateTenantRequ
 	return this
 }
 
+func NewPopulatedGetTenantIdentifiersForEndDeviceEUIsRequest(r randyTenant, easy bool) *GetTenantIdentifiersForEndDeviceEUIsRequest {
+	this := &GetTenantIdentifiersForEndDeviceEUIsRequest{}
+	v14 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedEUI64(r)
+	this.JoinEUI = *v14
+	v15 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedEUI64(r)
+	this.DevEUI = *v15
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedGetTenantIdentifiersForGatewayEUIRequest(r randyTenant, easy bool) *GetTenantIdentifiersForGatewayEUIRequest {
+	this := &GetTenantIdentifiersForGatewayEUIRequest{}
+	v16 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedEUI64(r)
+	this.EUI = *v16
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedGetTenantRegistryTotalsRequest(r randyTenant, easy bool) *GetTenantRegistryTotalsRequest {
+	this := &GetTenantRegistryTotalsRequest{}
+	v17 := NewPopulatedTenantIdentifiers(r, easy)
+	this.TenantIdentifiers = *v17
+	v18 := types.NewPopulatedFieldMask(r, easy)
+	this.FieldMask = *v18
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedTenantRegistryTotals(r randyTenant, easy bool) *TenantRegistryTotals {
+	this := &TenantRegistryTotals{}
+	this.Applications = uint64(r.Uint32())
+	this.Clients = uint64(r.Uint32())
+	this.EndDevices = uint64(r.Uint32())
+	this.Gateways = uint64(r.Uint32())
+	this.Organizations = uint64(r.Uint32())
+	this.Users = uint64(r.Uint32())
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
 type randyTenant interface {
 	Float32() float32
 	Float64() float64
@@ -1046,9 +1585,9 @@ func randUTF8RuneTenant(r randyTenant) rune {
 	return rune(ru + 61)
 }
 func randStringTenant(r randyTenant) string {
-	v14 := r.Intn(100)
-	tmps := make([]rune, v14)
-	for i := 0; i < v14; i++ {
+	v19 := r.Intn(100)
+	tmps := make([]rune, v19)
+	for i := 0; i < v19; i++ {
 		tmps[i] = randUTF8RuneTenant(r)
 	}
 	return string(tmps)
@@ -1070,11 +1609,11 @@ func randFieldTenant(dAtA []byte, r randyTenant, fieldNumber int, wire int) []by
 	switch wire {
 	case 0:
 		dAtA = encodeVarintPopulateTenant(dAtA, uint64(key))
-		v15 := r.Int63()
+		v20 := r.Int63()
 		if r.Intn(2) == 0 {
-			v15 *= -1
+			v20 *= -1
 		}
-		dAtA = encodeVarintPopulateTenant(dAtA, uint64(v15))
+		dAtA = encodeVarintPopulateTenant(dAtA, uint64(v20))
 	case 1:
 		dAtA = encodeVarintPopulateTenant(dAtA, uint64(key))
 		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
@@ -1214,6 +1753,70 @@ func (m *UpdateTenantRequest) Size() (n int) {
 	return n
 }
 
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.JoinEUI.Size()
+	n += 1 + l + sovTenant(uint64(l))
+	l = m.DevEUI.Size()
+	n += 1 + l + sovTenant(uint64(l))
+	return n
+}
+
+func (m *GetTenantIdentifiersForGatewayEUIRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.EUI.Size()
+	n += 1 + l + sovTenant(uint64(l))
+	return n
+}
+
+func (m *GetTenantRegistryTotalsRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	l = m.TenantIdentifiers.Size()
+	n += 1 + l + sovTenant(uint64(l))
+	l = m.FieldMask.Size()
+	n += 1 + l + sovTenant(uint64(l))
+	return n
+}
+
+func (m *TenantRegistryTotals) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Applications != 0 {
+		n += 1 + sovTenant(m.Applications)
+	}
+	if m.Clients != 0 {
+		n += 1 + sovTenant(m.Clients)
+	}
+	if m.EndDevices != 0 {
+		n += 1 + sovTenant(m.EndDevices)
+	}
+	if m.Gateways != 0 {
+		n += 1 + sovTenant(m.Gateways)
+	}
+	if m.Organizations != 0 {
+		n += 1 + sovTenant(m.Organizations)
+	}
+	if m.Users != 0 {
+		n += 1 + sovTenant(m.Users)
+	}
+	return n
+}
+
 func sovTenant(x uint64) (n int) {
 	for {
 		n++
@@ -1306,6 +1909,53 @@ func (this *UpdateTenantRequest) String() string {
 	s := strings.Join([]string{`&UpdateTenantRequest{`,
 		`Tenant:` + strings.Replace(strings.Replace(this.Tenant.String(), "Tenant", "Tenant", 1), `&`, ``, 1) + `,`,
 		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetTenantIdentifiersForEndDeviceEUIsRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GetTenantIdentifiersForEndDeviceEUIsRequest{`,
+		`JoinEUI:` + fmt.Sprintf("%v", this.JoinEUI) + `,`,
+		`DevEUI:` + fmt.Sprintf("%v", this.DevEUI) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetTenantIdentifiersForGatewayEUIRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GetTenantIdentifiersForGatewayEUIRequest{`,
+		`EUI:` + fmt.Sprintf("%v", this.EUI) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *GetTenantRegistryTotalsRequest) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&GetTenantRegistryTotalsRequest{`,
+		`TenantIdentifiers:` + strings.Replace(strings.Replace(this.TenantIdentifiers.String(), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
+		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *TenantRegistryTotals) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&TenantRegistryTotals{`,
+		`Applications:` + fmt.Sprintf("%v", this.Applications) + `,`,
+		`Clients:` + fmt.Sprintf("%v", this.Clients) + `,`,
+		`EndDevices:` + fmt.Sprintf("%v", this.EndDevices) + `,`,
+		`Gateways:` + fmt.Sprintf("%v", this.Gateways) + `,`,
+		`Organizations:` + fmt.Sprintf("%v", this.Organizations) + `,`,
+		`Users:` + fmt.Sprintf("%v", this.Users) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2290,6 +2940,497 @@ func (m *UpdateTenantRequest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTenant(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTenant
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetTenantIdentifiersForEndDeviceEUIsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetTenantIdentifiersForEndDeviceEUIsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field JoinEUI", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTenant
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.JoinEUI.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DevEUI", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTenant
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.DevEUI.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTenant(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetTenantIdentifiersForGatewayEUIRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTenant
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetTenantIdentifiersForGatewayEUIRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetTenantIdentifiersForGatewayEUIRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EUI", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthTenant
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.EUI.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTenant(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetTenantRegistryTotalsRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTenant
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetTenantRegistryTotalsRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetTenantRegistryTotalsRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TenantIdentifiers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTenant
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.TenantIdentifiers.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FieldMask", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthTenant
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if err := m.FieldMask.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipTenant(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthTenant
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *TenantRegistryTotals) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowTenant
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: TenantRegistryTotals: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: TenantRegistryTotals: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Applications", wireType)
+			}
+			m.Applications = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Applications |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Clients", wireType)
+			}
+			m.Clients = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Clients |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDevices", wireType)
+			}
+			m.EndDevices = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.EndDevices |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Gateways", wireType)
+			}
+			m.Gateways = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Gateways |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Organizations", wireType)
+			}
+			m.Organizations = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Organizations |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Users", wireType)
+			}
+			m.Users = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowTenant
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Users |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipTenant(dAtA[iNdEx:])

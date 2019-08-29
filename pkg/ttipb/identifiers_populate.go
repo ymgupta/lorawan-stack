@@ -18,3 +18,15 @@ func NewPopulatedTenantIdentifiers(r randyIdentifiers, _ bool) *TenantIdentifier
 		TenantID: ttnpb.NewPopulatedID(r),
 	}
 }
+
+func NewPopulatedLicenseIssuerIdentifiers(r randyIdentifiers, _ bool) *LicenseIssuerIdentifiers {
+	return &LicenseIssuerIdentifiers{
+		LicenseIssuerID: ttnpb.NewPopulatedID(r),
+	}
+}
+
+func NewPopulatedLicenseIdentifiers(r randyIdentifiers, _ bool) *LicenseIdentifiers {
+	return &LicenseIdentifiers{
+		LicenseID: ttnpb.NewPopulatedID(r),
+	}
+}

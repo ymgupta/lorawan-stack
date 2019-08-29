@@ -24,3 +24,45 @@ func (dst *TenantIdentifiers) SetFields(src *TenantIdentifiers, paths ...string)
 	}
 	return nil
 }
+
+func (dst *LicenseIssuerIdentifiers) SetFields(src *LicenseIssuerIdentifiers, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "license_issuer_id":
+			if len(subs) > 0 {
+				return fmt.Errorf("'license_issuer_id' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.LicenseIssuerID = src.LicenseIssuerID
+			} else {
+				var zero string
+				dst.LicenseIssuerID = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *LicenseIdentifiers) SetFields(src *LicenseIdentifiers, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "license_id":
+			if len(subs) > 0 {
+				return fmt.Errorf("'license_id' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.LicenseID = src.LicenseID
+			} else {
+				var zero string
+				dst.LicenseID = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}

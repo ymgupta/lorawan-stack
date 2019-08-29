@@ -133,3 +133,202 @@ var _ interface {
 } = TenantIdentifiersValidationError{}
 
 var _TenantIdentifiers_TenantID_Pattern = regexp.MustCompile("^[a-z0-9](?:[-]?[a-z0-9]){2,}$")
+
+// ValidateFields checks the field values on LicenseIssuerIdentifiers with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *LicenseIssuerIdentifiers) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = LicenseIssuerIdentifiersFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "license_issuer_id":
+
+			if utf8.RuneCountInString(m.GetLicenseIssuerID()) > 36 {
+				return LicenseIssuerIdentifiersValidationError{
+					field:  "license_issuer_id",
+					reason: "value length must be at most 36 runes",
+				}
+			}
+
+			if !_LicenseIssuerIdentifiers_LicenseIssuerID_Pattern.MatchString(m.GetLicenseIssuerID()) {
+				return LicenseIssuerIdentifiersValidationError{
+					field:  "license_issuer_id",
+					reason: "value does not match regex pattern \"^[a-z0-9](?:[-]?[a-z0-9]){2,}$\"",
+				}
+			}
+
+		default:
+			return LicenseIssuerIdentifiersValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// LicenseIssuerIdentifiersValidationError is the validation error returned by
+// LicenseIssuerIdentifiers.ValidateFields if the designated constraints
+// aren't met.
+type LicenseIssuerIdentifiersValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LicenseIssuerIdentifiersValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LicenseIssuerIdentifiersValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LicenseIssuerIdentifiersValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LicenseIssuerIdentifiersValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LicenseIssuerIdentifiersValidationError) ErrorName() string {
+	return "LicenseIssuerIdentifiersValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LicenseIssuerIdentifiersValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLicenseIssuerIdentifiers.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LicenseIssuerIdentifiersValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LicenseIssuerIdentifiersValidationError{}
+
+var _LicenseIssuerIdentifiers_LicenseIssuerID_Pattern = regexp.MustCompile("^[a-z0-9](?:[-]?[a-z0-9]){2,}$")
+
+// ValidateFields checks the field values on LicenseIdentifiers with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *LicenseIdentifiers) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = LicenseIdentifiersFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "license_id":
+
+			if utf8.RuneCountInString(m.GetLicenseID()) > 36 {
+				return LicenseIdentifiersValidationError{
+					field:  "license_id",
+					reason: "value length must be at most 36 runes",
+				}
+			}
+
+			if !_LicenseIdentifiers_LicenseID_Pattern.MatchString(m.GetLicenseID()) {
+				return LicenseIdentifiersValidationError{
+					field:  "license_id",
+					reason: "value does not match regex pattern \"^[a-z0-9](?:[-]?[a-z0-9]){2,}$\"",
+				}
+			}
+
+		default:
+			return LicenseIdentifiersValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// LicenseIdentifiersValidationError is the validation error returned by
+// LicenseIdentifiers.ValidateFields if the designated constraints aren't met.
+type LicenseIdentifiersValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e LicenseIdentifiersValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e LicenseIdentifiersValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e LicenseIdentifiersValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e LicenseIdentifiersValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e LicenseIdentifiersValidationError) ErrorName() string {
+	return "LicenseIdentifiersValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e LicenseIdentifiersValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sLicenseIdentifiers.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = LicenseIdentifiersValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = LicenseIdentifiersValidationError{}
+
+var _LicenseIdentifiers_LicenseID_Pattern = regexp.MustCompile("^[a-z0-9](?:[-]?[a-z0-9]){2,}$")

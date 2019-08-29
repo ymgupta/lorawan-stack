@@ -9,3 +9,17 @@ var TenantIdentifiersFieldPathsNested = []string{
 var TenantIdentifiersFieldPathsTopLevel = []string{
 	"tenant_id",
 }
+var LicenseIssuerIdentifiersFieldPathsNested = []string{
+	"license_issuer_id",
+}
+
+var LicenseIssuerIdentifiersFieldPathsTopLevel = []string{
+	"license_issuer_id",
+}
+var LicenseIdentifiersFieldPathsNested = []string{
+	"license_id",
+}
+
+var LicenseIdentifiersFieldPathsTopLevel = []string{
+	"license_id",
+}
