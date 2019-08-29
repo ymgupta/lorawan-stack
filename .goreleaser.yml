@@ -107,21 +107,22 @@ nfpms:
     files:
       "public/**/*": "/srv/ttn-lorawan/public"
 
-snapcrafts:
-  - id: stack
-    builds:
-      - stack
-    name: tti-lw-stack
-    summary: The Things Stack for LoRaWAN
-    description: The Things Stack for LoRaWAN
-    grade: stable
-    confinement: strict
-    publish: true
-    apps:
-      tti-lw-stack:
-        plugs: [ home, network, network-bind ]
-      tti-lw-cli:
-        plugs: [ home, network, network-bind ]
+# TODO: Re-enable (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
+# snapcrafts:
+#   - id: stack
+#     builds:
+#       - stack
+#     name: tti-lw-stack
+#     summary: The Things Stack for LoRaWAN
+#     description: The Things Stack for LoRaWAN
+#     grade: stable
+#     confinement: strict
+#     publish: true
+#     apps:
+#       tti-lw-stack:
+#         plugs: [ home, network, network-bind ]
+#       tti-lw-cli:
+#         plugs: [ home, network, network-bind ]
 
 brews:
   - name: tti-lw-stack
