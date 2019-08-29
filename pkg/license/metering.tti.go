@@ -49,6 +49,10 @@ func (s *meteringSetup) Apply(license ttipb.License) ttipb.License {
 
 // CollectAndReport collects metrics from the cluster and reports them to the MeteringReporter.
 func (s *meteringSetup) CollectAndReport(ctx context.Context) error {
+	if s.reporter == nil {
+		return errors.New("metering service reporter is not properly set up")
+	}
+
 	var meteringData ttipb.MeteringData
 
 	cc, err := s.cluster.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY)
