@@ -5534,13 +5534,13 @@
       "file": "javascript.go"
     }
   },
-  "error:pkg/tenant:missing_tenant_id": {
+  "error:pkg/tenant/middleware:missing_tenant_id": {
     "translations": {
       "en": "missing tenant ID"
     },
     "description": {
-      "package": "pkg/tenant",
-      "file": "tenant.tti.go"
+      "package": "pkg/tenant/middleware",
+      "file": "middleware.tti.go"
     }
   },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {
