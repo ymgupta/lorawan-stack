@@ -3,7 +3,7 @@
 package ttipb
 
 var LicenseFieldPathsNested = []string{
-	"address_regexps",
+	"component_address_regexps",
 	"components",
 	"created_at",
 	"dev_addr_prefixes",
@@ -25,7 +25,7 @@ var LicenseFieldPathsNested = []string{
 	"metering.metering.aws",
 	"metering.metering.aws.sku",
 	"metering.on_success",
-	"metering.on_success.valid_until",
+	"metering.on_success.extend_valid_until",
 	"multi_tenancy",
 	"valid_from",
 	"valid_until",
@@ -33,7 +33,7 @@ var LicenseFieldPathsNested = []string{
 }
 
 var LicenseFieldPathsTopLevel = []string{
-	"address_regexps",
+	"component_address_regexps",
 	"components",
 	"created_at",
 	"dev_addr_prefixes",
@@ -54,11 +54,11 @@ var LicenseFieldPathsTopLevel = []string{
 	"warn_for",
 }
 var LicenseUpdateFieldPathsNested = []string{
-	"valid_until",
+	"extend_valid_until",
 }
 
 var LicenseUpdateFieldPathsTopLevel = []string{
-	"valid_until",
+	"extend_valid_until",
 }
 var MeteringConfigurationFieldPathsNested = []string{
 	"interval",
@@ -66,7 +66,7 @@ var MeteringConfigurationFieldPathsNested = []string{
 	"metering.aws",
 	"metering.aws.sku",
 	"on_success",
-	"on_success.valid_until",
+	"on_success.extend_valid_until",
 }
 
 var MeteringConfigurationFieldPathsTopLevel = []string{

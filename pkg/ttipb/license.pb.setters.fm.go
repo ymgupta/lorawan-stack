@@ -105,14 +105,14 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 			} else {
 				dst.Components = nil
 			}
-		case "address_regexps":
+		case "component_address_regexps":
 			if len(subs) > 0 {
-				return fmt.Errorf("'address_regexps' has no subfields, but %s were specified", subs)
+				return fmt.Errorf("'component_address_regexps' has no subfields, but %s were specified", subs)
 			}
 			if src != nil {
-				dst.AddressRegexps = src.AddressRegexps
+				dst.ComponentAddressRegexps = src.ComponentAddressRegexps
 			} else {
-				dst.AddressRegexps = nil
+				dst.ComponentAddressRegexps = nil
 			}
 		case "dev_addr_prefixes":
 			if len(subs) > 0 {
@@ -128,9 +128,9 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 				return fmt.Errorf("'join_eui_prefixes' has no subfields, but %s were specified", subs)
 			}
 			if src != nil {
-				dst.JoinEuiPrefixes = src.JoinEuiPrefixes
+				dst.JoinEUIPrefixes = src.JoinEUIPrefixes
 			} else {
-				dst.JoinEuiPrefixes = nil
+				dst.JoinEUIPrefixes = nil
 			}
 		case "multi_tenancy":
 			if len(subs) > 0 {
@@ -228,14 +228,14 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 func (dst *LicenseUpdate) SetFields(src *LicenseUpdate, paths ...string) error {
 	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
-		case "valid_until":
+		case "extend_valid_until":
 			if len(subs) > 0 {
-				return fmt.Errorf("'valid_until' has no subfields, but %s were specified", subs)
+				return fmt.Errorf("'extend_valid_until' has no subfields, but %s were specified", subs)
 			}
 			if src != nil {
-				dst.ValidUntil = src.ValidUntil
+				dst.ExtendValidUntil = src.ExtendValidUntil
 			} else {
-				dst.ValidUntil = nil
+				dst.ExtendValidUntil = nil
 			}
 
 		default:

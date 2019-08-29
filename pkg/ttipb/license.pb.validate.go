@@ -136,7 +136,7 @@ func (m *License) ValidateFields(paths ...string) error {
 
 		case "components":
 
-		case "address_regexps":
+		case "component_address_regexps":
 
 		case "dev_addr_prefixes":
 
@@ -307,12 +307,12 @@ func (m *LicenseUpdate) ValidateFields(paths ...string) error {
 	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		_ = subs
 		switch name {
-		case "valid_until":
+		case "extend_valid_until":
 
-			if v, ok := interface{}(m.GetValidUntil()).(interface{ ValidateFields(...string) error }); ok {
+			if v, ok := interface{}(m.GetExtendValidUntil()).(interface{ ValidateFields(...string) error }); ok {
 				if err := v.ValidateFields(subs...); err != nil {
 					return LicenseUpdateValidationError{
-						field:  "valid_until",
+						field:  "extend_valid_until",
 						reason: "embedded message failed validation",
 						cause:  err,
 					}
