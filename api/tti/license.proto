@@ -71,7 +71,7 @@ message LicenseUpdate {
 
 message MeteringConfiguration {
   // How frequently to report to the metering service.
-  google.protobuf.Duration interval = 1 [(gogoproto.stdduration) = true];
+  google.protobuf.Duration interval = 1 [(gogoproto.stdduration) = true, (gogoproto.nullable) = false];
   // How to update the license on success.
   LicenseUpdate on_success = 2;
 
@@ -79,7 +79,7 @@ message MeteringConfiguration {
     string sku = 1 [(gogoproto.customname) = "SKU"];
   }
   oneof metering {
-    AWS aws = 3;
+    AWS aws = 3 [(gogoproto.customname) = "AWS"];
   }
 }
 

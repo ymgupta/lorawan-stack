@@ -101,9 +101,9 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) error {
 
 // Run the periodic metrics reporting.
 func (s *meteringSetup) Run(ctx context.Context) error {
-	interval := time.Hour
-	if s.config.Interval != nil {
-		interval = *s.config.Interval
+	interval := s.config.Interval
+	if interval == 0 {
+		interval = time.Hour
 	}
 	reportTicker := time.NewTicker(interval)
 	defer reportTicker.Stop()
@@ -129,7 +129,7 @@ func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, clu
 		cluster: cluster,
 	}
 	switch reporterConfig := config.Metering.(type) {
-	case *ttipb.MeteringConfiguration_Aws:
+	case *ttipb.MeteringConfiguration_AWS_:
 		// TODO: Set up AWS metering reporter.
 		_ = reporterConfig
 		globalMetering.reporter = nil

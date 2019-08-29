@@ -400,7 +400,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 		switch name {
 		case "interval":
 
-			if v, ok := interface{}(m.GetInterval()).(interface{ ValidateFields(...string) error }); ok {
+			if v, ok := interface{}(&m.Interval).(interface{ ValidateFields(...string) error }); ok {
 				if err := v.ValidateFields(subs...); err != nil {
 					return MeteringConfigurationValidationError{
 						field:  "interval",
@@ -433,7 +433,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 				switch name {
 				case "aws":
 
-					if v, ok := interface{}(m.GetAws()).(interface{ ValidateFields(...string) error }); ok {
+					if v, ok := interface{}(m.GetAWS()).(interface{ ValidateFields(...string) error }); ok {
 						if err := v.ValidateFields(subs...); err != nil {
 							return MeteringConfigurationValidationError{
 								field:  "aws",
