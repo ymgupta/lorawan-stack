@@ -25,6 +25,8 @@ type DeviceClaimingServer struct {
 
 	authorizedAppsRegistry AuthorizedApplicationRegistry
 	tenantRegistry         ttipb.TenantRegistryClient
+	deviceRegistry         ttnpb.EndDeviceRegistryClient
+	jsDeviceRegistry       ttnpb.JsEndDeviceRegistryClient
 
 	grpc struct {
 		endDeviceClaimingServer *endDeviceClaimingServer
@@ -32,7 +34,7 @@ type DeviceClaimingServer struct {
 }
 
 // New returns a new Device Claiming component.
-func New(c *component.Component, conf *Config) (*DeviceClaimingServer, error) {
+func New(c *component.Component, conf *Config, opts ...Option) (*DeviceClaimingServer, error) {
 	dcs := &DeviceClaimingServer{
 		Component:              c,
 		ctx:                    log.NewContextWithField(c.Context(), "namespace", "deviceclaimingserver"),
@@ -41,10 +43,14 @@ func New(c *component.Component, conf *Config) (*DeviceClaimingServer, error) {
 
 	dcs.grpc.endDeviceClaimingServer = &endDeviceClaimingServer{DCS: dcs}
 
+	for _, opt := range opts {
+		opt(dcs)
+	}
 	c.RegisterGRPC(dcs)
 	return dcs, nil
 }
 
+// Option configures the DeviceClaimingServer.
 type Option func(*DeviceClaimingServer)
 
 // Context returns the context of the Device Claiming Server.
@@ -74,9 +80,49 @@ func WithTenantRegistry(registry ttipb.TenantRegistryClient) Option {
 	}
 }
 
-func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) ttipb.TenantRegistryClient {
+func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) (ttipb.TenantRegistryClient, error) {
 	if dcs.tenantRegistry != nil {
-		return dcs.tenantRegistry
+		return dcs.tenantRegistry, nil
 	}
-	return ttipb.NewTenantRegistryClient(dcs.GetPeer(ctx, ttnpb.PeerInfo_ENTITY_REGISTRY, ids).Conn())
+	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids)
+	if err != nil {
+		return nil, err
+	}
+	return ttipb.NewTenantRegistryClient(conn), nil
+}
+
+// WithDeviceRegistry overrides the Device Claiming Server's Entity Registry device registry.
+func WithDeviceRegistry(registry ttnpb.EndDeviceRegistryClient) Option {
+	return func(s *DeviceClaimingServer) {
+		s.deviceRegistry = registry
+	}
+}
+
+func (dcs *DeviceClaimingServer) getDeviceRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) (ttnpb.EndDeviceRegistryClient, error) {
+	if dcs.deviceRegistry != nil {
+		return dcs.deviceRegistry, nil
+	}
+	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids)
+	if err != nil {
+		return nil, err
+	}
+	return ttnpb.NewEndDeviceRegistryClient(conn), nil
+}
+
+// WithJsDeviceRegistry overrides the Device Claiming Server's Join Server device registry.
+func WithJsDeviceRegistry(registry ttnpb.JsEndDeviceRegistryClient) Option {
+	return func(s *DeviceClaimingServer) {
+		s.jsDeviceRegistry = registry
+	}
+}
+
+func (dcs *DeviceClaimingServer) getJsDeviceRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) (ttnpb.JsEndDeviceRegistryClient, error) {
+	if dcs.jsDeviceRegistry != nil {
+		return dcs.jsDeviceRegistry, nil
+	}
+	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_JOIN_SERVER, ids)
+	if err != nil {
+		return nil, err
+	}
+	return ttnpb.NewJsEndDeviceRegistryClient(conn), nil
 }

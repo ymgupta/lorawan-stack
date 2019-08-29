@@ -3,22 +3,478 @@
 package deviceclaimingserver
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
+	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/qrcode"
+	"go.thethings.network/lorawan-stack/pkg/rpcclient"
+	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/pkg/unique"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type endDeviceClaimingServer struct {
 	DCS *DeviceClaimingServer
 }
 
-func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (*ttnpb.EndDeviceIdentifiers, error) {
-	return nil, status.Error(codes.Unimplemented, "unimplemented")
+var (
+	errParseQRCode              = errors.Define("parse_qr_code", "parse QR code failed")
+	errQRCodeData               = errors.DefineInvalidArgument("qr_code_data", "invalid QR code data")
+	errApplicationNotAuthorized = errors.DefineNotFound("application_not_authorized", "application not authorized")
+	errClaimAuthenticationCode  = errors.DefineAborted("claim_authentication_code", "invalid claim authentication code")
+)
+
+var (
+	transferISPaths = [...]string{
+		"application_server_address",
+		"attributes",
+		"description",
+		"join_server_address",
+		"locations",
+		"name",
+		"network_server_address",
+		"service_profile_id",
+		"version_ids",
+	}
+	transferJSPaths = [...]string{
+		"application_server_address",
+		"application_server_id",
+		"application_server_kek_label",
+		"claim_authentication_code",
+		"last_dev_nonce",
+		"last_join_nonce",
+		"net_id",
+		"network_server_address",
+		"provisioner_id",
+		"provisioning_data",
+		"resets_join_nonces",
+		"root_keys",
+		"used_dev_nonces",
+	}
+	transferNSPaths = [...]string{
+		"frequency_plan_id",
+		"lorawan_phy_version",
+		"lorawan_version",
+		"mac_settings.adr_margin",
+		"mac_settings.class_b_timeout",
+		"mac_settings.class_c_timeout",
+		"mac_settings.desired_rx1_data_rate_offset",
+		"mac_settings.desired_rx1_delay",
+		"mac_settings.desired_rx2_data_rate_index",
+		"mac_settings.desired_rx2_frequency",
+		"mac_settings.factory_preset_frequencies",
+		"mac_settings.max_duty_cycle",
+		"mac_settings.ping_slot_data_rate_index",
+		"mac_settings.ping_slot_frequency",
+		"mac_settings.ping_slot_periodicity",
+		"mac_settings.resets_f_cnt",
+		"mac_settings.status_count_periodicity",
+		"mac_settings.status_time_periodicity",
+		"mac_settings.supports_32_bit_f_cnt",
+		"mac_settings.use_adr",
+		"max_frequency",
+		"min_frequency",
+		"multicast",
+		"supports_class_b",
+		"supports_class_c",
+		"supports_join",
+		"version_ids",
+	}
+	transferASPaths = [...]string{
+		"formatters",
+		"version_ids",
+	}
+)
+
+func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
+	targetCtx := ctx
+	if err := rights.RequireApplication(targetCtx, req.TargetApplicationIDs,
+		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+	); err != nil {
+		return nil, err
+	}
+	targetForwardAuth, err := rpcmetadata.WithForwardedAuth(targetCtx, s.DCS.AllowInsecureForCredentials())
+	if err != nil {
+		return nil, err
+	}
+
+	logger := log.FromContext(ctx)
+
+	// Get the JoinEUI, DevEUI and claim authentication code from the request.
+	var joinEUI, devEUI types.EUI64
+	var authCode []byte
+	switch source := req.SourceDevice.(type) {
+	case *ttnpb.ClaimEndDeviceRequest_AuthenticatedIdentifiers_:
+		authIDs := source.AuthenticatedIdentifiers
+		joinEUI, devEUI, authCode = authIDs.JoinEUI, authIDs.DevEUI, authIDs.AuthenticationCode
+	case *ttnpb.ClaimEndDeviceRequest_QRCode:
+		data, err := qrcode.Parse(source.QRCode)
+		if err != nil {
+			return nil, errParseQRCode.WithCause(err)
+		}
+		authIDs, ok := data.(qrcode.AuthenticatedEndDeviceIdentifiers)
+		if !ok {
+			return nil, errQRCodeData
+		}
+		joinEUI, devEUI, authCode = authIDs.AuthenticatedEndDeviceIdentifiers()
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T", req.SourceDevice))
+	}
+	logger = logger.WithFields(log.Fields(
+		"source_join_eui", joinEUI,
+		"source_dev_eui", devEUI,
+	))
+
+	// Get the source end device identifiers belonging to the JoinEUI and DevEUI.
+	logger.Debug("Get source tenant identifiers by EUIs")
+	sourceCtx := rights.NewContextWithCache(ctx)
+	tenantRegistry, err := s.DCS.getTenantRegistry(sourceCtx, nil)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get tenant registry")
+		return nil, err
+	}
+	tenantIDs, err := tenantRegistry.GetIdentifiersForEndDeviceEUIs(sourceCtx, &ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest{
+		JoinEUI: joinEUI,
+		DevEUI:  devEUI,
+	}, s.DCS.WithClusterAuth())
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get source tenant identifiers by EUIs")
+		return nil, err
+	}
+	logger.Debug("Get source end device identifiers by EUIs")
+	sourceCtx = tenant.NewContext(sourceCtx, *tenantIDs)
+	sourceIDs := &ttnpb.EndDeviceIdentifiers{
+		JoinEUI: &joinEUI,
+		DevEUI:  &devEUI,
+	}
+	sourceERClient, err := s.DCS.getDeviceRegistry(sourceCtx, sourceIDs)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get device registry")
+		return nil, err
+	}
+	sourceIDs, err = sourceERClient.GetIdentifiersForEUIs(sourceCtx, &ttnpb.GetEndDeviceIdentifiersForEUIsRequest{
+		JoinEUI: joinEUI,
+		DevEUI:  devEUI,
+	}, s.DCS.WithClusterAuth())
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get source end device identifiers by EUIs")
+		return nil, err
+	}
+	logger = logger.WithField("source_device_uid", unique.ID(sourceCtx, sourceIDs))
+
+	// Load the API key of the authorized source application.
+	logger.Debug("Load authorized source application API key and validate rights")
+	app, err := s.DCS.authorizedAppsRegistry.Get(sourceCtx, sourceIDs.ApplicationIdentifiers, []string{"api_key"})
+	if err != nil {
+		logger.WithError(err).Warn("Failed to load authorized source application API key")
+		if errors.IsNotFound(err) {
+			return nil, errApplicationNotAuthorized.WithCause(err)
+		}
+		return nil, err
+	}
+	sourceMD := rpcmetadata.MD{
+		AuthType:      "Bearer",
+		AuthValue:     app.APIKey,
+		AllowInsecure: s.DCS.AllowInsecureForCredentials(),
+	}
+	sourceCallOpts := []grpc.CallOption{
+		grpc.PerRPCCredentials(sourceMD),
+	}
+	sourceDialOpts := append(rpcclient.DefaultDialOptions(sourceCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
+	if tlsConfig, err := s.DCS.GetTLSConfig(sourceCtx); err == nil {
+		sourceDialOpts = append(sourceDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+	} else if s.DCS.AllowInsecureForCredentials() {
+		sourceDialOpts = append(sourceDialOpts, grpc.WithInsecure())
+	}
+
+	// Validate that the authorized application API key has enough rights to read and delete the device.
+	// NOTE: The Access fetcher expects metadata in the incoming context as it uses forwarded auth.
+	if err := rights.RequireApplication(sourceMD.ToIncomingContext(sourceCtx), sourceIDs.ApplicationIdentifiers,
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+	); err != nil {
+		return nil, err
+	}
+
+	var (
+		dev     *ttnpb.EndDevice
+		deleted bool
+	)
+	defer func() {
+		if err == nil || dev == nil || deleted {
+			return
+		}
+		registerFailClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers, err)
+	}()
+
+	// Get source end device from Entity Registry.
+	logger.Debug("Load source end device from Entity Registry")
+	dev, err := sourceERClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+		EndDeviceIdentifiers: *sourceIDs,
+		FieldMask: pbtypes.FieldMask{
+			Paths: transferISPaths[:],
+		},
+	}, sourceCallOpts...)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to load source end device from Entity Registry")
+		return nil, err
+	}
+	logger = logger.WithField("join_server_address", dev.JoinServerAddress)
+
+	// Get source end device from Join Server.
+	logger.Debug("Get source end device from Join Server")
+	sourceJSClient, err := s.DCS.getJsDeviceRegistry(sourceCtx, sourceIDs)
+	if err != nil {
+		return nil, err
+	}
+	sourceJSDev, err := sourceJSClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+		EndDeviceIdentifiers: *sourceIDs,
+		FieldMask: pbtypes.FieldMask{
+			Paths: transferJSPaths[:],
+		},
+	}, sourceCallOpts...)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get source end device from Join Server")
+		return nil, err
+	}
+	if err := dev.SetFields(sourceJSDev, ttnpb.ExcludeFields(transferJSPaths[:], "network_server_address", "application_server_address")...); err != nil {
+		return nil, err
+	}
+
+	// Validate claim authentication code. Do not propagate the reason why the given authentication code is invalid.
+	logger.Debug("Validate claim authentication code")
+	if dev.ClaimAuthenticationCode == nil {
+		logger.Warn("Claim authentication code not specified")
+		return nil, errClaimAuthenticationCode
+	}
+	if dev.ClaimAuthenticationCode.ValidFrom != nil && time.Since(*dev.ClaimAuthenticationCode.ValidFrom) < 0 {
+		logger.Warn("Claim authentication code not valid yet")
+		return nil, errClaimAuthenticationCode
+	}
+	if dev.ClaimAuthenticationCode.ValidTo != nil && time.Until(*dev.ClaimAuthenticationCode.ValidTo) < 0 {
+		logger.Warn("Claim authentication code not valid anymore")
+		return nil, errClaimAuthenticationCode
+	}
+	if !bytes.Equal(authCode, dev.ClaimAuthenticationCode.Value) {
+		logger.Warn("Claim authentication code mismatch")
+		return nil, errClaimAuthenticationCode
+	}
+
+	// Get source end device from Network Server and Application Server.
+	var sourceNSClient ttnpb.NsEndDeviceRegistryClient
+	if dev.NetworkServerAddress != "" {
+		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
+		logger.Debug("Get source end device from Network Server")
+		sourceNSConn, err := grpc.DialContext(sourceCtx, dev.NetworkServerAddress, sourceDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial source Network Server")
+			return nil, err
+		}
+		defer sourceNSConn.Close()
+		sourceNSClient = ttnpb.NewNsEndDeviceRegistryClient(sourceNSConn)
+		sourceNSDev, err := sourceNSClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+			EndDeviceIdentifiers: *sourceIDs,
+			FieldMask: pbtypes.FieldMask{
+				Paths: transferNSPaths[:],
+			},
+		}, sourceCallOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to get source end device from Network Server")
+			return nil, err
+		}
+		if err := dev.SetFields(sourceNSDev, transferNSPaths[:]...); err != nil {
+			return nil, err
+		}
+	}
+	var sourceASClient ttnpb.AsEndDeviceRegistryClient
+	if dev.ApplicationServerAddress != "" {
+		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
+		logger.Debug("Get source end device from Application Server")
+		sourceASConn, err := grpc.DialContext(sourceCtx, dev.ApplicationServerAddress, sourceDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial source Application Server")
+			return nil, err
+		}
+		defer sourceASConn.Close()
+		sourceASClient = ttnpb.NewAsEndDeviceRegistryClient(sourceASConn)
+		sourceASDev, err := sourceASClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+			EndDeviceIdentifiers: *sourceIDs,
+			FieldMask: pbtypes.FieldMask{
+				Paths: transferASPaths[:],
+			},
+		}, sourceCallOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to get source end device from Application Server")
+			return nil, err
+		}
+		if err := dev.SetFields(sourceASDev, transferASPaths[:]...); err != nil {
+			return nil, err
+		}
+	}
+
+	// Delete source end device in Application Server, Network Server, Join Server and Entity Registry, in ascending
+	// order of importance. If any but not all deletions fails, the claiming process gets aborted and successfully deleted
+	// devices are not recovered.
+	for _, deleter := range []struct {
+		name   string
+		client interface {
+			Delete(context.Context, *ttnpb.EndDeviceIdentifiers, ...grpc.CallOption) (*pbtypes.Empty, error)
+		}
+	}{
+		{
+			name:   "Application Server",
+			client: sourceASClient,
+		},
+		{
+			name:   "Network Server",
+			client: sourceNSClient,
+		},
+		{
+			name:   "Join Server",
+			client: sourceJSClient,
+		},
+		{
+			name:   "Entity Registry",
+			client: sourceERClient,
+		},
+	} {
+		if deleter.client == nil {
+			continue
+		}
+		logger.Debugf("Delete source end device from %s", deleter.name)
+		if _, err := deleter.client.Delete(sourceCtx, sourceIDs, sourceCallOpts...); err != nil {
+			logger.WithError(err).Warnf("Failed to delete source end device from %s", deleter.name)
+			return nil, err
+		}
+	}
+
+	// TODO: Publish device claimed event.
+
+	// Invalidate claim authentication code if requested.
+	if req.InvalidateAuthenticationCode {
+		now := time.Now()
+		dev.ClaimAuthenticationCode.ValidTo = &now
+	}
+
+	// Set fields from the claiming request.
+	dev.ApplicationIdentifiers = req.TargetApplicationIDs
+	if req.TargetDeviceID != "" {
+		dev.DeviceID = req.TargetDeviceID
+	}
+	logger = logger.WithField("target_device_uid", unique.ID(targetCtx, dev.EndDeviceIdentifiers))
+	dev.NetworkServerAddress = req.TargetNetworkServerAddress
+	dev.NetworkServerKEKLabel = req.TargetNetworkServerKEKLabel
+	dev.ApplicationServerAddress = req.TargetApplicationServerAddress
+	dev.ApplicationServerKEKLabel = req.TargetApplicationServerKEKLabel
+	dev.ApplicationServerID = req.TargetApplicationServerID
+	var targetISDev, targetJSDev, targetNSDev, targetASDev ttnpb.EndDevice
+	for d, paths := range map[*ttnpb.EndDevice][]string{
+		&targetISDev: transferISPaths[:],
+		&targetJSDev: transferJSPaths[:],
+		&targetNSDev: transferNSPaths[:],
+		&targetASDev: transferASPaths[:],
+	} {
+		paths = append(paths, "ids")
+		if err := d.SetFields(dev, paths...); err != nil {
+			return nil, err
+		}
+	}
+
+	// Create the devices in the target Entity Registry, Join Server, Network Server and Application Server, in descending
+	// order of importance. If any create fails, the claiming process gets aborted but successfully created devices will
+	// not be deleted.
+	targetCallOpts := []grpc.CallOption{
+		targetForwardAuth,
+	}
+	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
+	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
+		targetDialOpts = append(targetDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+	} else if s.DCS.AllowInsecureForCredentials() {
+		targetDialOpts = append(targetDialOpts, grpc.WithInsecure())
+	}
+	logger.Debug("Create target end device on Entity Registry")
+	targetERClient, err := s.DCS.getDeviceRegistry(targetCtx, &dev.EndDeviceIdentifiers)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get device registry")
+		return nil, err
+	}
+	if _, err := targetERClient.Create(targetCtx, &ttnpb.CreateEndDeviceRequest{
+		EndDevice: targetISDev,
+	}, targetCallOpts...); err != nil {
+		logger.WithError(err).Warn("Failed to create target end device on Entity Registry")
+		return nil, err
+	}
+	logger.Debug("Create target end device on Join Server")
+	targetJSClient, err := s.DCS.getJsDeviceRegistry(targetCtx, &dev.EndDeviceIdentifiers)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := targetJSClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
+		EndDevice: targetJSDev,
+		FieldMask: pbtypes.FieldMask{
+			Paths: transferJSPaths[:],
+		},
+	}, targetCallOpts...); err != nil {
+		logger.WithError(err).Warn("Failed to create target end device on Join Server")
+		return nil, err
+	}
+	if dev.NetworkServerAddress != "" {
+		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
+		logger.Debug("Create target end device on Network Server")
+		targetNSConn, err := grpc.DialContext(targetCtx, dev.NetworkServerAddress, targetDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial target Network Server")
+			return nil, err
+		}
+		defer targetNSConn.Close()
+		targetNSClient := ttnpb.NewNsEndDeviceRegistryClient(targetNSConn)
+		if _, err := targetNSClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
+			EndDevice: targetNSDev,
+			FieldMask: pbtypes.FieldMask{
+				Paths: transferNSPaths[:],
+			},
+		}, targetCallOpts...); err != nil {
+			logger.WithError(err).Warn("Failed to create target end device on Network Server")
+			return nil, err
+		}
+	}
+	if dev.ApplicationServerAddress != "" {
+		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
+		logger.Debug("Create target end device on Application Server")
+		targetASConn, err := grpc.DialContext(targetCtx, dev.ApplicationServerAddress, targetDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial target Application Server")
+			return nil, err
+		}
+		defer targetASConn.Close()
+		targetASClient := ttnpb.NewAsEndDeviceRegistryClient(targetASConn)
+		if _, err := targetASClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
+			EndDevice: targetASDev,
+			FieldMask: pbtypes.FieldMask{
+				Paths: transferASPaths[:],
+			},
+		}, targetCallOpts...); err != nil {
+			logger.WithError(err).Warn("Failed to create target end device on Application Server")
+			return nil, err
+		}
+	}
+
+	logger.Info("Claimed end device")
+	return &dev.EndDeviceIdentifiers, nil
 }
 
 func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req *ttnpb.AuthorizeApplicationRequest) (*pbtypes.Empty, error) {
@@ -39,8 +495,6 @@ func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req 
 	}
 	return ttnpb.Empty, nil
 }
-
-var errApplicationNotAuthorized = errors.DefineNotFound("application_not_authorized", "application not authorized")
 
 func (s *endDeviceClaimingServer) UnauthorizeApplication(ctx context.Context, ids *ttnpb.ApplicationIdentifiers) (*pbtypes.Empty, error) {
 	_, err := s.DCS.authorizedAppsRegistry.Set(ctx, *ids, nil, func(key *ttipb.ApplicationAPIKey) (*ttipb.ApplicationAPIKey, []string, error) {
