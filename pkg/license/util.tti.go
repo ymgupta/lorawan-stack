@@ -19,7 +19,7 @@ func checkValidity(license *ttipb.License) error {
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
 		return fmt.Errorf("license is valid from %s", validFrom)
 	}
-	if validUntil := license.GetValidUntil(); now.After(validUntil) {
+	if validUntil := license.GetValidUntil(); now.After(validUntil) && (license.Metering == nil || !validUntil.IsZero()) {
 		return fmt.Errorf("license is valid until %s", validUntil)
 	}
 	return nil
