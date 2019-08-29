@@ -53,9 +53,14 @@ func TestComputeUsage(t *testing.T) {
 			expectedQuantity:  1,
 		},
 		{
+			deviceCount:       22000,
+			expectedDimension: "Over20000devices",
+			expectedQuantity:  220,
+		},
+		{
 			deviceCount:       22513,
 			expectedDimension: "Over20000devices",
-			expectedQuantity:  225,
+			expectedQuantity:  226,
 		},
 	} {
 		t.Run(fmt.Sprintf("%dEndDevices", tc.deviceCount), func(t *testing.T) {
