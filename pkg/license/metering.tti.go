@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	"go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -131,7 +132,7 @@ func (s *meteringSetup) Run(ctx context.Context) error {
 var globalMetering *meteringSetup
 
 // SetupMetering sets up metering on cluster.
-func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) error {
+func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) (err error) {
 	if globalMetering != nil {
 		return errors.New("only one metering configuration can be set up")
 	}
@@ -141,9 +142,10 @@ func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, clu
 	}
 	switch reporterConfig := config.Metering.(type) {
 	case *ttipb.MeteringConfiguration_AWS_:
-		// TODO: Set up AWS metering reporter.
-		_ = reporterConfig
-		globalMetering.reporter = nil
+		globalMetering.reporter, err = awsmetrics.New(reporterConfig.AWS)
+		if err != nil {
+			return err
+		}
 	default:
 		panic(fmt.Errorf("unsupported metering reporter config type: %T", config.Metering))
 	}

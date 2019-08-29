@@ -9,41 +9,35 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/marketplacemetering"
-	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
-type reporter struct {
+// Reporter is a license.MeteringReporter that reports the stats
+// to the AWS Marketplace metering service.
+type Reporter struct {
 	config  *ttipb.MeteringConfiguration_AWS
 	service *marketplacemetering.MarketplaceMetering
 }
 
-// Report implements license.MetricsReporter.
-func (r *reporter) Report(ctx context.Context, data *ttipb.MeteringData) error {
+// Report implements license.MeteringReporter.
+func (r *Reporter) Report(ctx context.Context, data *ttipb.MeteringData) error {
 	request := &marketplacemetering.MeterUsageInput{
 		ProductCode: aws.String(r.config.GetSKU()),
 		Timestamp:   aws.Time(time.Now()),
 	}
 	request.UsageDimension, request.UsageQuantity = computeUsage(data)
-	response, err := r.service.MeterUsageWithContext(ctx, request)
-	logger := log.FromContext(ctx)
-	if err != nil {
-		logger.WithError(err).Warn("Failed to transmit the metering record")
-	} else {
-		logger.WithField("metering_record_id", response.MeteringRecordId).Debug("Metering record sent")
-	}
+	_, err := r.service.MeterUsageWithContext(ctx, request)
 	return err
 }
 
-// New returns a new license.MetricsReporter that reports the metrics to the AWS Marketplace Metering Service.
-func New(config *ttipb.MeteringConfiguration_AWS) (license.MetricsReporter, error) {
+// New returns a new license.MeteringReporter that reports the metrics to the AWS Marketplace Metering Service.
+func New(config *ttipb.MeteringConfiguration_AWS) (*Reporter, error) {
 	sess, err := session.NewSession()
 	if err != nil {
 		return nil, err
 	}
 	service := marketplacemetering.New(sess)
-	return &reporter{
+	return &Reporter{
 		config:  config,
 		service: service,
 	}, nil
