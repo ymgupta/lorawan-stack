@@ -7,7 +7,6 @@ import (
 	"crypto/ecdsa"
 	"crypto/rand"
 	"crypto/x509"
-	"errors"
 	"strings"
 
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
@@ -62,6 +61,6 @@ func NewSigner(keyID, keyType string, private []byte) (KeySigner, error) {
 		}
 		return &keySigner{keyID: keyID, sign: newECDSASigner(hash, priv)}, nil
 	default:
-		return nil, errors.New("unknown private license key type")
+		return nil, errUnknownLicenseKeyType
 	}
 }

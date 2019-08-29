@@ -6,12 +6,14 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/x509"
-	"errors"
 
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
 type SignatureVerifier func(license []byte, sig []byte) error
+
+var errInvalidLicenseSignature = errors.DefineFailedPrecondition("invalid_license_signature", "invalid license signature")
 
 func newECDSAVerifier(hash crypto.Hash, pub *ecdsa.PublicKey) SignatureVerifier {
 	return func(license []byte, sig []byte) error {
@@ -22,13 +24,18 @@ func newECDSAVerifier(hash crypto.Hash, pub *ecdsa.PublicKey) SignatureVerifier 
 		h := hash.New()
 		h.Write(license)
 		if !ecdsa.Verify(pub, h.Sum(nil), es.R, es.S) {
-			return errors.New("invalid license signature")
+			return errInvalidLicenseSignature
 		}
 		return nil
 	}
 }
 
 var verifiers = map[string]SignatureVerifier{}
+
+var (
+	errMissingLicense   = errors.DefineFailedPrecondition("missing_license", "missing license")
+	errNoValidSignature = errors.DefineFailedPrecondition("no_valid_license_signature", "no valid license signature")
+)
 
 // VerifyKey verifies the license key and extracts license information.
 func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
@@ -37,7 +44,7 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 		return ttipb.License{}, err
 	}
 	if license == nil {
-		return ttipb.License{}, errors.New("no license")
+		return ttipb.License{}, errMissingLicense
 	}
 	if err := CheckValidity(license); err != nil {
 		return ttipb.License{}, err
@@ -52,7 +59,7 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 		}
 	}
 	if !anyValid {
-		return ttipb.License{}, errors.New("unknown license signature key ID")
+		return ttipb.License{}, errNoValidSignature
 	}
 	return *license, nil
 }
@@ -71,7 +78,7 @@ func NewVerifier(public []byte) (SignatureVerifier, error) {
 		}
 		return newECDSAVerifier(hash, pub), nil
 	default:
-		return nil, errors.New("unknown public license key type")
+		return nil, errUnknownLicenseKeyType
 	}
 }
 

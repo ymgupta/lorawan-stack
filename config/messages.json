@@ -4661,6 +4661,78 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/license:component_not_licensed": {
+    "translations": {
+      "en": "the `{component}` component is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:invalid_license_signature": {
+    "translations": {
+      "en": "invalid license signature"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:license_expired": {
+    "translations": {
+      "en": "the license is expired"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:license_not_valid_yet": {
+    "translations": {
+      "en": "the license is not valid yet"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:missing_license": {
+    "translations": {
+      "en": "missing license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:multi_tenancy_not_licensed": {
+    "translations": {
+      "en": "multi-tenancy is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:no_valid_license_signature": {
+    "translations": {
+      "en": "no valid license signature"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:unknown_license_key_type": {
+    "translations": {
+      "en": "unknown license key type"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/messageprocessors/cayennelpp:channel": {
     "translations": {
       "en": "invalid channel `{channel}`"

@@ -6,25 +6,33 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"encoding/asn1"
-	"errors"
-	"fmt"
 	"math/big"
 	"time"
 
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+)
+
+var (
+	errLicenseNotValidYet = errors.DefineFailedPrecondition("license_not_valid_yet", "the license is not valid yet", "valid_from")
+	errLicenseExpired     = errors.DefineFailedPrecondition("license_expired", "the license is expired", "valid_until")
 )
 
 // CheckValidity checks the validity of the license.
 func CheckValidity(license *ttipb.License) error {
 	now := time.Now()
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
-		return fmt.Errorf("license is valid from %s", validFrom)
+		return errLicenseNotValidYet.WithAttributes("valid_from", validFrom)
 	}
 	if validUntil := license.GetValidUntil(); now.After(validUntil) && (license.Metering == nil || !validUntil.IsZero()) {
-		return fmt.Errorf("license is valid until %s", validUntil)
+		return errLicenseExpired.WithAttributes("valid_until", validUntil)
 	}
 	return nil
 }
+
+var (
+	errUnknownLicenseKeyType = errors.DefineFailedPrecondition("unknown_license_key_type", "unknown license key type")
+)
 
 func getHash(pub crypto.PublicKey) (crypto.Hash, error) {
 	switch pub := pub.(type) {
@@ -37,10 +45,10 @@ func getHash(pub crypto.PublicKey) (crypto.Hash, error) {
 		case 521:
 			return crypto.SHA512, nil
 		default:
-			return 0, errors.New("unsupported license key curve")
+			return 0, errUnknownLicenseKeyType
 		}
 	default:
-		return 0, errors.New("unknown public license key type")
+		return 0, errUnknownLicenseKeyType
 	}
 }
 
