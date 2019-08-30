@@ -220,6 +220,26 @@
               "defaultValue": ""
             },
             {
+              "name": "min_version",
+              "description": "If set, sets the minimum version allowed by this license (major.minor.patch).",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_version",
+              "description": "If set, sets the maximum version allowed by this license (major.minor.patch).",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "components",
               "description": "If set, only the given components can be started.",
               "label": "repeated",

@@ -134,6 +134,10 @@ func (m *License) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "min_version":
+			// no validation rules for MinVersion
+		case "max_version":
+			// no validation rules for MaxVersion
 		case "components":
 
 		case "component_address_regexps":

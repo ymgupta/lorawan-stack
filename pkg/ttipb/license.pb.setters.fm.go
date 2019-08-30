@@ -96,6 +96,26 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 				var zero time.Duration
 				dst.LimitFor = zero
 			}
+		case "min_version":
+			if len(subs) > 0 {
+				return fmt.Errorf("'min_version' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MinVersion = src.MinVersion
+			} else {
+				var zero string
+				dst.MinVersion = zero
+			}
+		case "max_version":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_version' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxVersion = src.MaxVersion
+			} else {
+				var zero string
+				dst.MaxVersion = zero
+			}
 		case "components":
 			if len(subs) > 0 {
 				return fmt.Errorf("'components' has no subfields, but %s were specified", subs)

@@ -4733,6 +4733,24 @@
       "file": "util.tti.go"
     }
   },
+  "error:pkg/license:version_too_high": {
+    "translations": {
+      "en": "the current version number is too high"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:version_too_low": {
+    "translations": {
+      "en": "the current version number is too low"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/messageprocessors/cayennelpp:channel": {
     "translations": {
       "en": "invalid channel `{channel}`"

@@ -84,6 +84,8 @@
 | `valid_until` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | The license is not valid after this time. |
 | `warn_for` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | For how long (before valid_until) to warn about license expiry. |
 | `limit_for` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | For how long (before valid_until) to limit non-critical functionality. |
+| `min_version` | [`string`](#string) |  | If set, sets the minimum version allowed by this license (major.minor.patch). |
+| `max_version` | [`string`](#string) |  | If set, sets the maximum version allowed by this license (major.minor.patch). |
 | `components` | [`ttn.lorawan.v3.ClusterRole`](#ttn.lorawan.v3.ClusterRole) | repeated | If set, only the given components can be started. |
 | `component_address_regexps` | [`string`](#string) | repeated | If set, the server addresses must match any of these regexps. |
 | `dev_addr_prefixes` | [`bytes`](#bytes) | repeated | If set, the configured DevAddr prefixes must match any of these prefixes. |

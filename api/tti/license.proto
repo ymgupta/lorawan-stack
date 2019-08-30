@@ -34,34 +34,40 @@ message License {
   // For how long (before valid_until) to limit non-critical functionality.
   google.protobuf.Duration limit_for = 7 [(gogoproto.nullable) = false, (gogoproto.stdduration) = true];
 
+  // If set, sets the minimum version allowed by this license (major.minor.patch).
+  string min_version = 8;
+
+  // If set, sets the maximum version allowed by this license (major.minor.patch).
+  string max_version = 9;
+
   // If set, only the given components can be started.
-  repeated ttn.lorawan.v3.ClusterRole components = 8;
+  repeated ttn.lorawan.v3.ClusterRole components = 10;
 
   // If set, the server addresses must match any of these regexps.
-  repeated string component_address_regexps = 9;
+  repeated string component_address_regexps = 11;
   // If set, the configured DevAddr prefixes must match any of these prefixes.
-  repeated bytes dev_addr_prefixes = 10 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
+  repeated bytes dev_addr_prefixes = 12 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
   // If set, the configured JoinEUI prefixes must match any of these prefixes.
-  repeated bytes join_eui_prefixes = 11 [(gogoproto.customname) = "JoinEUIPrefixes", (gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix", (gogoproto.nullable) = false];
+  repeated bytes join_eui_prefixes = 13 [(gogoproto.customname) = "JoinEUIPrefixes", (gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix", (gogoproto.nullable) = false];
 
   // Indicates whether multi-tenancy support is included.
-  bool multi_tenancy = 12;
+  bool multi_tenancy = 14;
 
   // If set, restricts the maximum number of applications that can be created.
-  google.protobuf.UInt64Value max_applications = 13;
+  google.protobuf.UInt64Value max_applications = 15;
   // If set, restricts the maximum number of clients that can be created.
-  google.protobuf.UInt64Value max_clients = 14;
+  google.protobuf.UInt64Value max_clients = 16;
   // If set, restricts the maximum number of end_devices that can be created.
-  google.protobuf.UInt64Value max_end_devices = 15;
+  google.protobuf.UInt64Value max_end_devices = 17;
   // If set, restricts the maximum number of gateways that can be created.
-  google.protobuf.UInt64Value max_gateways = 16;
+  google.protobuf.UInt64Value max_gateways = 18;
   // If set, restricts the maximum number of organizations that can be created.
-  google.protobuf.UInt64Value max_organizations = 17;
+  google.protobuf.UInt64Value max_organizations = 19;
   // If set, restricts the maximum number of users that can be created.
-  google.protobuf.UInt64Value max_users = 18;
+  google.protobuf.UInt64Value max_users = 20;
 
   // If set, requires checking in with a metering service.
-  MeteringConfiguration metering = 19;
+  MeteringConfiguration metering = 21;
 }
 
 message LicenseUpdate {

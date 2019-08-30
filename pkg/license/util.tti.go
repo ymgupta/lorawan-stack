@@ -9,13 +9,17 @@ import (
 	"math/big"
 	"time"
 
+	"github.com/blang/semver"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/version"
 )
 
 var (
 	errLicenseNotValidYet = errors.DefineFailedPrecondition("license_not_valid_yet", "the license is not valid yet", "valid_from")
 	errLicenseExpired     = errors.DefineFailedPrecondition("license_expired", "the license is expired", "valid_until")
+	errVersionTooLow      = errors.DefineFailedPrecondition("version_too_low", "the current version number is too low", "min_version")
+	errVersionTooHigh     = errors.DefineFailedPrecondition("version_too_high", "the current version number is too high", "max_version")
 )
 
 // CheckValidity checks the validity of the license.
@@ -26,6 +30,17 @@ func CheckValidity(license *ttipb.License) error {
 	}
 	if validUntil := license.GetValidUntil(); now.After(validUntil) && (license.Metering == nil || !validUntil.IsZero()) {
 		return errLicenseExpired.WithAttributes("valid_until", validUntil)
+	}
+	currentVersion, _ := semver.Parse(version.TTN) // Invalid versions (snapshots) are 0.0.0.
+	if minVersionStr := license.GetMinVersion(); minVersionStr != "" {
+		if minVersion, err := semver.Parse(minVersionStr); err == nil && currentVersion.Compare(minVersion) == -1 {
+			return errVersionTooLow.WithAttributes("min_version", minVersionStr)
+		}
+	}
+	if maxVersionStr := license.GetMinVersion(); maxVersionStr != "" {
+		if maxVersion, err := semver.Parse(maxVersionStr); err == nil && currentVersion.Compare(maxVersion) == 1 {
+			return errVersionTooHigh.WithAttributes("max_version", maxVersionStr)
+		}
 	}
 	return nil
 }
