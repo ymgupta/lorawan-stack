@@ -36,6 +36,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/jsonpb"
+	licensemiddleware "go.thethings.network/lorawan-stack/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/pkg/metrics"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware"
@@ -152,6 +153,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		metrics.StreamServerInterceptor,
 		sentry.StreamServerInterceptor(options.sentry),
 		errors.StreamServerInterceptor(),
+		licensemiddleware.StreamServerInterceptor,
 		validator.StreamServerInterceptor(),
 		hooks.StreamServerInterceptor(),
 	}
@@ -167,6 +169,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		metrics.UnaryServerInterceptor,
 		sentry.UnaryServerInterceptor(options.sentry),
 		errors.UnaryServerInterceptor(),
+		licensemiddleware.UnaryServerInterceptor,
 		validator.UnaryServerInterceptor(),
 		hooks.UnaryServerInterceptor(),
 	}

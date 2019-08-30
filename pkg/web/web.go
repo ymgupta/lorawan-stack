@@ -25,6 +25,7 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
+	licensemiddleware "go.thethings.network/lorawan-stack/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -127,6 +128,7 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 		middleware.Recover(),
 		cookie.Cookies(blockKey, hashKey),
 		middleware.FillContext(options.contextFillers...),
+		licensemiddleware.Middleware,
 	)
 
 	s := &Server{
