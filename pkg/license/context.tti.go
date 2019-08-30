@@ -4,11 +4,13 @@ package license
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/warning"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -48,6 +50,9 @@ func FromContext(ctx context.Context) ttipb.License {
 	if license, ok := ctx.Value(licenseContextKey).(ttipb.License); ok {
 		if license.Metering != nil {
 			license = globalMetering.Apply(license)
+		}
+		if validUntil := license.GetValidUntil(); now.Add(license.GetWarnFor()).After(validUntil) {
+			warning.Add(ctx, fmt.Sprintf("license expiry at %s", validUntil))
 		}
 		return license
 	}
