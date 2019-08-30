@@ -26,10 +26,10 @@ var (
 func CheckValidity(license *ttipb.License) error {
 	now := time.Now()
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
-		return errLicenseNotValidYet.WithAttributes("valid_from", validFrom)
+		return errLicenseNotValidYet.WithAttributes("valid_from", validFrom.Format(time.RFC822))
 	}
 	if validUntil := license.GetValidUntil(); now.After(validUntil) && (license.Metering == nil || !validUntil.IsZero()) {
-		return errLicenseExpired.WithAttributes("valid_until", validUntil)
+		return errLicenseExpired.WithAttributes("valid_until", validUntil.Format(time.RFC822))
 	}
 	currentVersion, _ := semver.Parse(version.TTN) // Invalid versions (snapshots) are 0.0.0.
 	if minVersionStr := license.GetMinVersion(); minVersionStr != "" {
