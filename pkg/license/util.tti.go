@@ -45,6 +45,16 @@ func CheckValidity(license *ttipb.License) error {
 	return nil
 }
 
+var errLimitedFunctionality = errors.DefineFailedPrecondition("limited_functionality", "limited functionality due to license expiry")
+
+// CheckLimitedFunctionality checks if functionality needs to be limited.
+func CheckLimitedFunctionality(license *ttipb.License) error {
+	if validUntil := license.GetValidUntil(); now.Add(license.GetLimitFor()).After(validUntil) {
+		return errLimitedFunctionality
+	}
+	return nil
+}
+
 var (
 	errUnknownLicenseKeyType = errors.DefineFailedPrecondition("unknown_license_key_type", "unknown license key type")
 )

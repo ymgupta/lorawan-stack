@@ -16,6 +16,9 @@ func checkLicense(model *Model) (*ttipb.License, error) {
 	if err := license.CheckValidity(&l); err != nil {
 		return nil, err
 	}
+	if err := license.CheckLimitedFunctionality(&l); err != nil {
+		return nil, err
+	}
 	return &l, nil
 }
 

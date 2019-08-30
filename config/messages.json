@@ -4697,6 +4697,15 @@
       "file": "util.tti.go"
     }
   },
+  "error:pkg/license:limited_functionality": {
+    "translations": {
+      "en": "limited functionality due to license expiry"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/license:missing_license": {
     "translations": {
       "en": "missing license"
