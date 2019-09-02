@@ -4,13 +4,11 @@ package license
 
 import (
 	"context"
-	"fmt"
 	"strings"
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/warning"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -30,7 +28,7 @@ var defaultLicense = ttipb.License{
 	ComponentAddressRegexps: []string{"localhost"},
 	DevAddrPrefixes: []types.DevAddrPrefix{
 		{DevAddr: types.DevAddr{0, 0, 0, 0}, Length: 7},
-		{DevAddr: types.DevAddr{0, 0, 0, 2}, Length: 7},
+		{DevAddr: types.DevAddr{2, 0, 0, 0}, Length: 7},
 	},
 	MaxApplications:  &pbtypes.UInt64Value{Value: 100},
 	MaxClients:       &pbtypes.UInt64Value{Value: 100},
@@ -50,9 +48,6 @@ func FromContext(ctx context.Context) ttipb.License {
 	if license, ok := ctx.Value(licenseContextKey).(ttipb.License); ok {
 		if license.Metering != nil {
 			license = globalMetering.Apply(license)
-		}
-		if validUntil := license.GetValidUntil(); now.Add(license.GetWarnFor()).After(validUntil) {
-			warning.Add(ctx, fmt.Sprintf("license expiry at %s", validUntil))
 		}
 		return license
 	}

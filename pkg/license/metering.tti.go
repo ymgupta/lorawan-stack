@@ -32,8 +32,8 @@ type meteringSetup struct {
 	cluster  Cluster
 	reporter MeteringReporter
 
-	mu    sync.RWMutex
-	apply func(ttipb.License) ttipb.License
+	mu    sync.RWMutex                      // Protects the apply func.
+	apply func(ttipb.License) ttipb.License // Applies the OnSuccess rules of the latest renewal to the license.
 }
 
 // Apply updates the license according to the update rules.
@@ -71,7 +71,7 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	reg := ttipb.NewTenantRegistryClient(cc)
 	creds := s.cluster.WithClusterAuth()
 
-	// TODO: List all tenants and range over those.
+	// TODO: List all tenants and range over those (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
 	// tenants, err := reg.List(ctx, &ttipb.ListTenantsRequest{
 	// 	FieldMask: pbtypes.FieldMask{Paths: []string{"ids"}},
 	// 	Limit:     0,
@@ -82,13 +82,13 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	// }
 
 	totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
-		// TODO: TenantIdentifiers
+		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
 	}, creds)
 	if err != nil {
 		return err
 	}
 	meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
-		// TODO: TenantIdentifiers
+		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
 		Totals: totals,
 	})
 
@@ -122,7 +122,7 @@ func (s *meteringSetup) Run(ctx context.Context) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return s.CollectAndReport(ctx)
+			return ctx.Err()
 		case <-reportTicker.C:
 			s.CollectAndReport(ctx)
 		}
@@ -147,7 +147,7 @@ func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, clu
 			return err
 		}
 	default:
-		panic(fmt.Errorf("unsupported metering reporter config type: %T", config.Metering))
+		return fmt.Errorf("unsupported metering reporter config type: %T", config.Metering)
 	}
 
 	if err := globalMetering.CollectAndReport(ctx); err != nil {

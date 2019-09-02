@@ -9,7 +9,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
-// Config has the config for the license.
+// Config represents the license configuration.
 type Config struct {
 	File string `name:"file" description:"Location of the license file"`
 	Key  string `name:"key" description:"Contents of the license key"`

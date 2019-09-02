@@ -19,7 +19,11 @@ func checkLicense(ctx context.Context) error {
 		return err
 	}
 	if validUntil := l.GetValidUntil(); time.Until(validUntil) < l.GetWarnFor() {
-		warning.Add(ctx, fmt.Sprintf("license expiry at %s", validUntil))
+		if l.Metering != nil {
+			warning.Add(ctx, fmt.Sprintf("failed to report to metering service, license expiry at %s", validUntil))
+		} else {
+			warning.Add(ctx, fmt.Sprintf("license expiry at %s", validUntil))
+		}
 	}
 	return nil
 }

@@ -28,17 +28,17 @@ func CheckValidity(license *ttipb.License) error {
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
 		return errLicenseNotValidYet.WithAttributes("valid_from", validFrom.Format(time.RFC822))
 	}
-	if validUntil := license.GetValidUntil(); now.After(validUntil) && (license.Metering == nil || !validUntil.IsZero()) {
+	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && now.After(validUntil) && license.Metering == nil {
 		return errLicenseExpired.WithAttributes("valid_until", validUntil.Format(time.RFC822))
 	}
 	currentVersion, _ := semver.Parse(version.TTN) // Invalid versions (snapshots) are 0.0.0.
 	if minVersionStr := license.GetMinVersion(); minVersionStr != "" {
-		if minVersion, err := semver.Parse(minVersionStr); err == nil && currentVersion.Compare(minVersion) == -1 {
+		if minVersion, err := semver.Parse(minVersionStr); err == nil && currentVersion.Compare(minVersion) < 0 {
 			return errVersionTooLow.WithAttributes("min_version", minVersionStr)
 		}
 	}
-	if maxVersionStr := license.GetMinVersion(); maxVersionStr != "" {
-		if maxVersion, err := semver.Parse(maxVersionStr); err == nil && currentVersion.Compare(maxVersion) == 1 {
+	if maxVersionStr := license.GetMaxVersion(); maxVersionStr != "" {
+		if maxVersion, err := semver.Parse(maxVersionStr); err == nil && currentVersion.Compare(maxVersion) > 0 {
 			return errVersionTooHigh.WithAttributes("max_version", maxVersionStr)
 		}
 	}

@@ -60,7 +60,8 @@ func (gcs *GatewayConfigurationServer) RegisterRoutes(server *web.Server) {
 
 // New returns new *GatewayConfigurationServer.
 func New(c *component.Component, conf *Config) (*GatewayConfigurationServer, error) {
-	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_GATEWAY_SERVER); err != nil { // TODO: Do we need a ClusterRole for this? (!!!)
+	// TODO: Use GCS ClusterRole (https://github.com/TheThingsNetwork/lorawan-stack/issues/1278).
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_GATEWAY_SERVER); err != nil {
 		return nil, err
 	}
 

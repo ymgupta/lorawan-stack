@@ -21,7 +21,7 @@ var encoding = base64.StdEncoding
 
 // Usage:
 //
-// echo $LICENSE_KEY | go run ./pkg/license/internal/inpsect_license_key.tti.go
+// echo $LICENSE_KEY | go run ./pkg/license/internal/inspect_license_key.tti.go
 func main() {
 	flag.Parse()
 

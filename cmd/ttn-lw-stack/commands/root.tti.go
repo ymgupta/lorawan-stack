@@ -23,7 +23,7 @@ func initializeLicense(ctx context.Context) (context.Context, error) {
 		logger.Warn("No license configured, running in unlicensed mode")
 		return ctx, nil
 	}
-	logger.Info("Valid license")
+	logger.WithFields(license).Info("Valid license")
 	ctx = pkglicense.NewContextWithLicense(ctx, *license)
 	return ctx, err
 }

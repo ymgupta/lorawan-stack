@@ -19,7 +19,7 @@ import (
 //
 // go run ./pkg/license/internal/generate_signing_key.tti.go > /keybase/team/ttn.licensing/tti.lorawan-stack.v3.VERSION.pem
 //
-// Copy the output of stderr to ./pkg/license/keys.tti.go and change the key name.
+// Add the output of stderr to ./pkg/license/keys.tti.go.
 func main() {
 	privKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
