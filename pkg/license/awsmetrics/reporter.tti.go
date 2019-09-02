@@ -7,8 +7,11 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/marketplacemetering"
+	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
@@ -19,15 +22,32 @@ type Reporter struct {
 	service *marketplacemetering.MarketplaceMetering
 }
 
+var (
+	reportBackoff = []time.Duration{100 * time.Millisecond, 1 * time.Second, 10 * time.Second}
+
+	errMeteringServiceUnavailable = errors.DefineUnavailable("metering_service_unavailable", "AWS Marketplace metering service unavailable")
+)
+
 // Report implements license.MeteringReporter.
-func (r *Reporter) Report(ctx context.Context, data *ttipb.MeteringData) error {
-	request := &marketplacemetering.MeterUsageInput{
-		ProductCode: aws.String(r.config.GetSKU()),
-		Timestamp:   aws.Time(time.Now()),
+func (r *Reporter) Report(ctx context.Context, data *ttipb.MeteringData) (err error) {
+retryAttempt:
+	for _, backoff := range reportBackoff {
+		request := &marketplacemetering.MeterUsageInput{
+			ProductCode: aws.String(r.config.GetSKU()),
+			Timestamp:   aws.Time(time.Now()),
+		}
+		request.UsageDimension, request.UsageQuantity = computeUsage(data)
+		_, err = r.service.MeterUsageWithContext(ctx, request)
+		if aerr, ok := err.(awserr.Error); ok {
+			switch aerr.Code() {
+			case marketplacemetering.ErrCodeInternalServiceErrorException:
+				time.Sleep(random.Jitter(backoff, 0.1))
+				continue retryAttempt
+			}
+		}
+		return err
 	}
-	request.UsageDimension, request.UsageQuantity = computeUsage(data)
-	_, err := r.service.MeterUsageWithContext(ctx, request)
-	return err
+	return errMeteringServiceUnavailable.WithCause(err)
 }
 
 // New returns a new license.MeteringReporter that reports the metrics to the AWS Marketplace Metering Service.

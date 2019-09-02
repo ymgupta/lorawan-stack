@@ -4661,6 +4661,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/license/awsmetrics:metering_service_unavailable": {
+    "translations": {
+      "en": "AWS Marketplace metering service unavailable"
+    },
+    "description": {
+      "package": "pkg/license/awsmetrics",
+      "file": "reporter.tti.go"
+    }
+  },
   "error:pkg/license:component_not_licensed": {
     "translations": {
       "en": "the `{component}` component is not included in this license"
