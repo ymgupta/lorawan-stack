@@ -105,6 +105,9 @@ var errComponentAddressNotLicensed = errors.DefineFailedPrecondition("component_
 
 // RequireComponentAddress requires the given address to be included in the license.
 func RequireComponentAddress(ctx context.Context, addr string) error {
+	if addr == "" {
+		return nil
+	}
 	license := FromContext(ctx)
 	if err := CheckValidity(&license); err != nil {
 		return err
