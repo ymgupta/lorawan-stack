@@ -4724,6 +4724,15 @@
       "file": "util.tti.go"
     }
   },
+  "error:pkg/license:license_not_renewed": {
+    "translations": {
+      "en": "the license was not renewed by the metering service"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/license:license_not_valid_yet": {
     "translations": {
       "en": "the license is not valid yet"

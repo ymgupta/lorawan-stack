@@ -18,6 +18,7 @@ import (
 var (
 	errLicenseNotValidYet = errors.DefineFailedPrecondition("license_not_valid_yet", "the license is not valid yet", "valid_from")
 	errLicenseExpired     = errors.DefineFailedPrecondition("license_expired", "the license is expired", "valid_until")
+	errLicenseNotRenewed  = errors.DefineFailedPrecondition("license_not_renewed", "the license was not renewed by the metering service")
 	errVersionTooLow      = errors.DefineFailedPrecondition("version_too_low", "the current version number is too low", "min_version")
 	errVersionTooHigh     = errors.DefineFailedPrecondition("version_too_high", "the current version number is too high", "max_version")
 )
@@ -28,7 +29,10 @@ func CheckValidity(license *ttipb.License) error {
 	if validFrom := license.GetValidFrom(); now.Before(validFrom) {
 		return errLicenseNotValidYet.WithAttributes("valid_from", validFrom.Format(time.RFC822))
 	}
-	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && now.After(validUntil) && license.Metering == nil {
+	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && now.After(validUntil) {
+		if license.Metering != nil {
+			return errLicenseNotRenewed
+		}
 		return errLicenseExpired.WithAttributes("valid_until", validUntil.Format(time.RFC822))
 	}
 	currentVersion, _ := semver.Parse(version.TTN) // Invalid versions (snapshots) are 0.0.0.
