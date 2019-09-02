@@ -4688,6 +4688,15 @@
       "file": "context.tti.go"
     }
   },
+  "error:pkg/license:dev_addr_prefix_not_licensed": {
+    "translations": {
+      "en": "DevAddr prefix {prefix} is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
   "error:pkg/license:invalid_license_signature": {
     "translations": {
       "en": "invalid license signature"

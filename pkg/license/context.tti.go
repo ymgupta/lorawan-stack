@@ -12,6 +12,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
 type licenseContextKeyType struct{}
@@ -119,6 +120,27 @@ func RequireComponentAddress(ctx context.Context, addr string) error {
 			}
 		}
 		return errComponentAddressNotLicensed
+	}
+	return nil
+}
+
+var errDevAddrPrefixNotLicensed = errors.DefineFailedPrecondition("dev_addr_prefix_not_licensed", "DevAddr prefix {prefix} is not included in this license")
+
+// RequireDevAddrPrefix requires the given DevAddrPrefix to be included in the license.
+func RequireDevAddrPrefix(ctx context.Context, prefix types.DevAddrPrefix) error {
+	license := FromContext(ctx)
+	if err := CheckValidity(&license); err != nil {
+		return err
+	}
+	if licensedPrefixes := license.DevAddrPrefixes; len(licensedPrefixes) > 0 {
+		minAddr := types.DevAddr{0x00, 0x00, 0x00, 0x00}.WithPrefix(prefix)
+		maxAddr := types.DevAddr{0xff, 0xff, 0xff, 0xff}.WithPrefix(prefix)
+		for _, licensedPrefix := range licensedPrefixes {
+			if licensedPrefix.Matches(minAddr) && licensedPrefix.Matches(maxAddr) {
+				return nil
+			}
+		}
+		return errDevAddrPrefixNotLicensed.WithAttributes("prefix", prefix.String())
 	}
 	return nil
 }

@@ -168,6 +168,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 			},
 		}
 	}
+
+	for _, prefix := range devAddrPrefixes {
+		if err := license.RequireDevAddrPrefix(c.Context(), prefix); err != nil {
+			return nil, err
+		}
+	}
+
 	downlinkPriorities, err := conf.DownlinkPriorities.Parse()
 	if err != nil {
 		return nil, err
