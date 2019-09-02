@@ -60,5 +60,71 @@ PropTypes.event = PropTypes.shape({
   identifiers: PropTypes.array.isRequired,
   data: PropTypes.object,
 })
+PropTypes.events = PropTypes.arrayOf(PropTypes.event)
+
+PropTypes.gateway = PropTypes.shape({
+  ids: PropTypes.shape({
+    gateway_id: PropTypes.string.isRequired,
+  }).isRequired,
+  name: PropTypes.string,
+  description: PropTypes.string,
+  created_at: PropTypes.string,
+  updated_at: PropTypes.string,
+  frequency_plan_id: PropTypes.string.isRequired,
+  gateway_server_address: PropTypes.string,
+})
+
+PropTypes.gatewayStats = PropTypes.shape({
+  connected_at: PropTypes.string.isRequired,
+  last_uplink_received_at: PropTypes.string,
+  protocol: PropTypes.string,
+  uplink_count: PropTypes.string,
+  downlink_count: PropTypes.string,
+  round_trip_times: PropTypes.shape({}),
+})
+
+PropTypes.user = PropTypes.shape({
+  ids: PropTypes.shape({
+    user_id: PropTypes.string.isRequired,
+  }).isRequired,
+})
+
+PropTypes.env = PropTypes.shape({
+  appRoot: PropTypes.string.isRequired,
+  assetsRoot: PropTypes.string.isRequired,
+  siteName: PropTypes.string.isRequired,
+  siteTitle: PropTypes.string.isRequired,
+  siteSubTitle: PropTypes.string,
+  pageData: PropTypes.shape({}),
+  config: PropTypes.shape({
+    language: PropTypes.string,
+    is: PropTypes.shape({
+      enabled: PropTypes.bool.isRequired,
+      base_url: PropTypes.string.isRequired,
+    }),
+    as: PropTypes.shape({
+      enabled: PropTypes.bool.isRequired,
+      base_url: PropTypes.string.isRequired,
+    }),
+    ns: PropTypes.shape({
+      enabled: PropTypes.bool.isRequired,
+      base_url: PropTypes.string.isRequired,
+    }),
+    js: PropTypes.shape({
+      enabled: PropTypes.bool.isRequired,
+      base_url: PropTypes.string.isRequired,
+    }),
+    gs: PropTypes.shape({
+      enabled: PropTypes.bool.isRequired,
+      base_url: PropTypes.string.isRequired,
+    }),
+  }).isRequired,
+})
+
+PropTypes.device = PropTypes.shape({
+  ids: PropTypes.shape({
+    device_id: PropTypes.string.isRequired,
+  }).isRequired,
+})
 
 export default PropTypes

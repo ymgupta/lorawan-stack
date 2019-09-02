@@ -19,18 +19,26 @@ func WithTenantRegistry(registry ttipb.TenantRegistryClient) Option {
 	}
 }
 
-func (gs *GatewayServer) getTenantRegistry(ctx context.Context, ids *ttnpb.GatewayIdentifiers) ttipb.TenantRegistryClient {
+func (gs *GatewayServer) getTenantRegistry(ctx context.Context, ids *ttnpb.GatewayIdentifiers) (ttipb.TenantRegistryClient, error) {
 	if gs.tenantRegistry != nil {
-		return gs.tenantRegistry
+		return gs.tenantRegistry, nil
 	}
-	return ttipb.NewTenantRegistryClient(gs.GetPeer(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids).Conn())
+	cc, err := gs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids)
+	if err != nil {
+		return nil, err
+	}
+	return ttipb.NewTenantRegistryClient(cc), nil
 }
 
 func (gs *GatewayServer) getContextForGatewayEUI(ctx context.Context, eui types.EUI64, opts ...grpc.CallOption) (context.Context, error) {
 	if tenantID := tenant.FromContext(ctx); tenantID.TenantID != "" {
 		return ctx, nil
 	}
-	ids, err := gs.getTenantRegistry(ctx, nil).GetIdentifiersForGatewayEUI(ctx, &ttipb.GetTenantIdentifiersForGatewayEUIRequest{
+	registry, err := gs.getTenantRegistry(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	ids, err := registry.GetIdentifiersForGatewayEUI(ctx, &ttipb.GetTenantIdentifiersForGatewayEUIRequest{
 		EUI: eui,
 	}, opts...)
 	if err != nil {

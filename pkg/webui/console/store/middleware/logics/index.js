@@ -19,6 +19,7 @@ import devices from './devices'
 import device from './device'
 import gateways from './gateways'
 import configuration from './configuration'
+import organizations from './organizations'
 
 export default [
   ...user,
@@ -28,4 +29,5 @@ export default [
   ...device,
   ...gateways,
   ...configuration,
+  ...organizations,
 ]

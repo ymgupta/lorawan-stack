@@ -42,18 +42,18 @@ func (c *connection) Shutdown(_ context.Context) error {
 }
 
 // OpenConnection implements provider.Provider using the mqtt driver.
-func (impl) OpenConnection(ctx context.Context, pb *ttnpb.ApplicationPubSub) (pc *provider.Connection, err error) {
-	if _, ok := pb.Provider.(*ttnpb.ApplicationPubSub_MQTT); !ok {
+func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *provider.Connection, err error) {
+	settings, ok := target.GetProvider().(*ttnpb.ApplicationPubSub_MQTT)
+	if !ok {
 		panic("wrong provider type provided to OpenConnection")
 	}
-	settings := pb.GetMQTT()
 	clientOpts := mqtt.NewClientOptions()
-	clientOpts.AddBroker(settings.GetServerURL())
-	clientOpts.SetClientID(settings.GetClientID())
-	clientOpts.SetUsername(settings.GetUsername())
-	clientOpts.SetPassword(settings.GetPassword())
-	if settings.GetUseTLS() {
-		config, err := createTLSConfig(settings.GetTLSCA(), settings.GetTLSClientCert(), settings.GetTLSClientKey())
+	clientOpts.AddBroker(settings.MQTT.ServerURL)
+	clientOpts.SetClientID(settings.MQTT.ClientID)
+	clientOpts.SetUsername(settings.MQTT.Username)
+	clientOpts.SetPassword(settings.MQTT.Password)
+	if settings.MQTT.UseTLS {
+		config, err := createTLSConfig(settings.MQTT.TLSCA, settings.MQTT.TLSClientCert, settings.MQTT.TLSClientKey)
 		if err != nil {
 			return nil, err
 		}
@@ -69,47 +69,50 @@ func (impl) OpenConnection(ctx context.Context, pb *ttnpb.ApplicationPubSub) (pc
 		},
 	}
 	for _, t := range []struct {
-		topic     **pubsub.Topic
-		topicName string
+		topic   **pubsub.Topic
+		message *ttnpb.ApplicationPubSub_Message
 	}{
 		{
-			topic:     &pc.Topics.UplinkMessage,
-			topicName: pb.GetUplinkMessage().GetTopic(),
+			topic:   &pc.Topics.UplinkMessage,
+			message: target.GetUplinkMessage(),
 		},
 		{
-			topic:     &pc.Topics.JoinAccept,
-			topicName: pb.GetJoinAccept().GetTopic(),
+			topic:   &pc.Topics.JoinAccept,
+			message: target.GetJoinAccept(),
 		},
 		{
-			topic:     &pc.Topics.DownlinkAck,
-			topicName: pb.GetDownlinkAck().GetTopic(),
+			topic:   &pc.Topics.DownlinkAck,
+			message: target.GetDownlinkAck(),
 		},
 		{
-			topic:     &pc.Topics.DownlinkNack,
-			topicName: pb.GetDownlinkNack().GetTopic(),
+			topic:   &pc.Topics.DownlinkNack,
+			message: target.GetDownlinkNack(),
 		},
 		{
-			topic:     &pc.Topics.DownlinkSent,
-			topicName: pb.GetDownlinkSent().GetTopic(),
+			topic:   &pc.Topics.DownlinkSent,
+			message: target.GetDownlinkSent(),
 		},
 		{
-			topic:     &pc.Topics.DownlinkFailed,
-			topicName: pb.GetDownlinkFailed().GetTopic(),
+			topic:   &pc.Topics.DownlinkFailed,
+			message: target.GetDownlinkFailed(),
 		},
 		{
-			topic:     &pc.Topics.DownlinkQueued,
-			topicName: pb.GetDownlinkQueued().GetTopic(),
+			topic:   &pc.Topics.DownlinkQueued,
+			message: target.GetDownlinkQueued(),
 		},
 		{
-			topic:     &pc.Topics.LocationSolved,
-			topicName: pb.GetLocationSolved().GetTopic(),
+			topic:   &pc.Topics.LocationSolved,
+			message: target.GetLocationSolved(),
 		},
 	} {
+		if t.message == nil {
+			continue
+		}
 		if *t.topic, err = OpenTopic(
 			client,
-			mqtt_topic.Join(append(mqtt_topic.Split(pb.BaseTopic), mqtt_topic.Split(t.topicName)...)),
+			mqtt_topic.Join(append(mqtt_topic.Split(target.GetBaseTopic()), mqtt_topic.Split(t.message.GetTopic())...)),
 			timeout,
-			byte(settings.GetPublishQoS()),
+			byte(settings.MQTT.PublishQoS),
 		); err != nil {
 			client.Disconnect(uint(timeout / time.Millisecond))
 			return nil, err
@@ -117,22 +120,25 @@ func (impl) OpenConnection(ctx context.Context, pb *ttnpb.ApplicationPubSub) (pc
 	}
 	for _, s := range []struct {
 		subscription **pubsub.Subscription
-		topicName    string
+		message      *ttnpb.ApplicationPubSub_Message
 	}{
 		{
 			subscription: &pc.Subscriptions.Push,
-			topicName:    pb.GetDownlinkPush().GetTopic(),
+			message:      target.GetDownlinkPush(),
 		},
 		{
 			subscription: &pc.Subscriptions.Replace,
-			topicName:    pb.GetDownlinkReplace().GetTopic(),
+			message:      target.GetDownlinkReplace(),
 		},
 	} {
+		if s.message == nil {
+			continue
+		}
 		if *s.subscription, err = OpenSubscription(
 			client,
-			mqtt_topic.Join(append(mqtt_topic.Split(pb.BaseTopic), mqtt_topic.Split(s.topicName)...)),
+			mqtt_topic.Join(append(mqtt_topic.Split(target.GetBaseTopic()), mqtt_topic.Split(s.message.GetTopic())...)),
 			timeout,
-			byte(settings.GetSubscribeQoS()),
+			byte(settings.MQTT.SubscribeQoS),
 		); err != nil {
 			client.Disconnect(uint(timeout / time.Millisecond))
 			return nil, err

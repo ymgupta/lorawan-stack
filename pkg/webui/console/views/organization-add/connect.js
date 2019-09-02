@@ -12,14 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react'
-import style from './logo.styl'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { push } from 'connected-react-router'
 
-export default (
-  <defs>
-    <linearGradient id="logo-gradient">
-      <stop offset="5%" className={style.start} />
-      <stop offset="95%" className={style.end} />
-    </linearGradient>
-  </defs>
-)
+import { createOrganization } from '../../store/actions/organizations'
+import { attachPromise } from '../../store/actions/lib'
+
+const mapDispatchToProps = dispatch => ({
+  ...bindActionCreators(
+    {
+      createOrganization: attachPromise(createOrganization),
+    },
+    dispatch,
+  ),
+  createOrganizationSuccess: () => dispatch(push('/organizations')),
+})
+
+export default Add =>
+  connect(
+    null,
+    mapDispatchToProps,
+  )(Add)
