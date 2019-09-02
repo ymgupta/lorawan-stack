@@ -7,11 +7,9 @@ import (
 	"strings"
 	"time"
 
-	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
 type licenseContextKeyType struct{}
@@ -21,21 +19,12 @@ var licenseContextKey licenseContextKeyType
 var now = time.Now()
 
 var defaultLicense = ttipb.License{
-	LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "development"},
+	LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
 	CreatedAt:               now,
 	ValidFrom:               now,
-	ValidUntil:              now.Add(time.Hour),
+	ValidUntil:              now.Add(10 * time.Minute),
 	ComponentAddressRegexps: []string{"localhost"},
-	DevAddrPrefixes: []types.DevAddrPrefix{
-		{DevAddr: types.DevAddr{0, 0, 0, 0}, Length: 7},
-		{DevAddr: types.DevAddr{2, 0, 0, 0}, Length: 7},
-	},
-	MaxApplications:  &pbtypes.UInt64Value{Value: 100},
-	MaxClients:       &pbtypes.UInt64Value{Value: 100},
-	MaxEndDevices:    &pbtypes.UInt64Value{Value: 1000},
-	MaxGateways:      &pbtypes.UInt64Value{Value: 100},
-	MaxOrganizations: &pbtypes.UInt64Value{Value: 10},
-	MaxUsers:         &pbtypes.UInt64Value{Value: 10},
+	MultiTenancy:            true,
 }
 
 // NewContextWithLicense returns a context derived from parent that contains license.
