@@ -127,6 +127,9 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_ENTITY_REGISTRY, ttnpb.ClusterRole_ACCESS); err != nil {
 		return nil, err
 	}
+	if err := license.RequireComponentAddress(c.Context(), config.OAuth.UI.CanonicalURL); err != nil {
+		return nil, err
+	}
 
 	is = &IdentityServer{
 		Component: c,

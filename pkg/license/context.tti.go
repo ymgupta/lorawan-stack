@@ -4,7 +4,9 @@ package license
 
 import (
 	"context"
+	"regexp"
 	"strings"
+	"sync"
 	"time"
 
 	"go.thethings.network/lorawan-stack/pkg/errors"
@@ -76,6 +78,47 @@ func RequireMultiTenancy(ctx context.Context) error {
 	}
 	if !license.MultiTenancy {
 		return errMultiTenancyNotLicensed
+	}
+	return nil
+}
+
+var componentAddressRegexps sync.Map
+
+type componentAddressRegexp struct {
+	*regexp.Regexp
+	wait chan struct{}
+	err  error
+}
+
+func getComponentAddressRegexp(s string) (*regexp.Regexp, error) {
+	reI, loaded := componentAddressRegexps.LoadOrStore(s, &componentAddressRegexp{wait: make(chan struct{})})
+	re := reI.(*componentAddressRegexp)
+	if !loaded {
+		re.Regexp, re.err = regexp.Compile(s)
+		close(re.wait)
+	}
+	return re.Regexp, re.err
+}
+
+var errComponentAddressNotLicensed = errors.DefineFailedPrecondition("component_address_not_licensed", "component address is not included in this license")
+
+// RequireComponentAddress requires the given address to be included in the license.
+func RequireComponentAddress(ctx context.Context, addr string) error {
+	license := FromContext(ctx)
+	if err := CheckValidity(&license); err != nil {
+		return err
+	}
+	if regexps := license.GetComponentAddressRegexps(); len(regexps) > 0 {
+		for _, regexp := range regexps {
+			regexp, err := getComponentAddressRegexp(regexp)
+			if err != nil {
+				continue
+			}
+			if regexp.MatchString(addr) {
+				return nil
+			}
+		}
+		return errComponentAddressNotLicensed
 	}
 	return nil
 }
