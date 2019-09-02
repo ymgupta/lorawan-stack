@@ -91,6 +91,11 @@ func New(c *component.Component, conf *Config) (*JoinServer, error) {
 	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_JOIN_SERVER); err != nil {
 		return nil, err
 	}
+	for _, prefix := range conf.JoinEUIPrefixes {
+		if err := license.RequireJoinEUIPrefix(c.Context(), prefix); err != nil {
+			return nil, err
+		}
+	}
 
 	js := &JoinServer{
 		Component: c,

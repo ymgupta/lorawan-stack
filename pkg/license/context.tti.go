@@ -144,3 +144,24 @@ func RequireDevAddrPrefix(ctx context.Context, prefix types.DevAddrPrefix) error
 	}
 	return nil
 }
+
+var errJoinEUIPrefixNotLicensed = errors.DefineFailedPrecondition("join_eui_prefix_not_licensed", "JoinEUI prefix {prefix} is not included in this license")
+
+// RequireJoinEUIPrefix requires the given JoinEUI prefix to be included in the license.
+func RequireJoinEUIPrefix(ctx context.Context, prefix types.EUI64Prefix) error {
+	license := FromContext(ctx)
+	if err := CheckValidity(&license); err != nil {
+		return err
+	}
+	if licensedPrefixes := license.JoinEUIPrefixes; len(licensedPrefixes) > 0 {
+		minAddr := types.EUI64{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}.WithPrefix(prefix)
+		maxAddr := types.EUI64{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}.WithPrefix(prefix)
+		for _, licensedPrefix := range licensedPrefixes {
+			if licensedPrefix.Matches(minAddr) && licensedPrefix.Matches(maxAddr) {
+				return nil
+			}
+		}
+		return errJoinEUIPrefixNotLicensed.WithAttributes("prefix", prefix.String())
+	}
+	return nil
+}
