@@ -12,8 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import user from './user'
-import init from './init'
-import applications from './applications'
+const fetching = function(state = {}, action) {
+  const { type } = action
+  const matches = /(.*)_(REQUEST|SUCCESS|FAILURE)/.exec(type)
 
-export default [...user, ...init, ...applications]
+  if (!matches) {
+    return state
+  }
+
+  const [, key, status] = matches
+  return {
+    ...state,
+    [key]: status === 'REQUEST',
+  }
+}
+
+export default fetching

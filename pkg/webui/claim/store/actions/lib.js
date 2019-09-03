@@ -12,8 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import user from './user'
-import init from './init'
-import applications from './applications'
+import { createAction } from 'redux-actions'
 
-export default [...user, ...init, ...applications]
+/* eslint import/prefer-default-export: "off"*/
+export const createRequestActions = function(baseType, requestPayloadCreator, requestMetaCreator) {
+  const requestType = `${baseType}_REQUEST`
+  const successType = `${baseType}_SUCCESS`
+  const failureType = `${baseType}_FAILURE`
+
+  return [
+    {
+      request: requestType,
+      success: successType,
+      failure: failureType,
+    },
+    {
+      request: createAction(requestType, requestPayloadCreator, requestMetaCreator),
+      success: createAction(successType),
+      failure: createAction(failureType),
+    },
+  ]
+}

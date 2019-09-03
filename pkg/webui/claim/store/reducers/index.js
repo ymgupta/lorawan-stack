@@ -15,12 +15,26 @@
 import { combineReducers } from 'redux'
 import { connectRouter } from 'connected-react-router'
 
-import init from './init'
+import { SHARED_NAME_SINGLE as APPLICATION_SHARED_NAME } from '../actions/applications'
+import { getApplicationId } from '../../../lib/selectors/id'
 import user from './user'
+import init from './init'
+import applications from './applications'
+import fetching from './ui/fetching'
+import error from './ui/error'
+import { createNamedPaginationReducer } from './pagination'
 
 export default history =>
   combineReducers({
-    init,
     user,
+    init,
+    applications,
+    ui: combineReducers({
+      fetching,
+      error,
+    }),
+    pagination: combineReducers({
+      applications: createNamedPaginationReducer(APPLICATION_SHARED_NAME, getApplicationId),
+    }),
     router: connectRouter(history),
   })

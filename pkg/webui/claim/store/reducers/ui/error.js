@@ -12,8 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import user from './user'
-import init from './init'
-import applications from './applications'
+const error = function(state = {}, action) {
+  const { type, payload: errorValue } = action
 
-export default [...user, ...init, ...applications]
+  const matches = /(.*)_(REQUEST|SUCCESS|FAILURE)/.exec(type)
+  if (!matches) {
+    return state
+  }
+
+  const [, key, status] = matches
+  return {
+    ...state,
+    [key]: status === 'FAILURE' ? errorValue : undefined,
+  }
+}
+
+export default error
