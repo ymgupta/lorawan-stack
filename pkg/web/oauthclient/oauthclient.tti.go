@@ -6,11 +6,15 @@ import (
 	"context"
 	"net/url"
 
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
 
 // Apply the context to the config.
 func (conf Config) Apply(ctx context.Context) Config {
+	if license.RequireMultiTenancy(ctx) != nil {
+		return conf
+	}
 	deriv := conf
 	if auth, err := url.Parse(conf.AuthorizeURL); err == nil {
 		if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
