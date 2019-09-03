@@ -19,6 +19,8 @@ import WithAuth from '../../../lib/components/with-auth'
 import Overview from '../overview'
 import { FullViewErrorInner } from '../error'
 
+import DeviceClaim from '../device-claim'
+
 import style from './landing.styl'
 
 const GenericNotFound = () => <FullViewErrorInner error={{ statusCode: 404 }} />
@@ -30,6 +32,7 @@ export default class Landing extends React.PureComponent {
         <WithAuth>
           <Switch>
             <Route exact path="/" component={Overview} />
+            <Route path={`/:appId`} component={DeviceClaim} />
             <Route component={GenericNotFound} />
           </Switch>
         </WithAuth>
