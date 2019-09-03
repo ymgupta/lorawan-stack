@@ -23,7 +23,7 @@ import Message from '../../lib/components/message'
 import style from './footer.styl'
 
 const m = defineMessages({
-  footer: "You are the network. Let's build this thing together.",
+  footer: 'Everything you need to build enterprise grade, private LoRaWAN networks',
 })
 
 const Footer = function({ className, links = [] }) {
@@ -33,8 +33,8 @@ const Footer = function({ className, links = [] }) {
         <span>
           <Message content={m.footer} /> –{' '}
         </span>
-        <a className={style.link} href="https://www.thethingsnetwork.org">
-          The Things Network
+        <a className={style.link} href="https://www.thethingsindustries.com">
+          The Things Industries
         </a>
       </div>
       <div>

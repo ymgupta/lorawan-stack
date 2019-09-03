@@ -16,7 +16,7 @@ import React from 'react'
 import classnames from 'classnames'
 
 import PropTypes from '../../lib/prop-types'
-import TtsLogo from '../../assets/logos/tts.svg'
+import TtesLogo from '../../assets/logos/ttes.svg'
 
 import style from './logo.styl'
 
@@ -27,7 +27,7 @@ const Logo = function(props) {
 
   return (
     <div className={classname}>
-      <img alt="The Things Stack Logo" src={TtsLogo} />
+      <img alt="The Things Enterprise Stack Logo" src={TtesLogo} />
     </div>
   )
 }
