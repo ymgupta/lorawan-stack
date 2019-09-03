@@ -34,6 +34,10 @@ var (
 			if err != nil {
 				return err
 			}
+			if tenantID == "" {
+				tenantID = config.Tenancy.DefaultID
+			}
+
 			name, err := cmd.Flags().GetString("name")
 			if err != nil {
 				return err
