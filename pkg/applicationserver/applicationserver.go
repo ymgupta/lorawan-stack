@@ -27,6 +27,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/awsiot"
 	iogrpc "go.thethings.network/lorawan-stack/pkg/applicationserver/io/grpc"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub"
@@ -187,6 +188,14 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		as.webhooks = webhooks
 		as.defaultSubscribers = append(as.defaultSubscribers, webhooks.NewSubscription())
 		c.RegisterWeb(webhooks)
+	}
+
+	if conf.AWS.IoT.Telemetry {
+		sub, err := awsiot.NewSubscription(ctx, conf.AWS)
+		if err != nil {
+			return nil, err
+		}
+		as.defaultSubscribers = append(as.defaultSubscribers, sub)
 	}
 
 	if as.webhookTemplates, err = conf.Webhooks.Templates.NewTemplateStore(); err != nil {

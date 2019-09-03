@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"time"
 
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/aws"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/web"
@@ -59,6 +60,8 @@ type Config struct {
 	Webhooks WebhooksConfig `name:"webhooks" description:"Webhooks configuration"`
 	PubSub   PubSubConfig   `name:"pubsub" description:"Pub/sub messaging configuration"`
 	Interop  InteropConfig  `name:"interop" description:"Interop client configuration"`
+
+	AWS aws.Config `name:"aws" description:"AWS configuration"`
 }
 
 var errLinkMode = errors.DefineInvalidArgument("link_mode", "invalid link mode `{value}`")
