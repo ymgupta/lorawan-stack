@@ -46,9 +46,10 @@ var (
 			if err != nil {
 				return err
 			}
-			if tenantID != "" {
-				ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
+			if tenantID == "" {
+				tenantID = config.Tenancy.DefaultID
 			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
 
 			clientID, err := cmd.Flags().GetString("id")
 			if err != nil {
@@ -141,7 +142,7 @@ var (
 )
 
 func init() {
-	createOAuthClient.Flags().String("tenant-id", DefaultConfig.Tenancy.DefaultID, "Tenant ID")
+	createOAuthClient.Flags().String("tenant-id", "", "Tenant ID")
 	createOAuthClient.Flags().Lookup("tenant-id").Hidden = true
 	createOAuthClient.Flags().String("id", "console", "OAuth client ID")
 	createOAuthClient.Flags().String("name", "", "Name of the OAuth client")

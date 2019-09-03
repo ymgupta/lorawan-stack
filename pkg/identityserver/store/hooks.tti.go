@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
@@ -22,9 +23,16 @@ func checkLicense(model *Model) (*ttipb.License, error) {
 	return &l, nil
 }
 
-func countInTenant(ctx context.Context, db *gorm.DB, model interface{}) (uint64, error) {
+func countInTenant(ctx context.Context, db *gorm.DB, entityType string) (uint64, error) {
 	var count uint64
-	err := (&store{db}).query(ctx, model).Count(&count).Error
+	query := (&store{db}).query(ctx, nil, withTenantID(tenant.FromContext(ctx).TenantID))
+	switch entityType {
+	case "organization", "user":
+		query = query.Model(Account{}).Where(Account{AccountType: entityType})
+	default:
+		query = query.Model(modelForEntityType(entityType))
+	}
+	err := query.Count(&count).Error
 	return count, err
 }
 
@@ -40,7 +48,7 @@ func (app *Application) BeforeCreate(db *gorm.DB) error {
 		if license.MaxApplications.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "application")
 		}
-		count, err := countInTenant(app.Model.ctx, db, Application{})
+		count, err := countInTenant(app.Model.ctx, db, "application")
 		if err != nil {
 			return err
 		}
@@ -61,7 +69,7 @@ func (cli *Client) BeforeCreate(db *gorm.DB) error {
 		if license.MaxClients.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "client")
 		}
-		count, err := countInTenant(cli.Model.ctx, db, Client{})
+		count, err := countInTenant(cli.Model.ctx, db, "client")
 		if err != nil {
 			return err
 		}
@@ -82,7 +90,7 @@ func (dev *EndDevice) BeforeCreate(db *gorm.DB) error {
 		if license.MaxEndDevices.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "end device")
 		}
-		count, err := countInTenant(dev.Model.ctx, db, EndDevice{})
+		count, err := countInTenant(dev.Model.ctx, db, "end_device")
 		if err != nil {
 			return err
 		}
@@ -103,7 +111,7 @@ func (gtw *Gateway) BeforeCreate(db *gorm.DB) error {
 		if license.MaxGateways.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "gateway")
 		}
-		count, err := countInTenant(gtw.Model.ctx, db, Gateway{})
+		count, err := countInTenant(gtw.Model.ctx, db, "gateway")
 		if err != nil {
 			return err
 		}
@@ -124,7 +132,7 @@ func (org *Organization) BeforeCreate(db *gorm.DB) error {
 		if license.MaxOrganizations.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "organization")
 		}
-		count, err := countInTenant(org.Model.ctx, db, Organization{})
+		count, err := countInTenant(org.Model.ctx, db, "organization")
 		if err != nil {
 			return err
 		}
@@ -145,7 +153,7 @@ func (usr *User) BeforeCreate(db *gorm.DB) error {
 		if license.MaxUsers.Value == 0 {
 			return errEntityQuotaReached.WithAttributes("entity_type", "user")
 		}
-		count, err := countInTenant(usr.Model.ctx, db, User{})
+		count, err := countInTenant(usr.Model.ctx, db, "user")
 		if err != nil {
 			return err
 		}

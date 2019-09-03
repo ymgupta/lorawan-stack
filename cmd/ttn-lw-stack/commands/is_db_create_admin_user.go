@@ -50,9 +50,10 @@ var (
 			if err != nil {
 				return err
 			}
-			if tenantID != "" {
-				ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
+			if tenantID == "" {
+				tenantID = config.Tenancy.DefaultID
 			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
 
 			userID, err := cmd.Flags().GetString("id")
 			if err != nil {
@@ -115,7 +116,7 @@ var (
 )
 
 func init() {
-	createAdminUserCommand.Flags().String("tenant-id", DefaultConfig.Tenancy.DefaultID, "Tenant ID")
+	createAdminUserCommand.Flags().String("tenant-id", "", "Tenant ID")
 	createAdminUserCommand.Flags().Lookup("tenant-id").Hidden = true
 	createAdminUserCommand.Flags().String("id", "admin", "User ID")
 	createAdminUserCommand.Flags().String("email", "", "Email address")
