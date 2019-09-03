@@ -13,9 +13,49 @@
 // limitations under the License.
 
 import React, { Component } from 'react'
+import { Row, Col, Container } from 'react-grid-system'
+import PropTypes from '../../../lib/prop-types'
 
+import sharedMessages from '../../../lib/shared-messages'
+import IntlHelmet from '../../../lib/components/intl-helmet'
+import Notification from '../../../components/notification'
+
+import ApplicationsTable from '../../containers/applications-table'
+import PAGE_SIZES from '../../constants/page-sizes'
 export default class Overview extends Component {
-  render() {
-    return <div>Implement me</div>
+  showNotification = () => {
+    /* eslint no-invalid-this: "off"*/
+    const { message } = this.props.location.state || ''
+    if (message) {
+      return <Notification success={message} />
+    }
   }
+
+  render() {
+    return (
+      <Container>
+        <IntlHelmet title={sharedMessages.applications} />
+        {this.showNotification()}
+        <Row>
+          <Col sm={12}>
+            <ApplicationsTable pageSize={PAGE_SIZES.REGULAR} />
+          </Col>
+        </Row>
+      </Container>
+    )
+  }
+}
+
+Overview.propTypes = {
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+    state: PropTypes.object,
+  }),
+}
+
+Overview.defaultProps = {
+  location: {
+    pathname: '',
+    state: {},
+  },
 }
