@@ -129,6 +129,9 @@ services:
       - TTN_LW_CONSOLE_OAUTH_CLIENT_ID=console
       - TTN_LW_CONSOLE_OAUTH_CLIENT_SECRET=console # generate a good one (openssl rand -hex 32)
 
+      # Multi-Tenancy:
+      - TTN_LW_TENANCY_DEFAULT_ID
+
 # If using (self) signed certificates:
 secrets:
   cert.pem:
