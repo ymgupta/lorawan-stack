@@ -1,4 +1,5 @@
 {
+  "claim.containers.device-claim-form.messages.ClaimIdMessage": "Enter the Claim ID or scan QR code",
   "claim.views.login.index.welcome": "Welcome to {siteTitle}",
   "claim.views.login.index.login": "You need to be logged in to use this site",
   "claim.views.login.index.loginWithStackAccount": "Login with your The Things Stack Account",
@@ -276,6 +277,9 @@
   "lib.shared-messages.cancel": "Cancel",
   "lib.shared-messages.changeLocation": "Change location settings",
   "lib.shared-messages.changePassword": "Change Password",
+  "lib.shared-messages.claimDevice": "Claim Device",
+  "lib.shared-messages.claimID": "Claim ID",
+  "lib.shared-messages.claimSuccess": "Successfully claimed device",
   "lib.shared-messages.clear": "Clear",
   "lib.shared-messages.collaborator": "Collaborator",
   "lib.shared-messages.collaboratorDeleteSuccess": "Successfully removed collaborator",
