@@ -1,6 +1,6 @@
 // Copyright © 2019 The Things Industries B.V.
 
-package tenant
+package middleware
 
 import (
 	"net/http"

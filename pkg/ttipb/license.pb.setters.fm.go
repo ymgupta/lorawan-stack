@@ -96,6 +96,26 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 				var zero time.Duration
 				dst.LimitFor = zero
 			}
+		case "min_version":
+			if len(subs) > 0 {
+				return fmt.Errorf("'min_version' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MinVersion = src.MinVersion
+			} else {
+				var zero string
+				dst.MinVersion = zero
+			}
+		case "max_version":
+			if len(subs) > 0 {
+				return fmt.Errorf("'max_version' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.MaxVersion = src.MaxVersion
+			} else {
+				var zero string
+				dst.MaxVersion = zero
+			}
 		case "components":
 			if len(subs) > 0 {
 				return fmt.Errorf("'components' has no subfields, but %s were specified", subs)
@@ -255,7 +275,8 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 			if src != nil {
 				dst.Interval = src.Interval
 			} else {
-				dst.Interval = nil
+				var zero time.Duration
+				dst.Interval = zero
 			}
 		case "on_success":
 			if len(subs) > 0 {
@@ -295,27 +316,27 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 			for oneofName, oneofSubs := range subPathMap {
 				switch oneofName {
 				case "aws":
-					if _, ok := dst.Metering.(*MeteringConfiguration_Aws); !ok {
-						dst.Metering = &MeteringConfiguration_Aws{}
+					if _, ok := dst.Metering.(*MeteringConfiguration_AWS_); !ok {
+						dst.Metering = &MeteringConfiguration_AWS_{}
 					}
 					if len(oneofSubs) > 0 {
-						newDst := dst.Metering.(*MeteringConfiguration_Aws).Aws
+						newDst := dst.Metering.(*MeteringConfiguration_AWS_).AWS
 						if newDst == nil {
 							newDst = &MeteringConfiguration_AWS{}
-							dst.Metering.(*MeteringConfiguration_Aws).Aws = newDst
+							dst.Metering.(*MeteringConfiguration_AWS_).AWS = newDst
 						}
 						var newSrc *MeteringConfiguration_AWS
 						if src != nil {
-							newSrc = src.GetAws()
+							newSrc = src.GetAWS()
 						}
 						if err := newDst.SetFields(newSrc, subs...); err != nil {
 							return err
 						}
 					} else {
 						if src != nil {
-							dst.Metering.(*MeteringConfiguration_Aws).Aws = src.GetAws()
+							dst.Metering.(*MeteringConfiguration_AWS_).AWS = src.GetAWS()
 						} else {
-							dst.Metering.(*MeteringConfiguration_Aws).Aws = nil
+							dst.Metering.(*MeteringConfiguration_AWS_).AWS = nil
 						}
 					}
 

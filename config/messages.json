@@ -3563,6 +3563,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:entity_quota": {
+    "translations": {
+      "en": "quota for {entity_type} entities reached"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "hooks.tti.go"
+    }
+  },
   "error:pkg/identityserver/store:gateway_eui_not_found": {
     "translations": {
       "en": "gateway EUI `{eui}` not found"
@@ -4652,6 +4661,150 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/license/awsmetrics:metering_service_unavailable": {
+    "translations": {
+      "en": "AWS Marketplace metering service unavailable"
+    },
+    "description": {
+      "package": "pkg/license/awsmetrics",
+      "file": "reporter.tti.go"
+    }
+  },
+  "error:pkg/license:component_address_not_licensed": {
+    "translations": {
+      "en": "component address is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:component_not_licensed": {
+    "translations": {
+      "en": "the `{component}` component is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:dev_addr_prefix_not_licensed": {
+    "translations": {
+      "en": "DevAddr prefix {prefix} is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:invalid_license_signature": {
+    "translations": {
+      "en": "invalid license signature"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:join_eui_prefix_not_licensed": {
+    "translations": {
+      "en": "JoinEUI prefix {prefix} is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:license_expired": {
+    "translations": {
+      "en": "the license is expired"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:license_not_renewed": {
+    "translations": {
+      "en": "the license was not renewed by the metering service"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:license_not_valid_yet": {
+    "translations": {
+      "en": "the license is not valid yet"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:limited_functionality": {
+    "translations": {
+      "en": "limited functionality due to license expiry"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:missing_license": {
+    "translations": {
+      "en": "missing license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:multi_tenancy_not_licensed": {
+    "translations": {
+      "en": "multi-tenancy is not included in this license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "context.tti.go"
+    }
+  },
+  "error:pkg/license:no_valid_license_signature": {
+    "translations": {
+      "en": "no valid license signature"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "verifier.tti.go"
+    }
+  },
+  "error:pkg/license:unknown_license_key_type": {
+    "translations": {
+      "en": "unknown license key type"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:version_too_high": {
+    "translations": {
+      "en": "the current version number is too high"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
+  "error:pkg/license:version_too_low": {
+    "translations": {
+      "en": "the current version number is too low"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/messageprocessors/cayennelpp:channel": {
     "translations": {
       "en": "invalid channel `{channel}`"
@@ -5453,13 +5606,13 @@
       "file": "javascript.go"
     }
   },
-  "error:pkg/tenant:missing_tenant_id": {
+  "error:pkg/tenant/middleware:missing_tenant_id": {
     "translations": {
       "en": "missing tenant ID"
     },
     "description": {
-      "package": "pkg/tenant",
-      "file": "tenant.tti.go"
+      "package": "pkg/tenant/middleware",
+      "file": "middleware.tti.go"
     }
   },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {

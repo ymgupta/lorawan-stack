@@ -353,10 +353,14 @@ func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotal
 		switch name {
 		case "tenant_ids":
 			if len(subs) > 0 {
-				newDst := &dst.TenantIdentifiers
+				newDst := dst.TenantIdentifiers
+				if newDst == nil {
+					newDst = &TenantIdentifiers{}
+					dst.TenantIdentifiers = newDst
+				}
 				var newSrc *TenantIdentifiers
 				if src != nil {
-					newSrc = &src.TenantIdentifiers
+					newSrc = src.TenantIdentifiers
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -365,8 +369,7 @@ func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotal
 				if src != nil {
 					dst.TenantIdentifiers = src.TenantIdentifiers
 				} else {
-					var zero TenantIdentifiers
-					dst.TenantIdentifiers = zero
+					dst.TenantIdentifiers = nil
 				}
 			}
 		case "field_mask":

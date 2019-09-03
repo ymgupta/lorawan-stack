@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/interop"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
@@ -150,6 +151,10 @@ func WithASUplinkHandler(f func(context.Context, ttnpb.ApplicationIdentifiers, *
 
 // New returns new NetworkServer.
 func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_NETWORK_SERVER); err != nil {
+		return nil, err
+	}
+
 	devAddrPrefixes := conf.DevAddrPrefixes
 	if len(devAddrPrefixes) == 0 {
 		devAddr, err := types.NewDevAddr(conf.NetID, nil)
@@ -163,6 +168,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 			},
 		}
 	}
+
+	for _, prefix := range devAddrPrefixes {
+		if err := license.RequireDevAddrPrefix(c.Context(), prefix); err != nil {
+			return nil, err
+		}
+	}
+
 	downlinkPriorities, err := conf.DownlinkPriorities.Parse()
 	if err != nil {
 		return nil, err

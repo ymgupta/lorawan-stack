@@ -134,6 +134,10 @@ func (m *License) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "min_version":
+			// no validation rules for MinVersion
+		case "max_version":
+			// no validation rules for MaxVersion
 		case "components":
 
 		case "component_address_regexps":
@@ -400,7 +404,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 		switch name {
 		case "interval":
 
-			if v, ok := interface{}(m.GetInterval()).(interface{ ValidateFields(...string) error }); ok {
+			if v, ok := interface{}(&m.Interval).(interface{ ValidateFields(...string) error }); ok {
 				if err := v.ValidateFields(subs...); err != nil {
 					return MeteringConfigurationValidationError{
 						field:  "interval",
@@ -433,7 +437,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 				switch name {
 				case "aws":
 
-					if v, ok := interface{}(m.GetAws()).(interface{ ValidateFields(...string) error }); ok {
+					if v, ok := interface{}(m.GetAWS()).(interface{ ValidateFields(...string) error }); ok {
 						if err := v.ValidateFields(subs...); err != nil {
 							return MeteringConfigurationValidationError{
 								field:  "aws",

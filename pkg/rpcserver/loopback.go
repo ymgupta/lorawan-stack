@@ -20,7 +20,7 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
 	"go.thethings.network/lorawan-stack/pkg/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -118,10 +118,10 @@ func StartLoopback(ctx context.Context, s *grpc.Server, opts ...grpc.DialOption)
 			grpc.WithDialer(inProcessDialer(lis)),
 			grpc.WithTransportCredentials(&inProcessCredentials{}),
 			grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(
-				tenant.StreamClientInterceptor,
+				tenantmiddleware.StreamClientInterceptor,
 			)),
 			grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-				tenant.UnaryClientInterceptor,
+				tenantmiddleware.UnaryClientInterceptor,
 			)),
 		}, opts...)...)
 }

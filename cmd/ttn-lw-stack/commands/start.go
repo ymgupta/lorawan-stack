@@ -118,6 +118,10 @@ var (
 
 			var componentOptions []component.Option
 
+			if license != nil {
+				componentOptions = append(componentOptions, component.WithLicense(*license))
+			}
+
 			c, err := component.New(logger, &component.Config{ServiceBase: config.ServiceBase}, componentOptions...)
 			if err != nil {
 				return shared.ErrInitializeBaseComponent.WithCause(err)

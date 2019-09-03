@@ -22,6 +22,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	web_errors "go.thethings.network/lorawan-stack/pkg/errors/web"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"go.thethings.network/lorawan-stack/pkg/web/oauthclient"
 	"go.thethings.network/lorawan-stack/pkg/webui"
@@ -59,6 +60,10 @@ type Console struct {
 
 // New returns a new Console.
 func New(c *component.Component, config Config) (*Console, error) {
+	if err := license.RequireComponentAddress(c.Context(), config.UI.CanonicalURL); err != nil {
+		return nil, err
+	}
+
 	config.OAuth.StateCookieName = "_console_state"
 	config.OAuth.AuthCookieName = "_console_auth"
 	config.OAuth.RootURL = config.UI.CanonicalURL

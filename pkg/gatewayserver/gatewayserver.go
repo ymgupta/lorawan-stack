@@ -40,6 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/udp"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/scheduling"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
@@ -105,6 +106,10 @@ var (
 
 // New returns new *GatewayServer.
 func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServer, err error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_GATEWAY_SERVER); err != nil {
+		return nil, err
+	}
+
 	forward, err := conf.ForwardDevAddrPrefixes()
 	if err != nil {
 		return nil, err
