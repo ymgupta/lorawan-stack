@@ -22,12 +22,18 @@ import Notification from '../../../components/notification'
 
 import ApplicationsTable from '../../containers/applications-table'
 import PAGE_SIZES from '../../constants/page-sizes'
+import style from './overview.styl'
+
 export default class Overview extends Component {
   showNotification = () => {
     /* eslint no-invalid-this: "off"*/
     const { message } = this.props.location.state || ''
     if (message) {
-      return <Notification success={message} />
+      return (
+        <div className={style.padding}>
+          <Notification success={message} small />
+        </div>
+      )
     }
   }
 
