@@ -120,7 +120,6 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	server.HTTPErrorHandler = ErrorHandler
 
 	server.Use(
-		tenantmiddleware.Middleware(options.tenant),
 		middleware.ID(""),
 		echomiddleware.BodyLimit("16M"),
 		echomiddleware.Secure(),
@@ -129,6 +128,7 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 		cookie.Cookies(blockKey, hashKey),
 		middleware.FillContext(options.contextFillers...),
 		licensemiddleware.Middleware,
+		tenantmiddleware.Middleware(options.tenant),
 	)
 
 	s := &Server{

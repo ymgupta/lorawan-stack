@@ -143,8 +143,9 @@ func New(ctx context.Context, opts ...Option) *Server {
 	}
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
-		tenantmiddleware.StreamServerInterceptor(options.tenant),
 		rpcfillcontext.StreamServerInterceptor(options.contextFillers...),
+		licensemiddleware.StreamServerInterceptor,
+		tenantmiddleware.StreamServerInterceptor(options.tenant),
 		grpc_ctxtags.StreamServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDStreamServerInterceptor(),
 		grpc_opentracing.StreamServerInterceptor(),
@@ -153,14 +154,14 @@ func New(ctx context.Context, opts ...Option) *Server {
 		metrics.StreamServerInterceptor,
 		sentry.StreamServerInterceptor(options.sentry),
 		errors.StreamServerInterceptor(),
-		licensemiddleware.StreamServerInterceptor,
 		validator.StreamServerInterceptor(),
 		hooks.StreamServerInterceptor(),
 	}
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
-		tenantmiddleware.UnaryServerInterceptor(options.tenant),
 		rpcfillcontext.UnaryServerInterceptor(options.contextFillers...),
+		licensemiddleware.UnaryServerInterceptor,
+		tenantmiddleware.UnaryServerInterceptor(options.tenant),
 		grpc_ctxtags.UnaryServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDUnaryServerInterceptor(),
 		grpc_opentracing.UnaryServerInterceptor(),
@@ -169,7 +170,6 @@ func New(ctx context.Context, opts ...Option) *Server {
 		metrics.UnaryServerInterceptor,
 		sentry.UnaryServerInterceptor(options.sentry),
 		errors.UnaryServerInterceptor(),
-		licensemiddleware.UnaryServerInterceptor,
 		validator.UnaryServerInterceptor(),
 		hooks.UnaryServerInterceptor(),
 	}
