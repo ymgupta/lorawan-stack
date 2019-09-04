@@ -84,6 +84,6 @@ func computeUsage(data *ttipb.MeteringData) (*string, *int64) {
 	case endDeviceCount <= 20000:
 		return aws.String("20000devices"), aws.Int64(1)
 	default:
-		return aws.String("Over20000devices"), aws.Int64((endDeviceCount + 99) / 100)
+		return aws.String("Up20000devices"), aws.Int64((endDeviceCount + 99) / 100)
 	}
 }

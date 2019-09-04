@@ -54,12 +54,12 @@ func TestComputeUsage(t *testing.T) {
 		},
 		{
 			deviceCount:       22000,
-			expectedDimension: "Over20000devices",
+			expectedDimension: "Up20000devices",
 			expectedQuantity:  220,
 		},
 		{
 			deviceCount:       22513,
-			expectedDimension: "Over20000devices",
+			expectedDimension: "Up20000devices",
 			expectedQuantity:  226,
 		},
 	} {
