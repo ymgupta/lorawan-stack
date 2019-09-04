@@ -58,6 +58,9 @@ type options struct {
 
 	contextFillers []fillcontext.Filler
 
+	redirectToHost  string
+	redirectToHTTPS map[int]int
+
 	tenant tenant.Config
 }
 
@@ -82,6 +85,23 @@ func WithCookieKeys(hashKey, blockKey []byte) Option {
 func WithStatic(mount string, searchPaths ...string) Option {
 	return func(o *options) {
 		o.staticMount, o.staticSearchPaths = mount, searchPaths
+	}
+}
+
+// WithRedirectToHost redirects all requests to this host.
+func WithRedirectToHost(target string) Option {
+	return func(o *options) {
+		o.redirectToHost = target
+	}
+}
+
+// WithRedirectToHTTPS redirects HTTP requests to HTTPS.
+func WithRedirectToHTTPS(from, to int) Option {
+	return func(o *options) {
+		if o.redirectToHTTPS == nil {
+			o.redirectToHTTPS = make(map[int]int)
+		}
+		o.redirectToHTTPS[from] = to
 	}
 }
 
@@ -130,6 +150,14 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 		licensemiddleware.Middleware,
 		tenantmiddleware.Middleware(options.tenant),
 	)
+
+	if options.redirectToHost != "" {
+		server.Use(middleware.RedirectToHost(options.redirectToHost))
+	}
+
+	if options.redirectToHTTPS != nil {
+		server.Use(middleware.RedirectToHTTPS(options.redirectToHTTPS))
+	}
 
 	s := &Server{
 		rootGroup: &rootGroup{

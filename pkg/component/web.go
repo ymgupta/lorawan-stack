@@ -36,13 +36,30 @@ const (
 )
 
 func (c *Component) initWeb() error {
-	web, err := web.New(
-		c.ctx,
+	webOptions := []web.Option{
 		web.WithContextFiller(c.FillContext),
 		web.WithCookieKeys(c.config.HTTP.Cookie.HashKey, c.config.HTTP.Cookie.BlockKey),
 		web.WithStatic(c.config.HTTP.Static.Mount, c.config.HTTP.Static.SearchPath...),
 		web.WithTenantConfig(c.config.Tenancy),
-	)
+	}
+	if c.config.HTTP.RedirectToHost != "" {
+		webOptions = append(webOptions, web.WithRedirectToHost(c.config.HTTP.RedirectToHost))
+	}
+	if c.config.HTTP.RedirectToHTTPS {
+		httpAddr, err := net.ResolveTCPAddr("tcp", c.config.HTTP.Listen)
+		if err != nil {
+			return err
+		}
+		httpsAddr, err := net.ResolveTCPAddr("tcp", c.config.HTTP.ListenTLS)
+		if err != nil {
+			return err
+		}
+		webOptions = append(webOptions, web.WithRedirectToHTTPS(httpAddr.Port, httpsAddr.Port))
+		if httpAddr.Port != 80 && httpsAddr.Port != 443 {
+			webOptions = append(webOptions, web.WithRedirectToHTTPS(80, 443))
+		}
+	}
+	web, err := web.New(c.ctx, webOptions...)
 	if err != nil {
 		return err
 	}

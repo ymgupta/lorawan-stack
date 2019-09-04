@@ -30,6 +30,18 @@ class Organizations {
     return Marshaler.payloadListResponse('organizations', response)
   }
 
+  async getById(id, selector) {
+    const fieldMask = Marshaler.selectorToFieldMask(selector)
+    const response = await this._api.OrganizationRegistry.Get(
+      {
+        routeParams: { 'organization_ids.organization_id': id },
+      },
+      fieldMask,
+    )
+
+    return Marshaler.payloadSingleResponse(response)
+  }
+
   // Create
 
   async create(userId, organization) {
@@ -41,6 +53,48 @@ class Organizations {
     )
 
     return Marshaler.payloadSingleResponse(response)
+  }
+
+  // Update
+
+  async updateById(id, patch, mask = Marshaler.fieldMaskFromPatch(patch)) {
+    const response = await this._api.OrganizationRegistry.Update(
+      {
+        routeParams: {
+          'organization.ids.organization_id': id,
+        },
+      },
+      {
+        organization: patch,
+        field_mask: Marshaler.fieldMask(mask),
+      },
+    )
+
+    return Marshaler.payloadSingleResponse(response)
+  }
+
+  // Delete
+
+  async deleteById(organizationId) {
+    const response = await this._api.OrganizationRegistry.Delete({
+      routeParams: { organization_id: organizationId },
+    })
+
+    return Marshaler.payloadSingleResponse(response)
+  }
+
+  // Events Stream
+
+  async openStream(identifiers, tail, after) {
+    const payload = {
+      identifiers: identifiers.map(id => ({
+        organization_ids: { organization_id: id },
+      })),
+      tail,
+      after,
+    }
+
+    return this._api.Events.Stream(undefined, payload)
   }
 }
 

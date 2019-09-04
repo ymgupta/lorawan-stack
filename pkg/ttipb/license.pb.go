@@ -8,6 +8,7 @@ import (
 	fmt "fmt"
 	io "io"
 	math "math"
+	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
 	time "time"
@@ -33,7 +34,7 @@ var _ = time.Kitchen
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type License struct {
 	// Immutable and unique public identifier for the License.
@@ -95,7 +96,7 @@ func (m *License) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_License.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -253,7 +254,7 @@ func (m *LicenseUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_LicenseUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -304,7 +305,7 @@ func (m *MeteringConfiguration) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_MeteringConfiguration.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -364,59 +365,11 @@ func (m *MeteringConfiguration) GetAWS() *MeteringConfiguration_AWS {
 	return nil
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*MeteringConfiguration) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _MeteringConfiguration_OneofMarshaler, _MeteringConfiguration_OneofUnmarshaler, _MeteringConfiguration_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*MeteringConfiguration) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*MeteringConfiguration_AWS_)(nil),
 	}
-}
-
-func _MeteringConfiguration_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*MeteringConfiguration)
-	// metering
-	switch x := m.Metering.(type) {
-	case *MeteringConfiguration_AWS_:
-		_ = b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.AWS); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("MeteringConfiguration.Metering has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _MeteringConfiguration_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*MeteringConfiguration)
-	switch tag {
-	case 3: // metering.aws
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(MeteringConfiguration_AWS)
-		err := b.DecodeMessage(msg)
-		m.Metering = &MeteringConfiguration_AWS_{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _MeteringConfiguration_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*MeteringConfiguration)
-	// metering
-	switch x := m.Metering.(type) {
-	case *MeteringConfiguration_AWS_:
-		s := proto.Size(x.AWS)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type MeteringConfiguration_AWS struct {
@@ -438,7 +391,7 @@ func (m *MeteringConfiguration_AWS) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_MeteringConfiguration_AWS.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -488,7 +441,7 @@ func (m *LicenseKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_LicenseKey.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -543,7 +496,7 @@ func (m *LicenseKey_Signature) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_LicenseKey_Signature.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -595,7 +548,7 @@ func (m *MeteringData) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_MeteringData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -641,7 +594,7 @@ func (m *MeteringData_TenantMeteringData) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_MeteringData_TenantMeteringData.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1113,7 +1066,7 @@ func (this *MeteringData_TenantMeteringData) Equal(that interface{}) bool {
 func (m *License) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1121,77 +1074,157 @@ func (m *License) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *License) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *License) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(m.LicenseIdentifiers.Size()))
-	n1, err := m.LicenseIdentifiers.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.Metering != nil {
+		{
+			size, err := m.Metering.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xaa
 	}
-	i += n1
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(m.LicenseIssuerIdentifiers.Size()))
-	n2, err := m.LicenseIssuerIdentifiers.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxUsers != nil {
+		{
+			size, err := m.MaxUsers.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa2
 	}
-	i += n2
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(m.CreatedAt)))
-	n3, err := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CreatedAt, dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxOrganizations != nil {
+		{
+			size, err := m.MaxOrganizations.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x9a
 	}
-	i += n3
-	dAtA[i] = 0x22
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(m.ValidFrom)))
-	n4, err := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ValidFrom, dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxGateways != nil {
+		{
+			size, err := m.MaxGateways.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x92
 	}
-	i += n4
-	dAtA[i] = 0x2a
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(m.ValidUntil)))
-	n5, err := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ValidUntil, dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxEndDevices != nil {
+		{
+			size, err := m.MaxEndDevices.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
 	}
-	i += n5
-	dAtA[i] = 0x32
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(m.WarnFor)))
-	n6, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.WarnFor, dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxClients != nil {
+		{
+			size, err := m.MaxClients.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
 	}
-	i += n6
-	dAtA[i] = 0x3a
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(m.LimitFor)))
-	n7, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.LimitFor, dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.MaxApplications != nil {
+		{
+			size, err := m.MaxApplications.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x7a
 	}
-	i += n7
-	if len(m.MinVersion) > 0 {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(len(m.MinVersion)))
-		i += copy(dAtA[i:], m.MinVersion)
+	if m.MultiTenancy {
+		i--
+		if m.MultiTenancy {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x70
 	}
-	if len(m.MaxVersion) > 0 {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(len(m.MaxVersion)))
-		i += copy(dAtA[i:], m.MaxVersion)
+	if len(m.JoinEUIPrefixes) > 0 {
+		for iNdEx := len(m.JoinEUIPrefixes) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size := m.JoinEUIPrefixes[iNdEx].Size()
+				i -= size
+				if _, err := m.JoinEUIPrefixes[iNdEx].MarshalTo(dAtA[i:]); err != nil {
+					return 0, err
+				}
+				i = encodeVarintLicense(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x6a
+		}
+	}
+	if len(m.DevAddrPrefixes) > 0 {
+		for iNdEx := len(m.DevAddrPrefixes) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size := m.DevAddrPrefixes[iNdEx].Size()
+				i -= size
+				if _, err := m.DevAddrPrefixes[iNdEx].MarshalTo(dAtA[i:]); err != nil {
+					return 0, err
+				}
+				i = encodeVarintLicense(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x62
+		}
+	}
+	if len(m.ComponentAddressRegexps) > 0 {
+		for iNdEx := len(m.ComponentAddressRegexps) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.ComponentAddressRegexps[iNdEx])
+			copy(dAtA[i:], m.ComponentAddressRegexps[iNdEx])
+			i = encodeVarintLicense(dAtA, i, uint64(len(m.ComponentAddressRegexps[iNdEx])))
+			i--
+			dAtA[i] = 0x5a
+		}
 	}
 	if len(m.Components) > 0 {
 		dAtA9 := make([]byte, len(m.Components)*10)
@@ -1205,149 +1238,93 @@ func (m *License) MarshalTo(dAtA []byte) (int, error) {
 			dAtA9[j8] = uint8(num)
 			j8++
 		}
-		dAtA[i] = 0x52
-		i++
+		i -= j8
+		copy(dAtA[i:], dAtA9[:j8])
 		i = encodeVarintLicense(dAtA, i, uint64(j8))
-		i += copy(dAtA[i:], dAtA9[:j8])
+		i--
+		dAtA[i] = 0x52
 	}
-	if len(m.ComponentAddressRegexps) > 0 {
-		for _, s := range m.ComponentAddressRegexps {
-			dAtA[i] = 0x5a
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
-		}
+	if len(m.MaxVersion) > 0 {
+		i -= len(m.MaxVersion)
+		copy(dAtA[i:], m.MaxVersion)
+		i = encodeVarintLicense(dAtA, i, uint64(len(m.MaxVersion)))
+		i--
+		dAtA[i] = 0x4a
 	}
-	if len(m.DevAddrPrefixes) > 0 {
-		for _, msg := range m.DevAddrPrefixes {
-			dAtA[i] = 0x62
-			i++
-			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
+	if len(m.MinVersion) > 0 {
+		i -= len(m.MinVersion)
+		copy(dAtA[i:], m.MinVersion)
+		i = encodeVarintLicense(dAtA, i, uint64(len(m.MinVersion)))
+		i--
+		dAtA[i] = 0x42
 	}
-	if len(m.JoinEUIPrefixes) > 0 {
-		for _, msg := range m.JoinEUIPrefixes {
-			dAtA[i] = 0x6a
-			i++
-			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
+	n10, err10 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.LimitFor, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.LimitFor):])
+	if err10 != nil {
+		return 0, err10
 	}
-	if m.MultiTenancy {
-		dAtA[i] = 0x70
-		i++
-		if m.MultiTenancy {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	i -= n10
+	i = encodeVarintLicense(dAtA, i, uint64(n10))
+	i--
+	dAtA[i] = 0x3a
+	n11, err11 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.WarnFor, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.WarnFor):])
+	if err11 != nil {
+		return 0, err11
 	}
-	if m.MaxApplications != nil {
-		dAtA[i] = 0x7a
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxApplications.Size()))
-		n10, err := m.MaxApplications.MarshalTo(dAtA[i:])
+	i -= n11
+	i = encodeVarintLicense(dAtA, i, uint64(n11))
+	i--
+	dAtA[i] = 0x32
+	n12, err12 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ValidUntil, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.ValidUntil):])
+	if err12 != nil {
+		return 0, err12
+	}
+	i -= n12
+	i = encodeVarintLicense(dAtA, i, uint64(n12))
+	i--
+	dAtA[i] = 0x2a
+	n13, err13 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.ValidFrom, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.ValidFrom):])
+	if err13 != nil {
+		return 0, err13
+	}
+	i -= n13
+	i = encodeVarintLicense(dAtA, i, uint64(n13))
+	i--
+	dAtA[i] = 0x22
+	n14, err14 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.CreatedAt):])
+	if err14 != nil {
+		return 0, err14
+	}
+	i -= n14
+	i = encodeVarintLicense(dAtA, i, uint64(n14))
+	i--
+	dAtA[i] = 0x1a
+	{
+		size, err := m.LicenseIssuerIdentifiers.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
-		i += n10
+		i -= size
+		i = encodeVarintLicense(dAtA, i, uint64(size))
 	}
-	if m.MaxClients != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxClients.Size()))
-		n11, err := m.MaxClients.MarshalTo(dAtA[i:])
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.LicenseIdentifiers.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
-		i += n11
+		i -= size
+		i = encodeVarintLicense(dAtA, i, uint64(size))
 	}
-	if m.MaxEndDevices != nil {
-		dAtA[i] = 0x8a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxEndDevices.Size()))
-		n12, err := m.MaxEndDevices.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n12
-	}
-	if m.MaxGateways != nil {
-		dAtA[i] = 0x92
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxGateways.Size()))
-		n13, err := m.MaxGateways.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n13
-	}
-	if m.MaxOrganizations != nil {
-		dAtA[i] = 0x9a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxOrganizations.Size()))
-		n14, err := m.MaxOrganizations.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n14
-	}
-	if m.MaxUsers != nil {
-		dAtA[i] = 0xa2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.MaxUsers.Size()))
-		n15, err := m.MaxUsers.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n15
-	}
-	if m.Metering != nil {
-		dAtA[i] = 0xaa
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.Metering.Size()))
-		n16, err := m.Metering.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n16
-	}
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *LicenseUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1355,27 +1332,32 @@ func (m *LicenseUpdate) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *LicenseUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LicenseUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.ExtendValidUntil != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(*m.ExtendValidUntil)))
-		n17, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.ExtendValidUntil, dAtA[i:])
-		if err != nil {
-			return 0, err
+		n17, err17 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.ExtendValidUntil, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.ExtendValidUntil):])
+		if err17 != nil {
+			return 0, err17
 		}
-		i += n17
+		i -= n17
+		i = encodeVarintLicense(dAtA, i, uint64(n17))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *MeteringConfiguration) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1383,56 +1365,71 @@ func (m *MeteringConfiguration) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MeteringConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MeteringConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdDuration(m.Interval)))
-	n18, err := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.Interval, dAtA[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n18
-	if m.OnSuccess != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.OnSuccess.Size()))
-		n19, err := m.OnSuccess.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n19
-	}
 	if m.Metering != nil {
-		nn20, err := m.Metering.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		{
+			size := m.Metering.Size()
+			i -= size
+			if _, err := m.Metering.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
 		}
-		i += nn20
 	}
-	return i, nil
+	if m.OnSuccess != nil {
+		{
+			size, err := m.OnSuccess.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	n19, err19 := github_com_gogo_protobuf_types.StdDurationMarshalTo(m.Interval, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(m.Interval):])
+	if err19 != nil {
+		return 0, err19
+	}
+	i -= n19
+	i = encodeVarintLicense(dAtA, i, uint64(n19))
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *MeteringConfiguration_AWS_) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	return m.MarshalToSizedBuffer(dAtA[:m.Size()])
+}
+
+func (m *MeteringConfiguration_AWS_) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.AWS != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.AWS.Size()))
-		n21, err := m.AWS.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
+		{
+			size, err := m.AWS.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
 		}
-		i += n21
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *MeteringConfiguration_AWS) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1440,23 +1437,29 @@ func (m *MeteringConfiguration_AWS) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MeteringConfiguration_AWS) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MeteringConfiguration_AWS) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.SKU) > 0 {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.SKU)
+		copy(dAtA[i:], m.SKU)
 		i = encodeVarintLicense(dAtA, i, uint64(len(m.SKU)))
-		i += copy(dAtA[i:], m.SKU)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *LicenseKey) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1464,35 +1467,43 @@ func (m *LicenseKey) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *LicenseKey) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LicenseKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.License) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(len(m.License)))
-		i += copy(dAtA[i:], m.License)
-	}
 	if len(m.Signatures) > 0 {
-		for _, msg := range m.Signatures {
-			dAtA[i] = 0x12
-			i++
-			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Signatures) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Signatures[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintLicense(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x12
 		}
 	}
-	return i, nil
+	if len(m.License) > 0 {
+		i -= len(m.License)
+		copy(dAtA[i:], m.License)
+		i = encodeVarintLicense(dAtA, i, uint64(len(m.License)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *LicenseKey_Signature) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1500,29 +1511,36 @@ func (m *LicenseKey_Signature) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *LicenseKey_Signature) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LicenseKey_Signature) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.KeyID) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(len(m.KeyID)))
-		i += copy(dAtA[i:], m.KeyID)
-	}
 	if len(m.Signature) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.Signature)
+		copy(dAtA[i:], m.Signature)
 		i = encodeVarintLicense(dAtA, i, uint64(len(m.Signature)))
-		i += copy(dAtA[i:], m.Signature)
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.KeyID) > 0 {
+		i -= len(m.KeyID)
+		copy(dAtA[i:], m.KeyID)
+		i = encodeVarintLicense(dAtA, i, uint64(len(m.KeyID)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *MeteringData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1530,29 +1548,36 @@ func (m *MeteringData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MeteringData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MeteringData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Tenants) > 0 {
-		for _, msg := range m.Tenants {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintLicense(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Tenants) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Tenants[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintLicense(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *MeteringData_TenantMeteringData) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1560,39 +1585,50 @@ func (m *MeteringData_TenantMeteringData) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MeteringData_TenantMeteringData) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MeteringData_TenantMeteringData) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintLicense(dAtA, i, uint64(m.TenantIdentifiers.Size()))
-	n22, err := m.TenantIdentifiers.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n22
 	if m.Totals != nil {
+		{
+			size, err := m.Totals.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintLicense(dAtA, i, uint64(size))
+		}
+		i--
 		dAtA[i] = 0x12
-		i++
-		i = encodeVarintLicense(dAtA, i, uint64(m.Totals.Size()))
-		n23, err := m.Totals.MarshalTo(dAtA[i:])
+	}
+	{
+		size, err := m.TenantIdentifiers.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
-		i += n23
+		i -= size
+		i = encodeVarintLicense(dAtA, i, uint64(size))
 	}
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintLicense(dAtA []byte, offset int, v uint64) int {
+	offset -= sovLicense(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func NewPopulatedLicense(r randyLicense, easy bool) *License {
 	this := &License{}
@@ -1635,25 +1671,25 @@ func NewPopulatedLicense(r randyLicense, easy bool) *License {
 		this.JoinEUIPrefixes[i] = *v13
 	}
 	this.MultiTenancy = bool(r.Intn(2) == 0)
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxApplications = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxClients = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxEndDevices = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxGateways = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxOrganizations = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.MaxUsers = types.NewPopulatedUInt64Value(r, easy)
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.Metering = NewPopulatedMeteringConfiguration(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -1663,7 +1699,7 @@ func NewPopulatedLicense(r randyLicense, easy bool) *License {
 
 func NewPopulatedLicenseUpdate(r randyLicense, easy bool) *LicenseUpdate {
 	this := &LicenseUpdate{}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.ExtendValidUntil = github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -1675,7 +1711,7 @@ func NewPopulatedMeteringConfiguration(r randyLicense, easy bool) *MeteringConfi
 	this := &MeteringConfiguration{}
 	v14 := github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
 	this.Interval = *v14
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.OnSuccess = NewPopulatedLicenseUpdate(r, easy)
 	}
 	oneofNumber_Metering := []int32{3}[r.Intn(1)]
@@ -1708,7 +1744,7 @@ func NewPopulatedLicenseKey(r randyLicense, easy bool) *LicenseKey {
 	for i := 0; i < v15; i++ {
 		this.License[i] = byte(r.Intn(256))
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		v16 := r.Intn(5)
 		this.Signatures = make([]*LicenseKey_Signature, v16)
 		for i := 0; i < v16; i++ {
@@ -1735,7 +1771,7 @@ func NewPopulatedLicenseKey_Signature(r randyLicense, easy bool) *LicenseKey_Sig
 
 func NewPopulatedMeteringData(r randyLicense, easy bool) *MeteringData {
 	this := &MeteringData{}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		v18 := r.Intn(5)
 		this.Tenants = make([]*MeteringData_TenantMeteringData, v18)
 		for i := 0; i < v18; i++ {
@@ -1751,7 +1787,7 @@ func NewPopulatedMeteringData_TenantMeteringData(r randyLicense, easy bool) *Met
 	this := &MeteringData_TenantMeteringData{}
 	v19 := NewPopulatedTenantIdentifiers(r, easy)
 	this.TenantIdentifiers = *v19
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.Totals = NewPopulatedTenantRegistryTotals(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
@@ -2041,14 +2077,7 @@ func (m *MeteringData_TenantMeteringData) Size() (n int) {
 }
 
 func sovLicense(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
-		}
-	}
-	return n
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozLicense(x uint64) (n int) {
 	return sovLicense((x << 1) ^ uint64((int64(x) >> 63)))
@@ -2058,13 +2087,13 @@ func (this *License) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&License{`,
-		`LicenseIdentifiers:` + strings.Replace(strings.Replace(this.LicenseIdentifiers.String(), "LicenseIdentifiers", "LicenseIdentifiers", 1), `&`, ``, 1) + `,`,
-		`LicenseIssuerIdentifiers:` + strings.Replace(strings.Replace(this.LicenseIssuerIdentifiers.String(), "LicenseIssuerIdentifiers", "LicenseIssuerIdentifiers", 1), `&`, ``, 1) + `,`,
-		`CreatedAt:` + strings.Replace(strings.Replace(this.CreatedAt.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
-		`ValidFrom:` + strings.Replace(strings.Replace(this.ValidFrom.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
-		`ValidUntil:` + strings.Replace(strings.Replace(this.ValidUntil.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
-		`WarnFor:` + strings.Replace(strings.Replace(this.WarnFor.String(), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
-		`LimitFor:` + strings.Replace(strings.Replace(this.LimitFor.String(), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
+		`LicenseIdentifiers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.LicenseIdentifiers), "LicenseIdentifiers", "LicenseIdentifiers", 1), `&`, ``, 1) + `,`,
+		`LicenseIssuerIdentifiers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.LicenseIssuerIdentifiers), "LicenseIssuerIdentifiers", "LicenseIssuerIdentifiers", 1), `&`, ``, 1) + `,`,
+		`CreatedAt:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.CreatedAt), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`ValidFrom:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ValidFrom), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`ValidUntil:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.ValidUntil), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`WarnFor:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.WarnFor), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
+		`LimitFor:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.LimitFor), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
 		`MinVersion:` + fmt.Sprintf("%v", this.MinVersion) + `,`,
 		`MaxVersion:` + fmt.Sprintf("%v", this.MaxVersion) + `,`,
 		`Components:` + fmt.Sprintf("%v", this.Components) + `,`,
@@ -2078,7 +2107,7 @@ func (this *License) String() string {
 		`MaxGateways:` + strings.Replace(fmt.Sprintf("%v", this.MaxGateways), "UInt64Value", "types.UInt64Value", 1) + `,`,
 		`MaxOrganizations:` + strings.Replace(fmt.Sprintf("%v", this.MaxOrganizations), "UInt64Value", "types.UInt64Value", 1) + `,`,
 		`MaxUsers:` + strings.Replace(fmt.Sprintf("%v", this.MaxUsers), "UInt64Value", "types.UInt64Value", 1) + `,`,
-		`Metering:` + strings.Replace(fmt.Sprintf("%v", this.Metering), "MeteringConfiguration", "MeteringConfiguration", 1) + `,`,
+		`Metering:` + strings.Replace(this.Metering.String(), "MeteringConfiguration", "MeteringConfiguration", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2098,8 +2127,8 @@ func (this *MeteringConfiguration) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&MeteringConfiguration{`,
-		`Interval:` + strings.Replace(strings.Replace(this.Interval.String(), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
-		`OnSuccess:` + strings.Replace(fmt.Sprintf("%v", this.OnSuccess), "LicenseUpdate", "LicenseUpdate", 1) + `,`,
+		`Interval:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Interval), "Duration", "types.Duration", 1), `&`, ``, 1) + `,`,
+		`OnSuccess:` + strings.Replace(this.OnSuccess.String(), "LicenseUpdate", "LicenseUpdate", 1) + `,`,
 		`Metering:` + fmt.Sprintf("%v", this.Metering) + `,`,
 		`}`,
 	}, "")
@@ -2129,9 +2158,14 @@ func (this *LicenseKey) String() string {
 	if this == nil {
 		return "nil"
 	}
+	repeatedStringForSignatures := "[]*LicenseKey_Signature{"
+	for _, f := range this.Signatures {
+		repeatedStringForSignatures += strings.Replace(fmt.Sprintf("%v", f), "LicenseKey_Signature", "LicenseKey_Signature", 1) + ","
+	}
+	repeatedStringForSignatures += "}"
 	s := strings.Join([]string{`&LicenseKey{`,
 		`License:` + fmt.Sprintf("%v", this.License) + `,`,
-		`Signatures:` + strings.Replace(fmt.Sprintf("%v", this.Signatures), "LicenseKey_Signature", "LicenseKey_Signature", 1) + `,`,
+		`Signatures:` + repeatedStringForSignatures + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2151,8 +2185,13 @@ func (this *MeteringData) String() string {
 	if this == nil {
 		return "nil"
 	}
+	repeatedStringForTenants := "[]*MeteringData_TenantMeteringData{"
+	for _, f := range this.Tenants {
+		repeatedStringForTenants += strings.Replace(fmt.Sprintf("%v", f), "MeteringData_TenantMeteringData", "MeteringData_TenantMeteringData", 1) + ","
+	}
+	repeatedStringForTenants += "}"
 	s := strings.Join([]string{`&MeteringData{`,
-		`Tenants:` + strings.Replace(fmt.Sprintf("%v", this.Tenants), "MeteringData_TenantMeteringData", "MeteringData_TenantMeteringData", 1) + `,`,
+		`Tenants:` + repeatedStringForTenants + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2162,7 +2201,7 @@ func (this *MeteringData_TenantMeteringData) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&MeteringData_TenantMeteringData{`,
-		`TenantIdentifiers:` + strings.Replace(strings.Replace(this.TenantIdentifiers.String(), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
+		`TenantIdentifiers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.TenantIdentifiers), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
 		`Totals:` + strings.Replace(fmt.Sprintf("%v", this.Totals), "TenantRegistryTotals", "TenantRegistryTotals", 1) + `,`,
 		`}`,
 	}, "")

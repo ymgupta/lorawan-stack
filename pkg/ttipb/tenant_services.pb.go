@@ -15,6 +15,8 @@ import (
 	golang_proto "github.com/golang/protobuf/proto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -27,7 +29,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 func init() {
 	proto.RegisterFile("lorawan-stack/api/tti/tenant_services.proto", fileDescriptor_f411f114fe8fe8a6)
@@ -192,6 +194,35 @@ type TenantRegistryServer interface {
 	Delete(context.Context, *TenantIdentifiers) (*types.Empty, error)
 	GetIdentifiersForEndDeviceEUIs(context.Context, *GetTenantIdentifiersForEndDeviceEUIsRequest) (*TenantIdentifiers, error)
 	GetIdentifiersForGatewayEUI(context.Context, *GetTenantIdentifiersForGatewayEUIRequest) (*TenantIdentifiers, error)
+}
+
+// UnimplementedTenantRegistryServer can be embedded to have forward compatible implementations.
+type UnimplementedTenantRegistryServer struct {
+}
+
+func (*UnimplementedTenantRegistryServer) Create(ctx context.Context, req *CreateTenantRequest) (*Tenant, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
+}
+func (*UnimplementedTenantRegistryServer) Get(ctx context.Context, req *GetTenantRequest) (*Tenant, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Get not implemented")
+}
+func (*UnimplementedTenantRegistryServer) GetRegistryTotals(ctx context.Context, req *GetTenantRegistryTotalsRequest) (*TenantRegistryTotals, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRegistryTotals not implemented")
+}
+func (*UnimplementedTenantRegistryServer) List(ctx context.Context, req *ListTenantsRequest) (*Tenants, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
+}
+func (*UnimplementedTenantRegistryServer) Update(ctx context.Context, req *UpdateTenantRequest) (*Tenant, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Update not implemented")
+}
+func (*UnimplementedTenantRegistryServer) Delete(ctx context.Context, req *TenantIdentifiers) (*types.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Delete not implemented")
+}
+func (*UnimplementedTenantRegistryServer) GetIdentifiersForEndDeviceEUIs(ctx context.Context, req *GetTenantIdentifiersForEndDeviceEUIsRequest) (*TenantIdentifiers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIdentifiersForEndDeviceEUIs not implemented")
+}
+func (*UnimplementedTenantRegistryServer) GetIdentifiersForGatewayEUI(ctx context.Context, req *GetTenantIdentifiersForGatewayEUIRequest) (*TenantIdentifiers, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetIdentifiersForGatewayEUI not implemented")
 }
 
 func RegisterTenantRegistryServer(s *grpc.Server, srv TenantRegistryServer) {
