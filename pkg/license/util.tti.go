@@ -53,7 +53,7 @@ var errLimitedFunctionality = errors.DefineFailedPrecondition("limited_functiona
 
 // CheckLimitedFunctionality checks if functionality needs to be limited.
 func CheckLimitedFunctionality(license *ttipb.License) error {
-	if validUntil := license.GetValidUntil(); now.Add(license.GetLimitFor()).After(validUntil) {
+	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && time.Until(validUntil) < license.GetLimitFor() {
 		return errLimitedFunctionality
 	}
 	return nil
