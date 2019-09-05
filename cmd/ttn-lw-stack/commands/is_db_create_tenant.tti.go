@@ -8,6 +8,7 @@ import (
 	"context"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/spf13/cobra"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
@@ -43,17 +44,36 @@ var (
 				return err
 			}
 
-			logger.Info("Creating tenant...")
-			tenantStore := store.GetTenantStore(db)
-			_, err = tenantStore.CreateTenant(ctx, &ttipb.Tenant{
+			tntFieldMask := &pbtypes.FieldMask{Paths: []string{
+				"name",
+			}}
+			tnt := &ttipb.Tenant{
 				TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: tenantID},
-				Name:              name,
-			})
-			if err != nil {
-				return err
 			}
 
-			logger.Info("Created tenant")
+			tntStore := store.GetTenantStore(db)
+
+			var tntExists bool
+			if _, err := tntStore.GetTenant(ctx, &tnt.TenantIdentifiers, tntFieldMask); err == nil {
+				tntExists = true
+			}
+
+			tnt.Name = name
+
+			if tntExists {
+				logger.Info("Updating tenant...")
+				if _, err = tntStore.UpdateTenant(ctx, tnt, tntFieldMask); err != nil {
+					return err
+				}
+				logger.Info("Updated tenant")
+			} else {
+				logger.Info("Creating tenant...")
+				if _, err = tntStore.CreateTenant(ctx, tnt); err != nil {
+					return err
+				}
+				logger.Info("Created tenant")
+			}
+
 			return nil
 		},
 	}
