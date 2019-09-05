@@ -156,7 +156,7 @@ deploy:
   skip_cleanup: true
   github_token: $GITHUB_TOKEN
   keep_history: true
-  fqdn: thethingsstack.io
+  fqdn: enterprise.thethingsstack.io
   on:
     tags: true
     condition: $RUNTYPE = "release"
