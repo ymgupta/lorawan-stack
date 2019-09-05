@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	io "io"
 	math "math"
+	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
 
@@ -26,7 +27,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 type TenantIdentifiers struct {
 	TenantID             string   `protobuf:"bytes,1,opt,name=tenant_id,json=tenantId,proto3" json:"tenant_id,omitempty"`
@@ -47,7 +48,7 @@ func (m *TenantIdentifiers) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_TenantIdentifiers.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +93,7 @@ func (m *LicenseIssuerIdentifiers) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_LicenseIssuerIdentifiers.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -137,7 +138,7 @@ func (m *LicenseIdentifiers) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_LicenseIdentifiers.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -286,7 +287,7 @@ func (this *LicenseIdentifiers) Equal(that interface{}) bool {
 func (m *TenantIdentifiers) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -294,23 +295,29 @@ func (m *TenantIdentifiers) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TenantIdentifiers) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TenantIdentifiers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.TenantID) > 0 {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.TenantID)
+		copy(dAtA[i:], m.TenantID)
 		i = encodeVarintIdentifiers(dAtA, i, uint64(len(m.TenantID)))
-		i += copy(dAtA[i:], m.TenantID)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *LicenseIssuerIdentifiers) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -318,23 +325,29 @@ func (m *LicenseIssuerIdentifiers) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *LicenseIssuerIdentifiers) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LicenseIssuerIdentifiers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.LicenseIssuerID) > 0 {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.LicenseIssuerID)
+		copy(dAtA[i:], m.LicenseIssuerID)
 		i = encodeVarintIdentifiers(dAtA, i, uint64(len(m.LicenseIssuerID)))
-		i += copy(dAtA[i:], m.LicenseIssuerID)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *LicenseIdentifiers) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -342,27 +355,35 @@ func (m *LicenseIdentifiers) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *LicenseIdentifiers) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *LicenseIdentifiers) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.LicenseID) > 0 {
-		dAtA[i] = 0xa
-		i++
+		i -= len(m.LicenseID)
+		copy(dAtA[i:], m.LicenseID)
 		i = encodeVarintIdentifiers(dAtA, i, uint64(len(m.LicenseID)))
-		i += copy(dAtA[i:], m.LicenseID)
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintIdentifiers(dAtA []byte, offset int, v uint64) int {
+	offset -= sovIdentifiers(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *TenantIdentifiers) Size() (n int) {
 	if m == nil {
@@ -404,14 +425,7 @@ func (m *LicenseIdentifiers) Size() (n int) {
 }
 
 func sovIdentifiers(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
-		}
-	}
-	return n
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozIdentifiers(x uint64) (n int) {
 	return sovIdentifiers((x << 1) ^ uint64((int64(x) >> 63)))

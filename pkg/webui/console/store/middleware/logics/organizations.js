@@ -16,6 +16,20 @@ import api from '../../../api'
 import * as organizations from '../../actions/organizations'
 import { selectUserId } from '../../selectors/user'
 import createRequestLogic from './lib'
+import createEventsConnectLogics from './events'
+
+const getOrganizationLogic = createRequestLogic({
+  type: organizations.GET_ORG,
+  async process({ action }, dispatch) {
+    const {
+      payload: { id },
+      meta: { selector },
+    } = action
+    const org = await api.organization.get(id, selector)
+    dispatch(organizations.startOrganizationEventsStream(id))
+    return org
+  },
+})
 
 const getOrganizationsLogic = createRequestLogic({
   type: organizations.GET_ORGS_LIST,
@@ -44,4 +58,37 @@ const createOrganizationLogic = createRequestLogic({
   },
 })
 
-export default [getOrganizationsLogic, createOrganizationLogic]
+const updateOrganizationLogic = createRequestLogic({
+  type: organizations.UPDATE_ORG,
+  async process({ action }) {
+    const { id, patch } = action.payload
+
+    const result = await api.organization.update(id, patch)
+
+    return { ...patch, ...result }
+  },
+})
+
+const deleteOrganizationLogic = createRequestLogic({
+  type: organizations.DELETE_ORG,
+  async process({ action }) {
+    const { id } = action.payload
+
+    await api.organization.delete(id)
+
+    return { id }
+  },
+})
+
+export default [
+  getOrganizationLogic,
+  getOrganizationsLogic,
+  createOrganizationLogic,
+  updateOrganizationLogic,
+  deleteOrganizationLogic,
+  ...createEventsConnectLogics(
+    organizations.SHARED_NAME,
+    'organizations',
+    api.organization.eventsSubscribe,
+  ),
+]

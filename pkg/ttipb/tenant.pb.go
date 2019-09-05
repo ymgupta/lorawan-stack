@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	io "io"
 	math "math"
+	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
 	time "time"
@@ -33,7 +34,7 @@ var _ = time.Kitchen
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.GoGoProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // Tenant is the message that defines a Tenant in the network.
 type Tenant struct {
@@ -65,7 +66,7 @@ func (m *Tenant) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Tenant.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -159,7 +160,7 @@ func (m *Tenants) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Tenants.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +206,7 @@ func (m *GetTenantRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_GetTenantRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -257,7 +258,7 @@ func (m *ListTenantsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_ListTenantsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -323,7 +324,7 @@ func (m *CreateTenantRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_CreateTenantRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -362,7 +363,7 @@ func (m *UpdateTenantRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_UpdateTenantRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -410,7 +411,7 @@ func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_Marshal(b []byte, dete
 		return xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -450,7 +451,7 @@ func (m *GetTenantIdentifiersForGatewayEUIRequest) XXX_Marshal(b []byte, determi
 		return xxx_messageInfo_GetTenantIdentifiersForGatewayEUIRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -489,7 +490,7 @@ func (m *GetTenantRegistryTotalsRequest) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_GetTenantRegistryTotalsRequest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -539,7 +540,7 @@ func (m *TenantRegistryTotals) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_TenantRegistryTotals.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1023,7 +1024,7 @@ func (this *TenantRegistryTotals) Equal(that interface{}) bool {
 func (m *Tenant) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1031,95 +1032,110 @@ func (m *Tenant) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Tenant) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Tenant) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.TenantIdentifiers.Size()))
-	n1, err := m.TenantIdentifiers.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.Capabilities.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n1
-	dAtA[i] = 0x12
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(m.CreatedAt)))
-	n2, err := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CreatedAt, dAtA[i:])
-	if err != nil {
-		return 0, err
+	i--
+	dAtA[i] = 0x4a
+	if m.State != 0 {
+		i = encodeVarintTenant(dAtA, i, uint64(m.State))
+		i--
+		dAtA[i] = 0x40
 	}
-	i += n2
-	dAtA[i] = 0x1a
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(github_com_gogo_protobuf_types.SizeOfStdTime(m.UpdatedAt)))
-	n3, err := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.UpdatedAt, dAtA[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n3
-	if len(m.Name) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(len(m.Name)))
-		i += copy(dAtA[i:], m.Name)
-	}
-	if len(m.Description) > 0 {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(len(m.Description)))
-		i += copy(dAtA[i:], m.Description)
+	if len(m.ContactInfo) > 0 {
+		for iNdEx := len(m.ContactInfo) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ContactInfo[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTenant(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x3a
+		}
 	}
 	if len(m.Attributes) > 0 {
 		for k := range m.Attributes {
-			dAtA[i] = 0x32
-			i++
 			v := m.Attributes[k]
-			mapSize := 1 + len(k) + sovTenant(uint64(len(k))) + 1 + len(v) + sovTenant(uint64(len(v)))
-			i = encodeVarintTenant(dAtA, i, uint64(mapSize))
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintTenant(dAtA, i, uint64(len(k)))
-			i += copy(dAtA[i:], k)
-			dAtA[i] = 0x12
-			i++
+			baseI := i
+			i -= len(v)
+			copy(dAtA[i:], v)
 			i = encodeVarintTenant(dAtA, i, uint64(len(v)))
-			i += copy(dAtA[i:], v)
+			i--
+			dAtA[i] = 0x12
+			i -= len(k)
+			copy(dAtA[i:], k)
+			i = encodeVarintTenant(dAtA, i, uint64(len(k)))
+			i--
+			dAtA[i] = 0xa
+			i = encodeVarintTenant(dAtA, i, uint64(baseI-i))
+			i--
+			dAtA[i] = 0x32
 		}
 	}
-	if len(m.ContactInfo) > 0 {
-		for _, msg := range m.ContactInfo {
-			dAtA[i] = 0x3a
-			i++
-			i = encodeVarintTenant(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
+	if len(m.Description) > 0 {
+		i -= len(m.Description)
+		copy(dAtA[i:], m.Description)
+		i = encodeVarintTenant(dAtA, i, uint64(len(m.Description)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Name) > 0 {
+		i -= len(m.Name)
+		copy(dAtA[i:], m.Name)
+		i = encodeVarintTenant(dAtA, i, uint64(len(m.Name)))
+		i--
+		dAtA[i] = 0x22
+	}
+	n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.UpdatedAt):])
+	if err2 != nil {
+		return 0, err2
+	}
+	i -= n2
+	i = encodeVarintTenant(dAtA, i, uint64(n2))
+	i--
+	dAtA[i] = 0x1a
+	n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(m.CreatedAt):])
+	if err3 != nil {
+		return 0, err3
+	}
+	i -= n3
+	i = encodeVarintTenant(dAtA, i, uint64(n3))
+	i--
+	dAtA[i] = 0x12
+	{
+		size, err := m.TenantIdentifiers.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
 		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	if m.State != 0 {
-		dAtA[i] = 0x40
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(m.State))
-	}
-	dAtA[i] = 0x4a
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.Capabilities.Size()))
-	n4, err := m.Capabilities.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n4
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *Tenants) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1127,29 +1143,36 @@ func (m *Tenants) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Tenants) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Tenants) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if len(m.Tenants) > 0 {
-		for _, msg := range m.Tenants {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintTenant(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Tenants) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Tenants[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintTenant(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *GetTenantRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1157,33 +1180,42 @@ func (m *GetTenantRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *GetTenantRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetTenantRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.TenantIdentifiers.Size()))
-	n5, err := m.TenantIdentifiers.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.FieldMask.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n5
+	i--
 	dAtA[i] = 0x12
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.FieldMask.Size()))
-	n6, err := m.FieldMask.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.TenantIdentifiers.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n6
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *ListTenantsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1191,41 +1223,49 @@ func (m *ListTenantsRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ListTenantsRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ListTenantsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.FieldMask.Size()))
-	n7, err := m.FieldMask.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
-	}
-	i += n7
-	if len(m.Order) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(len(m.Order)))
-		i += copy(dAtA[i:], m.Order)
+	if m.Page != 0 {
+		i = encodeVarintTenant(dAtA, i, uint64(m.Page))
+		i--
+		dAtA[i] = 0x20
 	}
 	if m.Limit != 0 {
-		dAtA[i] = 0x18
-		i++
 		i = encodeVarintTenant(dAtA, i, uint64(m.Limit))
+		i--
+		dAtA[i] = 0x18
 	}
-	if m.Page != 0 {
-		dAtA[i] = 0x20
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(m.Page))
+	if len(m.Order) > 0 {
+		i -= len(m.Order)
+		copy(dAtA[i:], m.Order)
+		i = encodeVarintTenant(dAtA, i, uint64(len(m.Order)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	{
+		size, err := m.FieldMask.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
+	}
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *CreateTenantRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1233,25 +1273,32 @@ func (m *CreateTenantRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CreateTenantRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CreateTenantRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.Tenant.Size()))
-	n8, err := m.Tenant.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.Tenant.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n8
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *UpdateTenantRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1259,33 +1306,42 @@ func (m *UpdateTenantRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *UpdateTenantRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *UpdateTenantRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.Tenant.Size()))
-	n9, err := m.Tenant.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.FieldMask.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n9
+	i--
 	dAtA[i] = 0x12
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.FieldMask.Size()))
-	n10, err := m.FieldMask.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size, err := m.Tenant.MarshalToSizedBuffer(dAtA[:i])
+		if err != nil {
+			return 0, err
+		}
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n10
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1293,33 +1349,42 @@ func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) Marshal() (dAtA []byte, er
 }
 
 func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.JoinEUI.Size()))
-	n11, err := m.JoinEUI.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size := m.DevEUI.Size()
+		i -= size
+		if _, err := m.DevEUI.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n11
+	i--
 	dAtA[i] = 0x12
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.DevEUI.Size()))
-	n12, err := m.DevEUI.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size := m.JoinEUI.Size()
+		i -= size
+		if _, err := m.JoinEUI.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n12
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *GetTenantIdentifiersForGatewayEUIRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1327,25 +1392,32 @@ func (m *GetTenantIdentifiersForGatewayEUIRequest) Marshal() (dAtA []byte, err e
 }
 
 func (m *GetTenantIdentifiersForGatewayEUIRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetTenantIdentifiersForGatewayEUIRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	dAtA[i] = 0xa
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.EUI.Size()))
-	n13, err := m.EUI.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	{
+		size := m.EUI.Size()
+		i -= size
+		if _, err := m.EUI.MarshalTo(dAtA[i:]); err != nil {
+			return 0, err
+		}
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
-	i += n13
-	return i, nil
+	i--
+	dAtA[i] = 0xa
+	return len(dAtA) - i, nil
 }
 
 func (m *GetTenantRegistryTotalsRequest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1353,35 +1425,44 @@ func (m *GetTenantRegistryTotalsRequest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *GetTenantRegistryTotalsRequest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetTenantRegistryTotalsRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.TenantIdentifiers != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintTenant(dAtA, i, uint64(m.TenantIdentifiers.Size()))
-		n14, err := m.TenantIdentifiers.MarshalTo(dAtA[i:])
+	{
+		size, err := m.FieldMask.MarshalToSizedBuffer(dAtA[:i])
 		if err != nil {
 			return 0, err
 		}
-		i += n14
+		i -= size
+		i = encodeVarintTenant(dAtA, i, uint64(size))
 	}
+	i--
 	dAtA[i] = 0x12
-	i++
-	i = encodeVarintTenant(dAtA, i, uint64(m.FieldMask.Size()))
-	n15, err := m.FieldMask.MarshalTo(dAtA[i:])
-	if err != nil {
-		return 0, err
+	if m.TenantIdentifiers != nil {
+		{
+			size, err := m.TenantIdentifiers.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintTenant(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
 	}
-	i += n15
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *TenantRegistryTotals) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -1389,51 +1470,58 @@ func (m *TenantRegistryTotals) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TenantRegistryTotals) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TenantRegistryTotals) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Applications != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintTenant(dAtA, i, m.Applications)
-	}
-	if m.Clients != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintTenant(dAtA, i, m.Clients)
-	}
-	if m.EndDevices != 0 {
-		dAtA[i] = 0x18
-		i++
-		i = encodeVarintTenant(dAtA, i, m.EndDevices)
-	}
-	if m.Gateways != 0 {
-		dAtA[i] = 0x20
-		i++
-		i = encodeVarintTenant(dAtA, i, m.Gateways)
+	if m.Users != 0 {
+		i = encodeVarintTenant(dAtA, i, m.Users)
+		i--
+		dAtA[i] = 0x30
 	}
 	if m.Organizations != 0 {
-		dAtA[i] = 0x28
-		i++
 		i = encodeVarintTenant(dAtA, i, m.Organizations)
+		i--
+		dAtA[i] = 0x28
 	}
-	if m.Users != 0 {
-		dAtA[i] = 0x30
-		i++
-		i = encodeVarintTenant(dAtA, i, m.Users)
+	if m.Gateways != 0 {
+		i = encodeVarintTenant(dAtA, i, m.Gateways)
+		i--
+		dAtA[i] = 0x20
 	}
-	return i, nil
+	if m.EndDevices != 0 {
+		i = encodeVarintTenant(dAtA, i, m.EndDevices)
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.Clients != 0 {
+		i = encodeVarintTenant(dAtA, i, m.Clients)
+		i--
+		dAtA[i] = 0x10
+	}
+	if m.Applications != 0 {
+		i = encodeVarintTenant(dAtA, i, m.Applications)
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintTenant(dAtA []byte, offset int, v uint64) int {
+	offset -= sovTenant(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func NewPopulatedTenant(r randyTenant, easy bool) *Tenant {
 	this := &Tenant{}
@@ -1445,14 +1533,14 @@ func NewPopulatedTenant(r randyTenant, easy bool) *Tenant {
 	this.UpdatedAt = *v3
 	this.Name = randStringTenant(r)
 	this.Description = randStringTenant(r)
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		v4 := r.Intn(10)
 		this.Attributes = make(map[string]string)
 		for i := 0; i < v4; i++ {
 			this.Attributes[randStringTenant(r)] = randStringTenant(r)
 		}
 	}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		v5 := r.Intn(5)
 		this.ContactInfo = make([]*ttnpb.ContactInfo, v5)
 		for i := 0; i < v5; i++ {
@@ -1469,7 +1557,7 @@ func NewPopulatedTenant(r randyTenant, easy bool) *Tenant {
 
 func NewPopulatedTenants(r randyTenant, easy bool) *Tenants {
 	this := &Tenants{}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		v7 := r.Intn(5)
 		this.Tenants = make([]*Tenant, v7)
 		for i := 0; i < v7; i++ {
@@ -1546,7 +1634,7 @@ func NewPopulatedGetTenantIdentifiersForGatewayEUIRequest(r randyTenant, easy bo
 
 func NewPopulatedGetTenantRegistryTotalsRequest(r randyTenant, easy bool) *GetTenantRegistryTotalsRequest {
 	this := &GetTenantRegistryTotalsRequest{}
-	if r.Intn(10) != 0 {
+	if r.Intn(5) != 0 {
 		this.TenantIdentifiers = NewPopulatedTenantIdentifiers(r, easy)
 	}
 	v17 := types.NewPopulatedFieldMask(r, easy)
@@ -1823,14 +1911,7 @@ func (m *TenantRegistryTotals) Size() (n int) {
 }
 
 func sovTenant(x uint64) (n int) {
-	for {
-		n++
-		x >>= 7
-		if x == 0 {
-			break
-		}
-	}
-	return n
+	return (math_bits.Len64(x|1) + 6) / 7
 }
 func sozTenant(x uint64) (n int) {
 	return sovTenant((x << 1) ^ uint64((int64(x) >> 63)))
@@ -1839,6 +1920,11 @@ func (this *Tenant) String() string {
 	if this == nil {
 		return "nil"
 	}
+	repeatedStringForContactInfo := "[]*ContactInfo{"
+	for _, f := range this.ContactInfo {
+		repeatedStringForContactInfo += strings.Replace(fmt.Sprintf("%v", f), "ContactInfo", "ttnpb.ContactInfo", 1) + ","
+	}
+	repeatedStringForContactInfo += "}"
 	keysForAttributes := make([]string, 0, len(this.Attributes))
 	for k := range this.Attributes {
 		keysForAttributes = append(keysForAttributes, k)
@@ -1850,15 +1936,15 @@ func (this *Tenant) String() string {
 	}
 	mapStringForAttributes += "}"
 	s := strings.Join([]string{`&Tenant{`,
-		`TenantIdentifiers:` + strings.Replace(strings.Replace(this.TenantIdentifiers.String(), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
-		`CreatedAt:` + strings.Replace(strings.Replace(this.CreatedAt.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
-		`UpdatedAt:` + strings.Replace(strings.Replace(this.UpdatedAt.String(), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`TenantIdentifiers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.TenantIdentifiers), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
+		`CreatedAt:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.CreatedAt), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
+		`UpdatedAt:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.UpdatedAt), "Timestamp", "types.Timestamp", 1), `&`, ``, 1) + `,`,
 		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
 		`Description:` + fmt.Sprintf("%v", this.Description) + `,`,
 		`Attributes:` + mapStringForAttributes + `,`,
-		`ContactInfo:` + strings.Replace(fmt.Sprintf("%v", this.ContactInfo), "ContactInfo", "ttnpb.ContactInfo", 1) + `,`,
+		`ContactInfo:` + repeatedStringForContactInfo + `,`,
 		`State:` + fmt.Sprintf("%v", this.State) + `,`,
-		`Capabilities:` + strings.Replace(strings.Replace(this.Capabilities.String(), "Struct", "types.Struct", 1), `&`, ``, 1) + `,`,
+		`Capabilities:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Capabilities), "Struct", "types.Struct", 1), `&`, ``, 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1867,8 +1953,13 @@ func (this *Tenants) String() string {
 	if this == nil {
 		return "nil"
 	}
+	repeatedStringForTenants := "[]*Tenant{"
+	for _, f := range this.Tenants {
+		repeatedStringForTenants += strings.Replace(f.String(), "Tenant", "Tenant", 1) + ","
+	}
+	repeatedStringForTenants += "}"
 	s := strings.Join([]string{`&Tenants{`,
-		`Tenants:` + strings.Replace(fmt.Sprintf("%v", this.Tenants), "Tenant", "Tenant", 1) + `,`,
+		`Tenants:` + repeatedStringForTenants + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1878,8 +1969,8 @@ func (this *GetTenantRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&GetTenantRequest{`,
-		`TenantIdentifiers:` + strings.Replace(strings.Replace(this.TenantIdentifiers.String(), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
-		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`TenantIdentifiers:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.TenantIdentifiers), "TenantIdentifiers", "TenantIdentifiers", 1), `&`, ``, 1) + `,`,
+		`FieldMask:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.FieldMask), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1889,7 +1980,7 @@ func (this *ListTenantsRequest) String() string {
 		return "nil"
 	}
 	s := strings.Join([]string{`&ListTenantsRequest{`,
-		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`FieldMask:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.FieldMask), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
 		`Order:` + fmt.Sprintf("%v", this.Order) + `,`,
 		`Limit:` + fmt.Sprintf("%v", this.Limit) + `,`,
 		`Page:` + fmt.Sprintf("%v", this.Page) + `,`,
@@ -1913,7 +2004,7 @@ func (this *UpdateTenantRequest) String() string {
 	}
 	s := strings.Join([]string{`&UpdateTenantRequest{`,
 		`Tenant:` + strings.Replace(strings.Replace(this.Tenant.String(), "Tenant", "Tenant", 1), `&`, ``, 1) + `,`,
-		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`FieldMask:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.FieldMask), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1945,7 +2036,7 @@ func (this *GetTenantRegistryTotalsRequest) String() string {
 	}
 	s := strings.Join([]string{`&GetTenantRegistryTotalsRequest{`,
 		`TenantIdentifiers:` + strings.Replace(fmt.Sprintf("%v", this.TenantIdentifiers), "TenantIdentifiers", "TenantIdentifiers", 1) + `,`,
-		`FieldMask:` + strings.Replace(strings.Replace(this.FieldMask.String(), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
+		`FieldMask:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.FieldMask), "FieldMask", "types.FieldMask", 1), `&`, ``, 1) + `,`,
 		`}`,
 	}, "")
 	return s
