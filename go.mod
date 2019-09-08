@@ -40,7 +40,8 @@ replace golang.org/x/tools => golang.org/x/tools v0.0.0-20190905035308-adb45749d
 replace golang.org/x/xerrors => golang.org/x/xerrors v0.0.0-20190717185122-a985d3407aa7
 
 require (
-	cloud.google.com/go v0.43.0
+	cloud.google.com/go v0.45.1
+	cloud.google.com/go/datastore v1.0.0
 	cloud.google.com/go/pubsub v1.0.1 // indirect
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/PuerkitoBio/purell v1.1.1
