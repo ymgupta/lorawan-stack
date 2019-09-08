@@ -4,6 +4,7 @@ package deviceclaimingserver_test
 
 import (
 	"context"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	. "go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -143,7 +145,9 @@ func TestClaim(t *testing.T) {
 		NsSetEndDeviceFunc  func(context.Context, *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error)
 		AsSetEndDeviceFunc  func(context.Context, *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error)
 
-		ErrorAssertion func(t *testing.T, err error) bool
+		ErrorAssertion     func(t *testing.T, err error) bool
+		ExpectSuccessEvent bool
+		ExpectFailEvent    bool
 	}{
 		{
 			Name: "InsufficientTargetRights",
@@ -363,6 +367,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
+			ExpectFailEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/TooEarly",
@@ -439,6 +444,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
+			ExpectFailEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/TooLate",
@@ -515,6 +521,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
+			ExpectFailEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/Mismatch",
@@ -590,6 +597,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
+			ExpectFailEvent: true,
 		},
 		{
 			Name: "Success",
@@ -802,12 +810,36 @@ func TestClaim(t *testing.T) {
 				}
 				return &in.EndDevice, nil
 			},
+			ExpectSuccessEvent: true,
 		},
 	} {
 		t.Run(tc.Name, func(t *testing.T) {
 			a := assertions.New(t)
 			ctx, cancelCtx := context.WithCancel(log.NewContext(test.Context(), test.GetLogger(t)))
 			defer cancelCtx()
+
+			var successEvents, failEvents uint32
+			defer test.SetDefaultEventsPubSub(&test.MockEventPubSub{
+				PublishFunc: func(ev events.Event) {
+					switch name := ev.Name(); name {
+					case "dcs.end_device.claim.success":
+						atomic.AddUint32(&successEvents, 1)
+					case "dcs.end_device.claim.fail":
+						atomic.AddUint32(&failEvents, 1)
+					}
+				},
+			})()
+			defer func() {
+				var expectedSuccessEvents, expectedFailEvents uint32
+				if tc.ExpectSuccessEvent {
+					expectedSuccessEvents = 1
+				}
+				if tc.ExpectFailEvent {
+					expectedFailEvents = 1
+				}
+				a.So(atomic.LoadUint32(&successEvents), should.Equal, expectedSuccessEvents)
+				a.So(atomic.LoadUint32(&failEvents), should.Equal, expectedFailEvents)
+			}()
 
 			sourceMockNS, sourceNSAddr := startMockNS(t, ctx)
 			sourceMockNS.GetFunc = tc.NsGetEndDeviceFunc
@@ -882,7 +914,9 @@ func TestClaim(t *testing.T) {
 			if !a.So(err, should.BeNil) {
 				t.FailNow()
 			}
-			a.So(*ids, should.Resemble, targetDevIDs)
+			if !a.So(*ids, should.Resemble, targetDevIDs) {
+				t.FailNow()
+			}
 		})
 	}
 }

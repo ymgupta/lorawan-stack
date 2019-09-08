@@ -11,6 +11,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/qrcode"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
@@ -97,8 +98,19 @@ var (
 	}
 )
 
-func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
-	targetCtx := ctx
+func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
+	var (
+		sourceCtx context.Context
+		dev       *ttnpb.EndDevice
+		deleted   bool
+	)
+	defer func() {
+		if err == nil || dev == nil || deleted {
+			return
+		}
+		registerFailClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers, err)
+	}()
+
 	if err := rights.RequireApplication(targetCtx, req.TargetApplicationIDs,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
@@ -210,6 +222,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		return nil, err
 	}
 
+	sourceCtx = events.ContextWithCorrelationID(sourceCtx, fmt.Sprintf("dcs:claim:%s", events.NewCorrelationID()))
 	var (
 		dev     *ttnpb.EndDevice
 		deleted bool
@@ -223,7 +236,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 
 	// Get source end device from Entity Registry.
 	logger.Debug("Load source end device from Entity Registry")
-	dev, err := sourceERClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+	dev, err = sourceERClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
 		EndDeviceIdentifiers: *sourceIDs,
 		FieldMask: pbtypes.FieldMask{
 			Paths: transferISPaths[:],
@@ -362,7 +375,8 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}
 	}
 
-	// TODO: Publish device claimed event.
+	deleted = true // Do not publish the claim failure event when creating the target device fails.
+	registerSuccessClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers)
 
 	// Invalidate claim authentication code if requested.
 	if req.InvalidateAuthenticationCode {
