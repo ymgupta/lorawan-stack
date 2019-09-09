@@ -12,29 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.login
-  height: 100%
-  background: url('../../../assets/img/layout/bg/ttn-console-bg.png') no-repeat
-  background-size: 160vh
-  background-position: 40vw 20%
-  +media-query($bp.m)
-    background-size: 140vh
-    background-position: 37vw 20%
-  +media-query($bp.s)
-    background-size: 160vh
-    background-position: 0 20vh
-
-  &-button
-    min-width: 5rem
-
-  &-header
-    h2()
-    margin-bottom: $cs.xs
-    margin-top: 20vh
-    +media-query($bp.s)
-      margin-top: $ls.l
-
-  &-sub
-    one-liner()
-    display: block
-    margin-bottom: $cs.xl
+// Package stack contains The Things Stack for LoRaWAN.
+package stack

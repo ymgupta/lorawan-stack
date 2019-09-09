@@ -6877,7 +6877,7 @@
   },
   "event:ns.mac.link_adr.answer.accept": {
     "translations": {
-      "en": "ADR request accept received"
+      "en": "link ADR accept received"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -6886,7 +6886,7 @@
   },
   "event:ns.mac.link_adr.answer.reject": {
     "translations": {
-      "en": "ADR request rejection received"
+      "en": "link ADR rejection received"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -6895,7 +6895,7 @@
   },
   "event:ns.mac.link_adr.request": {
     "translations": {
-      "en": "ADR request request enqueued"
+      "en": "link ADR request enqueued"
     },
     "description": {
       "package": "pkg/networkserver",
