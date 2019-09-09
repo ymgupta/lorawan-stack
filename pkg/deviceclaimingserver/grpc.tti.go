@@ -288,11 +288,12 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	}
 
 	// Get source end device from Network Server and Application Server.
+	var sourceNSConn *grpc.ClientConn
 	var sourceNSClient ttnpb.NsEndDeviceRegistryClient
 	if dev.NetworkServerAddress != "" {
 		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
 		logger.Debug("Get source end device from Network Server")
-		sourceNSConn, err := grpc.DialContext(sourceCtx, dev.NetworkServerAddress, sourceDialOpts...)
+		sourceNSConn, err = grpc.DialContext(sourceCtx, dev.NetworkServerAddress, sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Network Server")
 			return nil, err
@@ -317,12 +318,17 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	if dev.ApplicationServerAddress != "" {
 		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
 		logger.Debug("Get source end device from Application Server")
-		sourceASConn, err := grpc.DialContext(sourceCtx, dev.ApplicationServerAddress, sourceDialOpts...)
-		if err != nil {
-			logger.WithError(err).Warn("Failed to dial source Application Server")
-			return nil, err
+		var sourceASConn *grpc.ClientConn
+		if dev.ApplicationServerAddress == dev.NetworkServerAddress {
+			sourceASConn = sourceNSConn
+		} else {
+			sourceASConn, err = grpc.DialContext(sourceCtx, dev.ApplicationServerAddress, sourceDialOpts...)
+			if err != nil {
+				logger.WithError(err).Warn("Failed to dial source Application Server")
+				return nil, err
+			}
+			defer sourceASConn.Close()
 		}
-		defer sourceASConn.Close()
 		sourceASClient = ttnpb.NewAsEndDeviceRegistryClient(sourceASConn)
 		sourceASDev, err := sourceASClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
 			EndDeviceIdentifiers: *sourceIDs,
@@ -446,10 +452,11 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		logger.WithError(err).Warn("Failed to create target end device on Join Server")
 		return nil, err
 	}
+	var targetNSConn *grpc.ClientConn
 	if dev.NetworkServerAddress != "" {
 		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
 		logger.Debug("Create target end device on Network Server")
-		targetNSConn, err := grpc.DialContext(targetCtx, dev.NetworkServerAddress, targetDialOpts...)
+		targetNSConn, err = grpc.DialContext(targetCtx, dev.NetworkServerAddress, targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Network Server")
 			return nil, err
@@ -469,12 +476,17 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	if dev.ApplicationServerAddress != "" {
 		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
 		logger.Debug("Create target end device on Application Server")
-		targetASConn, err := grpc.DialContext(targetCtx, dev.ApplicationServerAddress, targetDialOpts...)
-		if err != nil {
-			logger.WithError(err).Warn("Failed to dial target Application Server")
-			return nil, err
+		var targetASConn *grpc.ClientConn
+		if dev.ApplicationServerAddress == dev.NetworkServerAddress {
+			targetASConn = targetNSConn
+		} else {
+			targetASConn, err = grpc.DialContext(targetCtx, dev.ApplicationServerAddress, targetDialOpts...)
+			if err != nil {
+				logger.WithError(err).Warn("Failed to dial target Application Server")
+				return nil, err
+			}
+			defer targetASConn.Close()
 		}
-		defer targetASConn.Close()
 		targetASClient := ttnpb.NewAsEndDeviceRegistryClient(targetASConn)
 		if _, err := targetASClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
 			EndDevice: targetASDev,
