@@ -224,19 +224,19 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 
 	sourceCtx = events.ContextWithCorrelationID(sourceCtx, fmt.Sprintf("dcs:claim:%s", events.NewCorrelationID()))
 	var (
-		dev     *ttnpb.EndDevice
-		deleted bool
+		sourceDev *ttnpb.EndDevice
+		deleted   bool
 	)
 	defer func() {
-		if err == nil || dev == nil || deleted {
+		if err == nil || sourceDev == nil || deleted {
 			return
 		}
-		registerFailClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers, err)
+		registerFailClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers, err)
 	}()
 
 	// Get source end device from Entity Registry.
 	logger.Debug("Load source end device from Entity Registry")
-	dev, err = sourceERClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
+	sourceDev, err = sourceERClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
 		EndDeviceIdentifiers: *sourceIDs,
 		FieldMask: pbtypes.FieldMask{
 			Paths: transferISPaths[:],
@@ -246,7 +246,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		logger.WithError(err).Warn("Failed to load source end device from Entity Registry")
 		return nil, err
 	}
-	logger = logger.WithField("join_server_address", dev.JoinServerAddress)
+	logger = logger.WithField("join_server_address", sourceDev.JoinServerAddress)
 
 	// Get source end device from Join Server.
 	logger.Debug("Get source end device from Join Server")
@@ -264,25 +264,25 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		logger.WithError(err).Warn("Failed to get source end device from Join Server")
 		return nil, err
 	}
-	if err := dev.SetFields(sourceJSDev, ttnpb.ExcludeFields(transferJSPaths[:], "network_server_address", "application_server_address")...); err != nil {
+	if err := sourceDev.SetFields(sourceJSDev, ttnpb.ExcludeFields(transferJSPaths[:], "network_server_address", "application_server_address")...); err != nil {
 		return nil, err
 	}
 
 	// Validate claim authentication code. Do not propagate the reason why the given authentication code is invalid.
 	logger.Debug("Validate claim authentication code")
-	if dev.ClaimAuthenticationCode == nil {
+	if sourceDev.ClaimAuthenticationCode == nil {
 		logger.Warn("Claim authentication code not specified")
 		return nil, errClaimAuthenticationCode
 	}
-	if dev.ClaimAuthenticationCode.ValidFrom != nil && time.Since(*dev.ClaimAuthenticationCode.ValidFrom) < 0 {
+	if sourceDev.ClaimAuthenticationCode.ValidFrom != nil && time.Since(*sourceDev.ClaimAuthenticationCode.ValidFrom) < 0 {
 		logger.Warn("Claim authentication code not valid yet")
 		return nil, errClaimAuthenticationCode
 	}
-	if dev.ClaimAuthenticationCode.ValidTo != nil && time.Until(*dev.ClaimAuthenticationCode.ValidTo) < 0 {
+	if sourceDev.ClaimAuthenticationCode.ValidTo != nil && time.Until(*sourceDev.ClaimAuthenticationCode.ValidTo) < 0 {
 		logger.Warn("Claim authentication code not valid anymore")
 		return nil, errClaimAuthenticationCode
 	}
-	if !bytes.Equal(authCode, dev.ClaimAuthenticationCode.Value) {
+	if !bytes.Equal(authCode, sourceDev.ClaimAuthenticationCode.Value) {
 		logger.Warn("Claim authentication code mismatch")
 		return nil, errClaimAuthenticationCode
 	}
@@ -290,10 +290,10 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	// Get source end device from Network Server and Application Server.
 	var sourceNSConn *grpc.ClientConn
 	var sourceNSClient ttnpb.NsEndDeviceRegistryClient
-	if dev.NetworkServerAddress != "" {
-		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
+	if sourceDev.NetworkServerAddress != "" {
+		logger := logger.WithField("network_server_address", sourceDev.NetworkServerAddress)
 		logger.Debug("Get source end device from Network Server")
-		sourceNSConn, err = grpc.DialContext(sourceCtx, dev.NetworkServerAddress, sourceDialOpts...)
+		sourceNSConn, err = grpc.DialContext(sourceCtx, sourceDev.NetworkServerAddress, sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Network Server")
 			return nil, err
@@ -310,19 +310,19 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 			logger.WithError(err).Warn("Failed to get source end device from Network Server")
 			return nil, err
 		}
-		if err := dev.SetFields(sourceNSDev, transferNSPaths[:]...); err != nil {
+		if err := sourceDev.SetFields(sourceNSDev, transferNSPaths[:]...); err != nil {
 			return nil, err
 		}
 	}
 	var sourceASClient ttnpb.AsEndDeviceRegistryClient
-	if dev.ApplicationServerAddress != "" {
-		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
+	if sourceDev.ApplicationServerAddress != "" {
+		logger := logger.WithField("application_server_address", sourceDev.ApplicationServerAddress)
 		logger.Debug("Get source end device from Application Server")
 		var sourceASConn *grpc.ClientConn
-		if dev.ApplicationServerAddress == dev.NetworkServerAddress {
+		if sourceDev.ApplicationServerAddress == sourceDev.NetworkServerAddress {
 			sourceASConn = sourceNSConn
 		} else {
-			sourceASConn, err = grpc.DialContext(sourceCtx, dev.ApplicationServerAddress, sourceDialOpts...)
+			sourceASConn, err = grpc.DialContext(sourceCtx, sourceDev.ApplicationServerAddress, sourceDialOpts...)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to dial source Application Server")
 				return nil, err
@@ -340,7 +340,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 			logger.WithError(err).Warn("Failed to get source end device from Application Server")
 			return nil, err
 		}
-		if err := dev.SetFields(sourceASDev, transferASPaths[:]...); err != nil {
+		if err := sourceDev.SetFields(sourceASDev, transferASPaths[:]...); err != nil {
 			return nil, err
 		}
 	}
@@ -414,25 +414,27 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	}
 
 	deleted = true // Do not publish the claim failure event when creating the target device fails.
-	registerSuccessClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers)
+	registerSuccessClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers)
+
+	targetDev := *sourceDev
 
 	// Invalidate claim authentication code if requested.
 	if req.InvalidateAuthenticationCode {
 		now := time.Now()
-		dev.ClaimAuthenticationCode.ValidTo = &now
+		targetDev.ClaimAuthenticationCode.ValidTo = &now
 	}
 
 	// Set fields from the claiming request.
-	dev.ApplicationIdentifiers = req.TargetApplicationIDs
+	targetDev.ApplicationIdentifiers = req.TargetApplicationIDs
 	if req.TargetDeviceID != "" {
-		dev.DeviceID = req.TargetDeviceID
+		targetDev.DeviceID = req.TargetDeviceID
 	}
-	logger = logger.WithField("target_device_uid", unique.ID(targetCtx, dev.EndDeviceIdentifiers))
-	dev.NetworkServerAddress = req.TargetNetworkServerAddress
-	dev.NetworkServerKEKLabel = req.TargetNetworkServerKEKLabel
-	dev.ApplicationServerAddress = req.TargetApplicationServerAddress
-	dev.ApplicationServerKEKLabel = req.TargetApplicationServerKEKLabel
-	dev.ApplicationServerID = req.TargetApplicationServerID
+	logger = logger.WithField("target_device_uid", unique.ID(targetCtx, targetDev.EndDeviceIdentifiers))
+	targetDev.NetworkServerAddress = req.TargetNetworkServerAddress
+	targetDev.NetworkServerKEKLabel = req.TargetNetworkServerKEKLabel
+	targetDev.ApplicationServerAddress = req.TargetApplicationServerAddress
+	targetDev.ApplicationServerKEKLabel = req.TargetApplicationServerKEKLabel
+	targetDev.ApplicationServerID = req.TargetApplicationServerID
 	var targetISDev, targetJSDev, targetNSDev, targetASDev ttnpb.EndDevice
 	for d, paths := range map[*ttnpb.EndDevice][]string{
 		&targetISDev: transferISPaths[:],
@@ -441,13 +443,13 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		&targetASDev: transferASPaths[:],
 	} {
 		paths = append(paths, "ids")
-		if err := d.SetFields(dev, paths...); err != nil {
+		if err := d.SetFields(&targetDev, paths...); err != nil {
 			return nil, err
 		}
 	}
 
 	logger.Debug("Create target end device on Entity Registry")
-	targetERClient, err := s.DCS.getDeviceRegistry(targetCtx, &dev.EndDeviceIdentifiers)
+	targetERClient, err := s.DCS.getDeviceRegistry(targetCtx, &targetDev.EndDeviceIdentifiers)
 	if err != nil {
 		logger.WithError(err).Warn("Failed to get device registry")
 		return nil, err
@@ -459,7 +461,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		return nil, err
 	}
 	logger.Debug("Create target end device on Join Server")
-	targetJSClient, err := s.DCS.getJsDeviceRegistry(targetCtx, &dev.EndDeviceIdentifiers)
+	targetJSClient, err := s.DCS.getJsDeviceRegistry(targetCtx, &targetDev.EndDeviceIdentifiers)
 	if err != nil {
 		return nil, err
 	}
@@ -473,7 +475,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		return nil, err
 	}
 	if targetNSConn != nil {
-		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
+		logger := logger.WithField("network_server_address", targetDev.NetworkServerAddress)
 		logger.Debug("Create target end device on Network Server")
 		targetNSClient := ttnpb.NewNsEndDeviceRegistryClient(targetNSConn)
 		if _, err := targetNSClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
@@ -487,7 +489,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		}
 	}
 	if targetASConn != nil {
-		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
+		logger := logger.WithField("application_server_address", targetDev.ApplicationServerAddress)
 		logger.Debug("Create target end device on Application Server")
 		targetASClient := ttnpb.NewAsEndDeviceRegistryClient(targetASConn)
 		if _, err := targetASClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
@@ -502,7 +504,7 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 	}
 
 	logger.Info("Claimed end device")
-	return &dev.EndDeviceIdentifiers, nil
+	return &targetDev.EndDeviceIdentifiers, nil
 }
 
 func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req *ttnpb.AuthorizeApplicationRequest) (*pbtypes.Empty, error) {
