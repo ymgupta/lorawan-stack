@@ -606,6 +606,125 @@ func TestClaim(t *testing.T) {
 			ExpectFailEvent: true,
 		},
 		{
+			Name: "TargetASUnavailable",
+			Request: &ttnpb.ClaimEndDeviceRequest{
+				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
+					QRCode: []byte("URN:LW:DP:42FFFFFFFFFFFFFF:4242FFFFFFFFFFFF:42FFFF42:%V0102"),
+				},
+				TargetApplicationIDs:           targetAppIDs,
+				TargetDeviceID:                 targetDevIDs.DeviceID,
+				TargetApplicationServerAddress: "invalid:42424",
+			},
+			ApplicationRights: map[string]*ttnpb.Rights{
+				unique.ID(test.Context(), targetAppIDs): {Rights: []ttnpb.Right{
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+				}},
+				unique.ID(tenant.NewContext(context.Background(), sourceTenantIDs), sourceAppIDs): {Rights: []ttnpb.Right{
+					ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+					ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+				}},
+			},
+			GetIdentifiersForEndDeviceEUIsFunc: func(ctx context.Context, in *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest, opts ...grpc.CallOption) (*ttipb.TenantIdentifiers, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
+					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
+					return nil, errNotFound
+				}
+				return &sourceTenantIDs, nil
+			},
+			GetEndDeviceIdentifiersForEUIsFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceIdentifiersForEUIsRequest, opts ...grpc.CallOption) (*ttnpb.EndDeviceIdentifiers, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
+					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
+					return nil, errNotFound
+				}
+				return &sourceDevIDs, nil
+			},
+			GetAuthorizedApplicationFunc: func(ctx context.Context, ids ttnpb.ApplicationIdentifiers, paths []string) (*ttipb.ApplicationAPIKey, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(ids, should.Resemble, sourceAppIDs) ||
+					!a.So(paths, should.Resemble, []string{"api_key"}) {
+					return nil, errNotFound
+				}
+				return &ttipb.ApplicationAPIKey{
+					ApplicationIDs: sourceAppIDs,
+					APIKey:         "test",
+				}, nil
+			},
+			GetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers:     sourceDevIDs,
+					Name:                     "test",
+					Description:              "test test",
+					NetworkServerAddress:     ctx.Value(sourceNSAddrKey).(string),
+					ApplicationServerAddress: ctx.Value(sourceASAddrKey).(string),
+					JoinServerAddress:        "joinserver:1234",
+				}, nil
+			},
+			JsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
+						Value: []byte{0x01, 0x02},
+					},
+					RootKeys: &ttnpb.RootKeys{
+						RootKeyID: "test",
+						AppKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+						},
+					},
+				}, nil
+			},
+			NsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					LoRaWANVersion:       ttnpb.MAC_V1_0_3,
+					LoRaWANPHYVersion:    ttnpb.PHY_V1_0_3_REV_A,
+					FrequencyPlanID:      "EU_863_870",
+					MACSettings: &ttnpb.MACSettings{
+						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					},
+				}, nil
+			},
+			AsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					Formatters: &ttnpb.MessagePayloadFormatters{
+						UpFormatter:   ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+						DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+					},
+				}, nil
+			},
+			ErrorAssertion: func(t *testing.T, err error) bool {
+				return assertions.New(t).So(err, should.NotBeNil)
+			},
+			ExpectFailEvent: true,
+		},
+		{
 			Name: "Success",
 			Request: &ttnpb.ClaimEndDeviceRequest{
 				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
@@ -930,8 +1049,12 @@ func TestClaim(t *testing.T) {
 			})
 
 			req := tc.Request
-			req.TargetNetworkServerAddress = targetNSAddr
-			req.TargetApplicationServerAddress = targetASAddr
+			if req.TargetNetworkServerAddress == "" {
+				req.TargetNetworkServerAddress = targetNSAddr
+			}
+			if req.TargetApplicationServerAddress == "" {
+				req.TargetApplicationServerAddress = targetASAddr
+			}
 			ids, err := client.Claim(ctx, req, callOpt)
 			if tc.ErrorAssertion != nil && a.So(tc.ErrorAssertion(t, err), should.BeTrue) {
 				return

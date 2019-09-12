@@ -345,6 +345,38 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		}
 	}
 
+	// Before deleting the source end device, dial the target Network and Application Server to make sure they're
+	// available.
+	targetCallOpts := []grpc.CallOption{
+		targetForwardAuth,
+	}
+	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
+	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
+		targetDialOpts = append(targetDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+	} else if s.DCS.AllowInsecureForCredentials() {
+		targetDialOpts = append(targetDialOpts, grpc.WithInsecure())
+	}
+	var targetNSConn *grpc.ClientConn
+	if req.TargetNetworkServerAddress != "" {
+		targetNSConn, err = grpc.DialContext(targetCtx, req.TargetNetworkServerAddress, targetDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial target Network Server")
+			return nil, err
+		}
+		defer targetNSConn.Close()
+	}
+	var targetASConn *grpc.ClientConn
+	if req.TargetApplicationServerAddress == req.TargetNetworkServerAddress {
+		targetASConn = targetNSConn
+	} else if req.TargetApplicationServerAddress != "" {
+		targetASConn, err = grpc.DialContext(targetCtx, req.TargetApplicationServerAddress, targetDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial target Application Server")
+			return nil, err
+		}
+		defer targetASConn.Close()
+	}
+
 	// Delete source end device in Application Server, Network Server, Join Server and Entity Registry, in ascending
 	// order of importance. If any but not all deletions fails, the claiming process gets aborted and successfully deleted
 	// devices are not recovered.
@@ -414,18 +446,6 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		}
 	}
 
-	// Create the devices in the target Entity Registry, Join Server, Network Server and Application Server, in descending
-	// order of importance. If any create fails, the claiming process gets aborted but successfully created devices will
-	// not be deleted.
-	targetCallOpts := []grpc.CallOption{
-		targetForwardAuth,
-	}
-	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
-	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
-		targetDialOpts = append(targetDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
-	} else if s.DCS.AllowInsecureForCredentials() {
-		targetDialOpts = append(targetDialOpts, grpc.WithInsecure())
-	}
 	logger.Debug("Create target end device on Entity Registry")
 	targetERClient, err := s.DCS.getDeviceRegistry(targetCtx, &dev.EndDeviceIdentifiers)
 	if err != nil {
@@ -452,16 +472,9 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		logger.WithError(err).Warn("Failed to create target end device on Join Server")
 		return nil, err
 	}
-	var targetNSConn *grpc.ClientConn
-	if dev.NetworkServerAddress != "" {
+	if targetNSConn != nil {
 		logger := logger.WithField("network_server_address", dev.NetworkServerAddress)
 		logger.Debug("Create target end device on Network Server")
-		targetNSConn, err = grpc.DialContext(targetCtx, dev.NetworkServerAddress, targetDialOpts...)
-		if err != nil {
-			logger.WithError(err).Warn("Failed to dial target Network Server")
-			return nil, err
-		}
-		defer targetNSConn.Close()
 		targetNSClient := ttnpb.NewNsEndDeviceRegistryClient(targetNSConn)
 		if _, err := targetNSClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
 			EndDevice: targetNSDev,
@@ -473,20 +486,9 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 			return nil, err
 		}
 	}
-	if dev.ApplicationServerAddress != "" {
+	if targetASConn != nil {
 		logger := logger.WithField("application_server_address", dev.ApplicationServerAddress)
 		logger.Debug("Create target end device on Application Server")
-		var targetASConn *grpc.ClientConn
-		if dev.ApplicationServerAddress == dev.NetworkServerAddress {
-			targetASConn = targetNSConn
-		} else {
-			targetASConn, err = grpc.DialContext(targetCtx, dev.ApplicationServerAddress, targetDialOpts...)
-			if err != nil {
-				logger.WithError(err).Warn("Failed to dial target Application Server")
-				return nil, err
-			}
-			defer targetASConn.Close()
-		}
 		targetASClient := ttnpb.NewAsEndDeviceRegistryClient(targetASConn)
 		if _, err := targetASClient.Set(targetCtx, &ttnpb.SetEndDeviceRequest{
 			EndDevice: targetASDev,
