@@ -120,9 +120,9 @@ func (r *mockJsDeviceRegistry) Delete(ctx context.Context, in *ttnpb.EndDeviceId
 	return r.DeleteFunc(ctx, in, opts...)
 }
 
-func startMockNS(ctx context.Context, filler func(context.Context) context.Context) (*mockNS, string) {
+func startMockNS(ctx context.Context, opts ...rpcserver.Option) (*mockNS, string) {
 	ns := &mockNS{}
-	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(filler))
+	srv := rpcserver.New(ctx, opts...)
 	ttnpb.RegisterNsEndDeviceRegistryServer(srv.Server, ns)
 	lis, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -163,9 +163,9 @@ func (ns *mockNS) Delete(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*
 	return ns.DeleteFunc(ctx, in)
 }
 
-func startMockAS(ctx context.Context, filler func(context.Context) context.Context) (*mockAS, string) {
+func startMockAS(ctx context.Context, opts ...rpcserver.Option) (*mockAS, string) {
 	as := &mockAS{}
-	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(filler))
+	srv := rpcserver.New(ctx, opts...)
 	ttnpb.RegisterAsEndDeviceRegistryServer(srv.Server, as)
 	lis, err := net.Listen("tcp", "localhost:0")
 	if err != nil {

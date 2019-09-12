@@ -6,6 +6,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net"
+	"net/url"
+	"strings"
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
@@ -98,19 +101,35 @@ var (
 	}
 )
 
-func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
-	var (
-		sourceCtx context.Context
-		dev       *ttnpb.EndDevice
-		deleted   bool
-	)
-	defer func() {
-		if err == nil || dev == nil || deleted {
-			return
+func getHost(address string) string {
+	if strings.Contains(address, "://") {
+		url, err := url.Parse(address)
+		if err == nil {
+			address = url.Host
 		}
-		registerFailClaimEndDevice(sourceCtx, dev.EndDeviceIdentifiers, err)
-	}()
+	}
+	if strings.Contains(address, ":") {
+		host, _, err := net.SplitHostPort(address)
+		if err == nil {
+			return host
+		}
+	}
+	return address
+}
 
+// customSameHost allows for overriding determining whether the given addresses are on the same host.
+// This is useful for testing.
+var customSameHost func(address1, address2 string) bool
+
+func sameHost(address1, address2 string) bool {
+	if customSameHost != nil {
+		return customSameHost(address1, address2)
+	}
+	return strings.EqualFold(getHost(address1), getHost(address2))
+}
+
+func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
+	targetCtx := ctx
 	if err := rights.RequireApplication(targetCtx, req.TargetApplicationIDs,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
@@ -385,22 +404,27 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		client interface {
 			Delete(context.Context, *ttnpb.EndDeviceIdentifiers, ...grpc.CallOption) (*pbtypes.Empty, error)
 		}
+		failOnError bool
 	}{
 		{
-			name:   "Application Server",
-			client: sourceASClient,
+			name:        "Application Server",
+			client:      sourceASClient,
+			failOnError: sameHost(sourceDev.ApplicationServerAddress, req.TargetApplicationServerAddress),
 		},
 		{
-			name:   "Network Server",
-			client: sourceNSClient,
+			name:        "Network Server",
+			client:      sourceNSClient,
+			failOnError: sameHost(sourceDev.NetworkServerAddress, req.TargetNetworkServerAddress),
 		},
 		{
-			name:   "Join Server",
-			client: sourceJSClient,
+			name:        "Join Server",
+			client:      sourceJSClient,
+			failOnError: true,
 		},
 		{
-			name:   "Entity Registry",
-			client: sourceERClient,
+			name:        "Entity Registry",
+			client:      sourceERClient,
+			failOnError: true,
 		},
 	} {
 		if deleter.client == nil {
@@ -409,7 +433,9 @@ func (s *endDeviceClaimingServer) Claim(targetCtx context.Context, req *ttnpb.Cl
 		logger.Debugf("Delete source end device from %s", deleter.name)
 		if _, err := deleter.client.Delete(sourceCtx, sourceIDs, sourceCallOpts...); err != nil {
 			logger.WithError(err).Warnf("Failed to delete source end device from %s", deleter.name)
-			return nil, err
+			if deleter.failOnError {
+				return nil, err
+			}
 		}
 	}
 

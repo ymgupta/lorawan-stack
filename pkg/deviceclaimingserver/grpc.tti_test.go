@@ -19,6 +19,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/rpcserver"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -725,6 +726,223 @@ func TestClaim(t *testing.T) {
 			ExpectFailEvent: true,
 		},
 		{
+			Name: "SuccessWithASDeleteFail",
+			Request: &ttnpb.ClaimEndDeviceRequest{
+				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
+					QRCode: []byte("URN:LW:DP:42FFFFFFFFFFFFFF:4242FFFFFFFFFFFF:42FFFF42:%V0102"),
+				},
+				TargetApplicationIDs: targetAppIDs,
+				TargetDeviceID:       targetDevIDs.DeviceID,
+			},
+			ApplicationRights: map[string]*ttnpb.Rights{
+				unique.ID(test.Context(), targetAppIDs): {Rights: []ttnpb.Right{
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+				}},
+				unique.ID(tenant.NewContext(context.Background(), sourceTenantIDs), sourceAppIDs): {Rights: []ttnpb.Right{
+					ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+					ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
+					ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
+				}},
+			},
+			GetIdentifiersForEndDeviceEUIsFunc: func(ctx context.Context, in *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest, opts ...grpc.CallOption) (*ttipb.TenantIdentifiers, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
+					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
+					return nil, errNotFound
+				}
+				return &sourceTenantIDs, nil
+			},
+			GetEndDeviceIdentifiersForEUIsFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceIdentifiersForEUIsRequest, opts ...grpc.CallOption) (*ttnpb.EndDeviceIdentifiers, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
+					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
+					return nil, errNotFound
+				}
+				return &sourceDevIDs, nil
+			},
+			GetAuthorizedApplicationFunc: func(ctx context.Context, ids ttnpb.ApplicationIdentifiers, paths []string) (*ttipb.ApplicationAPIKey, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(ids, should.Resemble, sourceAppIDs) ||
+					!a.So(paths, should.Resemble, []string{"api_key"}) {
+					return nil, errNotFound
+				}
+				return &ttipb.ApplicationAPIKey{
+					ApplicationIDs: sourceAppIDs,
+					APIKey:         "test",
+				}, nil
+			},
+			GetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers:     sourceDevIDs,
+					Name:                     "test",
+					Description:              "test test",
+					NetworkServerAddress:     ctx.Value(sourceNSAddrKey).(string),
+					ApplicationServerAddress: ctx.Value(sourceASAddrKey).(string),
+					JoinServerAddress:        "joinserver:1234",
+				}, nil
+			},
+			JsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
+						Value: []byte{0x01, 0x02},
+					},
+					RootKeys: &ttnpb.RootKeys{
+						RootKeyID: "test",
+						AppKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+						},
+					},
+				}, nil
+			},
+			NsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					LoRaWANVersion:       ttnpb.MAC_V1_0_3,
+					LoRaWANPHYVersion:    ttnpb.PHY_V1_0_3_REV_A,
+					FrequencyPlanID:      "EU_863_870",
+					MACSettings: &ttnpb.MACSettings{
+						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					},
+				}, nil
+			},
+			AsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return &ttnpb.EndDevice{
+					EndDeviceIdentifiers: sourceDevIDs,
+					Formatters: &ttnpb.MessagePayloadFormatters{
+						UpFormatter:   ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+						DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+					},
+				}, nil
+			},
+			DeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers, opts ...grpc.CallOption) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(*in, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return ttnpb.Empty, nil
+			},
+			JsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers, opts ...grpc.CallOption) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(*in, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return ttnpb.Empty, nil
+			},
+			NsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
+					!a.So(*in, should.Resemble, sourceDevIDs) {
+					return nil, errNotFound
+				}
+				return ttnpb.Empty, nil
+			},
+			AsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error) {
+				panic("something went wrong")
+			},
+			CreateEndDeviceFunc: func(ctx context.Context, in *ttnpb.CreateEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
+					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
+						EndDeviceIdentifiers:     targetDevIDs,
+						Name:                     "test",
+						Description:              "test test",
+						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
+						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
+						JoinServerAddress:        "joinserver:1234",
+					}) {
+					return nil, errRequest
+				}
+				return &in.EndDevice, nil
+			},
+			JsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
+					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
+						EndDeviceIdentifiers:     targetDevIDs,
+						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
+						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
+						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
+							Value: []byte{0x01, 0x02},
+						},
+						RootKeys: &ttnpb.RootKeys{
+							RootKeyID: "test",
+							AppKey: &ttnpb.KeyEnvelope{
+								Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+							},
+						},
+					}) {
+					return nil, errRequest
+				}
+				return &in.EndDevice, nil
+			},
+			NsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
+					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
+						EndDeviceIdentifiers: targetDevIDs,
+						FrequencyPlanID:      "EU_863_870",
+						LoRaWANVersion:       ttnpb.MAC_V1_0_3,
+						LoRaWANPHYVersion:    ttnpb.PHY_V1_0_3_REV_A,
+						MACSettings: &ttnpb.MACSettings{
+							Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+						},
+					}) {
+					return nil, errRequest
+				}
+				return &in.EndDevice, nil
+			},
+			AsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
+				a := assertions.New(test.MustTFromContext(ctx))
+				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
+					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
+						EndDeviceIdentifiers: targetDevIDs,
+						Formatters: &ttnpb.MessagePayloadFormatters{
+							UpFormatter:   ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+							DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+						},
+					}) {
+					return nil, errRequest
+				}
+				return &in.EndDevice, nil
+			},
+			ExpectCreates:      4,
+			ExpectDeletes:      3,
+			ExpectSuccessEvent: true,
+		},
+		{
 			Name: "Success",
 			Request: &ttnpb.ClaimEndDeviceRequest{
 				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
@@ -984,16 +1202,16 @@ func TestClaim(t *testing.T) {
 				return ctx
 			}
 
-			sourceMockNS, sourceNSAddr := startMockNS(ctx, withTestCounters)
+			sourceMockNS, sourceNSAddr := startMockNS(ctx, rpcserver.WithContextFiller(withTestCounters))
 			sourceMockNS.GetFunc = tc.NsGetEndDeviceFunc
 			sourceMockNS.DeleteFunc = tc.NsDeleteEndDeviceFunc
-			sourceMockAS, sourceASAddr := startMockAS(ctx, withTestCounters)
+			sourceMockAS, sourceASAddr := startMockAS(ctx, rpcserver.WithContextFiller(withTestCounters))
 			sourceMockAS.GetFunc = tc.AsGetEndDeviceFunc
 			sourceMockAS.DeleteFunc = tc.AsDeleteEndDeviceFunc
 
-			targetMockNS, targetNSAddr := startMockNS(ctx, withTestCounters)
+			targetMockNS, targetNSAddr := startMockNS(ctx, rpcserver.WithContextFiller(withTestCounters))
 			targetMockNS.SetFunc = tc.NsSetEndDeviceFunc
-			targetMockAS, targetASAddr := startMockAS(ctx, withTestCounters)
+			targetMockAS, targetASAddr := startMockAS(ctx, rpcserver.WithContextFiller(withTestCounters))
 			targetMockAS.SetFunc = tc.AsSetEndDeviceFunc
 
 			dcs := test.Must(New(
