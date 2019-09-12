@@ -440,7 +440,11 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	deleted = true // Do not publish the claim failure event when creating the target device fails.
-	registerSuccessClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers)
+	defer func() {
+		if err == nil {
+			registerSuccessClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers)
+		}
+	}()
 
 	targetDev := *sourceDev
 
@@ -474,6 +478,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}
 	}
 
+	// Create target end device on Entity Registry and rollback if subsequent creates fail.
 	logger.Debug("Create target end device on Entity Registry")
 	targetERClient, err := s.DCS.getDeviceRegistry(targetCtx, &targetDev.EndDeviceIdentifiers)
 	if err != nil {
@@ -486,6 +491,17 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.WithError(err).Warn("Failed to create target end device on Entity Registry")
 		return nil, err
 	}
+	defer func() {
+		if err == nil {
+			return
+		}
+		logger.WithError(err).Debug("Rollback create target end device on Entity Registry")
+		if _, err := targetERClient.Delete(targetCtx, &targetDev.EndDeviceIdentifiers, targetCallOpts...); err != nil {
+			logger.WithError(err).Warn("Failed to rollback create target end device on Entity Registry")
+		}
+	}()
+
+	// Create target end device on Join Server and rollback if subsequent creates fail.
 	logger.Debug("Create target end device on Join Server")
 	targetJSClient, err := s.DCS.getJsDeviceRegistry(targetCtx, &targetDev.EndDeviceIdentifiers)
 	if err != nil {
@@ -500,6 +516,17 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.WithError(err).Warn("Failed to create target end device on Join Server")
 		return nil, err
 	}
+	defer func() {
+		if err == nil {
+			return
+		}
+		logger.WithError(err).Debug("Rollback create target end device on Join Server")
+		if _, err := targetJSClient.Delete(targetCtx, &targetDev.EndDeviceIdentifiers, targetCallOpts...); err != nil {
+			logger.WithError(err).Warn("Failed to rollback create target end device on Join Server")
+		}
+	}()
+
+	// Create target end device on Network Server and rollback if subsequent creates fail.
 	if targetNSConn != nil {
 		logger := logger.WithField("network_server_address", targetDev.NetworkServerAddress)
 		logger.Debug("Create target end device on Network Server")
@@ -513,7 +540,18 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 			logger.WithError(err).Warn("Failed to create target end device on Network Server")
 			return nil, err
 		}
+		defer func() {
+			if err == nil {
+				return
+			}
+			logger.WithError(err).Debug("Rollback create target end device on Network Server")
+			if _, err := targetNSClient.Delete(targetCtx, &targetDev.EndDeviceIdentifiers, targetCallOpts...); err != nil {
+				logger.WithError(err).Warn("Failed to rollback create target end device on Network Server")
+			}
+		}()
 	}
+
+	// Create target end device on Application Server and rollback if subsequent creates fail.
 	if targetASConn != nil {
 		logger := logger.WithField("application_server_address", targetDev.ApplicationServerAddress)
 		logger.Debug("Create target end device on Application Server")
@@ -527,6 +565,15 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 			logger.WithError(err).Warn("Failed to create target end device on Application Server")
 			return nil, err
 		}
+		defer func() {
+			if err == nil {
+				return
+			}
+			logger.WithError(err).Debug("Rollback create target end device on Application Server")
+			if _, err := targetASClient.Delete(targetCtx, &targetDev.EndDeviceIdentifiers, targetCallOpts...); err != nil {
+				logger.WithError(err).Warn("Failed to rollback create target end device on Application Server")
+			}
+		}()
 	}
 
 	logger.Info("Claimed end device")
