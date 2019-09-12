@@ -84,12 +84,16 @@ type sourceNSAddrKeyType struct{}
 type sourceASAddrKeyType struct{}
 type targetNSAddrKeyType struct{}
 type targetASAddrKeyType struct{}
+type createsKeyType struct{}
+type deletesKeyType struct{}
 
 var (
 	sourceNSAddrKey sourceNSAddrKeyType
 	sourceASAddrKey sourceASAddrKeyType
 	targetNSAddrKey targetNSAddrKeyType
 	targetASAddrKey targetASAddrKeyType
+	createsKey      createsKeyType
+	deletesKey      deletesKeyType
 )
 
 var (
@@ -146,6 +150,8 @@ func TestClaim(t *testing.T) {
 		AsSetEndDeviceFunc  func(context.Context, *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error)
 
 		ErrorAssertion     func(t *testing.T, err error) bool
+		ExpectCreates      int64
+		ExpectDeletes      int64
 		ExpectSuccessEvent bool
 		ExpectFailEvent    bool
 	}{
@@ -713,6 +719,7 @@ func TestClaim(t *testing.T) {
 				}, nil
 			},
 			DeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers, opts ...grpc.CallOption) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
@@ -721,6 +728,7 @@ func TestClaim(t *testing.T) {
 				return ttnpb.Empty, nil
 			},
 			JsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers, opts ...grpc.CallOption) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
@@ -729,6 +737,7 @@ func TestClaim(t *testing.T) {
 				return ttnpb.Empty, nil
 			},
 			NsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
@@ -737,6 +746,7 @@ func TestClaim(t *testing.T) {
 				return ttnpb.Empty, nil
 			},
 			AsDeleteEndDeviceFunc: func(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error) {
+				test.MustIncrementContextCounter(ctx, deletesKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
@@ -745,6 +755,7 @@ func TestClaim(t *testing.T) {
 				return ttnpb.Empty, nil
 			},
 			CreateEndDeviceFunc: func(ctx context.Context, in *ttnpb.CreateEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
@@ -760,6 +771,7 @@ func TestClaim(t *testing.T) {
 				return &in.EndDevice, nil
 			},
 			JsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
@@ -781,6 +793,7 @@ func TestClaim(t *testing.T) {
 				return &in.EndDevice, nil
 			},
 			NsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
@@ -797,6 +810,7 @@ func TestClaim(t *testing.T) {
 				return &in.EndDevice, nil
 			},
 			AsSetEndDeviceFunc: func(ctx context.Context, in *ttnpb.SetEndDeviceRequest) (*ttnpb.EndDevice, error) {
+				test.MustIncrementContextCounter(ctx, createsKey, 1)
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(in.EndDevice, should.Resemble, ttnpb.EndDevice{
@@ -810,6 +824,8 @@ func TestClaim(t *testing.T) {
 				}
 				return &in.EndDevice, nil
 			},
+			ExpectCreates:      4,
+			ExpectDeletes:      4,
 			ExpectSuccessEvent: true,
 		},
 	} {
@@ -841,16 +857,24 @@ func TestClaim(t *testing.T) {
 				a.So(atomic.LoadUint32(&failEvents), should.Equal, expectedFailEvents)
 			}()
 
-			sourceMockNS, sourceNSAddr := startMockNS(t, ctx)
+			var creates, deletes int64
+			withTestCounters := func(ctx context.Context) context.Context {
+				ctx = test.ContextWithT(ctx, t)
+				ctx = test.ContextWithCounterRef(ctx, createsKey, &creates)
+				ctx = test.ContextWithCounterRef(ctx, deletesKey, &deletes)
+				return ctx
+			}
+
+			sourceMockNS, sourceNSAddr := startMockNS(ctx, withTestCounters)
 			sourceMockNS.GetFunc = tc.NsGetEndDeviceFunc
 			sourceMockNS.DeleteFunc = tc.NsDeleteEndDeviceFunc
-			sourceMockAS, sourceASAddr := startMockAS(t, ctx)
+			sourceMockAS, sourceASAddr := startMockAS(ctx, withTestCounters)
 			sourceMockAS.GetFunc = tc.AsGetEndDeviceFunc
 			sourceMockAS.DeleteFunc = tc.AsDeleteEndDeviceFunc
 
-			targetMockNS, targetNSAddr := startMockNS(t, ctx)
+			targetMockNS, targetNSAddr := startMockNS(ctx, withTestCounters)
 			targetMockNS.SetFunc = tc.NsSetEndDeviceFunc
-			targetMockAS, targetASAddr := startMockAS(t, ctx)
+			targetMockAS, targetASAddr := startMockAS(ctx, withTestCounters)
 			targetMockAS.SetFunc = tc.AsSetEndDeviceFunc
 
 			dcs := test.Must(New(
@@ -883,16 +907,17 @@ func TestClaim(t *testing.T) {
 			)).(*DeviceClaimingServer)
 
 			dcs.AddContextFiller(func(ctx context.Context) context.Context {
+				ctx = test.ContextWithT(ctx, t)
 				ctx = rights.NewContext(ctx, rights.Rights{
 					ApplicationRights: tc.ApplicationRights,
 				})
-				ctx = test.ContextWithT(ctx, t)
 				ctx = context.WithValue(ctx, sourceNSAddrKey, sourceNSAddr)
 				ctx = context.WithValue(ctx, sourceASAddrKey, sourceASAddr)
 				ctx = context.WithValue(ctx, targetNSAddrKey, targetNSAddr)
 				ctx = context.WithValue(ctx, targetASAddrKey, targetASAddr)
 				return ctx
 			})
+			dcs.AddContextFiller(withTestCounters)
 			test.Must(dcs.Start(), nil)
 			defer dcs.Close()
 
@@ -916,6 +941,12 @@ func TestClaim(t *testing.T) {
 			}
 			if !a.So(*ids, should.Resemble, targetDevIDs) {
 				t.FailNow()
+			}
+			if !a.So(creates, should.Equal, tc.ExpectCreates) {
+				t.Fatal("Unexpected number of creates")
+			}
+			if !a.So(deletes, should.Equal, tc.ExpectDeletes) {
+				t.Fatal("Unexpected number of deletes")
 			}
 		})
 	}

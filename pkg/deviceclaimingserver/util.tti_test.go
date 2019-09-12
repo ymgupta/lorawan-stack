@@ -5,7 +5,6 @@ package deviceclaimingserver_test
 import (
 	"context"
 	"net"
-	"testing"
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
@@ -13,7 +12,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"google.golang.org/grpc"
 )
 
@@ -122,13 +120,9 @@ func (r *mockJsDeviceRegistry) Delete(ctx context.Context, in *ttnpb.EndDeviceId
 	return r.DeleteFunc(ctx, in, opts...)
 }
 
-func startMockNS(t *testing.T, ctx context.Context) (*mockNS, string) {
+func startMockNS(ctx context.Context, filler func(context.Context) context.Context) (*mockNS, string) {
 	ns := &mockNS{}
-	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(
-		func(ctx context.Context) context.Context {
-			return test.ContextWithT(ctx, t)
-		},
-	))
+	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(filler))
 	ttnpb.RegisterNsEndDeviceRegistryServer(srv.Server, ns)
 	lis, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -169,13 +163,9 @@ func (ns *mockNS) Delete(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*
 	return ns.DeleteFunc(ctx, in)
 }
 
-func startMockAS(t *testing.T, ctx context.Context) (*mockAS, string) {
+func startMockAS(ctx context.Context, filler func(context.Context) context.Context) (*mockAS, string) {
 	as := &mockAS{}
-	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(
-		func(ctx context.Context) context.Context {
-			return test.ContextWithT(ctx, t)
-		},
-	))
+	srv := rpcserver.New(ctx, rpcserver.WithContextFiller(filler))
 	ttnpb.RegisterAsEndDeviceRegistryServer(srv.Server, as)
 	lis, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
