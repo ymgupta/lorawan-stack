@@ -156,7 +156,7 @@ func TestClaim(t *testing.T) {
 		ExpectCreates       int64
 		ExpectSourceDeletes int64
 		ExpectSuccessEvent  bool
-		ExpectFailEvent     bool
+		ExpectAbortEvent    bool
 	}{
 		{
 			Name: "InsufficientTargetRights",
@@ -376,7 +376,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
-			ExpectFailEvent: true,
+			ExpectAbortEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/TooEarly",
@@ -453,7 +453,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
-			ExpectFailEvent: true,
+			ExpectAbortEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/TooLate",
@@ -530,7 +530,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
-			ExpectFailEvent: true,
+			ExpectAbortEvent: true,
 		},
 		{
 			Name: "ClaimAuthenticationCode/Mismatch",
@@ -606,7 +606,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsAborted(err), should.BeTrue)
 			},
-			ExpectFailEvent: true,
+			ExpectAbortEvent: true,
 		},
 		{
 			Name: "TargetASUnavailable",
@@ -725,7 +725,7 @@ func TestClaim(t *testing.T) {
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(err, should.NotBeNil)
 			},
-			ExpectFailEvent: true,
+			ExpectAbortEvent: true,
 		},
 		{
 			Name: "SuccessWithASDeleteFail",
@@ -1190,6 +1190,7 @@ func TestClaim(t *testing.T) {
 			},
 			ExpectCreates:       4,
 			ExpectSourceDeletes: 4 + 3, // 4 source plus 3 rollback creates on AS create fail.
+			ExpectAbortEvent:    true,
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(err, should.NotBeNil)
 			},
@@ -1423,27 +1424,27 @@ func TestClaim(t *testing.T) {
 			ctx, cancelCtx := context.WithCancel(log.NewContext(test.Context(), test.GetLogger(t)))
 			defer cancelCtx()
 
-			var successEvents, failEvents uint32
+			var successEvents, abortEvents uint32
 			defer test.SetDefaultEventsPubSub(&test.MockEventPubSub{
 				PublishFunc: func(ev events.Event) {
 					switch name := ev.Name(); name {
 					case "dcs.end_device.claim.success":
 						atomic.AddUint32(&successEvents, 1)
-					case "dcs.end_device.claim.fail":
-						atomic.AddUint32(&failEvents, 1)
+					case "dcs.end_device.claim.abort":
+						atomic.AddUint32(&abortEvents, 1)
 					}
 				},
 			})()
 			defer func() {
-				var expectedSuccessEvents, expectedFailEvents uint32
+				var expectedSuccessEvents, expectedAbortEvents uint32
 				if tc.ExpectSuccessEvent {
 					expectedSuccessEvents = 1
 				}
-				if tc.ExpectFailEvent {
-					expectedFailEvents = 1
+				if tc.ExpectAbortEvent {
+					expectedAbortEvents = 1
 				}
 				a.So(atomic.LoadUint32(&successEvents), should.Equal, expectedSuccessEvents)
-				a.So(atomic.LoadUint32(&failEvents), should.Equal, expectedFailEvents)
+				a.So(atomic.LoadUint32(&abortEvents), should.Equal, expectedAbortEvents)
 			}()
 
 			var creates, deletes int64

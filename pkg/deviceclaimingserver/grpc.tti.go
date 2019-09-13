@@ -242,15 +242,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	sourceCtx = events.ContextWithCorrelationID(sourceCtx, fmt.Sprintf("dcs:claim:%s", events.NewCorrelationID()))
-	var (
-		sourceDev *ttnpb.EndDevice
-		deleted   bool
-	)
+	var sourceDev *ttnpb.EndDevice
 	defer func() {
-		if err == nil || sourceDev == nil || deleted {
+		if err == nil || sourceDev == nil {
 			return
 		}
-		registerFailClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers, err)
+		registerAbortClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers, err)
 	}()
 
 	// Get source end device from Entity Registry.
@@ -439,7 +436,6 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}
 	}
 
-	deleted = true // Do not publish the claim failure event when creating the target device fails.
 	defer func() {
 		if err == nil {
 			registerSuccessClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers)

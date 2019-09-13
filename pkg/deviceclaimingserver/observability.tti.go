@@ -17,8 +17,8 @@ var (
 		"dcs.end_device.claim.success", "claim end device successful",
 		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
 	)
-	evtClaimEndDeviceFailure = events.Define(
-		"dcs.end_device.claim.fail", "claim end device failure",
+	evtClaimEndDeviceAbort = events.Define(
+		"dcs.end_device.claim.abort", "claim end device abort",
 		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
 	)
 )
@@ -38,11 +38,11 @@ var dcsMetrics = &claimMetrics{
 		},
 		[]string{applicationID},
 	),
-	endDevicesClaimFailed: metrics.NewContextualCounterVec(
+	endDevicesClaimAborted: metrics.NewContextualCounterVec(
 		prometheus.CounterOpts{
 			Subsystem: subsystem,
-			Name:      "claim_end_device_failed_total",
-			Help:      "Total number of claim end devices failures",
+			Name:      "claim_end_device_aborted_total",
+			Help:      "Total number of claim end devices abortions",
 		},
 		[]string{applicationID, "error"},
 	),
@@ -54,17 +54,17 @@ func init() {
 
 type claimMetrics struct {
 	endDevicesClaimSucceeded *metrics.ContextualCounterVec
-	endDevicesClaimFailed    *metrics.ContextualCounterVec
+	endDevicesClaimAborted   *metrics.ContextualCounterVec
 }
 
 func (m claimMetrics) Describe(ch chan<- *prometheus.Desc) {
 	m.endDevicesClaimSucceeded.Describe(ch)
-	m.endDevicesClaimFailed.Describe(ch)
+	m.endDevicesClaimAborted.Describe(ch)
 }
 
 func (m claimMetrics) Collect(ch chan<- prometheus.Metric) {
 	m.endDevicesClaimSucceeded.Collect(ch)
-	m.endDevicesClaimFailed.Collect(ch)
+	m.endDevicesClaimAborted.Collect(ch)
 }
 
 func registerSuccessClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers) {
@@ -72,11 +72,11 @@ func registerSuccessClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdent
 	dcsMetrics.endDevicesClaimSucceeded.WithLabelValues(ctx, ids.ApplicationID).Inc()
 }
 
-func registerFailClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, err error) {
-	events.Publish(evtClaimEndDeviceFailure(ctx, ids, nil))
+func registerAbortClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, err error) {
+	events.Publish(evtClaimEndDeviceAbort(ctx, ids, err))
 	if ttnErr, ok := errors.From(err); ok {
-		dcsMetrics.endDevicesClaimFailed.WithLabelValues(ctx, ids.ApplicationID, ttnErr.FullName()).Inc()
+		dcsMetrics.endDevicesClaimAborted.WithLabelValues(ctx, ids.ApplicationID, ttnErr.FullName()).Inc()
 	} else {
-		dcsMetrics.endDevicesClaimFailed.WithLabelValues(ctx, ids.ApplicationID, unknown).Inc()
+		dcsMetrics.endDevicesClaimAborted.WithLabelValues(ctx, ids.ApplicationID, unknown).Inc()
 	}
 }
