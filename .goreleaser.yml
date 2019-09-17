@@ -92,6 +92,7 @@ archives:
 nfpms:
   - id: stack
     builds:
+      - cli
       - stack
     vendor: The Things Industries
     homepage: https://www.thethingsindustries.com
@@ -111,6 +112,7 @@ nfpms:
 # snapcrafts:
 #   - id: stack
 #     builds:
+#       - cli
 #       - stack
 #     name: tti-lw-stack
 #     summary: The Things Stack for LoRaWAN

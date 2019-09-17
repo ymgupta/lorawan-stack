@@ -56,12 +56,18 @@ class FormField extends React.Component {
   static contextType = FormContext
   static propTypes = {
     className: PropTypes.string,
-    name: PropTypes.string.isRequired,
-    warning: PropTypes.message,
-    required: PropTypes.bool,
+    component: PropTypes.oneOfType([
+      PropTypes.func,
+      PropTypes.string,
+      PropTypes.shape({
+        render: PropTypes.func.isRequired,
+      }),
+    ]).isRequired,
     description: PropTypes.message,
+    name: PropTypes.string.isRequired,
     onChange: PropTypes.func,
-    component: PropTypes.oneOfType([PropTypes.func, PropTypes.string]).isRequired,
+    required: PropTypes.bool,
+    warning: PropTypes.message,
   }
 
   static defaultProps = {
@@ -187,12 +193,13 @@ class FormField extends React.Component {
           <Message content={title} className={style.title} />
           <span className={style.reqicon}>&middot;</span>
         </label>
-        <Component
-          className={style.component}
-          {...fieldComponentProps}
-          {...getPassThroughProps(this.props, FormField.propTypes)}
-        />
-        {fieldMessage}
+        <div className={style.componentArea}>
+          <Component
+            {...fieldComponentProps}
+            {...getPassThroughProps(this.props, FormField.propTypes)}
+          />
+          {fieldMessage}
+        </div>
       </div>
     )
   }

@@ -20,6 +20,7 @@ import device from './device'
 import gateways from './gateways'
 import configuration from './configuration'
 import organizations from './organizations'
+import js from './join-server'
 
 export default [
   ...user,
@@ -30,4 +31,5 @@ export default [
   ...gateways,
   ...configuration,
   ...organizations,
+  ...js,
 ]
