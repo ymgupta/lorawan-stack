@@ -20,6 +20,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -99,6 +100,7 @@ func (ps *PubSub) Set(ctx context.Context, req *ttnpb.SetApplicationPubSubReques
 		)).WithError(err).Warn("Failed to cancel integration")
 	}
 	ps.startTask(tenant.NewContext(ps.ctx, tenant.FromContext(ctx)), req.ApplicationPubSubIdentifiers)
+	events.Publish(evtSetPubSub(ctx, req.ApplicationPubSubIdentifiers, nil))
 
 	return pubsub, nil
 }
@@ -126,5 +128,6 @@ func (ps *PubSub) Delete(ctx context.Context, ids *ttnpb.ApplicationPubSubIdenti
 	if err != nil {
 		return nil, err
 	}
+	events.Publish(evtDeletePubSub(ctx, *ids, nil))
 	return ttnpb.Empty, nil
 }

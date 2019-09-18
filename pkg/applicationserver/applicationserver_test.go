@@ -40,6 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/jsonpb"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -427,6 +428,8 @@ hardware_versions:
 				return ids == registeredApplicationID && key == registeredApplicationKey
 			},
 			Connect: func(ctx context.Context, t *testing.T, ids ttnpb.ApplicationIdentifiers, key string, chs *connChannels) error {
+				evCh := make(chan events.Event, EventsBufferSize)
+				defer test.RedirectEvents(evCh)()
 				// Configure pubsub.
 				creds := grpc.PerRPCCredentials(rpcmetadata.MD{
 					AuthType:      "Bearer",
@@ -496,6 +499,9 @@ hardware_versions:
 				if _, err := client.Set(ctx, req, creds); err != nil {
 					return err
 				}
+				if !test.WaitEvent(ctx, evCh, "as.pubsub.start") {
+					t.Fatal("Integration start timeout")
+				}
 				nc, err := nats_client.Connect("nats://localhost:4124")
 				if err != nil {
 					return err
@@ -556,6 +562,8 @@ hardware_versions:
 				return ids == registeredApplicationID && key == registeredApplicationKey
 			},
 			Connect: func(ctx context.Context, t *testing.T, ids ttnpb.ApplicationIdentifiers, key string, chs *connChannels) error {
+				evCh := make(chan events.Event, EventsBufferSize)
+				defer test.RedirectEvents(evCh)()
 				// Configure pubsub.
 				creds := grpc.PerRPCCredentials(rpcmetadata.MD{
 					AuthType:      "Bearer",
@@ -626,6 +634,9 @@ hardware_versions:
 				}
 				if _, err := client.Set(ctx, req, creds); err != nil {
 					return err
+				}
+				if !test.WaitEvent(ctx, evCh, "as.pubsub.start") {
+					t.Fatal("Integration start timeout")
 				}
 				clientOpts := mqtt.NewClientOptions()
 				clientOpts.AddBroker(mqttLis.Addr().String())
