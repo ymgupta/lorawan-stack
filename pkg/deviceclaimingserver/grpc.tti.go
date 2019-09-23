@@ -437,7 +437,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	defer func() {
-		if err == nil {
+		if err != nil {
+			registerFailClaimEndDevice(sourceCtx, sourceDev, err)
+		} else {
 			registerSuccessClaimEndDevice(sourceCtx, sourceDev.EndDeviceIdentifiers)
 		}
 	}()
@@ -447,7 +449,11 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	// Invalidate claim authentication code if requested.
 	if req.InvalidateAuthenticationCode {
 		now := time.Now()
-		targetDev.ClaimAuthenticationCode.ValidTo = &now
+		targetDev.ClaimAuthenticationCode = &ttnpb.EndDeviceAuthenticationCode{
+			ValidFrom: sourceDev.ClaimAuthenticationCode.ValidFrom,
+			ValidTo:   &now,
+			Value:     sourceDev.ClaimAuthenticationCode.Value,
+		}
 	}
 
 	// Set fields from the claiming request.

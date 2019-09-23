@@ -21,6 +21,11 @@ var (
 		"dcs.end_device.claim.abort", "claim end device abort",
 		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
 	)
+	evtClaimEndDeviceFail = events.Define(
+		"dcs.end_device.claim.fail", "claim end device fail",
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+		ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+	)
 )
 
 const (
@@ -46,6 +51,14 @@ var dcsMetrics = &claimMetrics{
 		},
 		[]string{applicationID, "error"},
 	),
+	endDevicesClaimFailed: metrics.NewContextualCounterVec(
+		prometheus.CounterOpts{
+			Subsystem: subsystem,
+			Name:      "claim_end_device_failed_total",
+			Help:      "Total number of claim end devices failures",
+		},
+		[]string{applicationID, "error"},
+	),
 }
 
 func init() {
@@ -55,16 +68,19 @@ func init() {
 type claimMetrics struct {
 	endDevicesClaimSucceeded *metrics.ContextualCounterVec
 	endDevicesClaimAborted   *metrics.ContextualCounterVec
+	endDevicesClaimFailed    *metrics.ContextualCounterVec
 }
 
 func (m claimMetrics) Describe(ch chan<- *prometheus.Desc) {
 	m.endDevicesClaimSucceeded.Describe(ch)
 	m.endDevicesClaimAborted.Describe(ch)
+	m.endDevicesClaimFailed.Describe(ch)
 }
 
 func (m claimMetrics) Collect(ch chan<- prometheus.Metric) {
 	m.endDevicesClaimSucceeded.Collect(ch)
 	m.endDevicesClaimAborted.Collect(ch)
+	m.endDevicesClaimFailed.Collect(ch)
 }
 
 func registerSuccessClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers) {
@@ -78,5 +94,14 @@ func registerAbortClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentif
 		dcsMetrics.endDevicesClaimAborted.WithLabelValues(ctx, ids.ApplicationID, ttnErr.FullName()).Inc()
 	} else {
 		dcsMetrics.endDevicesClaimAborted.WithLabelValues(ctx, ids.ApplicationID, unknown).Inc()
+	}
+}
+
+func registerFailClaimEndDevice(ctx context.Context, dev *ttnpb.EndDevice, err error) {
+	events.Publish(evtClaimEndDeviceFail(ctx, dev.EndDeviceIdentifiers, dev))
+	if ttnErr, ok := errors.From(err); ok {
+		dcsMetrics.endDevicesClaimFailed.WithLabelValues(ctx, dev.ApplicationID, ttnErr.FullName()).Inc()
+	} else {
+		dcsMetrics.endDevicesClaimFailed.WithLabelValues(ctx, dev.ApplicationID, unknown).Inc()
 	}
 }

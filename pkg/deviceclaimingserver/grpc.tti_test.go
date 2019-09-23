@@ -152,11 +152,14 @@ func TestClaim(t *testing.T) {
 		TargetNsDeleteEndDeviceFunc func(context.Context, *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error)
 		TargetAsDeleteEndDeviceFunc func(context.Context, *ttnpb.EndDeviceIdentifiers) (*pbtypes.Empty, error)
 
-		ErrorAssertion      func(t *testing.T, err error) bool
 		ExpectCreates       int64
 		ExpectSourceDeletes int64
 		ExpectSuccessEvent  bool
 		ExpectAbortEvent    bool
+		ExpectFailEvent     bool
+
+		ErrorAssertion         func(t *testing.T, err error) bool
+		FailEventDataAssertion func(t *testing.T, dev *ttnpb.EndDevice) bool
 	}{
 		{
 			Name: "InsufficientTargetRights",
@@ -950,8 +953,9 @@ func TestClaim(t *testing.T) {
 				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
 					QRCode: []byte("URN:LW:DP:42FFFFFFFFFFFFFF:4242FFFFFFFFFFFF:42FFFF42:%V0102"),
 				},
-				TargetApplicationIDs: targetAppIDs,
-				TargetDeviceID:       targetDevIDs.DeviceID,
+				TargetApplicationIDs:         targetAppIDs,
+				TargetDeviceID:               targetDevIDs.DeviceID,
+				InvalidateAuthenticationCode: true,
 			},
 			ApplicationRights: map[string]*ttnpb.Rights{
 				unique.ID(test.Context(), targetAppIDs): {Rights: []ttnpb.Right{
@@ -1191,8 +1195,38 @@ func TestClaim(t *testing.T) {
 			ExpectCreates:       4,
 			ExpectSourceDeletes: 4 + 3, // 4 source plus 3 rollback creates on AS create fail.
 			ExpectAbortEvent:    true,
+			ExpectFailEvent:     true,
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(err, should.NotBeNil)
+			},
+			FailEventDataAssertion: func(t *testing.T, dev *ttnpb.EndDevice) bool {
+				return assertions.New(t).So(dev, should.Resemble, &ttnpb.EndDevice{
+					EndDeviceIdentifiers:     sourceDevIDs,
+					Name:                     "test",
+					Description:              "test test",
+					NetworkServerAddress:     dev.NetworkServerAddress,
+					ApplicationServerAddress: dev.ApplicationServerAddress,
+					JoinServerAddress:        "joinserver:1234",
+					LoRaWANVersion:           ttnpb.MAC_V1_0_3,
+					LoRaWANPHYVersion:        ttnpb.PHY_V1_0_3_REV_A,
+					FrequencyPlanID:          "EU_863_870",
+					MACSettings: &ttnpb.MACSettings{
+						Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
+					},
+					Formatters: &ttnpb.MessagePayloadFormatters{
+						UpFormatter:   ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+						DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
+					},
+					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
+						Value: []byte{0x01, 0x02},
+					},
+					RootKeys: &ttnpb.RootKeys{
+						RootKeyID: "test",
+						AppKey: &ttnpb.KeyEnvelope{
+							Key: &types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+						},
+					},
+				})
 			},
 		},
 		{
@@ -1201,8 +1235,9 @@ func TestClaim(t *testing.T) {
 				SourceDevice: &ttnpb.ClaimEndDeviceRequest_QRCode{
 					QRCode: []byte("URN:LW:DP:42FFFFFFFFFFFFFF:4242FFFFFFFFFFFF:42FFFF42:%V0102"),
 				},
-				TargetApplicationIDs: targetAppIDs,
-				TargetDeviceID:       targetDevIDs.DeviceID,
+				TargetApplicationIDs:         targetAppIDs,
+				TargetDeviceID:               targetDevIDs.DeviceID,
+				InvalidateAuthenticationCode: true,
 			},
 			ApplicationRights: map[string]*ttnpb.Rights{
 				unique.ID(test.Context(), targetAppIDs): {Rights: []ttnpb.Right{
@@ -1424,7 +1459,7 @@ func TestClaim(t *testing.T) {
 			ctx, cancelCtx := context.WithCancel(log.NewContext(test.Context(), test.GetLogger(t)))
 			defer cancelCtx()
 
-			var successEvents, abortEvents uint32
+			var successEvents, abortEvents, failEvents uint32
 			defer test.SetDefaultEventsPubSub(&test.MockEventPubSub{
 				PublishFunc: func(ev events.Event) {
 					switch name := ev.Name(); name {
@@ -1432,19 +1467,28 @@ func TestClaim(t *testing.T) {
 						atomic.AddUint32(&successEvents, 1)
 					case "dcs.end_device.claim.abort":
 						atomic.AddUint32(&abortEvents, 1)
+					case "dcs.end_device.claim.fail":
+						atomic.AddUint32(&failEvents, 1)
+						if tc.FailEventDataAssertion != nil {
+							a.So(tc.FailEventDataAssertion(t, ev.Data().(*ttnpb.EndDevice)), should.BeTrue)
+						}
 					}
 				},
 			})()
 			defer func() {
-				var expectedSuccessEvents, expectedAbortEvents uint32
+				var expectedSuccessEvents, expectedAbortEvents, expectedFailEvents uint32
 				if tc.ExpectSuccessEvent {
 					expectedSuccessEvents = 1
 				}
 				if tc.ExpectAbortEvent {
 					expectedAbortEvents = 1
 				}
+				if tc.ExpectFailEvent {
+					expectedFailEvents = 1
+				}
 				a.So(atomic.LoadUint32(&successEvents), should.Equal, expectedSuccessEvents)
 				a.So(atomic.LoadUint32(&abortEvents), should.Equal, expectedAbortEvents)
+				a.So(atomic.LoadUint32(&failEvents), should.Equal, expectedFailEvents)
 			}()
 
 			var creates, deletes int64
