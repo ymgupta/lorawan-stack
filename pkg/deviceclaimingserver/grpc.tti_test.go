@@ -1140,7 +1140,8 @@ func TestClaim(t *testing.T) {
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-							Value: []byte{0x01, 0x02},
+							Value:   []byte{0x01, 0x02},
+							ValidTo: in.EndDevice.ClaimAuthenticationCode.ValidTo,
 						},
 						RootKeys: &ttnpb.RootKeys{
 							RootKeyID: "test",
@@ -1404,7 +1405,8 @@ func TestClaim(t *testing.T) {
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-							Value: []byte{0x01, 0x02},
+							Value:   []byte{0x01, 0x02},
+							ValidTo: in.EndDevice.ClaimAuthenticationCode.ValidTo,
 						},
 						RootKeys: &ttnpb.RootKeys{
 							RootKeyID: "test",
