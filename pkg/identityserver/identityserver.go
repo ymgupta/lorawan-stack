@@ -120,7 +120,8 @@ func (is *IdentityServer) configFromContext(ctx context.Context) *Config {
 	if config, ok := ctx.Value(ctxKey).(*Config); ok {
 		return config
 	}
-	return is.config
+	config := is.config.Apply(ctx)
+	return &config
 }
 
 // New returns new *IdentityServer.

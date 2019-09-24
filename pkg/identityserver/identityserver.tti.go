@@ -11,6 +11,12 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/random"
 )
 
+func (conf Config) Apply(ctx context.Context) Config {
+	deriv := conf
+	deriv.Email.Config = conf.Email.Config.Apply(ctx)
+	return deriv
+}
+
 // TenancyConfig is the configuration for tenancy in the Identity Server.
 type TenancyConfig struct {
 	AdminKeys []string `name:"admin-keys" description:"Keys that can be used for tenant administration"`
