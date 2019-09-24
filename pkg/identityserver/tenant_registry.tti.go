@@ -76,6 +76,27 @@ func (is *IdentityServer) getTenant(ctx context.Context, req *ttipb.GetTenantReq
 	return tnt, nil
 }
 
+func (is *IdentityServer) getTenantForFetcher(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (tnt *ttipb.Tenant, err error) {
+	fieldPaths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, fieldPaths, getPaths, nil)
+	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+		tnt, err = store.GetTenantStore(db).GetTenant(ctx, ids, &types.FieldMask{Paths: fieldPaths})
+		if err != nil {
+			return err
+		}
+		if ttnpb.HasAnyField(fieldPaths, "contact_info") {
+			tnt.ContactInfo, err = store.GetContactInfoStore(db).GetContactInfo(ctx, tnt.TenantIdentifiers)
+			if err != nil {
+				return err
+			}
+		}
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return tnt, nil
+}
+
 func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenantsRequest) (tnts *ttipb.Tenants, err error) {
 	if !tenantRightsFromContext(ctx).admin {
 		return nil, errNoTenantRights

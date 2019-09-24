@@ -35,6 +35,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -154,6 +155,14 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	if err := is.config.Tenancy.decodeAdminKeys(is.ctx); err != nil {
 		return nil, err
 	}
+	c.AddContextFiller(func(ctx context.Context) context.Context {
+		var fetcher tenant.Fetcher = tenant.FetcherFunc(is.getTenantForFetcher)
+		if ttl := c.GetBaseConfig(is.Context()).Tenancy.CacheTTL; ttl > 0 {
+			fetcher = tenant.NewCachedFetcher(fetcher, ttl, ttl)
+		}
+		ctx = tenant.NewContextWithFetcher(ctx, fetcher)
+		return ctx
+	})
 
 	is.oauth = oauth.NewServer(is.Context(), struct {
 		store.UserStore
