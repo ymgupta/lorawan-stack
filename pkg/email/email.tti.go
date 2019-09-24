@@ -27,5 +27,12 @@ func (c Config) Apply(ctx context.Context) Config {
 		consoleURL.Host = tenantID.TenantID + "." + consoleURL.Host
 		deriv.Network.ConsoleURL = consoleURL.String()
 	}
+	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
+		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name"); err == nil {
+			if tenant.Name != "" {
+				deriv.Network.Name = tenant.Name
+			}
+		}
+	}
 	return deriv
 }

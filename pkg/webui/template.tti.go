@@ -15,11 +15,20 @@ func (t TemplateData) Apply(ctx context.Context) TemplateData {
 	if license.RequireMultiTenancy(ctx) != nil {
 		return t
 	}
+	tenantID := tenant.FromContext(ctx)
+	if tenantID.TenantID == "" {
+		return t
+	}
 	deriv := t
 	if canonical, err := url.Parse(t.CanonicalURL); err == nil {
-		if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
-			canonical.Host = tenantID + "." + canonical.Host
-			deriv.CanonicalURL = canonical.String()
+		canonical.Host = tenantID.TenantID + "." + canonical.Host
+		deriv.CanonicalURL = canonical.String()
+	}
+	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
+		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name"); err == nil {
+			if tenant.Name != "" {
+				deriv.SiteName = tenant.Name
+			}
 		}
 	}
 	return deriv
