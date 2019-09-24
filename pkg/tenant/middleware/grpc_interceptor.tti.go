@@ -55,14 +55,22 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, _ *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 		if license.RequireMultiTenancy(ctx) == nil {
 			if id := tenant.FromContext(ctx); !id.IsZero() {
+				if err := fetchTenant(ctx); err != nil {
+					return nil, err
+				}
 				return handler(ctx, req)
 			}
 			if id := fromRPCContext(ctx); !id.IsZero() {
-				return handler(tenant.NewContext(ctx, id), req)
+				ctx = tenant.NewContext(ctx, id)
+				if err := fetchTenant(ctx); err != nil {
+					return nil, err
+				}
+				return handler(ctx, req)
 			}
 		}
 		if id := config.DefaultID; id != "" {
-			return handler(tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id}), req)
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
+			return handler(ctx, req)
 		}
 		return nil, errMissingTenantID
 	}
@@ -74,17 +82,25 @@ func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor 
 		ctx := stream.Context()
 		if license.RequireMultiTenancy(ctx) == nil {
 			if id := tenant.FromContext(ctx); !id.IsZero() {
+				if err := fetchTenant(ctx); err != nil {
+					return err
+				}
 				return handler(srv, stream)
 			}
 			if id := fromRPCContext(ctx); !id.IsZero() {
+				ctx = tenant.NewContext(ctx, id)
 				wrapped := grpc_middleware.WrapServerStream(stream)
-				wrapped.WrappedContext = tenant.NewContext(ctx, id)
+				wrapped.WrappedContext = ctx
+				if err := fetchTenant(ctx); err != nil {
+					return err
+				}
 				return handler(srv, wrapped)
 			}
 		}
 		if id := config.DefaultID; id != "" {
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
 			wrapped := grpc_middleware.WrapServerStream(stream)
-			wrapped.WrappedContext = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
+			wrapped.WrappedContext = ctx
 			return handler(srv, wrapped)
 		}
 		return errMissingTenantID

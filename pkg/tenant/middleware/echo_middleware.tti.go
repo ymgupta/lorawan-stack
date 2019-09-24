@@ -31,15 +31,23 @@ func Middleware(config tenant.Config) echo.MiddlewareFunc {
 			ctx := c.Request().Context()
 			if license.RequireMultiTenancy(ctx) == nil {
 				if id := tenant.FromContext(ctx); id.TenantID != "" {
+					if err := fetchTenant(ctx); err != nil {
+						return err
+					}
 					return next(c)
 				}
 				if id := fromRequest(c.Request()); id.TenantID != "" {
-					c.SetRequest(c.Request().WithContext(tenant.NewContext(ctx, id)))
+					ctx = tenant.NewContext(ctx, id)
+					c.SetRequest(c.Request().WithContext(ctx))
+					if err := fetchTenant(ctx); err != nil {
+						return err
+					}
 					return next(c)
 				}
 			}
 			if id := config.DefaultID; id != "" {
-				c.SetRequest(c.Request().WithContext(tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})))
+				ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
+				c.SetRequest(c.Request().WithContext(ctx))
 				return next(c)
 			}
 			return errMissingTenantID

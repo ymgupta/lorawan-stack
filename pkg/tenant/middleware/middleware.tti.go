@@ -3,9 +3,11 @@
 package middleware
 
 import (
+	"context"
 	"strings"
 
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
@@ -22,4 +24,13 @@ func tenantID(v string) string {
 		return ""
 	}
 	return id.TenantID
+}
+
+func fetchTenant(ctx context.Context) error {
+	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
+		tenantID := tenant.FromContext(ctx)
+		_, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name")
+		return err
+	}
+	return nil
 }
