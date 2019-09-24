@@ -251,7 +251,7 @@ func errNotFoundForID(id ttnpb.Identifiers) error {
 	case "user":
 		return errUserNotFound.WithAttributes("user_id", id.IDString())
 	case "tenant":
-		return errUserNotFound.WithAttributes("tenant_id", id.IDString())
+		return errTenantNotFound.WithAttributes("tenant_id", id.IDString())
 	default:
 		panic(fmt.Sprintf("can't find errNotFound for entity type %s", t))
 	}
