@@ -602,7 +602,7 @@ func TestClaim(t *testing.T) {
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0xff, 0xff},
+						Value: "FFFF",
 					},
 				}, nil
 			},
@@ -685,7 +685,7 @@ func TestClaim(t *testing.T) {
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0x01, 0x02},
+						Value: "0102",
 					},
 					RootKeys: &ttnpb.RootKeys{
 						RootKeyID: "test",
@@ -803,7 +803,7 @@ func TestClaim(t *testing.T) {
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0x01, 0x02},
+						Value: "0102",
 					},
 					RootKeys: &ttnpb.RootKeys{
 						RootKeyID: "test",
@@ -898,7 +898,7 @@ func TestClaim(t *testing.T) {
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-							Value: []byte{0x01, 0x02},
+							Value: "0102",
 						},
 						RootKeys: &ttnpb.RootKeys{
 							RootKeyID: "test",
@@ -1021,7 +1021,7 @@ func TestClaim(t *testing.T) {
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0x01, 0x02},
+						Value: "0102",
 					},
 					RootKeys: &ttnpb.RootKeys{
 						RootKeyID: "test",
@@ -1140,7 +1140,7 @@ func TestClaim(t *testing.T) {
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-							Value:   []byte{0x01, 0x02},
+							Value:   "0102",
 							ValidTo: in.EndDevice.ClaimAuthenticationCode.ValidTo,
 						},
 						RootKeys: &ttnpb.RootKeys{
@@ -1219,7 +1219,7 @@ func TestClaim(t *testing.T) {
 						DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
 					},
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0x01, 0x02},
+						Value: "0102",
 					},
 					RootKeys: &ttnpb.RootKeys{
 						RootKeyID: "test",
@@ -1304,7 +1304,7 @@ func TestClaim(t *testing.T) {
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
 					ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-						Value: []byte{0x01, 0x02},
+						Value: "0102",
 					},
 					RootKeys: &ttnpb.RootKeys{
 						RootKeyID: "test",
@@ -1405,7 +1405,7 @@ func TestClaim(t *testing.T) {
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						ClaimAuthenticationCode: &ttnpb.EndDeviceAuthenticationCode{
-							Value:   []byte{0x01, 0x02},
+							Value:   "0102",
 							ValidTo: in.EndDevice.ClaimAuthenticationCode.ValidTo,
 						},
 						RootKeys: &ttnpb.RootKeys{

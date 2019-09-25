@@ -3,7 +3,6 @@
 package deviceclaimingserver
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"net"
@@ -145,7 +144,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 
 	// Get the JoinEUI, DevEUI and claim authentication code from the request.
 	var joinEUI, devEUI types.EUI64
-	var authCode []byte
+	var authCode string
 	switch source := req.SourceDevice.(type) {
 	case *ttnpb.ClaimEndDeviceRequest_AuthenticatedIdentifiers_:
 		authIDs := source.AuthenticatedIdentifiers
@@ -298,7 +297,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.Warn("Claim authentication code not valid anymore")
 		return nil, errClaimAuthenticationCode
 	}
-	if !bytes.Equal(authCode, sourceDev.ClaimAuthenticationCode.Value) {
+	if sourceDev.ClaimAuthenticationCode.Value != authCode {
 		logger.Warn("Claim authentication code mismatch")
 		return nil, errClaimAuthenticationCode
 	}
