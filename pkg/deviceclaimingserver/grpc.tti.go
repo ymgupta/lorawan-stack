@@ -287,19 +287,19 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	logger.Debug("Validate claim authentication code")
 	if sourceDev.ClaimAuthenticationCode == nil {
 		logger.Warn("Claim authentication code not specified")
-		return nil, errClaimAuthenticationCode
+		return nil, errClaimAuthenticationCode.WithAttributes("reason", "not_specified")
 	}
 	if sourceDev.ClaimAuthenticationCode.ValidFrom != nil && time.Since(*sourceDev.ClaimAuthenticationCode.ValidFrom) < 0 {
 		logger.Warn("Claim authentication code not valid yet")
-		return nil, errClaimAuthenticationCode
+		return nil, errClaimAuthenticationCode.WithAttributes("reason", "too_early")
 	}
 	if sourceDev.ClaimAuthenticationCode.ValidTo != nil && time.Until(*sourceDev.ClaimAuthenticationCode.ValidTo) < 0 {
 		logger.Warn("Claim authentication code not valid anymore")
-		return nil, errClaimAuthenticationCode
+		return nil, errClaimAuthenticationCode.WithAttributes("reason", "too_late")
 	}
 	if sourceDev.ClaimAuthenticationCode.Value != authCode {
 		logger.Warn("Claim authentication code mismatch")
-		return nil, errClaimAuthenticationCode
+		return nil, errClaimAuthenticationCode.WithAttributes("reason", "mismatch")
 	}
 
 	// Get source end device from Network Server and Application Server.
