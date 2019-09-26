@@ -18,6 +18,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/qrcode"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/discover"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -224,9 +225,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 	sourceDialOpts := append(rpcclient.DefaultDialOptions(sourceCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
 	if tlsConfig, err := s.DCS.GetTLSConfig(sourceCtx); err == nil {
-		sourceDialOpts = append(sourceDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		sourceDialOpts = append(sourceDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
 	} else if s.DCS.AllowInsecureForCredentials() {
-		sourceDialOpts = append(sourceDialOpts, grpc.WithInsecure())
+		sourceDialOpts = append(sourceDialOpts, discover.WithInsecure()...)
 	}
 
 	// Validate that the authorized application API key has enough rights to read and delete the device.
@@ -367,9 +368,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
 	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
-		targetDialOpts = append(targetDialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)))
+		targetDialOpts = append(targetDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
 	} else if s.DCS.AllowInsecureForCredentials() {
-		targetDialOpts = append(targetDialOpts, grpc.WithInsecure())
+		targetDialOpts = append(targetDialOpts, discover.WithInsecure()...)
 	}
 	var targetNSConn *grpc.ClientConn
 	if req.TargetNetworkServerAddress != "" {
