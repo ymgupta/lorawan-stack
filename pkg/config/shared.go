@@ -15,6 +15,7 @@
 package config
 
 import (
+	"context"
 	"crypto/tls"
 	"time"
 
@@ -88,6 +89,7 @@ type Metrics struct {
 	Password string `name:"password" description:"Password to protect metrics endpoint (username is metrics)"`
 }
 
+// Health represents the health checks configuration.
 type Health struct {
 	Enable   bool   `name:"enable" description:"Enable health check endpoint on HTTP server"`
 	Password string `name:"password" description:"Password to protect health endpoint (username is health)"`
@@ -202,8 +204,8 @@ type FrequencyPlansConfig struct {
 
 // Store returns a frequencyplan.Store fwith a fetcher based on the configuration.
 // The order of precedence is Static, Directory and URL.
-// If neither Static, Directory nor a URL is set, this method returns nil.
-func (c FrequencyPlansConfig) Store() *frequencyplans.Store {
+// If neither Static, Directory nor a URL is set, this method returns nil, nil.
+func (c FrequencyPlansConfig) Store() (*frequencyplans.Store, error) {
 	var fetcher fetch.Interface
 	switch {
 	case c.Static != nil:
@@ -211,11 +213,15 @@ func (c FrequencyPlansConfig) Store() *frequencyplans.Store {
 	case c.Directory != "":
 		fetcher = fetch.FromFilesystem(c.Directory)
 	case c.URL != "":
-		fetcher = fetch.FromHTTP(c.URL, true)
+		var err error
+		fetcher, err = fetch.FromHTTP(c.URL, true)
+		if err != nil {
+			return nil, err
+		}
 	default:
-		return nil
+		return nil, nil
 	}
-	return frequencyplans.NewStore(fetcher)
+	return frequencyplans.NewStore(fetcher), nil
 }
 
 // DeviceRepositoryConfig defines the source of the device repository.
@@ -227,8 +233,8 @@ type DeviceRepositoryConfig struct {
 
 // Client instantiates a new devicerepository.Client with a fetcher based on the configuration.
 // The order of precedence is Static, Directory and URL.
-// If neither Static, Directory nor a URL is set, this method returns nil.
-func (c DeviceRepositoryConfig) Client() *devicerepository.Client {
+// If neither Static, Directory nor a URL is set, this method returns nil, nil.
+func (c DeviceRepositoryConfig) Client() (*devicerepository.Client, error) {
 	var fetcher fetch.Interface
 	switch {
 	case c.Static != nil:
@@ -236,13 +242,17 @@ func (c DeviceRepositoryConfig) Client() *devicerepository.Client {
 	case c.Directory != "":
 		fetcher = fetch.FromFilesystem(c.Directory)
 	case c.URL != "":
-		fetcher = fetch.FromHTTP(c.URL, true)
+		var err error
+		fetcher, err = fetch.FromHTTP(c.URL, true)
+		if err != nil {
+			return nil, err
+		}
 	default:
-		return nil
+		return nil, nil
 	}
 	return &devicerepository.Client{
 		Fetcher: fetcher,
-	}
+	}, nil
 }
 
 // InteropClient represents the client-side interoperability through LoRaWAN Backend Interfaces configuration.
@@ -253,19 +263,19 @@ type InteropClient struct {
 }
 
 // IsZero returns whether conf is empty.
-func (conf InteropClient) IsZero() bool {
-	return conf == (InteropClient{})
+func (c InteropClient) IsZero() bool {
+	return c == (InteropClient{})
 }
 
 // Fetcher returns fetch.Interface defined by conf.
-func (conf InteropClient) Fetcher() fetch.Interface {
+func (c InteropClient) Fetcher() (fetch.Interface, error) {
 	switch {
-	case conf.Directory != "":
-		return fetch.FromFilesystem(conf.Directory)
-	case conf.URL != "":
-		return fetch.FromHTTP(conf.URL, true)
+	case c.Directory != "":
+		return fetch.FromFilesystem(c.Directory), nil
+	case c.URL != "":
+		return fetch.FromHTTP(c.URL, true)
 	default:
-		return nil
+		return nil, nil
 	}
 }
 
@@ -288,4 +298,25 @@ type ServiceBase struct {
 
 	Tenancy tenant.Config  `name:"tenancy"`
 	License license.Config `name:"license"`
+}
+
+// MQTT contains the listen and public addresses of an MQTT frontend.
+type MQTT struct {
+	Listen           string `name:"listen" description:"Address for the MQTT frontend to listen on"`
+	ListenTLS        string `name:"listen-tls" description:"Address for the MQTTS frontend to listen on"`
+	PublicAddress    string `name:"public-address" description:"Public address of the MQTT frontend"`
+	PublicTLSAddress string `name:"public-tls-address" description:"Public address of the MQTTs frontend"`
+}
+
+// MQTTConfigProvider provides contextual access to MQTT configuration.
+type MQTTConfigProvider interface {
+	GetMQTTConfig(context.Context) (*MQTT, error)
+}
+
+// MQTTConfigProviderFunc is a functional MQTTConfigProvider.
+type MQTTConfigProviderFunc func(context.Context) (*MQTT, error)
+
+// GetMQTTConfig implements MQTTConfigProvider.
+func (f MQTTConfigProviderFunc) GetMQTTConfig(ctx context.Context) (*MQTT, error) {
+	return f(ctx)
 }

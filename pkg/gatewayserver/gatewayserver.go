@@ -30,6 +30,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
@@ -39,7 +40,8 @@ import (
 	iogrpc "go.thethings.network/lorawan-stack/pkg/gatewayserver/io/grpc"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/udp"
-	"go.thethings.network/lorawan-stack/pkg/gatewayserver/scheduling"
+	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream"
+	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream/ns"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
@@ -60,12 +62,16 @@ type GatewayServer struct {
 	*component.Component
 	ctx context.Context
 
+	config *Config
+
 	requireRegisteredGateways bool
 	forward                   map[string][]types.DevAddrPrefix
 
 	registry ttnpb.GatewayRegistryClient
 
 	tenantRegistry ttipb.TenantRegistryClient
+
+	upstreamHandlers map[string]upstream.Handler
 
 	connections sync.Map
 }
@@ -101,7 +107,10 @@ var (
 		"listen_frontend",
 		"failed to start frontend listener `{protocol}` on address `{address}`",
 	)
-	errNotConnected = errors.DefineNotFound("not_connected", "gateway `{gateway_uid}` not connected")
+	errNotConnected        = errors.DefineNotFound("not_connected", "gateway `{gateway_uid}` not connected")
+	errSetupUpstream       = errors.DefineFailedPrecondition("upstream", "failed to setup upstream `{hostname}`")
+	errUpstreamType        = errors.DefineUnimplemented("upstream_type_not_implemented", "upstream `{name}` not implemented")
+	errInvalidUpstreamName = errors.DefineInvalidArgument("invalid_upstream_name", "upstream `{name}`is invalid")
 )
 
 // New returns new *GatewayServer.
@@ -117,11 +126,14 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 	if len(forward) == 0 {
 		forward[""] = []types.DevAddrPrefix{{}}
 	}
+
 	gs = &GatewayServer{
 		Component:                 c,
 		ctx:                       log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
+		config:                    conf,
 		requireRegisteredGateways: conf.RequireRegisteredGateways,
 		forward:                   forward,
+		upstreamHandlers:          make(map[string]upstream.Handler),
 	}
 	for _, opt := range opts {
 		opt(gs)
@@ -152,7 +164,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 
 	for _, version := range []struct {
 		Format mqtt.Format
-		Config MQTTConfig
+		Config config.MQTT
 	}{
 		{
 			Format: mqtt.Protobuf,
@@ -219,6 +231,29 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NsGs", cluster.HookName, c.ClusterAuthUnaryHook())
 
+	for name, prefix := range gs.forward {
+		if name == "" {
+			gs.upstreamHandlers["cluster"] = ns.NewHandler(ctx, "cluster", c, prefix)
+		} else {
+			str := strings.SplitN(name, ":", 2)
+			if len(str) != 2 {
+				return nil, errInvalidUpstreamName.WithAttributes("name", name)
+			}
+			switch str[0] {
+			case "ttn.lorawan.v3.GsNs":
+				gs.upstreamHandlers[str[1]] = ns.NewHandler(ctx, str[1], c, prefix)
+			default:
+				return nil, errUpstreamType.WithAttributes("name", name)
+			}
+		}
+	}
+
+	for _, handler := range gs.upstreamHandlers {
+		if err := handler.Setup(); err != nil {
+			return nil, errSetupUpstream.WithCause(err).WithAttributes("hostname", handler.GetHostName())
+		}
+	}
+
 	c.RegisterGRPC(gs)
 	return gs, nil
 }
@@ -227,12 +262,30 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 func (gs *GatewayServer) RegisterServices(s *grpc.Server) {
 	ttnpb.RegisterGsServer(s, gs)
 	ttnpb.RegisterNsGsServer(s, gs)
-	ttnpb.RegisterGtwGsServer(s, iogrpc.New(gs))
+	ttnpb.RegisterGtwGsServer(s, iogrpc.New(gs,
+		iogrpc.WithMQTTConfigProvider(
+			config.MQTTConfigProviderFunc(func(ctx context.Context) (*config.MQTT, error) {
+				config, err := gs.GetConfig(ctx)
+				if err != nil {
+					return nil, err
+				}
+				return &config.MQTT, nil
+			})),
+		iogrpc.WithMQTTv2ConfigProvider(
+			config.MQTTConfigProviderFunc(func(ctx context.Context) (*config.MQTT, error) {
+				config, err := gs.GetConfig(ctx)
+				if err != nil {
+					return nil, err
+				}
+				return &config.MQTTV2, nil
+			})),
+	))
 }
 
 // RegisterHandlers registers gRPC handlers.
 func (gs *GatewayServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.ClientConn) {
 	ttnpb.RegisterGsHandler(gs.Context(), s, conn)
+	ttnpb.RegisterGtwGsHandler(gs.Context(), s, conn)
 }
 
 // Roles returns the roles that the Gateway Server fulfills.
@@ -358,16 +411,24 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 	if err != nil {
 		return nil, err
 	}
-	scheduler, err := scheduling.NewScheduler(ctx, fp, gtw.EnforceDutyCycle, nil)
+
+	conn, err := io.NewConnection(ctx, frontend, gtw, fp, gtw.EnforceDutyCycle)
 	if err != nil {
 		return nil, err
 	}
-
-	conn := io.NewConnection(ctx, frontend.Protocol(), gtw, fp, scheduler)
 	gs.connections.Store(uid, conn)
 	registerGatewayConnect(ctx, ids)
 	logger.Info("Connected")
 	go gs.handleUpstream(conn)
+
+	for _, handler := range gs.upstreamHandlers {
+		go func(handler upstream.Handler) {
+			logger := log.FromContext(ctx).WithField("handler", handler.GetHostName())
+			if err := handler.ConnectGateway(conn.Context(), ids, conn); err != nil {
+				logger.WithError(err).Warn("Failed to connect gateway on upstream")
+			}
+		}(handler)
+	}
 	return conn, nil
 }
 
@@ -394,13 +455,9 @@ var (
 	upstreamHandlerBusyTimeout = (1 << 6) * time.Millisecond
 )
 
-type upstreamHandler interface {
-	HandleUplink(context.Context, *ttnpb.UplinkMessage, ...grpc.CallOption) (*pbtypes.Empty, error)
-}
-
 type upstreamHost struct {
 	name     string
-	handler  func(ids *ttnpb.EndDeviceIdentifiers) upstreamHandler
+	handler  func(ids *ttnpb.EndDeviceIdentifiers) upstream.Handler
 	callOpts []grpc.CallOption
 	handlers int32
 	handleWg sync.WaitGroup
@@ -419,7 +476,6 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 	defer func() {
 		ids := conn.Gateway().GatewayIdentifiers
 		gs.connections.Delete(unique.ID(ctx, ids))
-		gs.UnclaimDownlink(ctx, ids)
 		registerGatewayDisconnect(ctx, ids)
 		logger.Info("Disconnected")
 	}()
@@ -461,7 +517,10 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 					if handler == nil {
 						break
 					}
-					if _, err := handler.HandleUplink(ctx, msg, item.host.callOpts...); err != nil {
+					gtwUp := &ttnpb.GatewayUp{
+						UplinkMessages: []*ttnpb.UplinkMessage{msg},
+					}
+					if err := handler.HandleUp(ctx, conn.Gateway().GatewayIdentifiers, ids, gtwUp); err != nil {
 						drop(ids, errHostHandle.WithCause(err).WithAttributes("host", item.host.name))
 						break
 					}
@@ -471,9 +530,9 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 		}
 	}
 
-	hosts := make([]*upstreamHost, 0, len(gs.forward))
-	for name, prefixes := range gs.forward {
-		passDevAddr := func(devAddr types.DevAddr) bool {
+	hosts := make([]*upstreamHost, 0, len(gs.upstreamHandlers))
+	for _, handler := range gs.upstreamHandlers {
+		passDevAddr := func(prefixes []types.DevAddrPrefix, devAddr types.DevAddr) bool {
 			for _, prefix := range prefixes {
 				if devAddr.HasPrefix(prefix) {
 					return true
@@ -481,28 +540,16 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 			}
 			return false
 		}
-		if name == "" {
-			// Cluster Network Server; filter based on DevAddr and pass all join-requests.
-			hosts = append(hosts, &upstreamHost{
-				name: "cluster",
-				handler: func(ids *ttnpb.EndDeviceIdentifiers) upstreamHandler {
-					if ids != nil && ids.DevAddr != nil && !passDevAddr(*ids.DevAddr) {
-						return nil
-					}
-					cc, err := gs.GetPeerConn(ctx, ttnpb.ClusterRole_NETWORK_SERVER, ids)
-					if err != nil {
-						logger.WithError(err).Warn("Cluster Network Server unavailable for upstream traffic")
-						return nil
-					}
-					return ttnpb.NewGsNsClient(cc)
-				},
-				callOpts: []grpc.CallOption{gs.WithClusterAuth()},
-				handleCh: make(chan upstreamItem),
-			})
-		} else {
-			// Packet Broker; filter based on DevAddr and filter all join-requests.
-			// TODO: Offload traffic to Packet Broker (https://github.com/TheThingsNetwork/lorawan-stack/issues/671)
-		}
+		hosts = append(hosts, &upstreamHost{
+			name: handler.GetHostName(),
+			handler: func(ids *ttnpb.EndDeviceIdentifiers) upstream.Handler {
+				if ids != nil && ids.DevAddr != nil && !passDevAddr(handler.GetDevAddrPrefixes(), *ids.DevAddr) {
+					return nil
+				}
+				return handler
+			},
+			handleCh: make(chan upstreamItem),
+		})
 	}
 
 	for _, host := range hosts {
@@ -603,4 +650,23 @@ func (gs *GatewayServer) ClaimDownlink(ctx context.Context, ids ttnpb.GatewayIde
 // UnclaimDownlink releases the claim of the downlink path for the given gateway.
 func (gs *GatewayServer) UnclaimDownlink(ctx context.Context, ids ttnpb.GatewayIdentifiers) error {
 	return gs.UnclaimIDs(ctx, ids)
+}
+
+type ctxConfigKeyType struct{}
+
+// GetConfig returns the Gateway Server config based on the context.
+func (gs *GatewayServer) GetConfig(ctx context.Context) (*Config, error) {
+	if val, ok := ctx.Value(&ctxConfigKeyType{}).(*Config); ok {
+		return val, nil
+	}
+	return gs.config, nil
+}
+
+// GetMQTTConfig returns the MQTT frontend configuration based on the context.
+func (gs *GatewayServer) GetMQTTConfig(ctx context.Context) (*config.MQTT, error) {
+	config, err := gs.GetConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &config.MQTT, nil
 }
