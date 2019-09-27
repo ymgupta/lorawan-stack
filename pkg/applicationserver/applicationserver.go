@@ -36,6 +36,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/web"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/errors"
@@ -57,6 +58,8 @@ import (
 type ApplicationServer struct {
 	*component.Component
 	ctx context.Context
+
+	config *Config
 
 	linkMode         LinkMode
 	linkRegistry     LinkRegistry
@@ -120,14 +123,20 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		}
 	}
 
+	drCl, err := c.GetBaseConfig(c.Context()).DeviceRepository.Client()
+	if err != nil {
+		return nil, err
+	}
+
 	as = &ApplicationServer{
 		Component:      c,
 		ctx:            ctx,
+		config:         conf,
 		linkMode:       linkMode,
 		linkRegistry:   conf.Links,
 		deviceRegistry: conf.Devices,
 		formatter: payloadFormatter{
-			repository: c.GetBaseConfig(c.Context()).DeviceRepository.Client(),
+			repository: drCl,
 			upFormatters: map[ttnpb.PayloadFormatter]messageprocessors.PayloadDecoder{
 				ttnpb.PayloadFormatter_FORMATTER_JAVASCRIPT: javascript.New(),
 				ttnpb.PayloadFormatter_FORMATTER_CAYENNELPP: cayennelpp.New(),
@@ -142,7 +151,7 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 	}
 
 	as.grpc.asDevices = asEndDeviceRegistryServer{AS: as}
-	as.grpc.appAs = iogrpc.New(as)
+	as.grpc.appAs = iogrpc.New(as, iogrpc.WithMQTTConfigProvider(as))
 
 	ctx, cancel := context.WithCancel(as.Context())
 	defer func() {
@@ -153,7 +162,7 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 
 	for _, version := range []struct {
 		Format mqtt.Format
-		Config MQTTConfig
+		Config config.MQTT
 	}{
 		{
 			Format: mqtt.JSON,
@@ -811,4 +820,23 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 	}
 	_, err = client.DownlinkQueueReplace(ctx, req, link.callOpts...)
 	return err
+}
+
+type ctxConfigKeyType struct{}
+
+// GetConfig returns the Application Server config based on the context.
+func (as *ApplicationServer) GetConfig(ctx context.Context) (*Config, error) {
+	if val, ok := ctx.Value(&ctxConfigKeyType{}).(*Config); ok {
+		return val, nil
+	}
+	return as.config, nil
+}
+
+// GetMQTTConfig returns the MQTT frontend configuration based on the context.
+func (as *ApplicationServer) GetMQTTConfig(ctx context.Context) (*config.MQTT, error) {
+	config, err := as.GetConfig(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return &config.MQTT, nil
 }

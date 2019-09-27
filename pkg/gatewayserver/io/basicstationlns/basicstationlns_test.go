@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/gorilla/websocket"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/basicstation"
@@ -34,6 +35,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/basicstationlns/messages"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mock"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	pfconfig "go.thethings.network/lorawan-stack/pkg/pfconfig/shared"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -449,67 +451,216 @@ func TestVersion(t *testing.T) {
 	}
 	defer conn.Close()
 
+	var gsConn *io.Connection
+	select {
+	case gsConn = <-gs.Connections():
+	case <-time.After(timeout):
+		t.Fatal("Connection timeout")
+	}
+
 	for _, tc := range []struct {
-		Name                 string
-		VersionQuery         interface{}
-		ExpectedRouterConfig interface{}
+		Name                  string
+		VersionQuery          interface{}
+		ExpectedRouterConfig  interface{}
+		ExpectedStatusMessage ttnpb.GatewayStatus
 	}{
-		// These tests will fail without unmarshalling of Sx1301_conf https://github.com/TheThingsNetwork/lorawan-stack/issues/808
-		// {
-		// 	Name: "VersionProd",
-		// 	VersionQuery: messages.Version{
-		// 		Station:  "test-station",
-		// 		Firmware: "1.0.0",
-		// 		Package:  "test-package",
-		// 		Model:    "test-model",
-		// 		Protocol: 2,
-		// 		Features: "prod gps",
-		// 	},
-		// 	ExpectedRouterConfig: messages.RouterConfig{
-		// 		Region:         "EU863",
-		// 		HardwareSpec:   "sx1301/1",
-		// 		FrequencyRange: []int{863000000, 870000000},
-		// 		DataRates: [16][3]int{
-		// 			{12, 125, 0},
-		// 			{11, 125, 0},
-		// 			{10, 125, 0},
-		// 			{9, 125, 0},
-		// 			{8, 125, 0},
-		// 			{7, 125, 0},
-		// 			{7, 250, 0},
-		// 			{0, 0, 0},
-		// 		},
-		// 	},
-		// },
-		// {
-		// 	Name: "VersionDebug",
-		// 	VersionQuery: messages.Version{
-		// 		Station:  "test-station",
-		// 		Firmware: "1.0.0",
-		// 		Package:  "test-package",
-		// 		Model:    "test-model",
-		// 		Protocol: 2,
-		// 		Features: "rmtsh gps",
-		// 	},
-		// 	ExpectedRouterConfig: messages.RouterConfig{
-		// 		Region:         "EU863",
-		// 		HardwareSpec:   "sx1301/1",
-		// 		FrequencyRange: []int{863000000, 870000000},
-		// 		DataRates: [16][3]int{
-		// 			{12, 125, 0},
-		// 			{11, 125, 0},
-		// 			{10, 125, 0},
-		// 			{9, 125, 0},
-		// 			{8, 125, 0},
-		// 			{7, 125, 0},
-		// 			{7, 250, 0},
-		// 			{0, 0, 0},
-		// 		},
-		// 		NoCCA:       true,
-		// 		NoDwellTime: true,
-		// 		NoDutyCycle: true,
-		// 	},
-		// },
+		{
+			Name: "VersionProd",
+			VersionQuery: messages.Version{
+				Station:  "test-station",
+				Firmware: "1.0.0",
+				Package:  "test-package",
+				Model:    "test-model",
+				Protocol: 2,
+				Features: "prod gps",
+			},
+			ExpectedRouterConfig: messages.RouterConfig{
+				Region:         "EU863",
+				HardwareSpec:   "sx1301/1",
+				FrequencyRange: []int{863000000, 870000000},
+				DataRates: [16][3]int{
+					{12, 125, 0},
+					{11, 125, 0},
+					{10, 125, 0},
+					{9, 125, 0},
+					{8, 125, 0},
+					{7, 125, 0},
+					{7, 250, 0},
+					{0, 0, 0},
+				},
+				SX1301Config: []pfconfig.SX1301Config{
+					{
+						LoRaWANPublic: true,
+						ClockSource:   1,
+						AntennaGain:   0,
+						Radios: []pfconfig.RFConfig{
+							{
+								Enable:     true,
+								Type:       "SX1257",
+								Frequency:  867500000,
+								TxEnable:   true,
+								RSSIOffset: -166,
+							},
+							{
+								Enable: true, Type: "SX1257",
+								Frequency:  868500000,
+								TxEnable:   false,
+								TxFreqMin:  0,
+								TxFreqMax:  0,
+								RSSIOffset: -166,
+							},
+						},
+						Channels: []pfconfig.IFConfig{
+							{Enable: true, Radio: 0, IFValue: 600000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 800000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 1000000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: -400000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: -200000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 0, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 200000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 400000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+						},
+						LoRaStandardChannel: &pfconfig.IFConfig{Enable: true, Radio: 0, IFValue: 800000, Bandwidth: 250000, SpreadFactor: 7, Datarate: 0},
+						FSKChannel:          &pfconfig.IFConfig{Enable: true, Radio: 0, IFValue: 1300000, Bandwidth: 125000, SpreadFactor: 0, Datarate: 50000},
+						TxLUTConfigs: []pfconfig.TxLUTConfig{
+							{PAGain: 0, MixGain: 8, RFPower: -6, DigGain: 0},
+							{PAGain: 0, MixGain: 10, RFPower: -3, DigGain: 0},
+							{PAGain: 0, MixGain: 12, RFPower: 0, DigGain: 0},
+							{PAGain: 1, MixGain: 8, RFPower: 3, DigGain: 0},
+							{PAGain: 1, MixGain: 10, RFPower: 6, DigGain: 0},
+							{PAGain: 1, MixGain: 12, RFPower: 10, DigGain: 0},
+							{PAGain: 1, MixGain: 13, RFPower: 11, DigGain: 0},
+							{PAGain: 2, MixGain: 9, RFPower: 12, DigGain: 0},
+							{PAGain: 1, MixGain: 15, RFPower: 13, DigGain: 0},
+							{PAGain: 2, MixGain: 10, RFPower: 14, DigGain: 0},
+							{PAGain: 2, MixGain: 11, RFPower: 16, DigGain: 0},
+							{PAGain: 3, MixGain: 9, RFPower: 20, DigGain: 0},
+							{PAGain: 3, MixGain: 10, RFPower: 23, DigGain: 0},
+							{PAGain: 3, MixGain: 11, RFPower: 25, DigGain: 0},
+							{PAGain: 3, MixGain: 12, RFPower: 26, DigGain: 0},
+							{PAGain: 3, MixGain: 14, RFPower: 27, DigGain: 0},
+						},
+					},
+				},
+			},
+			ExpectedStatusMessage: ttnpb.GatewayStatus{
+				Versions: map[string]string{
+					"station":  "test-station",
+					"firmware": "1.0.0",
+					"package":  "test-package",
+				},
+				Advanced: &pbtypes.Struct{
+					Fields: map[string]*pbtypes.Value{
+						"model": {
+							Kind: &pbtypes.Value_StringValue{StringValue: "test-model"},
+						},
+						"features": {
+							Kind: &pbtypes.Value_StringValue{StringValue: "prod gps"},
+						},
+					},
+				},
+			},
+		},
+		{
+			Name: "VersionDebug",
+			VersionQuery: messages.Version{
+				Station:  "test-station-rc1",
+				Firmware: "1.0.0",
+				Package:  "test-package",
+				Model:    "test-model",
+				Protocol: 2,
+				Features: "rmtsh gps",
+			},
+			ExpectedRouterConfig: messages.RouterConfig{
+				Region:         "EU863",
+				HardwareSpec:   "sx1301/1",
+				FrequencyRange: []int{863000000, 870000000},
+				DataRates: [16][3]int{
+					{12, 125, 0},
+					{11, 125, 0},
+					{10, 125, 0},
+					{9, 125, 0},
+					{8, 125, 0},
+					{7, 125, 0},
+					{7, 250, 0},
+					{0, 0, 0},
+				},
+				NoCCA:       true,
+				NoDwellTime: true,
+				NoDutyCycle: true,
+				SX1301Config: []pfconfig.SX1301Config{
+					{
+						LoRaWANPublic: true,
+						ClockSource:   1,
+						AntennaGain:   0,
+						Radios: []pfconfig.RFConfig{
+							{
+								Enable:     true,
+								Type:       "SX1257",
+								Frequency:  867500000,
+								TxEnable:   true,
+								RSSIOffset: -166,
+							},
+							{
+								Enable: true, Type: "SX1257",
+								Frequency:  868500000,
+								TxEnable:   false,
+								TxFreqMin:  0,
+								TxFreqMax:  0,
+								RSSIOffset: -166,
+							},
+						},
+						Channels: []pfconfig.IFConfig{
+							{Enable: true, Radio: 0, IFValue: 600000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 800000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 1000000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: -400000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: -200000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 0, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 200000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+							{Enable: true, Radio: 0, IFValue: 400000, Bandwidth: 0, SpreadFactor: 0, Datarate: 0},
+						},
+						LoRaStandardChannel: &pfconfig.IFConfig{Enable: true, Radio: 0, IFValue: 800000, Bandwidth: 250000, SpreadFactor: 7, Datarate: 0},
+						FSKChannel:          &pfconfig.IFConfig{Enable: true, Radio: 0, IFValue: 1300000, Bandwidth: 125000, SpreadFactor: 0, Datarate: 50000},
+						TxLUTConfigs: []pfconfig.TxLUTConfig{
+							{PAGain: 0, MixGain: 8, RFPower: -6, DigGain: 0},
+							{PAGain: 0, MixGain: 10, RFPower: -3, DigGain: 0},
+							{PAGain: 0, MixGain: 12, RFPower: 0, DigGain: 0},
+							{PAGain: 1, MixGain: 8, RFPower: 3, DigGain: 0},
+							{PAGain: 1, MixGain: 10, RFPower: 6, DigGain: 0},
+							{PAGain: 1, MixGain: 12, RFPower: 10, DigGain: 0},
+							{PAGain: 1, MixGain: 13, RFPower: 11, DigGain: 0},
+							{PAGain: 2, MixGain: 9, RFPower: 12, DigGain: 0},
+							{PAGain: 1, MixGain: 15, RFPower: 13, DigGain: 0},
+							{PAGain: 2, MixGain: 10, RFPower: 14, DigGain: 0},
+							{PAGain: 2, MixGain: 11, RFPower: 16, DigGain: 0},
+							{PAGain: 3, MixGain: 9, RFPower: 20, DigGain: 0},
+							{PAGain: 3, MixGain: 10, RFPower: 23, DigGain: 0},
+							{PAGain: 3, MixGain: 11, RFPower: 25, DigGain: 0},
+							{PAGain: 3, MixGain: 12, RFPower: 26, DigGain: 0},
+							{PAGain: 3, MixGain: 14, RFPower: 27, DigGain: 0},
+						},
+					},
+				},
+			},
+			ExpectedStatusMessage: ttnpb.GatewayStatus{
+				Versions: map[string]string{
+					"station":  "test-station-rc1",
+					"firmware": "1.0.0",
+					"package":  "test-package",
+				},
+				Advanced: &pbtypes.Struct{
+					Fields: map[string]*pbtypes.Value{
+						"model": {
+							Kind: &pbtypes.Value_StringValue{StringValue: "test-model"},
+						},
+						"features": {
+							Kind: &pbtypes.Value_StringValue{StringValue: "rmtsh gps"},
+						},
+					},
+				},
+			},
+		},
 	} {
 		t.Run(tc.Name, func(t *testing.T) {
 			a := assertions.New(t)
@@ -535,7 +686,16 @@ func TestVersion(t *testing.T) {
 				if err := json.Unmarshal(res, &response); err != nil {
 					t.Fatalf("Failed to unmarshal response `%s`: %v", string(res), err)
 				}
+				response.MuxTime = tc.ExpectedRouterConfig.(messages.RouterConfig).MuxTime
 				a.So(response, should.Resemble, tc.ExpectedRouterConfig)
+			case <-time.After(timeout):
+				t.Fatalf("Read message timeout")
+			}
+			select {
+			case stat := <-gsConn.Status():
+				a.So(time.Since(stat.Time), should.BeLessThan, timeout)
+				stat.Time = time.Time{}
+				a.So(stat, should.Resemble, &tc.ExpectedStatusMessage)
 			case <-time.After(timeout):
 				t.Fatalf("Read message timeout")
 			}
@@ -841,7 +1001,7 @@ func TestTraffic(t *testing.T) {
 			}
 
 			if tc.InputNetworkDownstream != nil {
-				if _, err := gsConn.SendDown(tc.InputDownlinkPath, tc.InputNetworkDownstream); err != nil {
+				if _, err := gsConn.ScheduleDown(tc.InputDownlinkPath, tc.InputNetworkDownstream); err != nil {
 					t.Fatalf("Failed to send downlink: %v", err)
 				}
 
@@ -1124,7 +1284,7 @@ func TestRTT(t *testing.T) {
 			}
 
 			if tc.InputNetworkDownstream != nil {
-				if _, err := gsConn.SendDown(tc.InputDownlinkPath, tc.InputNetworkDownstream); err != nil {
+				if _, err := gsConn.ScheduleDown(tc.InputDownlinkPath, tc.InputNetworkDownstream); err != nil {
 					t.Fatalf("Failed to send downlink: %v", err)
 				}
 

@@ -19,7 +19,6 @@ import (
 	"context"
 	"crypto/tls"
 	"hash/fnv"
-	"io"
 	"sync"
 	"time"
 
@@ -228,7 +227,16 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 		ns.defaultMACSettings.ADRMargin = &pbtypes.FloatValue{Value: *conf.DefaultMACSettings.ADRMargin}
 	}
 	if conf.DefaultMACSettings.DesiredRx1Delay != nil {
-		ns.defaultMACSettings.DesiredRx1Delay = &ttnpb.MACSettings_RxDelayValue{Value: *conf.DefaultMACSettings.DesiredRx1Delay}
+		ns.defaultMACSettings.DesiredRx1Delay = &ttnpb.RxDelayValue{Value: *conf.DefaultMACSettings.DesiredRx1Delay}
+	}
+	if conf.DefaultMACSettings.DesiredMaxDutyCycle != nil {
+		ns.defaultMACSettings.DesiredMaxDutyCycle = &ttnpb.AggregatedDutyCycleValue{Value: *conf.DefaultMACSettings.DesiredMaxDutyCycle}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckLimitExponent != nil {
+		ns.defaultMACSettings.DesiredADRAckLimitExponent = &ttnpb.ADRAckLimitExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckLimitExponent}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckDelayExponent != nil {
+		ns.defaultMACSettings.DesiredADRAckDelayExponent = &ttnpb.ADRAckDelayExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckDelayExponent}
 	}
 	if conf.DefaultMACSettings.StatusCountPeriodicity != nil {
 		ns.defaultMACSettings.StatusCountPeriodicity = &pbtypes.UInt32Value{Value: *conf.DefaultMACSettings.StatusCountPeriodicity}
@@ -326,19 +334,4 @@ func (ns *NetworkServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.Client
 // Roles returns the roles that the Network Server fulfills.
 func (ns *NetworkServer) Roles() []ttnpb.ClusterRole {
 	return []ttnpb.ClusterRole{ttnpb.ClusterRole_NETWORK_SERVER}
-}
-
-func (ns *NetworkServer) Close() {
-	ns.Component.Close()
-
-	logger := ns.Logger()
-	ns.applicationServers.Range(func(k interface{}, v interface{}) bool {
-		logger := logger.WithField("application_uid", k.(string))
-		logger.Debug("Close Application Server link")
-		if err := v.(io.Closer).Close(); err != nil {
-			logger.WithError(err).Warn("Failed to close AS link")
-		}
-		logger.Debug("Application Server link closed")
-		return true
-	})
 }

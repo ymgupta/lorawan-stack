@@ -122,10 +122,6 @@
   - [Message `MACParameters`](#ttn.lorawan.v3.MACParameters)
   - [Message `MACParameters.Channel`](#ttn.lorawan.v3.MACParameters.Channel)
   - [Message `MACSettings`](#ttn.lorawan.v3.MACSettings)
-  - [Message `MACSettings.AggregatedDutyCycleValue`](#ttn.lorawan.v3.MACSettings.AggregatedDutyCycleValue)
-  - [Message `MACSettings.DataRateIndexValue`](#ttn.lorawan.v3.MACSettings.DataRateIndexValue)
-  - [Message `MACSettings.PingSlotPeriodValue`](#ttn.lorawan.v3.MACSettings.PingSlotPeriodValue)
-  - [Message `MACSettings.RxDelayValue`](#ttn.lorawan.v3.MACSettings.RxDelayValue)
   - [Message `MACState`](#ttn.lorawan.v3.MACState)
   - [Message `MACState.JoinAccept`](#ttn.lorawan.v3.MACState.JoinAccept)
   - [Message `Session`](#ttn.lorawan.v3.Session)
@@ -231,9 +227,13 @@
   - [Message `RootKeys`](#ttn.lorawan.v3.RootKeys)
   - [Message `SessionKeys`](#ttn.lorawan.v3.SessionKeys)
 - [File `lorawan-stack/api/lorawan.proto`](#lorawan-stack/api/lorawan.proto)
+  - [Message `ADRAckDelayExponentValue`](#ttn.lorawan.v3.ADRAckDelayExponentValue)
+  - [Message `ADRAckLimitExponentValue`](#ttn.lorawan.v3.ADRAckLimitExponentValue)
+  - [Message `AggregatedDutyCycleValue`](#ttn.lorawan.v3.AggregatedDutyCycleValue)
   - [Message `CFList`](#ttn.lorawan.v3.CFList)
   - [Message `DLSettings`](#ttn.lorawan.v3.DLSettings)
   - [Message `DataRate`](#ttn.lorawan.v3.DataRate)
+  - [Message `DataRateIndexValue`](#ttn.lorawan.v3.DataRateIndexValue)
   - [Message `DownlinkPath`](#ttn.lorawan.v3.DownlinkPath)
   - [Message `FCtrl`](#ttn.lorawan.v3.FCtrl)
   - [Message `FHDR`](#ttn.lorawan.v3.FHDR)
@@ -276,7 +276,9 @@
   - [Message `MACPayload`](#ttn.lorawan.v3.MACPayload)
   - [Message `MHDR`](#ttn.lorawan.v3.MHDR)
   - [Message `Message`](#ttn.lorawan.v3.Message)
+  - [Message `PingSlotPeriodValue`](#ttn.lorawan.v3.PingSlotPeriodValue)
   - [Message `RejoinRequestPayload`](#ttn.lorawan.v3.RejoinRequestPayload)
+  - [Message `RxDelayValue`](#ttn.lorawan.v3.RxDelayValue)
   - [Message `TxRequest`](#ttn.lorawan.v3.TxRequest)
   - [Message `TxSettings`](#ttn.lorawan.v3.TxSettings)
   - [Message `TxSettings.Downlink`](#ttn.lorawan.v3.TxSettings.Downlink)
@@ -328,6 +330,8 @@
   - [Message `Location`](#ttn.lorawan.v3.Location)
   - [Message `RxMetadata`](#ttn.lorawan.v3.RxMetadata)
   - [Enum `LocationSource`](#ttn.lorawan.v3.LocationSource)
+- [File `lorawan-stack/api/mqtt.proto`](#lorawan-stack/api/mqtt.proto)
+  - [Message `MQTTConnectionInfo`](#ttn.lorawan.v3.MQTTConnectionInfo)
 - [File `lorawan-stack/api/networkserver.proto`](#lorawan-stack/api/networkserver.proto)
   - [Message `GenerateDevAddrResponse`](#ttn.lorawan.v3.GenerateDevAddrResponse)
   - [Service `AsNs`](#ttn.lorawan.v3.AsNs)
@@ -628,7 +632,7 @@ where the user or organization is collaborator on.
 | `CreateAPIKey` | [`CreateApplicationAPIKeyRequest`](#ttn.lorawan.v3.CreateApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `ListAPIKeys` | [`ListApplicationAPIKeysRequest`](#ttn.lorawan.v3.ListApplicationAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetApplicationAPIKeyRequest`](#ttn.lorawan.v3.GetApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
-| `UpdateAPIKey` | [`UpdateApplicationAPIKeyRequest`](#ttn.lorawan.v3.UpdateApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing application API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
+| `UpdateAPIKey` | [`UpdateApplicationAPIKeyRequest`](#ttn.lorawan.v3.UpdateApplicationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing application API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. It is required for the caller to have all assigned or/and removed rights. |
 | `GetCollaborator` | [`GetApplicationCollaboratorRequest`](#ttn.lorawan.v3.GetApplicationCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the application. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
 | `SetCollaborator` | [`SetApplicationCollaboratorRequest`](#ttn.lorawan.v3.SetApplicationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the application. It is required for the caller to have all assigned or/and removed rights. Setting a collaborator without rights, removes them. |
 | `ListCollaborators` | [`ListApplicationCollaboratorsRequest`](#ttn.lorawan.v3.ListApplicationCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
@@ -745,6 +749,7 @@ The AppAs service connects an application or integration to an Application Serve
 | `DownlinkQueuePush` | [`DownlinkQueueRequest`](#ttn.lorawan.v3.DownlinkQueueRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
 | `DownlinkQueueReplace` | [`DownlinkQueueRequest`](#ttn.lorawan.v3.DownlinkQueueRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
 | `DownlinkQueueList` | [`EndDeviceIdentifiers`](#ttn.lorawan.v3.EndDeviceIdentifiers) | [`ApplicationDownlinks`](#ttn.lorawan.v3.ApplicationDownlinks) |  |
+| `GetMQTTConnectionInfo` | [`ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) | [`MQTTConnectionInfo`](#ttn.lorawan.v3.MQTTConnectionInfo) |  |
 
 #### HTTP bindings
 
@@ -753,6 +758,7 @@ The AppAs service connects an application or integration to an Application Serve
 | `DownlinkQueuePush` | `POST` | `/api/v3/as/applications/{end_device_ids.application_ids.application_id}/devices/{end_device_ids.device_id}/down/push` | `*` |
 | `DownlinkQueueReplace` | `POST` | `/api/v3/as/applications/{end_device_ids.application_ids.application_id}/devices/{end_device_ids.device_id}/down/replace` | `*` |
 | `DownlinkQueueList` | `GET` | `/api/v3/as/applications/{application_ids.application_id}/devices/{device_id}/down` |  |
+| `GetMQTTConnectionInfo` | `GET` | `/api/v3/as/applications/{application_id}/mqtt-connection-info` |  |
 
 ### <a name="ttn.lorawan.v3.As">Service `As`</a>
 
@@ -1929,7 +1935,7 @@ Identifies an end device model with version information.
 ### <a name="ttn.lorawan.v3.MACParameters">Message `MACParameters`</a>
 
 MACParameters represent the parameters of the device's MAC layer (active or desired).
-This is used internally by the Network Server and is read only.
+This is used internally by the Network Server.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -1937,8 +1943,8 @@ This is used internally by the Network Server and is read only.
 | `adr_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | ADR: data rate index to use. |
 | `adr_tx_power_index` | [`uint32`](#uint32) |  | ADR: transmission power index to use. |
 | `adr_nb_trans` | [`uint32`](#uint32) |  | ADR: number of retransmissions. |
-| `adr_ack_limit` | [`uint32`](#uint32) |  | ADR: number of messages to wait before setting ADRAckReq. |
-| `adr_ack_delay` | [`uint32`](#uint32) |  | ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate. |
+| `adr_ack_limit` | [`uint32`](#uint32) |  | ADR: number of messages to wait before setting ADRAckReq. This field is deprecated, use adr_ack_limit_exponent instead. |
+| `adr_ack_delay` | [`uint32`](#uint32) |  | ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate. This field is deprecated, use adr_ack_delay_exponent instead. |
 | `rx1_delay` | [`RxDelay`](#ttn.lorawan.v3.RxDelay) |  | Rx1 delay (Rx2 delay is Rx1 delay + 1 second). |
 | `rx1_data_rate_offset` | [`uint32`](#uint32) |  | Data rate offset for Rx1. |
 | `rx2_data_rate_index` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  | Data rate index for Rx2. |
@@ -1952,6 +1958,8 @@ This is used internally by the Network Server and is read only.
 | `channels` | [`MACParameters.Channel`](#ttn.lorawan.v3.MACParameters.Channel) | repeated | Configured uplink channels and optionally Rx1 frequency. |
 | `uplink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether uplink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
 | `downlink_dwell_time` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether downlink dwell time is set (400ms). If this field is not set, then the value is either unknown or irrelevant(Network Server cannot modify it). |
+| `adr_ack_limit_exponent` | [`ADRAckLimitExponentValue`](#ttn.lorawan.v3.ADRAckLimitExponentValue) |  | ADR: number of messages to wait before setting ADRAckReq. |
+| `adr_ack_delay_exponent` | [`ADRAckDelayExponentValue`](#ttn.lorawan.v3.ADRAckDelayExponentValue) |  | ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate. |
 
 #### Field Rules
 
@@ -1960,8 +1968,6 @@ This is used internally by the Network Server and is read only.
 | `adr_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 | `adr_tx_power_index` | <p>`uint32.lte`: `15`</p> |
 | `adr_nb_trans` | <p>`uint32.lte`: `15`</p> |
-| `adr_ack_limit` | <p>`uint32.lte`: `32768`</p><p>`uint32.gte`: `1`</p> |
-| `adr_ack_delay` | <p>`uint32.lte`: `32768`</p><p>`uint32.gte`: `1`</p> |
 | `rx1_delay` | <p>`enum.defined_only`: `true`</p> |
 | `rx1_data_rate_offset` | <p>`uint32.lte`: `7`</p> |
 | `rx2_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
@@ -1998,26 +2004,29 @@ This is used internally by the Network Server and is read only.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `class_b_timeout` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | Maximum delay for the device to answer a MAC request or a confirmed downlink frame. If unset, the default value from Network Server configuration will be used. |
-| `ping_slot_periodicity` | [`MACSettings.PingSlotPeriodValue`](#ttn.lorawan.v3.MACSettings.PingSlotPeriodValue) |  | Periodicity of the class B ping slot. If unset, the default value from Network Server configuration will be used. |
-| `ping_slot_data_rate_index` | [`MACSettings.DataRateIndexValue`](#ttn.lorawan.v3.MACSettings.DataRateIndexValue) |  | Data rate index of the class B ping slot. If unset, the default value from Network Server configuration will be used. |
+| `ping_slot_periodicity` | [`PingSlotPeriodValue`](#ttn.lorawan.v3.PingSlotPeriodValue) |  | Periodicity of the class B ping slot. If unset, the default value from Network Server configuration will be used. |
+| `ping_slot_data_rate_index` | [`DataRateIndexValue`](#ttn.lorawan.v3.DataRateIndexValue) |  | Data rate index of the class B ping slot. If unset, the default value from Network Server configuration will be used. |
 | `ping_slot_frequency` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | Frequency of the class B ping slot (Hz). If unset, the default value from Network Server configuration will be used. |
 | `class_c_timeout` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | Maximum delay for the device to answer a MAC request or a confirmed downlink frame. If unset, the default value from Network Server configuration will be used. |
-| `rx1_delay` | [`MACSettings.RxDelayValue`](#ttn.lorawan.v3.MACSettings.RxDelayValue) |  | Class A Rx1 delay. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
+| `rx1_delay` | [`RxDelayValue`](#ttn.lorawan.v3.RxDelayValue) |  | Class A Rx1 delay. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
 | `rx1_data_rate_offset` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  | Rx1 data rate offset. If unset, the default value from Network Server configuration will be used. |
-| `rx2_data_rate_index` | [`MACSettings.DataRateIndexValue`](#ttn.lorawan.v3.MACSettings.DataRateIndexValue) |  | Data rate index for Rx2. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
+| `rx2_data_rate_index` | [`DataRateIndexValue`](#ttn.lorawan.v3.DataRateIndexValue) |  | Data rate index for Rx2. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
 | `rx2_frequency` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | Frequency for Rx2 (Hz). If unset, the default value from Network Server configuration or regional parameters specification will be used. |
 | `factory_preset_frequencies` | [`uint64`](#uint64) | repeated | List of factory-preset frequencies. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
-| `max_duty_cycle` | [`MACSettings.AggregatedDutyCycleValue`](#ttn.lorawan.v3.MACSettings.AggregatedDutyCycleValue) |  | Maximum uplink duty cycle (of all channels). |
+| `max_duty_cycle` | [`AggregatedDutyCycleValue`](#ttn.lorawan.v3.AggregatedDutyCycleValue) |  | Maximum uplink duty cycle (of all channels). |
 | `supports_32_bit_f_cnt` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether the device supports 32-bit frame counters. If unset, the default value from Network Server configuration will be used. |
 | `use_adr` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether the Network Server should use ADR for the device. If unset, the default value from Network Server configuration will be used. |
 | `adr_margin` | [`google.protobuf.FloatValue`](#google.protobuf.FloatValue) |  | The ADR margin tells the network server how much margin it should add in ADR requests. A bigger margin is less efficient, but gives a better chance of successful reception. If unset, the default value from Network Server configuration will be used. |
 | `resets_f_cnt` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  | Whether the device resets the frame counters (not LoRaWAN compliant). If unset, the default value from Network Server configuration will be used. |
 | `status_time_periodicity` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | The interval after which a DevStatusReq MACCommand shall be sent. If unset, the default value from Network Server configuration will be used. |
 | `status_count_periodicity` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  | Number of uplink messages after which a DevStatusReq MACCommand shall be sent. If unset, the default value from Network Server configuration will be used. |
-| `desired_rx1_delay` | [`MACSettings.RxDelayValue`](#ttn.lorawan.v3.MACSettings.RxDelayValue) |  | The Rx1 delay Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
+| `desired_rx1_delay` | [`RxDelayValue`](#ttn.lorawan.v3.RxDelayValue) |  | The Rx1 delay Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
 | `desired_rx1_data_rate_offset` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  | The Rx1 data rate offset Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from Network Server configuration will be used. |
-| `desired_rx2_data_rate_index` | [`MACSettings.DataRateIndexValue`](#ttn.lorawan.v3.MACSettings.DataRateIndexValue) |  | The Rx2 data rate index Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from frequency plan, Network Server configuration or regional parameters specification will be used. |
+| `desired_rx2_data_rate_index` | [`DataRateIndexValue`](#ttn.lorawan.v3.DataRateIndexValue) |  | The Rx2 data rate index Network Server should configure device to use via MAC commands or Join-Accept. If unset, the default value from frequency plan, Network Server configuration or regional parameters specification will be used. |
 | `desired_rx2_frequency` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | The Rx2 frequency index Network Server should configure device to use via MAC commands. If unset, the default value from frequency plan, Network Server configuration or regional parameters specification will be used. |
+| `desired_max_duty_cycle` | [`AggregatedDutyCycleValue`](#ttn.lorawan.v3.AggregatedDutyCycleValue) |  | The maximum uplink duty cycle (of all channels) Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration will be used. |
+| `desired_adr_ack_limit_exponent` | [`ADRAckLimitExponentValue`](#ttn.lorawan.v3.ADRAckLimitExponentValue) |  | The ADR ACK limit Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
+| `desired_adr_ack_delay_exponent` | [`ADRAckDelayExponentValue`](#ttn.lorawan.v3.ADRAckDelayExponentValue) |  | The ADR ACK delay Network Server should configure device to use via MAC commands. If unset, the default value from Network Server configuration or regional parameters specification will be used. |
 
 #### Field Rules
 
@@ -2027,54 +2036,6 @@ This is used internally by the Network Server and is read only.
 | `rx1_data_rate_offset` | <p>`uint32.lte`: `7`</p> |
 | `rx2_frequency` | <p>`uint64.gte`: `100000`</p> |
 | `desired_rx2_frequency` | <p>`uint64.gte`: `100000`</p> |
-
-### <a name="ttn.lorawan.v3.MACSettings.AggregatedDutyCycleValue">Message `MACSettings.AggregatedDutyCycleValue`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `value` | [`AggregatedDutyCycle`](#ttn.lorawan.v3.AggregatedDutyCycle) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `value` | <p>`enum.defined_only`: `true`</p> |
-
-### <a name="ttn.lorawan.v3.MACSettings.DataRateIndexValue">Message `MACSettings.DataRateIndexValue`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `value` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `value` | <p>`enum.defined_only`: `true`</p> |
-
-### <a name="ttn.lorawan.v3.MACSettings.PingSlotPeriodValue">Message `MACSettings.PingSlotPeriodValue`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `value` | [`PingSlotPeriod`](#ttn.lorawan.v3.PingSlotPeriod) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `value` | <p>`enum.defined_only`: `true`</p> |
-
-### <a name="ttn.lorawan.v3.MACSettings.RxDelayValue">Message `MACSettings.RxDelayValue`</a>
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `value` | [`RxDelay`](#ttn.lorawan.v3.RxDelay) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `value` | <p>`enum.defined_only`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.MACState">Message `MACState`</a>
 
@@ -2727,7 +2688,7 @@ where the user or organization is collaborator on.
 | `CreateAPIKey` | [`CreateGatewayAPIKeyRequest`](#ttn.lorawan.v3.CreateGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `ListAPIKeys` | [`ListGatewayAPIKeysRequest`](#ttn.lorawan.v3.ListGatewayAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetGatewayAPIKeyRequest`](#ttn.lorawan.v3.GetGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
-| `UpdateAPIKey` | [`UpdateGatewayAPIKeyRequest`](#ttn.lorawan.v3.UpdateGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing gateway API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
+| `UpdateAPIKey` | [`UpdateGatewayAPIKeyRequest`](#ttn.lorawan.v3.UpdateGatewayAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing gateway API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. It is required for the caller to have all assigned or/and removed rights. |
 | `GetCollaborator` | [`GetGatewayCollaboratorRequest`](#ttn.lorawan.v3.GetGatewayCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the gateway. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
 | `SetCollaborator` | [`SetGatewayCollaboratorRequest`](#ttn.lorawan.v3.SetGatewayCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the gateway. It is required for the caller to have all assigned or/and removed rights. Setting a collaborator without rights, removes them. |
 | `ListCollaborators` | [`ListGatewayCollaboratorsRequest`](#ttn.lorawan.v3.ListGatewayCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
@@ -2835,6 +2796,15 @@ The GtwGs service connects a gateway to a Gateway Server.
 | ----------- | ------------ | ------------- | ------------|
 | `LinkGateway` | [`GatewayUp`](#ttn.lorawan.v3.GatewayUp) _stream_ | [`GatewayDown`](#ttn.lorawan.v3.GatewayDown) _stream_ | Link the gateway to the Gateway Server. |
 | `GetConcentratorConfig` | [`.google.protobuf.Empty`](#google.protobuf.Empty) | [`ConcentratorConfig`](#ttn.lorawan.v3.ConcentratorConfig) | GetConcentratorConfig associated to the gateway. |
+| `GetMQTTConnectionInfo` | [`GatewayIdentifiers`](#ttn.lorawan.v3.GatewayIdentifiers) | [`MQTTConnectionInfo`](#ttn.lorawan.v3.MQTTConnectionInfo) | Get the MQTT server address and the username for the gateway. |
+| `GetMQTTV2ConnectionInfo` | [`GatewayIdentifiers`](#ttn.lorawan.v3.GatewayIdentifiers) | [`MQTTConnectionInfo`](#ttn.lorawan.v3.MQTTConnectionInfo) | Get the MQTTV2 server address and the username for the gateway. |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `GetMQTTConnectionInfo` | `GET` | `/api/v3/gs/gateways/{gateway_id}/mqtt-connection-info` |  |
+| `GetMQTTV2ConnectionInfo` | `GET` | `/api/v3/gs/gateways/{gateway_id}/mqttv2-connection-info` |  |
 
 ### <a name="ttn.lorawan.v3.NsGs">Service `NsGs`</a>
 
@@ -3329,6 +3299,42 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 ## <a name="lorawan-stack/api/lorawan.proto">File `lorawan-stack/api/lorawan.proto`</a>
 
+### <a name="ttn.lorawan.v3.ADRAckDelayExponentValue">Message `ADRAckDelayExponentValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`ADRAckDelayExponent`](#ttn.lorawan.v3.ADRAckDelayExponent) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.ADRAckLimitExponentValue">Message `ADRAckLimitExponentValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`ADRAckLimitExponent`](#ttn.lorawan.v3.ADRAckLimitExponent) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.AggregatedDutyCycleValue">Message `AggregatedDutyCycleValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`AggregatedDutyCycle`](#ttn.lorawan.v3.AggregatedDutyCycle) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.CFList">Message `CFList`</a>
 
 | Field | Type | Label | Description |
@@ -3364,6 +3370,18 @@ Only the components for which the keys were meant, will have the key-encryption-
 | ----- | ---- | ----- | ----------- |
 | `lora` | [`LoRaDataRate`](#ttn.lorawan.v3.LoRaDataRate) |  |  |
 | `fsk` | [`FSKDataRate`](#ttn.lorawan.v3.FSKDataRate) |  |  |
+
+### <a name="ttn.lorawan.v3.DataRateIndexValue">Message `DataRateIndexValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`DataRateIndex`](#ttn.lorawan.v3.DataRateIndex) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.DownlinkPath">Message `DownlinkPath`</a>
 
@@ -3908,6 +3926,18 @@ Only the components for which the keys were meant, will have the key-encryption-
 | `m_hdr` | <p>`message.required`: `true`</p> |
 | `mic` | <p>`bytes.len`: `4`</p> |
 
+### <a name="ttn.lorawan.v3.PingSlotPeriodValue">Message `PingSlotPeriodValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`PingSlotPeriod`](#ttn.lorawan.v3.PingSlotPeriod) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
+
 ### <a name="ttn.lorawan.v3.RejoinRequestPayload">Message `RejoinRequestPayload`</a>
 
 | Field | Type | Label | Description |
@@ -3923,6 +3953,18 @@ Only the components for which the keys were meant, will have the key-encryption-
 | Field | Validations |
 | ----- | ----------- |
 | `rejoin_type` | <p>`enum.defined_only`: `true`</p> |
+
+### <a name="ttn.lorawan.v3.RxDelayValue">Message `RxDelayValue`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `value` | [`RxDelay`](#ttn.lorawan.v3.RxDelay) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `value` | <p>`enum.defined_only`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.TxRequest">Message `TxRequest`</a>
 
@@ -4693,6 +4735,25 @@ a message corresponds to one RxMetadata.
 
 More estimation methods can be added. |
 
+## <a name="lorawan-stack/api/mqtt.proto">File `lorawan-stack/api/mqtt.proto`</a>
+
+### <a name="ttn.lorawan.v3.MQTTConnectionInfo">Message `MQTTConnectionInfo`</a>
+
+The connection information of an MQTT frontend.
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `public_address` | [`string`](#string) |  | The public listen address of the frontend. |
+| `public_tls_address` | [`string`](#string) |  | The public listen address of the TLS frontend. |
+| `username` | [`string`](#string) |  | The username to be used for authentication. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `public_address` | <p>`string.pattern`: `^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$`</p> |
+| `public_tls_address` | <p>`string.pattern`: `^(?:(?:[a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*(?:[A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])(?::[0-9]{1,5})?$|^$`</p> |
+
 ## <a name="lorawan-stack/api/networkserver.proto">File `lorawan-stack/api/networkserver.proto`</a>
 
 ### <a name="ttn.lorawan.v3.GenerateDevAddrResponse">Message `GenerateDevAddrResponse`</a>
@@ -5113,7 +5174,7 @@ where the user or organization is collaborator on.
 | `CreateAPIKey` | [`CreateOrganizationAPIKeyRequest`](#ttn.lorawan.v3.CreateOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `ListAPIKeys` | [`ListOrganizationAPIKeysRequest`](#ttn.lorawan.v3.ListOrganizationAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetOrganizationAPIKeyRequest`](#ttn.lorawan.v3.GetOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
-| `UpdateAPIKey` | [`UpdateOrganizationAPIKeyRequest`](#ttn.lorawan.v3.UpdateOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing organization API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
+| `UpdateAPIKey` | [`UpdateOrganizationAPIKeyRequest`](#ttn.lorawan.v3.UpdateOrganizationAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing organization API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. It is required for the caller to have all assigned or/and removed rights. |
 | `GetCollaborator` | [`GetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.GetOrganizationCollaboratorRequest) | [`GetCollaboratorResponse`](#ttn.lorawan.v3.GetCollaboratorResponse) | Get the rights of a collaborator (member) of the organization. Pseudo-rights in the response (such as the "_ALL" right) are not expanded. |
 | `SetCollaborator` | [`SetOrganizationCollaboratorRequest`](#ttn.lorawan.v3.SetOrganizationCollaboratorRequest) | [`.google.protobuf.Empty`](#google.protobuf.Empty) | Set the rights of a collaborator (member) on the organization. It is required for the caller to have all assigned or/and removed rights. Setting a collaborator without rights, removes them. Note that only users can collaborate (be member of) an organization. |
 | `ListCollaborators` | [`ListOrganizationCollaboratorsRequest`](#ttn.lorawan.v3.ListOrganizationCollaboratorsRequest) | [`Collaborators`](#ttn.lorawan.v3.Collaborators) |  |
@@ -5745,7 +5806,7 @@ User is the message that defines an user on the network.
 | `CreateAPIKey` | [`CreateUserAPIKeyRequest`](#ttn.lorawan.v3.CreateUserAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
 | `ListAPIKeys` | [`ListUserAPIKeysRequest`](#ttn.lorawan.v3.ListUserAPIKeysRequest) | [`APIKeys`](#ttn.lorawan.v3.APIKeys) |  |
 | `GetAPIKey` | [`GetUserAPIKeyRequest`](#ttn.lorawan.v3.GetUserAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) |  |
-| `UpdateAPIKey` | [`UpdateUserAPIKeyRequest`](#ttn.lorawan.v3.UpdateUserAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing user API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. |
+| `UpdateAPIKey` | [`UpdateUserAPIKeyRequest`](#ttn.lorawan.v3.UpdateUserAPIKeyRequest) | [`APIKey`](#ttn.lorawan.v3.APIKey) | Update the rights of an existing user API key. To generate an API key, the CreateAPIKey should be used. To delete an API key, update it with zero rights. It is required for the caller to have all assigned or/and removed rights. |
 
 #### HTTP bindings
 
