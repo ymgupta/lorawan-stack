@@ -329,7 +329,7 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 						if src != nil {
 							newSrc = src.GetAWS()
 						}
-						if err := newDst.SetFields(newSrc, subs...); err != nil {
+						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
 							return err
 						}
 					} else {
