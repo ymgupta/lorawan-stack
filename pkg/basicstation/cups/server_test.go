@@ -28,6 +28,7 @@ import (
 	"github.com/smartystreets/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -347,7 +348,7 @@ func TestServer(t *testing.T) {
 			}
 			tenantStore := &mockTenantClient{}
 
-			s := NewServer(component.MustNew(test.GetLogger(t), &component.Config{}), append([]Option{
+			s := NewServer(componenttest.NewComponent(t, &component.Config{}), append([]Option{
 				WithTLSConfig(&tls.Config{
 					InsecureSkipVerify: true,
 				}),
