@@ -12,5 +12,17 @@ import (
 )
 
 func init() {
-	DefaultContext = tenant.NewContext(context.Background(), ttipb.TenantIdentifiers{TenantID: "foo-tenant"})
+	DefaultContext = TenantContextFiller(context.Background())
+}
+
+func TenantContextFiller(ctx context.Context) context.Context {
+	tenantID := tenant.FromContext(ctx)
+	if tenantID.IsZero() {
+		tenantID = ttipb.TenantIdentifiers{TenantID: "foo-tenant"}
+		ctx = tenant.NewContext(ctx, tenantID)
+	}
+	ctx = tenant.NewContextWithFetcher(ctx, tenant.NewMapFetcher(map[string]*ttipb.Tenant{
+		tenantID.TenantID: {TenantIdentifiers: tenantID},
+	}))
+	return ctx
 }

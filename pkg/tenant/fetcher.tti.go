@@ -123,3 +123,23 @@ func NewCachedFetcher(fetcher Fetcher, successTTL, errorTTL time.Duration) Fetch
 		cache:      make(map[string]*cachedTenant),
 	}
 }
+
+// NewMapFetcher returns a new tenant fetcher that returns tenants from a map.
+// The Map Fetcher should typically be used for testing only.
+func NewMapFetcher(tenants map[string]*ttipb.Tenant) Fetcher { return mapFetcher(tenants) }
+
+type mapFetcher map[string]*ttipb.Tenant
+
+var errTenantNotFound = errors.DefineNotFound("tenant_not_found", "tenant `{tenant_id}` not found")
+
+func (f mapFetcher) FetchTenant(_ context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
+	tenant, ok := f[ids.TenantID]
+	if !ok {
+		return nil, errTenantNotFound.WithAttributes("tenant_id", ids.TenantID)
+	}
+	var res ttipb.Tenant
+	if err := res.SetFields(tenant, fieldPaths...); err != nil {
+		return nil, err
+	}
+	return &res, nil
+}
