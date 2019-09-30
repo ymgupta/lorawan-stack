@@ -5714,6 +5714,15 @@
       "file": "middleware.tti.go"
     }
   },
+  "error:pkg/tenant:tenant_not_found": {
+    "translations": {
+      "en": "tenant `{tenant_id}` not found"
+    },
+    "description": {
+      "package": "pkg/tenant",
+      "file": "fetcher.tti.go"
+    }
+  },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {
     "translations": {
       "en": "no default firmware path specified"

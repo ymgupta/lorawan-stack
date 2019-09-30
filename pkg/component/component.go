@@ -171,6 +171,8 @@ func New(logger log.Stack, config *Config, opts ...Option) (*Component, error) {
 
 	c.initGRPC()
 
+	c.initTenancy()
+
 	return c, nil
 }
 

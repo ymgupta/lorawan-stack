@@ -1,6 +1,6 @@
 // Copyright © 2019 The Things Industries B.V.
 
-package webui
+package email
 
 import (
 	"context"
@@ -10,24 +10,27 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
 
-// Apply the context to the data.
-func (t TemplateData) Apply(ctx context.Context) TemplateData {
+func (c Config) Apply(ctx context.Context) Config {
 	if license.RequireMultiTenancy(ctx) != nil {
-		return t
+		return c
 	}
 	tenantID := tenant.FromContext(ctx)
 	if tenantID.TenantID == "" {
-		return t
+		return c
 	}
-	deriv := t
-	if canonical, err := url.Parse(t.CanonicalURL); err == nil {
-		canonical.Host = tenantID.TenantID + "." + canonical.Host
-		deriv.CanonicalURL = canonical.String()
+	deriv := c
+	if isURL, err := url.Parse(c.Network.IdentityServerURL); err == nil {
+		isURL.Host = tenantID.TenantID + "." + isURL.Host
+		deriv.Network.IdentityServerURL = isURL.String()
+	}
+	if consoleURL, err := url.Parse(c.Network.ConsoleURL); err == nil {
+		consoleURL.Host = tenantID.TenantID + "." + consoleURL.Host
+		deriv.Network.ConsoleURL = consoleURL.String()
 	}
 	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
 		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name"); err == nil {
 			if tenant.Name != "" {
-				deriv.SiteName = tenant.Name
+				deriv.Network.Name = tenant.Name
 			}
 		}
 	}

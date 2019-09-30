@@ -12,6 +12,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"google.golang.org/grpc"
 )
 
@@ -30,8 +32,29 @@ var tenantRightsKey tenantRightsKeyType
 
 type tenantRights struct {
 	admin        bool
+	read         bool
 	writeCurrent bool
 	readCurrent  bool
+}
+
+func (r tenantRights) canRead(ctx context.Context, tenantID *ttipb.TenantIdentifiers) bool {
+	if r.admin || r.read {
+		return true
+	}
+	if r.readCurrent && tenantID != nil && tenantID.Equal(tenant.FromContext(ctx)) {
+		return true
+	}
+	return false
+}
+
+func (r tenantRights) canWrite(ctx context.Context, tenantID *ttipb.TenantIdentifiers) bool {
+	if r.admin {
+		return true
+	}
+	if r.writeCurrent && tenantID != nil && tenantID.Equal(tenant.FromContext(ctx)) {
+		return true
+	}
+	return false
 }
 
 func tenantRightsFromContext(ctx context.Context) tenantRights {
@@ -67,11 +90,11 @@ func (is *IdentityServer) tenantRightsHook(h grpc.UnaryHandler) grpc.UnaryHandle
 			if !isValidKey {
 				return nil, errInvalidTenantAdminKey
 			}
-			rights.admin = true
-			rights.readCurrent, rights.writeCurrent = true, true
+			rights.admin, rights.read = true, true
+			rights.writeCurrent, rights.readCurrent = true, true
 		case strings.ToLower(cluster.AuthType):
 			if cluster.Authorized(ctx) == nil {
-				rights.readCurrent = true
+				rights.read, rights.readCurrent = true, true
 			}
 		case "bearer":
 			tokenType, _, _, err := auth.SplitToken(md.AuthValue)
