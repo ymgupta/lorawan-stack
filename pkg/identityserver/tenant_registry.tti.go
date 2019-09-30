@@ -10,7 +10,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/identityserver/blacklist"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
@@ -50,7 +49,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 
 func (is *IdentityServer) getTenant(ctx context.Context, req *ttipb.GetTenantRequest) (tnt *ttipb.Tenant, err error) {
 	if rights := tenantRightsFromContext(ctx); !rights.admin {
-		if rights.readCurrent && req.GetTenantID() == tenant.FromContext(ctx).TenantID {
+		if rights.canRead(ctx, &req.TenantIdentifiers) {
 			defer func() { tnt = tnt.PublicSafe() }()
 		} else {
 			return nil, errNoTenantRights
@@ -125,7 +124,8 @@ func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenant
 
 func (is *IdentityServer) updateTenant(ctx context.Context, req *ttipb.UpdateTenantRequest) (tnt *ttipb.Tenant, err error) {
 	if rights := tenantRightsFromContext(ctx); !rights.admin {
-		if rights.readCurrent && req.GetTenantID() == tenant.FromContext(ctx).TenantID {
+		if rights.canWrite(ctx, &req.TenantIdentifiers) {
+			// TODO: Allow admins in tenants to edit some fields (https://github.com/TheThingsIndustries/lorawan-stack/issues/1648).
 			if !ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths) {
 				return nil, errInsufficientTenantRights
 			}
@@ -176,7 +176,7 @@ func (is *IdentityServer) deleteTenant(ctx context.Context, ids *ttipb.TenantIde
 }
 
 func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Context, req *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest) (ids *ttipb.TenantIdentifiers, err error) {
-	if !tenantRightsFromContext(ctx).readCurrent {
+	if rights := tenantRightsFromContext(ctx); !rights.read {
 		return nil, errNoTenantRights
 	}
 	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
@@ -190,7 +190,7 @@ func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Conte
 }
 
 func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context, req *ttipb.GetTenantIdentifiersForGatewayEUIRequest) (ids *ttipb.TenantIdentifiers, err error) {
-	if !tenantRightsFromContext(ctx).readCurrent {
+	if rights := tenantRightsFromContext(ctx); !rights.read {
 		return nil, errNoTenantRights
 	}
 	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
@@ -204,7 +204,7 @@ func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context,
 }
 
 func (is *IdentityServer) getTenantRegistryTotals(ctx context.Context, req *ttipb.GetTenantRegistryTotalsRequest) (*ttipb.TenantRegistryTotals, error) {
-	if !tenantRightsFromContext(ctx).readCurrent {
+	if rights := tenantRightsFromContext(ctx); !rights.canRead(ctx, req.TenantIdentifiers) {
 		return nil, errNoTenantRights
 	}
 	if len(req.FieldMask.Paths) == 0 {
