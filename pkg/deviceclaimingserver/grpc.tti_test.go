@@ -12,6 +12,7 @@ import (
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	. "go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver/redis"
@@ -39,11 +40,12 @@ func TestAuthorizeApplication(t *testing.T) {
 	defer redisClient.Close()
 	authorizedApplicationsRegistry := &redis.AuthorizedApplicationRegistry{Redis: redisClient}
 
-	c := component.MustNew(test.GetLogger(t), &component.Config{})
+	c := componenttest.NewComponent(t, &component.Config{})
 	test.Must(New(c, &Config{
 		AuthorizedApplications: authorizedApplicationsRegistry,
 	}))
-	test.Must(c.Start(), nil)
+
+	componenttest.StartComponent(t, c)
 	defer c.Close()
 
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
