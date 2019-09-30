@@ -6,7 +6,6 @@ import (
 	"context"
 
 	pbtypes "github.com/gogo/protobuf/types"
-	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -19,10 +18,7 @@ func (c *Component) initTenancy() {
 			return nil, err
 		}
 		cli := ttipb.NewTenantRegistryClient(cc)
-		creds, err := rpcmetadata.WithForwardedAuth(ctx, c.AllowInsecureForCredentials())
-		if err != nil {
-			return nil, err
-		}
+		creds := c.WithClusterAuth()
 		return cli.Get(ctx, &ttipb.GetTenantRequest{
 			TenantIdentifiers: *ids,
 			FieldMask:         pbtypes.FieldMask{Paths: fieldPaths},
