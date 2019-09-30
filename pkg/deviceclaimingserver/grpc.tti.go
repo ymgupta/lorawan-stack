@@ -298,7 +298,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.Warn("Claim authentication code not valid anymore")
 		return nil, errClaimAuthenticationCode.WithAttributes("reason", "too_late")
 	}
-	if sourceDev.ClaimAuthenticationCode.Value != authCode {
+	if !strings.EqualFold(sourceDev.ClaimAuthenticationCode.Value, authCode) {
 		logger.Warn("Claim authentication code mismatch")
 		return nil, errClaimAuthenticationCode.WithAttributes("reason", "mismatch")
 	}
