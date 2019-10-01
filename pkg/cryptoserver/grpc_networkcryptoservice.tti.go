@@ -156,7 +156,7 @@ func (s networkCryptoServiceServer) DeriveNwkSKeys(ctx context.Context, req *ttn
 	return res, nil
 }
 
-var errRootKeysNotExposed = errors.DefinePermissionDenied("root_keys_not_exposed", "root keys are not being exposed")
+var errNwkKeyNotExposed = errors.DefineFailedPrecondition("nwk_key_not_exposed", "NwkKey not exposed")
 
 func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
 	if err := cluster.Authorized(ctx); err != nil {
@@ -170,7 +170,7 @@ func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.Ge
 		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
 	}
 	if !provisioner.ExposeRootKeys {
-		return nil, errRootKeysNotExposed
+		return nil, errNwkKeyNotExposed
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
@@ -182,7 +182,7 @@ func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.Ge
 		return nil, err
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
-	env, err := cryptoutil.WrapAES128Key(nwkKey, "", s.KeyVault)
+	env, err := cryptoutil.WrapAES128Key(*nwkKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
