@@ -142,12 +142,12 @@ func (m *impl) DeriveNwkSKeys(ctx context.Context, dev *ttnpb.EndDevice, version
 	}
 }
 
-func (m *impl) GetNwkKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
+func (m *impl) GetNwkKey(ctx context.Context, dev *ttnpb.EndDevice) (*types.AES128Key, error) {
 	nwkKey, _, err := m.getRootKeys(dev)
 	if err != nil {
-		return types.AES128Key{}, err
+		return nil, err
 	}
-	return nwkKey, err
+	return &nwkKey, err
 }
 
 func (m *impl) DeriveAppSKey(ctx context.Context, dev *ttnpb.EndDevice, version ttnpb.MACVersion, jn types.JoinNonce, dn types.DevNonce, nid types.NetID) (types.AES128Key, error) {
@@ -166,10 +166,10 @@ func (m *impl) DeriveAppSKey(ctx context.Context, dev *ttnpb.EndDevice, version 
 	}
 }
 
-func (m *impl) GetAppKey(ctx context.Context, dev *ttnpb.EndDevice) (types.AES128Key, error) {
+func (m *impl) GetAppKey(ctx context.Context, dev *ttnpb.EndDevice) (*types.AES128Key, error) {
 	_, appKey, err := m.getRootKeys(dev)
 	if err != nil {
-		return types.AES128Key{}, err
+		return nil, err
 	}
-	return appKey, err
+	return &appKey, err
 }

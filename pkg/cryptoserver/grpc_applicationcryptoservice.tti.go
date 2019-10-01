@@ -48,6 +48,8 @@ func (s applicationCryptoServiceServer) DeriveAppSKey(ctx context.Context, req *
 	return res, nil
 }
 
+var errAppKeyNotExposed = errors.DefineFailedPrecondition("app_key_not_exposed", "AppKey not exposed")
+
 func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnpb.GetRootKeysRequest) (*ttnpb.KeyEnvelope, error) {
 	if err := cluster.Authorized(ctx); err != nil {
 		return nil, err
@@ -60,7 +62,7 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 		return nil, errNoApplicationService.WithAttributes("id", req.ProvisionerID)
 	}
 	if !provisioner.ExposeRootKeys {
-		return nil, errRootKeysNotExposed
+		return nil, errAppKeyNotExposed
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
@@ -72,7 +74,7 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 		return nil, err
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
-	env, err := cryptoutil.WrapAES128Key(appKey, "", s.KeyVault)
+	env, err := cryptoutil.WrapAES128Key(*appKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}

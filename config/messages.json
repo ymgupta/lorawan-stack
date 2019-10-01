@@ -2573,6 +2573,15 @@
       "file": "cryptoservices.tti.go"
     }
   },
+  "error:pkg/cryptoserver:app_key_not_exposed": {
+    "translations": {
+      "en": "AppKey not exposed"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc_applicationcryptoservice.tti.go"
+    }
+  },
   "error:pkg/cryptoserver:no_application_service": {
     "translations": {
       "en": "no application service provided by provisioner `{id}`"
@@ -2591,6 +2600,15 @@
       "file": "grpc_networkcryptoservice.tti.go"
     }
   },
+  "error:pkg/cryptoserver:nwk_key_not_exposed": {
+    "translations": {
+      "en": "NwkKey not exposed"
+    },
+    "description": {
+      "package": "pkg/cryptoserver",
+      "file": "grpc_networkcryptoservice.tti.go"
+    }
+  },
   "error:pkg/cryptoserver:provisioner_not_found": {
     "translations": {
       "en": "provisioner `{id}` not found"
@@ -2598,15 +2616,6 @@
     "description": {
       "package": "pkg/cryptoserver",
       "file": "provisioners.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:root_keys_not_exposed": {
-    "translations": {
-      "en": "root keys are not being exposed"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc_networkcryptoservice.tti.go"
     }
   },
   "error:pkg/devicerepository:fetch": {
