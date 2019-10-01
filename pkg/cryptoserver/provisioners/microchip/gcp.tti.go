@@ -32,6 +32,7 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 			logger.WithError(err).Warn("Failed to create Datastore client")
 			return nil, err
 		}
+		defer partsClient.Close()
 		var parts []gcpPart
 		if _, err := partsClient.GetAll(ctx, datastore.NewQuery(kind), &parts); err != nil {
 			logger.WithError(err).WithField("kind", kind).Warn("Failed to get parts")
@@ -46,6 +47,7 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 				logger.WithError(err).Warn("Failed to create Storage client")
 				return nil, err
 			}
+			defer storageClient.Close()
 			reader, err := storageClient.Bucket(part.KeyBucket).Object(part.KeyDataObject).NewReader(ctx)
 			if err != nil {
 				logger.WithError(err).WithFields(log.Fields(
@@ -54,6 +56,7 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 				)).Warn("Failed to create data object reader")
 				return nil, err
 			}
+			defer reader.Close()
 			encryptedKey, err := ioutil.ReadAll(reader)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to read data object")
@@ -64,6 +67,7 @@ func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 				logger.WithError(err).Warn("Failed to create KMS client")
 				return nil, err
 			}
+			defer kmsClient.Close()
 			response, err := kmsClient.AsymmetricDecrypt(ctx, &kmspb.AsymmetricDecryptRequest{
 				Name:       part.KEK,
 				Ciphertext: encryptedKey,
