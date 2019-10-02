@@ -56,7 +56,7 @@ func (s *store) findEntity(ctx context.Context, entityID ttnpb.Identifiers, fiel
 	}
 	if err := query.First(model).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errNotFoundForID(entityID)
+			return s.findEntityWithoutTenant(ctx, entityID, fields...)
 		}
 		return nil, convertError(err)
 	}
