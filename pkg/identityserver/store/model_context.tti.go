@@ -35,7 +35,9 @@ func (app *Application) SetContext(ctx context.Context) {
 
 // SetContext needs to be called before creating models.
 func (cli *Client) SetContext(ctx context.Context) {
-	cli.TenantID = tenant.FromContext(ctx).TenantID
+	if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
+		cli.TenantID = &tenantID
+	}
 	cli.Model.SetContext(ctx)
 }
 

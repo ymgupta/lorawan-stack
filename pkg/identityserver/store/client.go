@@ -25,7 +25,7 @@ type Client struct {
 	Model
 	SoftDelete
 
-	TenantID string `gorm:"unique_index:client_id_index;type:VARCHAR(36)"`
+	TenantID *string `gorm:"unique_index:client_id_index;type:VARCHAR(36)"`
 
 	// BEGIN common fields
 	ClientID    string       `gorm:"unique_index:client_id_index;type:VARCHAR(36);not null"`
