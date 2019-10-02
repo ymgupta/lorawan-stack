@@ -17,7 +17,7 @@ import React, { Component } from 'react'
 import Form from '../../../components/form'
 import SubmitButton from '../../../components/submit-button'
 import SubmitBar from '../../../components/submit-bar'
-import Input from '../../../components/input'
+import QrField from '../../../components/qr/qr-field'
 
 import sharedMessages from '../../../lib/shared-messages'
 import errorMessages from '../../../lib/errors/error-messages'
@@ -54,23 +54,24 @@ export default class DeviceClaimForm extends Component {
     const initialValues = {}
 
     return (
-      <Form
-        error={error}
-        onSubmit={this.handleSubmit}
-        initialValues={initialValues}
-        validationSchema={deviceClaimValidationSchema}
-      >
-        <Form.Field
-          title={sharedMessages.claimAuth}
-          name="claim_id"
-          type="textarea"
-          description={m.ClaimAuthMessage}
-          component={Input}
-        />
-        <SubmitBar>
-          <Form.Submit component={SubmitButton} message={sharedMessages.saveChanges} />
-        </SubmitBar>
-      </Form>
+      <div>
+        <Form
+          error={error}
+          onSubmit={this.handleSubmit}
+          initialValues={initialValues}
+          validationSchema={deviceClaimValidationSchema}
+        >
+          <Form.Field
+            title={sharedMessages.claimID}
+            name="claim_qr"
+            description={m.ClaimIdMessage}
+            component={QrField}
+          />
+          <SubmitBar>
+            <Form.Submit component={SubmitButton} message={sharedMessages.saveChanges} />
+          </SubmitBar>
+        </Form>
+      </div>
     )
   }
 }
