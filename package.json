@@ -85,6 +85,8 @@
     "history": "^4.9.0",
     "intl": "^1.2.5",
     "intl-pluralrules": "^1.0.3",
+    "jsqr": "^1.2.0",
+    "react-qr-reader": "^2.2.1",
     "leaflet": "^1.5.1",
     "lottie-web": "^5.5.7",
     "prop-types": "^15.6.0",
