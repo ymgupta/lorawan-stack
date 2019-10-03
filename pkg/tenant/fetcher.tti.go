@@ -114,6 +114,20 @@ func (c *cachedFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdenti
 	return cached.tenant, cached.err
 }
 
+// Expire expires all cached tenants at the given time.
+// Typically only used in tests.
+func (c *cachedFetcher) Expire(t time.Time) {
+	c.mu.Lock()
+	for _, cached := range c.cache {
+		if cached.err != nil {
+			cached.time = t.Add(-1 * c.errorTTL)
+		} else {
+			cached.time = t.Add(-1 * c.successTTL)
+		}
+	}
+	c.mu.Unlock()
+}
+
 // NewCachedFetcher wraps the fetcher with a cache.
 func NewCachedFetcher(fetcher Fetcher, successTTL, errorTTL time.Duration) Fetcher {
 	return &cachedFetcher{
@@ -138,6 +152,9 @@ func (f mapFetcher) FetchTenant(_ context.Context, ids *ttipb.TenantIdentifiers,
 		return nil, errTenantNotFound.WithAttributes("tenant_id", ids.TenantID)
 	}
 	var res ttipb.Tenant
+	if len(fieldPaths) == 0 {
+		fieldPaths = ttipb.TenantFieldPathsTopLevel
+	}
 	if err := res.SetFields(tenant, fieldPaths...); err != nil {
 		return nil, err
 	}
