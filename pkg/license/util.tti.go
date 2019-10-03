@@ -7,6 +7,7 @@ import (
 	"crypto/ecdsa"
 	"encoding/asn1"
 	"math/big"
+	"strings"
 	"time"
 
 	"github.com/blang/semver"
@@ -35,7 +36,7 @@ func CheckValidity(license *ttipb.License) error {
 		}
 		return errLicenseExpired.WithAttributes("valid_until", validUntil.Format(time.RFC822))
 	}
-	currentVersion, _ := semver.Parse(version.TTN) // Invalid versions (snapshots) are 0.0.0.
+	currentVersion, _ := semver.Parse(strings.TrimPrefix(version.TTN, "v")) // Invalid versions (snapshots) are 0.0.0.
 	if minVersionStr := license.GetMinVersion(); minVersionStr != "" {
 		if minVersion, err := semver.Parse(minVersionStr); err == nil && currentVersion.Compare(minVersion) < 0 {
 			return errVersionTooLow.WithAttributes("min_version", minVersionStr)

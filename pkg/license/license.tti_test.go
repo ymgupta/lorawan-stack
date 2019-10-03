@@ -3,6 +3,7 @@
 package license
 
 import (
+	"encoding/base64"
 	"encoding/pem"
 	"testing"
 	"time"
@@ -60,6 +61,17 @@ aRlnEgCYSEoIuptQQQCSZt1lelnqMwUw9A==
 		res, err := VerifyKey(validKey)
 		a.So(err, should.BeNil)
 		a.So(res, should.Resemble, *validLicense)
+
+		validKeyBytes, err := validKey.Marshal()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		fromConfig, err := Read(Config{
+			Key: base64.StdEncoding.EncodeToString(validKeyBytes),
+		})
+		a.So(err, should.BeNil)
+		a.So(fromConfig, should.Resemble, validLicense)
 	})
 
 	t.Run("Not Yet Valid License", func(t *testing.T) {
