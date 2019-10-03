@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
 
@@ -20,10 +21,14 @@ func init() {
 		}
 		if _, ok := db.Value.(interface{ _isMultiTenant() }); ok {
 			table := db.NewScope(db.Value).TableName()
+			tenantID := tenant.FromContext(ctx).TenantID
 			if table == "users" || table == "organizations" {
-				return db.Where("accounts.tenant_id = ?", tenant.FromContext(ctx).TenantID)
+				return db.Where("accounts.tenant_id = ?", tenantID)
 			}
-			return db.Where(fmt.Sprintf("%s.tenant_id = ?", table), tenant.FromContext(ctx).TenantID)
+			if table == "clients" && tenantID == "" && license.RequireMultiTenancy(ctx) == nil {
+				return db.Where(fmt.Sprintf("%s.tenant_id IS NULL", table))
+			}
+			return db.Where(fmt.Sprintf("%s.tenant_id = ?", table), tenantID)
 		}
 		return db
 	}
