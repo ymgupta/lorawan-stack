@@ -6,22 +6,45 @@ import (
 	"context"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	web_errors "go.thethings.network/lorawan-stack/pkg/errors/web"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/web"
+	"go.thethings.network/lorawan-stack/pkg/web/oauthclient"
+	"go.thethings.network/lorawan-stack/pkg/webui"
 	"google.golang.org/grpc"
 )
 
+// UIConfig is the combined configuration for the Device Claiming Server UI.
+type UIConfig struct {
+	webui.TemplateData `name:",squash"`
+	FrontendConfig     `name:",squash"`
+}
+
+// FrontendConfig is the configuration for the Device Claiming Server frontend.
+type FrontendConfig struct {
+	Language string          `json:"language" name:"-"`
+	IS       webui.APIConfig `json:"is" name:"is"`
+}
+
 // Config is the configuration for the Device Claiming Server.
 type Config struct {
+	OAuth                  oauthclient.Config            `name:"oauth"`
+	Mount                  string                        `name:"mount" description:"Path on the server where the Console will be served"`
+	UI                     UIConfig                      `name:"ui"`
 	AuthorizedApplications AuthorizedApplicationRegistry `name:"-"`
 }
 
 // DeviceClaimingServer is the Device Claiming Server.
 type DeviceClaimingServer struct {
 	*component.Component
-	ctx context.Context
+	ctx    context.Context
+	oc     *oauthclient.OAuthClient
+	config Config
 
 	authorizedAppsRegistry AuthorizedApplicationRegistry
 	tenantRegistry         ttipb.TenantRegistryClient
@@ -36,10 +59,20 @@ type DeviceClaimingServer struct {
 
 // New returns a new Device Claiming component.
 func New(c *component.Component, conf *Config, opts ...Option) (*DeviceClaimingServer, error) {
+	conf.OAuth.StateCookieName = "_claim_state"
+	conf.OAuth.AuthCookieName = "_claim_auth"
+	conf.OAuth.RootURL = conf.UI.CanonicalURL
+	oc, err := oauthclient.New(c, conf.OAuth)
+	if err != nil {
+		return nil, err
+	}
+
 	dcs := &DeviceClaimingServer{
 		Component:              c,
 		ctx:                    log.NewContextWithField(c.Context(), "namespace", "deviceclaimingserver"),
 		authorizedAppsRegistry: conf.AuthorizedApplications,
+		oc:                     oc,
+		config:                 *conf,
 	}
 
 	dcs.grpc.endDeviceClaimingServer = &endDeviceClaimingServer{DCS: dcs}
@@ -47,7 +80,14 @@ func New(c *component.Component, conf *Config, opts ...Option) (*DeviceClaimingS
 	for _, opt := range opts {
 		opt(dcs)
 	}
+
+	if dcs.config.Mount == "" {
+		dcs.config.Mount = dcs.config.UI.MountPath()
+	}
+
 	c.RegisterGRPC(dcs)
+	c.RegisterWeb(dcs)
+
 	return dcs, nil
 }
 
@@ -72,6 +112,45 @@ func (dcs *DeviceClaimingServer) RegisterServices(s *grpc.Server) {
 // RegisterHandlers registers gRPC handlers.
 func (dcs *DeviceClaimingServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.ClientConn) {
 	ttnpb.RegisterEndDeviceClaimingServerHandler(dcs.Context(), s, conn)
+}
+
+// RegisterRoutes implements web.Registerer. It registers the Console to the web server.
+func (dcs *DeviceClaimingServer) RegisterRoutes(server *web.Server) {
+	group := server.Group(
+		dcs.config.Mount,
+		func(next echo.HandlerFunc) echo.HandlerFunc {
+			return func(c echo.Context) error {
+				c.Set("template_data", dcs.config.UI.TemplateData)
+				frontendConfig := dcs.config.UI.FrontendConfig
+				frontendConfig.Language = dcs.config.UI.TemplateData.Language
+				c.Set("app_config", struct {
+					FrontendConfig
+				}{
+					FrontendConfig: frontendConfig.Apply(c.Request().Context()),
+				})
+				return next(c)
+			}
+		},
+		web_errors.ErrorMiddleware(map[string]web_errors.ErrorRenderer{
+			"text/html": webui.Template,
+		}),
+	)
+
+	api := group.Group("/api", middleware.CSRF())
+	api.GET("/auth/token", dcs.oc.HandleToken)
+	api.POST("/auth/logout", dcs.oc.HandleLogout)
+
+	page := group.Group("", middleware.CSRFWithConfig(middleware.CSRFConfig{
+		TokenLookup: "form:csrf",
+	}))
+	page.GET("/oauth/callback", dcs.oc.HandleCallback)
+
+	group.GET("/login/ttn-stack", dcs.oc.HandleLogin)
+
+	if dcs.config.Mount != "" && dcs.config.Mount != "/" {
+		group.GET("", webui.Template.Handler, middleware.CSRF())
+	}
+	group.GET("/*", webui.Template.Handler, middleware.CSRF())
 }
 
 // WithTenantRegistry overrides the Device Claiming Server's tenant registry.
@@ -144,7 +223,7 @@ func (dcs *DeviceClaimingServer) getJsDeviceRegistry(ctx context.Context, ids *t
 		return nil, err
 	}
 	return ttnpb.NewJsEndDeviceRegistryClient(conn), nil
-)
+}
 
 // Apply the context to the config.
 func (conf Config) Apply(ctx context.Context) Config {
