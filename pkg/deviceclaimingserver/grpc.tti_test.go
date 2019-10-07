@@ -1517,14 +1517,14 @@ func TestClaim(t *testing.T) {
 			targetMockAS.SetFunc = tc.TargetAsSetEndDeviceFunc
 			targetMockAS.DeleteFunc = tc.TargetAsDeleteEndDeviceFunc
 
-			dcs := test.Must(New(
-				component.MustNew(test.GetLogger(t), &component.Config{
-					ServiceBase: config.ServiceBase{
-						GRPC: config.GRPC{
-							AllowInsecureForCredentials: true,
-						},
+			c := componenttest.NewComponent(t, &component.Config{
+				ServiceBase: config.ServiceBase{
+					GRPC: config.GRPC{
+						AllowInsecureForCredentials: true,
 					},
-				}),
+				},
+			})
+			dcs := test.Must(New(c,
 				&Config{
 					AuthorizedApplications: &mockAuthorizedApplicationsRegistry{
 						GetFunc: tc.GetAuthorizedApplicationFunc,
@@ -1558,8 +1558,8 @@ func TestClaim(t *testing.T) {
 				return ctx
 			})
 			dcs.AddContextFiller(withTestCounters)
-			test.Must(dcs.Start(), nil)
-			defer dcs.Close()
+			componenttest.StartComponent(t, c)
+			defer c.Close()
 
 			mustHavePeer(ctx, dcs.Component, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
 
