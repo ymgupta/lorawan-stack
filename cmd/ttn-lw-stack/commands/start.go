@@ -41,6 +41,7 @@ import (
 	jsredis "go.thethings.network/lorawan-stack/pkg/joinserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/networkserver"
 	nsredis "go.thethings.network/lorawan-stack/pkg/networkserver/redis"
+	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
 	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/web"
 )
@@ -63,9 +64,10 @@ var (
 				Console                    bool
 				GatewayConfigurationServer bool
 				DeviceTemplateConverter    bool
-				DeviceClaimingServer       bool
+				QRCodeGenerator            bool
 
-				CryptoServer bool
+				DeviceClaimingServer bool
+				CryptoServer         bool
 			}
 			startDefault := len(args) == 0
 			for _, arg := range args {
@@ -73,17 +75,21 @@ var (
 				case "is", "identityserver":
 					start.IdentityServer = true
 					start.DeviceTemplateConverter = true
+					start.QRCodeGenerator = true
 				case "gs", "gatewayserver":
 					start.GatewayServer = true
 				case "ns", "networkserver":
 					start.NetworkServer = true
 					start.DeviceTemplateConverter = true
+					start.QRCodeGenerator = true
 				case "as", "applicationserver":
 					start.ApplicationServer = true
 					start.DeviceTemplateConverter = true
+					start.QRCodeGenerator = true
 				case "js", "joinserver":
 					start.JoinServer = true
 					start.DeviceTemplateConverter = true
+					start.QRCodeGenerator = true
 					start.DeviceClaimingServer = true
 				case "console":
 					start.Console = true
@@ -91,10 +97,14 @@ var (
 					start.GatewayConfigurationServer = true
 				case "dtc":
 					start.DeviceTemplateConverter = true
-				case "dcs":
-					start.DeviceClaimingServer = true
+				case "qrg":
+					start.QRCodeGenerator = true
+
 				case "cs", "cryptoserver":
 					start.CryptoServer = true
+				case "dcs":
+					start.DeviceClaimingServer = true
+
 				case "all":
 					start.IdentityServer = true
 					start.GatewayServer = true
@@ -104,8 +114,9 @@ var (
 					start.Console = true
 					start.GatewayConfigurationServer = true
 					start.DeviceTemplateConverter = true
-					start.DeviceClaimingServer = true
+					start.QRCodeGenerator = true
 
+					start.DeviceClaimingServer = true
 					start.CryptoServer = true
 				default:
 					return errUnknownComponent.WithAttributes("component", arg)
@@ -254,13 +265,13 @@ var (
 				_ = dtc
 			}
 
-			if start.DeviceClaimingServer || startDefault {
-				logger.Info("Setting up Device Claiming Server")
-				dcs, err := deviceclaimingserver.New(c, &config.DCS)
+			if start.QRCodeGenerator || startDefault {
+				logger.Info("Setting up QR Code Generator")
+				qrg, err := qrcodegenerator.New(c, &config.QRG)
 				if err != nil {
-					return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
+					return shared.ErrInitializeQRCodeGenerator.WithCause(err)
 				}
-				_ = dcs
+				_ = qrg
 			}
 
 			if start.CryptoServer {
@@ -270,6 +281,15 @@ var (
 					return shared.ErrInitializeCryptoServer.WithCause(err)
 				}
 				_ = cryptoserver
+			}
+
+			if start.DeviceClaimingServer || startDefault {
+				logger.Info("Setting up Device Claiming Server")
+				dcs, err := deviceclaimingserver.New(c, &config.DCS)
+				if err != nil {
+					return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
+				}
+				_ = dcs
 			}
 
 			if rootRedirect != nil {

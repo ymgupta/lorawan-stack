@@ -1498,10 +1498,10 @@ func (m *EndDeviceAuthenticationCode) ValidateFields(paths ...string) error {
 		switch name {
 		case "value":
 
-			if l := len(m.GetValue()); l < 1 || l > 8 {
+			if !_EndDeviceAuthenticationCode_Value_Pattern.MatchString(m.GetValue()) {
 				return EndDeviceAuthenticationCodeValidationError{
 					field:  "value",
-					reason: "value length must be between 1 and 8 bytes, inclusive",
+					reason: "value does not match regex pattern \"^[A-Z0-9]{1,32}$\"",
 				}
 			}
 
@@ -1595,6 +1595,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = EndDeviceAuthenticationCodeValidationError{}
+
+var _EndDeviceAuthenticationCode_Value_Pattern = regexp.MustCompile("^[A-Z0-9]{1,32}$")
 
 // ValidateFields checks the field values on EndDevice with the rules defined
 // in the proto definition for this message. If any rules are violated, an
@@ -3005,6 +3007,38 @@ func (m *EndDeviceTemplateFormat) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "file_extensions":
+
+			if len(m.GetFileExtensions()) > 100 {
+				return EndDeviceTemplateFormatValidationError{
+					field:  "file_extensions",
+					reason: "value must contain no more than 100 item(s)",
+				}
+			}
+
+			_EndDeviceTemplateFormat_FileExtensions_Unique := make(map[string]struct{}, len(m.GetFileExtensions()))
+
+			for idx, item := range m.GetFileExtensions() {
+				_, _ = idx, item
+
+				if _, exists := _EndDeviceTemplateFormat_FileExtensions_Unique[item]; exists {
+					return EndDeviceTemplateFormatValidationError{
+						field:  fmt.Sprintf("file_extensions[%v]", idx),
+						reason: "repeated value must contain unique items",
+					}
+				} else {
+					_EndDeviceTemplateFormat_FileExtensions_Unique[item] = struct{}{}
+				}
+
+				if !_EndDeviceTemplateFormat_FileExtensions_Pattern.MatchString(item) {
+					return EndDeviceTemplateFormatValidationError{
+						field:  fmt.Sprintf("file_extensions[%v]", idx),
+						reason: "value does not match regex pattern \"^(?:\\\\.[a-z0-9]{1,16}){1,2}$\"",
+					}
+				}
+
+			}
+
 		default:
 			return EndDeviceTemplateFormatValidationError{
 				field:  name,
@@ -3070,6 +3104,8 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = EndDeviceTemplateFormatValidationError{}
+
+var _EndDeviceTemplateFormat_FileExtensions_Pattern = regexp.MustCompile("^(?:\\.[a-z0-9]{1,16}){1,2}$")
 
 // ValidateFields checks the field values on EndDeviceTemplateFormats with the
 // rules defined in the proto definition for this message. If any rules are

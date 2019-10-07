@@ -44,6 +44,8 @@ type Config struct {
 	JoinServerEnabled                  bool   `name:"join-server-enabled" description:"Join Server enabled"`
 	JoinServerGRPCAddress              string `name:"join-server-grpc-address" description:"Join Server address"`
 	DeviceTemplateConverterGRPCAddress string `name:"device-template-converter-grpc-address" description:"Device Template Converter address"`
+	DeviceClaimingServerGRPCAddress    string `name:"device-claiming-server-grpc-address" description:"Device Claiming Server address"`
+	QRCodeGeneratorGRPCAddress         string `name:"qr-code-generator-grpc-address" description:"QR Code Generator address"`
 	Insecure                           bool   `name:"insecure" description:"Connect without TLS"`
 	CA                                 string `name:"ca" description:"CA certificate file"`
 }
@@ -65,6 +67,7 @@ func (c Config) getHosts() []string {
 		hosts = append(hosts, c.JoinServerGRPCAddress)
 	}
 	hosts = append(hosts, c.DeviceTemplateConverterGRPCAddress)
+	hosts = append(hosts, c.DeviceClaimingServerGRPCAddress)
 	return getHosts(hosts...)
 }
 
@@ -88,6 +91,8 @@ var DefaultConfig = Config{
 	JoinServerEnabled:                  true,
 	JoinServerGRPCAddress:              clusterGRPCAddress,
 	DeviceTemplateConverterGRPCAddress: clusterGRPCAddress,
+	DeviceClaimingServerGRPCAddress:    clusterGRPCAddress,
+	QRCodeGeneratorGRPCAddress:         clusterGRPCAddress,
 }
 
 var configCommand = commands.Config(mgr)

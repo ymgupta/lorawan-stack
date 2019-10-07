@@ -1160,6 +1160,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_qr_code_generator": {
+    "translations": {
+      "en": "could not initialize QR Code Generator"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:antenna_index": {
     "translations": {
       "en": "index of antenna to update out of bounds"
@@ -1207,7 +1216,7 @@
   },
   "error:cmd/ttn-lw-cli/commands:end_device_server_address_mismatch": {
     "translations": {
-      "en": "network/application/join server address mismatch"
+      "en": "Network/Application/Join Server address mismatch"
     },
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
@@ -1412,6 +1421,15 @@
       "file": "applications_pubsub.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:no_qr_code_target": {
+    "translations": {
+      "en": "no QR code target specified"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_devices.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:no_template_format_id": {
     "translations": {
       "en": "no template format ID set"
@@ -1469,6 +1487,15 @@
   "error:cmd/ttn-lw-cli/commands:phy_version": {
     "translations": {
       "en": "LoRaWAN PHY version is invalid"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_devices.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:qr_code_format": {
+    "translations": {
+      "en": "invalid QR code format"
     },
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
@@ -5642,6 +5669,51 @@
       "file": "provisioning.go"
     }
   },
+  "error:pkg/qrcode:character": {
+    "translations": {
+      "en": "invalid character `{r}`"
+    },
+    "description": {
+      "package": "pkg/qrcode",
+      "file": "qrcode.go"
+    }
+  },
+  "error:pkg/qrcode:format": {
+    "translations": {
+      "en": "invalid format"
+    },
+    "description": {
+      "package": "pkg/qrcode",
+      "file": "qrcode.go"
+    }
+  },
+  "error:pkg/qrcode:no_dev_eui": {
+    "translations": {
+      "en": "no DevEUI"
+    },
+    "description": {
+      "package": "pkg/qrcode",
+      "file": "qrcode.go"
+    }
+  },
+  "error:pkg/qrcode:no_join_eui": {
+    "translations": {
+      "en": "no JoinEUI"
+    },
+    "description": {
+      "package": "pkg/qrcode",
+      "file": "qrcode.go"
+    }
+  },
+  "error:pkg/qrcodegenerator:format_not_found": {
+    "translations": {
+      "en": "format `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/qrcodegenerator",
+      "file": "qrcodegenerator.go"
+    }
+  },
   "error:pkg/redis:not_found": {
     "translations": {
       "en": "entity not found"
@@ -6734,6 +6806,33 @@
   "event:gs.gateway.disconnect": {
     "translations": {
       "en": "disconnect gateway"
+    },
+    "description": {
+      "package": "pkg/gatewayserver",
+      "file": "observability.go"
+    }
+  },
+  "event:gs.status.drop": {
+    "translations": {
+      "en": "drop gateway status"
+    },
+    "description": {
+      "package": "pkg/gatewayserver",
+      "file": "observability.go"
+    }
+  },
+  "event:gs.status.fail": {
+    "translations": {
+      "en": "fail to handle gateway status"
+    },
+    "description": {
+      "package": "pkg/gatewayserver",
+      "file": "observability.go"
+    }
+  },
+  "event:gs.status.forward": {
+    "translations": {
+      "en": "forward gateway status"
     },
     "description": {
       "package": "pkg/gatewayserver",

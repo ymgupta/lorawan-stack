@@ -12,13 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package email
 
-// Must returns the logger that is passed or panics if it is nil
-func Must(logger Interface) Interface {
-	if logger != nil {
-		return logger
-	}
+import (
+	"html/template"
+	"strings"
+)
 
-	panic("No logger attached to the context")
+var defaultFuncs = template.FuncMap{
+	"strings": func() stringsFuncs { return stringsFuncs{} },
 }
+
+type stringsFuncs struct{}
+
+func (stringsFuncs) Repeat(s string, count int) string { return strings.Repeat(s, count) }

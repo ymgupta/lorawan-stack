@@ -60,6 +60,7 @@ require (
 	github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/certifi/gocertifi v0.0.0-20190905060710-a5e0173ced67 // indirect
+	github.com/chrj/smtpd v0.1.2
 	github.com/client9/misspell v0.3.4
 	github.com/disintegration/imaging v1.6.1
 	github.com/dlclark/regexp2 v1.2.0 // indirect
@@ -130,6 +131,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/sendgrid/rest v2.4.1+incompatible // indirect
 	github.com/sendgrid/sendgrid-go v3.5.0+incompatible
+	github.com/skip2/go-qrcode v0.0.0-20190110000554-dc11ecdae0a9
 	github.com/smartystreets/assertions v1.0.1
 	github.com/soheilhy/cmux v0.1.4
 	github.com/spf13/cast v1.3.0
