@@ -12,40 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package filter
+package crypto
 
 import (
 	"testing"
 
 	"github.com/smartystreets/assertions"
-	"github.com/smartystreets/assertions/should"
-	yaml "gopkg.in/yaml.v2"
+	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
 
-func TestBuild(t *testing.T) {
-	a := assertions.New(t)
-
-	raw := []byte(`
-and:
-  - match:
-      field: foo
-      value: "x"
-  - or:
-    - match:
-        field: bar
-        value: "y"
-    - match:
-        field: baz
-        value: "z"
-`)
-
-	var m map[string]interface{}
-	err := yaml.Unmarshal(raw, &m)
-	a.So(err, should.BeNil)
-
-	_, err = Build(m)
-	a.So(err, should.BeNil)
-
-	_, err = Build(m["and"])
-	a.So(err, should.BeNil)
+func TestReverse(t *testing.T) {
+	assertions.New(t).So(reverse([]byte{1, 2, 3, 4}), should.Resemble, []byte{4, 3, 2, 1})
 }

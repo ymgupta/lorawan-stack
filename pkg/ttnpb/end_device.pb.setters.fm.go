@@ -1192,7 +1192,8 @@ func (dst *EndDeviceAuthenticationCode) SetFields(src *EndDeviceAuthenticationCo
 			if src != nil {
 				dst.Value = src.Value
 			} else {
-				dst.Value = nil
+				var zero string
+				dst.Value = zero
 			}
 		case "valid_from":
 			if len(subs) > 0 {
@@ -2154,6 +2155,15 @@ func (dst *EndDeviceTemplateFormat) SetFields(src *EndDeviceTemplateFormat, path
 			} else {
 				var zero string
 				dst.Description = zero
+			}
+		case "file_extensions":
+			if len(subs) > 0 {
+				return fmt.Errorf("'file_extensions' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.FileExtensions = src.FileExtensions
+			} else {
+				dst.FileExtensions = nil
 			}
 
 		default:

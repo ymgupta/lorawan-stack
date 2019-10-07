@@ -55,6 +55,8 @@ PropTypes.link = PropTypes.shape({
   exact: PropTypes.bool,
 })
 
+// Entities and entity-related prop-types
+
 PropTypes.event = PropTypes.shape({
   name: PropTypes.string.isRequired,
   time: PropTypes.string.isRequired,
@@ -143,11 +145,14 @@ PropTypes.env = PropTypes.shape({
   pageData: PropTypes.shape({}),
   config: PropTypes.shape({
     language: PropTypes.string,
-    is: PropTypes.stackComponent,
-    as: PropTypes.stackComponent,
-    ns: PropTypes.stackComponent,
-    js: PropTypes.stackComponent,
-    gs: PropTypes.stackComponent,
+    supportLink: PropTypes.string,
+    stack: PropTypes.shape({
+      is: PropTypes.stackComponent,
+      as: PropTypes.stackComponent,
+      ns: PropTypes.stackComponent,
+      js: PropTypes.stackComponent,
+      gs: PropTypes.stackComponent,
+    }),
   }).isRequired,
 })
 
@@ -181,5 +186,13 @@ PropTypes.location = PropTypes.shape({
     info: PropTypes.message,
   }),
 })
+
+PropTypes.collaborator = PropTypes.shape({
+  isUser: PropTypes.boolean,
+  id: PropTypes.string.isRequired,
+  rights: PropTypes.rights,
+})
+
+PropTypes.rights = PropTypes.arrayOf(PropTypes.string)
 
 export default PropTypes

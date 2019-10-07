@@ -140,7 +140,7 @@ after_success:
     $MAGE js:build
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     if [[ -f snapcraft.login ]]; then snapcraft login --with snapcraft.login; fi
-    if [[ ! -z "$TRAVIS_TAG" ]]; then
+    if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_TAG" =~ ^v3\.[0-9]+\.[0-9]+ ]]; then
       GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(go run github.com/TheThingsIndustries/release-notes -owner TheThingsIndustries -repo lorawan-stack -token $GITHUB_TOKEN -id "release-notes" -head $(git rev-parse HEAD) | sort)
     else
       GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot

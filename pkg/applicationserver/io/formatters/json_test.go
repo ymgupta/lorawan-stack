@@ -92,35 +92,91 @@ func TestJSONUpstream(t *testing.T) {
 func TestJSONDownstream(t *testing.T) {
 	formatter := formatters.JSON
 
-	for i, tc := range []struct {
-		Input []byte
-		Items *ttnpb.ApplicationDownlinks
-	}{
-		{
-			Input: []byte(`{"downlinks":[{"f_port":42,"frm_payload":"AQEB","confirmed":true},{"f_port":42,"frm_payload":"AgIC","confirmed":true}]}`),
-			Items: &ttnpb.ApplicationDownlinks{
-				Downlinks: []*ttnpb.ApplicationDownlink{
-					{
-						FPort:      42,
-						FRMPayload: []byte{0x1, 0x1, 0x1},
-						Confirmed:  true,
-					},
-					{
-						FPort:      42,
-						FRMPayload: []byte{0x2, 0x2, 0x2},
-						Confirmed:  true,
+	t.Run("Downlinks", func(t *testing.T) {
+		for i, tc := range []struct {
+			Input          []byte
+			Items          *ttnpb.ApplicationDownlinks
+			ErrorAssertion func(*testing.T, error) bool
+		}{
+			{
+				Input: []byte(`garbage`),
+				ErrorAssertion: func(t *testing.T, err error) bool {
+					return assertions.New(t).So(err, should.NotBeNil)
+				},
+			},
+			{
+				Input: []byte(`{"downlinks":[{"f_port":42,"frm_payload":"AQEB","confirmed":true},{"f_port":42,"frm_payload":"AgIC","confirmed":true}]}`),
+				Items: &ttnpb.ApplicationDownlinks{
+					Downlinks: []*ttnpb.ApplicationDownlink{
+						{
+							FPort:      42,
+							FRMPayload: []byte{0x1, 0x1, 0x1},
+							Confirmed:  true,
+						},
+						{
+							FPort:      42,
+							FRMPayload: []byte{0x2, 0x2, 0x2},
+							Confirmed:  true,
+						},
 					},
 				},
 			},
-		},
-	} {
-		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			a := assertions.New(t)
-			res, err := formatter.ToDownlinks(tc.Input)
-			if !a.So(err, should.BeNil) {
-				t.FailNow()
-			}
-			a.So(res, should.Resemble, tc.Items)
-		})
-	}
+		} {
+			t.Run(strconv.Itoa(i), func(t *testing.T) {
+				a := assertions.New(t)
+				res, err := formatter.ToDownlinks(tc.Input)
+				if tc.ErrorAssertion != nil && !tc.ErrorAssertion(t, err) || tc.ErrorAssertion == nil && !a.So(err, should.BeNil) {
+					t.FailNow()
+				}
+				a.So(res, should.Resemble, tc.Items)
+			})
+		}
+	})
+
+	t.Run("DownlinkQueueRequest", func(t *testing.T) {
+		for i, tc := range []struct {
+			Input          []byte
+			Request        *ttnpb.DownlinkQueueRequest
+			ErrorAssertion func(*testing.T, error) bool
+		}{
+			{
+				Input: []byte(`garbage`),
+				ErrorAssertion: func(t *testing.T, err error) bool {
+					return assertions.New(t).So(err, should.NotBeNil)
+				},
+			},
+			{
+				Input: []byte(`{"end_device_ids":{"application_ids":{"application_id":"foo-app"},"device_id":"foo-device"},"downlinks":[{"f_port":42,"frm_payload":"AQEB","confirmed":true},{"f_port":42,"frm_payload":"AgIC","confirmed":true}]}}`),
+				Request: &ttnpb.DownlinkQueueRequest{
+					EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
+						ApplicationIdentifiers: ttnpb.ApplicationIdentifiers{
+							ApplicationID: "foo-app",
+						},
+						DeviceID: "foo-device",
+					},
+					Downlinks: []*ttnpb.ApplicationDownlink{
+						{
+							FPort:      42,
+							FRMPayload: []byte{0x1, 0x1, 0x1},
+							Confirmed:  true,
+						},
+						{
+							FPort:      42,
+							FRMPayload: []byte{0x2, 0x2, 0x2},
+							Confirmed:  true,
+						},
+					},
+				},
+			},
+		} {
+			t.Run(strconv.Itoa(i), func(t *testing.T) {
+				a := assertions.New(t)
+				res, err := formatter.ToDownlinkQueueRequest(tc.Input)
+				if tc.ErrorAssertion != nil && !tc.ErrorAssertion(t, err) || tc.ErrorAssertion == nil && !a.So(err, should.BeNil) {
+					t.FailNow()
+				}
+				a.So(res, should.Resemble, tc.Request)
+			})
+		}
+	})
 }
