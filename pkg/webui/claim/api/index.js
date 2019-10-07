@@ -70,8 +70,12 @@ export default {
     },
   },
   device: {
-    claim(payload) {
-      return instance.post(`${isBaseUrl}/edcs/claim`, payload)
+    async claim(payload) {
+      return instance.post(`${isBaseUrl}/edcs/claim`, payload, {
+        headers: {
+          Authorization: `Bearer ${(await token()).access_token}`,
+        },
+      })
     },
   },
   applications: {
