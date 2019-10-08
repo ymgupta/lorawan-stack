@@ -47,7 +47,10 @@ var (
 			if err != nil {
 				return err
 			}
-			if tenantID == "" {
+			switch tenantID {
+			case "NULL": // all caps so there is no mistake.
+				tenantID = ""
+			case "":
 				tenantID = config.Tenancy.DefaultID
 			}
 			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
@@ -144,7 +147,7 @@ var (
 					logger.WithField("secret", secret).Info("Created OAuth client")
 				}
 
-				if owner != "" {
+				if owner != "" && tenantID != "" {
 					logger.Info("Setting owner rights...")
 					memberStore := store.GetMembershipStore(db)
 					err = memberStore.SetMember(
@@ -171,7 +174,7 @@ var (
 )
 
 func init() {
-	createOAuthClient.Flags().String("tenant-id", "", "Tenant ID")
+	createOAuthClient.Flags().String("tenant-id", "", "Tenant ID; use \"NULL\" to create tenant-agnostic OAuth client")
 	createOAuthClient.Flags().Lookup("tenant-id").Hidden = true
 	createOAuthClient.Flags().String("id", "console", "OAuth client ID")
 	createOAuthClient.Flags().String("name", "", "Name of the OAuth client")
