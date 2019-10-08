@@ -2438,6 +2438,33 @@
       "file": "shared.go"
     }
   },
+  "error:pkg/crypto/aws:certificate": {
+    "translations": {
+      "en": "invalid certificate `{id}`"
+    },
+    "description": {
+      "package": "pkg/crypto/aws",
+      "file": "keyvault.tti.go"
+    }
+  },
+  "error:pkg/crypto/aws:private_key": {
+    "translations": {
+      "en": "invalid private key `{id}`"
+    },
+    "description": {
+      "package": "pkg/crypto/aws",
+      "file": "keyvault.tti.go"
+    }
+  },
+  "error:pkg/crypto/aws:secret_content": {
+    "translations": {
+      "en": "invalid secret content in `{id}`"
+    },
+    "description": {
+      "package": "pkg/crypto/aws",
+      "file": "keyvault.tti.go"
+    }
+  },
   "error:pkg/crypto/cryptoservices:no_app_key": {
     "translations": {
       "en": "no AppKey specified"
