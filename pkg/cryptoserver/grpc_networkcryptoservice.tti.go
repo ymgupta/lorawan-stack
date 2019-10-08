@@ -141,15 +141,15 @@ func (s networkCryptoServiceServer) DeriveNwkSKeys(ctx context.Context, req *ttn
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
 	res := &ttnpb.NwkSKeysResponse{}
-	res.FNwkSIntKey, err = cryptoutil.WrapAES128Key(nwkSKeys.FNwkSIntKey, "", s.KeyVault)
+	res.FNwkSIntKey, err = cryptoutil.WrapAES128Key(ctx, nwkSKeys.FNwkSIntKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
-	res.SNwkSIntKey, err = cryptoutil.WrapAES128Key(nwkSKeys.SNwkSIntKey, "", s.KeyVault)
+	res.SNwkSIntKey, err = cryptoutil.WrapAES128Key(ctx, nwkSKeys.SNwkSIntKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
-	res.NwkSEncKey, err = cryptoutil.WrapAES128Key(nwkSKeys.NwkSEncKey, "", s.KeyVault)
+	res.NwkSEncKey, err = cryptoutil.WrapAES128Key(ctx, nwkSKeys.NwkSEncKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
@@ -182,7 +182,7 @@ func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.Ge
 		return nil, err
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
-	env, err := cryptoutil.WrapAES128Key(*nwkKey, "", s.KeyVault)
+	env, err := cryptoutil.WrapAES128Key(ctx, *nwkKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}

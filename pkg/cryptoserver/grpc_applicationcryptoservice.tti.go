@@ -41,7 +41,7 @@ func (s applicationCryptoServiceServer) DeriveAppSKey(ctx context.Context, req *
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
 	res := &ttnpb.AppSKeyResponse{}
-	res.AppSKey, err = cryptoutil.WrapAES128Key(appSKey, "", s.KeyVault)
+	res.AppSKey, err = cryptoutil.WrapAES128Key(ctx, appSKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 		return nil, err
 	}
 	// TODO: Encrypt root keys (https://github.com/thethingsindustries/lorawan-stack/issues/1562)
-	env, err := cryptoutil.WrapAES128Key(*appKey, "", s.KeyVault)
+	env, err := cryptoutil.WrapAES128Key(ctx, *appKey, "", s.KeyVault)
 	if err != nil {
 		return nil, err
 	}
