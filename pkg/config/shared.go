@@ -24,6 +24,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	ttnblob "go.thethings.network/lorawan-stack/pkg/blob"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
+	awscrypto "go.thethings.network/lorawan-stack/pkg/crypto/aws"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/fetch"
@@ -158,10 +159,16 @@ type Rights struct {
 // KeyVault represents configuration for key vaults.
 type KeyVault struct {
 	Static map[string][]byte `name:"static" description:"Static labeled key encryption keys"`
+
+	AWS struct {
+		Enable         bool   `name:"enable" description:"Enable AWS key vault"`
+		Region         string `name:"region" description:"AWS region"`
+		SecretIDPrefix string `name:"secret-id-prefix" description:"Secret ID prefix"`
+	} `name:"aws"`
 }
 
 // KeyVault returns an initialized crypto.KeyVault based on the configuration.
-// The order of precedence is Static.
+// The order of precedence is Static, AWS.
 func (v KeyVault) KeyVault() (crypto.KeyVault, error) {
 	switch {
 	case v.Static != nil:
@@ -169,6 +176,8 @@ func (v KeyVault) KeyVault() (crypto.KeyVault, error) {
 		kv.Separator = ":"
 		kv.ReplaceOldNew = []string{":", "_"}
 		return kv, nil
+	case v.AWS.Enable:
+		return awscrypto.NewKeyVault(v.AWS.Region, v.AWS.SecretIDPrefix)
 	default:
 		return cryptoutil.EmptyKeyVault, nil
 	}
