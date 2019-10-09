@@ -20,6 +20,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/discover"
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
@@ -1548,6 +1549,7 @@ func TestClaim(t *testing.T) {
 
 			dcs.AddContextFiller(func(ctx context.Context) context.Context {
 				ctx = test.ContextWithT(ctx, t)
+				ctx = discover.WithTLSFallback(ctx, false)
 				ctx = rights.NewContext(ctx, rights.Rights{
 					ApplicationRights: tc.ApplicationRights,
 				})
