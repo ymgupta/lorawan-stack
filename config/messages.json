@@ -2645,6 +2645,60 @@
       "file": "provisioners.tti.go"
     }
   },
+  "error:pkg/deviceclaimingserver/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver/redis",
+      "file": "registry.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver/redis:invalid_identifiers": {
+    "translations": {
+      "en": "invalid identifiers"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver/redis",
+      "file": "registry.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:application_not_authorized": {
+    "translations": {
+      "en": "application not authorized"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:claim_authentication_code": {
+    "translations": {
+      "en": "invalid claim authentication code"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:parse_qr_code": {
+    "translations": {
+      "en": "parse QR code failed"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:qr_code_data": {
+    "translations": {
+      "en": "invalid QR code data"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
   "error:pkg/devicerepository:fetch": {
     "translations": {
       "en": "failed to fetch file `{filename}`"
@@ -5750,6 +5804,15 @@
       "file": "request.go"
     }
   },
+  "error:pkg/rpcmiddleware/discover:address": {
+    "translations": {
+      "en": "invalid address"
+    },
+    "description": {
+      "package": "pkg/rpcmiddleware/discover",
+      "file": "discover.go"
+    }
+  },
   "error:pkg/rpcmiddleware/validator:field_mask_paths": {
     "translations": {
       "en": "forbidden path(s) in field mask"
@@ -6648,6 +6711,33 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "client_registry.go"
+    }
+  },
+  "event:dcs.end_device.claim.abort": {
+    "translations": {
+      "en": "claim end device abort"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "observability.tti.go"
+    }
+  },
+  "event:dcs.end_device.claim.fail": {
+    "translations": {
+      "en": "claim end device fail"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "observability.tti.go"
+    }
+  },
+  "event:dcs.end_device.claim.success": {
+    "translations": {
+      "en": "claim end device successful"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "observability.tti.go"
     }
   },
   "event:end_device.create": {

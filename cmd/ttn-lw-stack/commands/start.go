@@ -30,6 +30,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/console"
 	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
 	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
+	dcsredis "go.thethings.network/lorawan-stack/pkg/deviceclaimingserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
@@ -289,6 +290,10 @@ var (
 				if err != nil {
 					return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
 				}
+				config.DCS.AuthorizedApplications = &dcsredis.AuthorizedApplicationRegistry{Redis: redis.New(&redis.Config{
+					Redis:     config.Redis,
+					Namespace: []string{"dcs", "applications", "authorized"},
+				})}
 				_ = dcs
 			}
 

@@ -4,6 +4,8 @@
 
 ## <a name="toc">Table of Contents</a>
 
+- [File `lorawan-stack/api/tti/application_api_key.proto`](#lorawan-stack/api/tti/application_api_key.proto)
+  - [Message `ApplicationAPIKey`](#tti.lorawan.v3.ApplicationAPIKey)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
   - [Message `LicenseIssuerIdentifiers`](#tti.lorawan.v3.LicenseIssuerIdentifiers)
@@ -32,6 +34,22 @@
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
 - [Scalar Value Types](#scalar-value-types)
+
+## <a name="lorawan-stack/api/tti/application_api_key.proto">File `lorawan-stack/api/tti/application_api_key.proto`</a>
+
+### <a name="tti.lorawan.v3.ApplicationAPIKey">Message `ApplicationAPIKey`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `application_ids` | [`ttn.lorawan.v3.ApplicationIdentifiers`](#ttn.lorawan.v3.ApplicationIdentifiers) |  |  |
+| `api_key` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `application_ids` | <p>`message.required`: `true`</p> |
+| `api_key` | <p>`string.min_len`: `1`</p> |
 
 ## <a name="lorawan-stack/api/tti/identifiers.proto">File `lorawan-stack/api/tti/identifiers.proto`</a>
 

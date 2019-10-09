@@ -51,6 +51,11 @@ func ContextWithCounter(ctx context.Context, key interface{}) context.Context {
 	return context.WithValue(ctx, key, &i)
 }
 
+// ContextWithCounterRef adds the given counter to ctx under key specified.
+func ContextWithCounterRef(ctx context.Context, key interface{}, i *int64) context.Context {
+	return context.WithValue(ctx, key, i)
+}
+
 // CounterFromContext gets the counter from context.
 func CounterFromContext(ctx context.Context, key interface{}) (int64, bool) {
 	i, ok := ctx.Value(key).(*int64)
