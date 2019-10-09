@@ -74,11 +74,44 @@ func WithTransportCredentials(creds credentials.TransportCredentials) []grpc.Dia
 	}
 }
 
-// WithInsecure returns a DialOption which disables transport security and discovers the default insecure listen port if
-// not specified in the dial target.
+// WithInsecure returns gRPC dial options which disable transport security and discovers the default insecure listen
+// port if not specified in the dial target.
 func WithInsecure() []grpc.DialOption {
 	return []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithContextDialer(resolver(false)),
 	}
+}
+
+type tlsFallbackKeyType struct{}
+
+var tlsFallbackKey tlsFallbackKeyType
+
+// WithTLSFallback returns a derived context which is configured to fall back to the given TLS setting if discovery
+// fails.
+func WithTLSFallback(parent context.Context, tls bool) context.Context {
+	return context.WithValue(parent, tlsFallbackKey, tls)
+}
+
+// DialOptions discovers gRPC dial options based on the given target. This includes whether or not transport level
+// security is enabled and service port discovery.
+func DialOptions(ctx context.Context, target string, creds credentials.TransportCredentials) ([]grpc.DialOption, error) {
+	// TODO: Discover through SRV records and cache result (https://github.com/TheThingsNetwork/lorawan-stack/issues/138)
+	if val, ok := ctx.Value(tlsFallbackKey).(bool); ok && !val {
+		return WithInsecure(), nil
+	}
+	return WithTransportCredentials(creds), nil
+}
+
+// DialContext creates a client connection to the given target. It uses DialOptions to discover gRPC dial options for
+// the target.
+func DialContext(ctx context.Context, target string, creds credentials.TransportCredentials, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+	discoveredOpts, err := DialOptions(ctx, target, creds)
+	if err != nil {
+		return nil, err
+	}
+	allOpts := make([]grpc.DialOption, 0, len(opts)+len(discoveredOpts))
+	allOpts = append(allOpts, opts...)
+	allOpts = append(allOpts, discoveredOpts...)
+	return grpc.DialContext(ctx, target, allOpts...)
 }
