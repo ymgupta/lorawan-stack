@@ -224,7 +224,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		grpc.PerRPCCredentials(sourceMD),
 	}
 	sourceDialOpts := append(rpcclient.DefaultDialOptions(sourceCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
-	if tlsConfig, err := s.DCS.GetTLSConfig(sourceCtx); err == nil {
+	if tlsConfig, err := s.DCS.GetTLSClientConfig(sourceCtx); err == nil {
 		sourceDialOpts = append(sourceDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
 	} else if s.DCS.AllowInsecureForCredentials() {
 		sourceDialOpts = append(sourceDialOpts, discover.WithInsecure()...)
@@ -367,7 +367,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		targetForwardAuth,
 	}
 	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
-	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
+	if tlsConfig, err := s.DCS.GetTLSClientConfig(targetCtx); err == nil {
 		targetDialOpts = append(targetDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
 	} else if s.DCS.AllowInsecureForCredentials() {
 		targetDialOpts = append(targetDialOpts, discover.WithInsecure()...)
