@@ -54,6 +54,9 @@ func (c *Component) initWeb() error {
 		if err != nil {
 			return err
 		}
+		if httpsAddr.Port == 0 {
+			httpsAddr.Port = 443
+		}
 		webOptions = append(webOptions, web.WithRedirectToHTTPS(httpAddr.Port, httpsAddr.Port))
 		if httpAddr.Port != 80 && httpsAddr.Port != 443 {
 			webOptions = append(webOptions, web.WithRedirectToHTTPS(80, 443))
@@ -89,7 +92,7 @@ func (c *Component) serveWeb(lis net.Listener) error {
 func (c *Component) webEndpoints() []Endpoint {
 	return []Endpoint{
 		NewTCPEndpoint(c.config.HTTP.Listen, "Web"),
-		NewTLSEndpoint(c.config.HTTP.ListenTLS, "Web"),
+		NewTLSEndpoint(c.config.HTTP.ListenTLS, "Web", WithNextProtos("h2", "http/1.1")),
 	}
 }
 

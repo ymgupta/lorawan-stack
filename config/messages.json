@@ -2312,18 +2312,9 @@
       "file": "eui.go"
     }
   },
-  "error:pkg/blob:missing_config": {
+  "error:pkg/blob:invalid_config": {
     "translations": {
-      "en": "missing blob store configuration"
-    },
-    "description": {
-      "package": "pkg/blob",
-      "file": "bucket.go"
-    }
-  },
-  "error:pkg/blob:unknown_provider": {
-    "translations": {
-      "en": "unknown blob store provider `{provider}`"
+      "en": "invalid blob store configuration"
     },
     "description": {
       "package": "pkg/blob",
@@ -2393,6 +2384,33 @@
       "file": "acme.go"
     }
   },
+  "error:pkg/component:tls_config_ambiguous": {
+    "translations": {
+      "en": "ambiguous TLS configuration"
+    },
+    "description": {
+      "package": "pkg/component",
+      "file": "tls.go"
+    }
+  },
+  "error:pkg/component:tls_config_empty": {
+    "translations": {
+      "en": "empty TLS configuration"
+    },
+    "description": {
+      "package": "pkg/component",
+      "file": "tls.go"
+    }
+  },
+  "error:pkg/component:tls_key_vault_id": {
+    "translations": {
+      "en": "invalid TLS key vault ID"
+    },
+    "description": {
+      "package": "pkg/component",
+      "file": "tls.go"
+    }
+  },
   "error:pkg/config:format": {
     "translations": {
       "en": "invalid format `{input}`"
@@ -2402,13 +2420,22 @@
       "file": "hooks.go"
     }
   },
-  "error:pkg/config:no_key_pair": {
+  "error:pkg/config:missing_blob_config": {
     "translations": {
-      "en": "no TLS key pair"
+      "en": "missing blob store configuration"
     },
     "description": {
       "package": "pkg/config",
-      "file": "tls.go"
+      "file": "shared.go"
+    }
+  },
+  "error:pkg/config:unknown_blob_provider": {
+    "translations": {
+      "en": "unknown blob store provider `{provider}`"
+    },
+    "description": {
+      "package": "pkg/config",
+      "file": "shared.go"
     }
   },
   "error:pkg/crypto/cryptoservices:no_app_key": {
@@ -2445,6 +2472,15 @@
     "description": {
       "package": "pkg/crypto/cryptoservices",
       "file": "mem.go"
+    }
+  },
+  "error:pkg/crypto/cryptoutil:certificate_not_found": {
+    "translations": {
+      "en": "certificate with ID `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/crypto/cryptoutil",
+      "file": "keyvault_mem.go"
     }
   },
   "error:pkg/crypto/cryptoutil:invalid_length": {

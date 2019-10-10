@@ -223,11 +223,11 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	sourceCallOpts := []grpc.CallOption{
 		grpc.PerRPCCredentials(sourceMD),
 	}
-	sourceDialOpts := append(rpcclient.DefaultDialOptions(sourceCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
-	if tlsConfig, err := s.DCS.GetTLSConfig(sourceCtx); err == nil {
-		sourceDialOpts = append(sourceDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
-	} else if s.DCS.AllowInsecureForCredentials() {
-		sourceDialOpts = append(sourceDialOpts, discover.WithInsecure()...)
+	sourceDialOpts := append([]grpc.DialOption(nil), rpcclient.DefaultDialOptions(sourceCtx)...)
+	sourceDialOpts = append(sourceDialOpts, grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
+	sourceTLSConfig, err := s.DCS.GetTLSClientConfig(sourceCtx)
+	if err != nil {
+		return nil, err
 	}
 
 	// Validate that the authorized application API key has enough rights to read and delete the device.
@@ -304,12 +304,11 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	// Get source end device from Network Server and Application Server.
-	var sourceNSConn *grpc.ClientConn
 	var sourceNSClient ttnpb.NsEndDeviceRegistryClient
 	if sourceDev.NetworkServerAddress != "" {
 		logger := logger.WithField("network_server_address", sourceDev.NetworkServerAddress)
 		logger.Debug("Get source end device from Network Server")
-		sourceNSConn, err = grpc.DialContext(sourceCtx, sourceDev.NetworkServerAddress, sourceDialOpts...)
+		sourceNSConn, err := discover.DialContext(sourceCtx, sourceDev.NetworkServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Network Server")
 			return nil, err
@@ -334,17 +333,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if sourceDev.ApplicationServerAddress != "" {
 		logger := logger.WithField("application_server_address", sourceDev.ApplicationServerAddress)
 		logger.Debug("Get source end device from Application Server")
-		var sourceASConn *grpc.ClientConn
-		if sourceDev.ApplicationServerAddress == sourceDev.NetworkServerAddress {
-			sourceASConn = sourceNSConn
-		} else {
-			sourceASConn, err = grpc.DialContext(sourceCtx, sourceDev.ApplicationServerAddress, sourceDialOpts...)
-			if err != nil {
-				logger.WithError(err).Warn("Failed to dial source Application Server")
-				return nil, err
-			}
-			defer sourceASConn.Close()
+		sourceASConn, err := discover.DialContext(sourceCtx, sourceDev.ApplicationServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
+		if err != nil {
+			logger.WithError(err).Warn("Failed to dial source Application Server")
+			return nil, err
 		}
+		defer sourceASConn.Close()
 		sourceASClient = ttnpb.NewAsEndDeviceRegistryClient(sourceASConn)
 		sourceASDev, err := sourceASClient.Get(sourceCtx, &ttnpb.GetEndDeviceRequest{
 			EndDeviceIdentifiers: *sourceIDs,
@@ -366,15 +360,15 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	targetCallOpts := []grpc.CallOption{
 		targetForwardAuth,
 	}
-	targetDialOpts := append(rpcclient.DefaultDialOptions(targetCtx), grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
-	if tlsConfig, err := s.DCS.GetTLSConfig(targetCtx); err == nil {
-		targetDialOpts = append(targetDialOpts, discover.WithTransportCredentials(credentials.NewTLS(tlsConfig))...)
-	} else if s.DCS.AllowInsecureForCredentials() {
-		targetDialOpts = append(targetDialOpts, discover.WithInsecure()...)
+	targetDialOpts := append([]grpc.DialOption(nil), rpcclient.DefaultDialOptions(targetCtx)...)
+	targetDialOpts = append(targetDialOpts, grpc.WithBlock(), grpc.FailOnNonTempDialError(true))
+	targetTLSConfig, err := s.DCS.GetTLSClientConfig(targetCtx)
+	if err != nil {
+		return nil, err
 	}
 	var targetNSConn *grpc.ClientConn
 	if req.TargetNetworkServerAddress != "" {
-		targetNSConn, err = grpc.DialContext(targetCtx, req.TargetNetworkServerAddress, targetDialOpts...)
+		targetNSConn, err = discover.DialContext(targetCtx, req.TargetNetworkServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Network Server")
 			return nil, err
@@ -382,10 +376,8 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		defer targetNSConn.Close()
 	}
 	var targetASConn *grpc.ClientConn
-	if req.TargetApplicationServerAddress == req.TargetNetworkServerAddress {
-		targetASConn = targetNSConn
-	} else if req.TargetApplicationServerAddress != "" {
-		targetASConn, err = grpc.DialContext(targetCtx, req.TargetApplicationServerAddress, targetDialOpts...)
+	if req.TargetApplicationServerAddress != "" {
+		targetASConn, err = discover.DialContext(targetCtx, req.TargetApplicationServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Application Server")
 			return nil, err

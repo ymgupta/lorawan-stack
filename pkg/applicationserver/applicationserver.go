@@ -39,6 +39,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
+	"go.thethings.network/lorawan-stack/pkg/devicerepository"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/interop"
@@ -107,23 +108,23 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 
 	ctx := log.NewContextWithField(c.Context(), "namespace", "applicationserver")
 
+	baseConf := c.GetBaseConfig(ctx)
+
 	var interopCl InteropClient
 	if !conf.Interop.IsZero() {
-		var fallbackTLS *tls.Config
-		cTLS, err := c.GetTLSConfig(ctx)
-		if err != nil {
-			log.FromContext(ctx).WithError(err).Warn("Could not get fallback TLS config for interoperability")
-		} else {
-			fallbackTLS = cTLS
+		interopConf := conf.Interop.InteropClient
+		interopConf.GetFallbackTLSConfig = func(ctx context.Context) (*tls.Config, error) {
+			return c.GetTLSClientConfig(ctx)
 		}
+		interopConf.BlobConfig = c.GetBaseConfig(ctx).Blob
 
-		interopCl, err = interop.NewClient(ctx, conf.Interop.InteropClient, fallbackTLS)
+		interopCl, err = interop.NewClient(ctx, interopConf)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	drCl, err := c.GetBaseConfig(c.Context()).DeviceRepository.Client()
+	drFetcher, err := baseConf.DeviceRepository.Fetcher(ctx, baseConf.Blob)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +137,9 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		linkRegistry:   conf.Links,
 		deviceRegistry: conf.Devices,
 		formatter: payloadFormatter{
-			repository: drCl,
+			repository: &devicerepository.Client{
+				Fetcher: drFetcher,
+			},
 			upFormatters: map[ttnpb.PayloadFormatter]messageprocessors.PayloadDecoder{
 				ttnpb.PayloadFormatter_FORMATTER_JAVASCRIPT: javascript.New(),
 				ttnpb.PayloadFormatter_FORMATTER_CAYENNELPP: cayennelpp.New(),
@@ -436,7 +439,7 @@ func (as *ApplicationServer) DownlinkQueueList(ctx context.Context, ids ttnpb.En
 			return nil, errNoAppSKey
 		}
 		// TODO: Cache unwrapped keys (https://github.com/TheThingsNetwork/lorawan-stack/issues/36)
-		appSKey, err := cryptoutil.UnwrapAES128Key(*session.AppSKey, as.KeyVault)
+		appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *session.AppSKey, as.KeyVault)
 		if err != nil {
 			return nil, err
 		}
@@ -704,7 +707,7 @@ func (as *ApplicationServer) decryptDownlinkMessage(ctx context.Context, ids ttn
 	if dev.Session == nil || !bytes.Equal(dev.Session.SessionKeyID, msg.SessionKeyID) || dev.Session.AppSKey == nil {
 		return errNoAppSKey
 	}
-	appSKey, err := cryptoutil.UnwrapAES128Key(*dev.Session.AppSKey, as.KeyVault)
+	appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *dev.Session.AppSKey, as.KeyVault)
 	if err != nil {
 		return err
 	}
@@ -759,7 +762,7 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 			}
 		}
 	}()
-	newAppSKey, err := cryptoutil.UnwrapAES128Key(*newSession.AppSKey, as.KeyVault)
+	newAppSKey, err := cryptoutil.UnwrapAES128Key(ctx, *newSession.AppSKey, as.KeyVault)
 	if err != nil {
 		return err
 	}
@@ -783,7 +786,7 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 			continue
 		}
 		// TODO: Cache unwrapped keys (https://github.com/TheThingsNetwork/lorawan-stack/issues/36)
-		oldAppSKey, err := cryptoutil.UnwrapAES128Key(*oldSession.AppSKey, as.KeyVault)
+		oldAppSKey, err := cryptoutil.UnwrapAES128Key(ctx, *oldSession.AppSKey, as.KeyVault)
 		if err != nil {
 			logger.WithError(err).Warn("Drop downlink message; failed to unwrap AppSKey for decryption")
 			registerDropDownlink(ctx, dev.EndDeviceIdentifiers, oldItem, err)
