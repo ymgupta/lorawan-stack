@@ -59,6 +59,7 @@ require (
 	github.com/bep/tmc v0.5.1 // indirect
 	github.com/blakesmith/ar v0.0.0-20190502131153-809d4375e1fb // indirect
 	github.com/blang/semver v3.5.1+incompatible
+	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833
 	github.com/certifi/gocertifi v0.0.0-20190905060710-a5e0173ced67 // indirect
 	github.com/chrj/smtpd v0.1.2
 	github.com/client9/misspell v0.3.4
@@ -141,6 +142,7 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/tdewolff/minify/v2 v2.5.2 // indirect
 	github.com/xanzy/go-gitlab v0.20.1 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20181201043747-70daafe5d78a
 	go.opencensus.io v0.22.1
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.17.0
