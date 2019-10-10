@@ -66,7 +66,7 @@ func resolver(tls bool) func(ctx context.Context, target string) (net.Conn, erro
 }
 
 // WithTransportCredentials returns gRPC dial options which configures connection level security credentials (e.g.,
-// TLS/SSL), and discovers the TLS/SSL listen port if not specified in the dial target.
+// TLS/SSL) and discover the TLS/SSL listen port if not specified in the dial target.
 func WithTransportCredentials(creds credentials.TransportCredentials) []grpc.DialOption {
 	return []grpc.DialOption{
 		grpc.WithTransportCredentials(creds),
@@ -74,7 +74,7 @@ func WithTransportCredentials(creds credentials.TransportCredentials) []grpc.Dia
 	}
 }
 
-// WithInsecure returns gRPC dial options which disable transport security and discovers the default insecure listen
+// WithInsecure returns gRPC dial options which disable transport security and discover the default insecure listen
 // port if not specified in the dial target.
 func WithInsecure() []grpc.DialOption {
 	return []grpc.DialOption{
@@ -110,8 +110,8 @@ func DialContext(ctx context.Context, target string, creds credentials.Transport
 	if err != nil {
 		return nil, err
 	}
-	allOpts := make([]grpc.DialOption, 0, len(opts)+len(discoveredOpts))
-	allOpts = append(allOpts, opts...)
+	allOpts := make([]grpc.DialOption, 0, len(discoveredOpts)+len(opts))
 	allOpts = append(allOpts, discoveredOpts...)
+	allOpts = append(allOpts, opts...)
 	return grpc.DialContext(ctx, target, allOpts...)
 }
