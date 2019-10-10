@@ -24,8 +24,14 @@ type Config struct {
 
 	ExposeRootKeys bool `name:"expose-root-keys" description:"Expose root keys"`
 
-	GCPProjectID string `name:"gcp-project-id" description:"Google Cloud Platform project ID"`
-	GCPPartKind  string `name:"gcp-part-kind" description:"Google Cloud Platform Datastore part kind"`
+	Source string `name:"source" description:"Source keys (aws, gcp)"`
+	AWS    struct {
+		Region string `name:"region" description:"Region"`
+	} `name:"aws" description:"Amazon Web Services settings"`
+	GCP struct {
+		ProjectID string `name:"project-id" description:"Project ID"`
+		PartKind  string `name:"part-kind" description:"Datastore part kind"`
+	} `name:"gcp" description:"Google Cloud Platform settings"`
 }
 
 type impl struct {
