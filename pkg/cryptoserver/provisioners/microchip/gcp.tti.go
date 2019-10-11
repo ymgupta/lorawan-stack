@@ -26,7 +26,8 @@ type gcpPart struct {
 // The parent key is decrypted using the asymmetric KMS key `kek`.
 func NewGCPKeyLoader(projectID, kind string) KeyLoaderFunc {
 	return func(ctx context.Context) (map[string]Key, error) {
-		logger := log.FromContext(ctx).WithField("gcp_project_id", projectID)
+		ctx = log.NewContextWithField(ctx, "namespace", "cryptoserver/provisioners/microchip/gcp")
+		logger := log.FromContext(ctx).WithField("project_id", projectID)
 		partsClient, err := datastore.NewClient(ctx, projectID)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to create Datastore client")
