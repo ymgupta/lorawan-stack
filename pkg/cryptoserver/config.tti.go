@@ -16,7 +16,7 @@ type Config struct {
 // NewProvisioners returns a new Provisioners from the configuration.
 func (c *Config) NewProvisioners(ctx context.Context) (Provisioners, error) {
 	provisioners := provisioners(make(map[string]Provisioner))
-	if c.Microchip.Enabled {
+	if c.Microchip.Enable {
 		service, err := microchip.New(ctx, &c.Microchip)
 		if err != nil {
 			return nil, err
