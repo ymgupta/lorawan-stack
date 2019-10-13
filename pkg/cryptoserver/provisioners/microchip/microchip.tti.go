@@ -17,15 +17,22 @@ type KeyLoaderFunc func(ctx context.Context) (map[string]Key, error)
 
 // Config represents Microchip crypto service configuration.
 type Config struct {
-	Enabled bool `name:"enabled"`
+	Enable bool `name:"enable"`
 
 	LoadKeysFunc       KeyLoaderFunc `name:"-"`
 	ReloadKeysInterval time.Duration `name:"reload-keys-interval" description:"Interval to reload keys"`
 
 	ExposeRootKeys bool `name:"expose-root-keys" description:"Expose root keys"`
 
-	GCPProjectID string `name:"gcp-project-id" description:"Google Cloud Platform project ID"`
-	GCPPartKind  string `name:"gcp-part-kind" description:"Google Cloud Platform Datastore part kind"`
+	Source string `name:"source" description:"Source keys (aws, gcp)"`
+	AWS    struct {
+		Region     string `name:"region" description:"Region"`
+		PartsTable string `name:"parts-table" description:"DynamoDB table of parts"`
+	} `name:"aws" description:"Amazon Web Services settings"`
+	GCP struct {
+		ProjectID string `name:"project-id" description:"Project ID"`
+		PartKind  string `name:"part-kind" description:"Datastore part kind"`
+	} `name:"gcp" description:"Google Cloud Platform settings"`
 }
 
 type impl struct {
@@ -39,13 +46,15 @@ var errKeyLoader = errors.DefineFailedPrecondition("key_loader", "invalid key lo
 func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, error) {
 	loadKeysFunc := conf.LoadKeysFunc
 	if loadKeysFunc == nil {
-		switch {
-		case conf.GCPProjectID != "":
-			partKind := conf.GCPPartKind
+		switch conf.Source {
+		case "aws":
+			loadKeysFunc = NewAWSKeyLoader(conf.AWS.Region, conf.AWS.PartsTable)
+		case "gcp":
+			partKind := conf.GCP.PartKind
 			if partKind == "" {
 				partKind = "part"
 			}
-			loadKeysFunc = NewGCPKeyLoader(conf.GCPProjectID, partKind)
+			loadKeysFunc = NewGCPKeyLoader(conf.GCP.ProjectID, partKind)
 		default:
 			return nil, errKeyLoader
 		}
