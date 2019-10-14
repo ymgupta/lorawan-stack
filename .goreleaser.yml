@@ -167,6 +167,14 @@ brews:
       bin.install "tti-lw-cli"
       libexec.install doc
 
+blobs:
+  - provider: s3
+    bucket: '{{ or (index .Env "AWS_BUCKET") "the-things-stack-releases" }}'
+    ids:
+    - stack
+    - cli
+    folder: "{{ .Version }}"
+
 dockers:
   - goos: linux
     goarch: amd64

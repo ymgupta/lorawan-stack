@@ -21,6 +21,7 @@ import (
 
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/aws"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/packages"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/web"
 	"go.thethings.network/lorawan-stack/pkg/component"
@@ -53,13 +54,14 @@ type InteropConfig struct {
 
 // Config represents the ApplicationServer configuration.
 type Config struct {
-	LinkMode string         `name:"link-mode" description:"Mode to link applications to their Network Server (all, explicit)"`
-	Devices  DeviceRegistry `name:"-"`
-	Links    LinkRegistry   `name:"-"`
-	MQTT     config.MQTT    `name:"mqtt" description:"MQTT configuration"`
-	Webhooks WebhooksConfig `name:"webhooks" description:"Webhooks configuration"`
-	PubSub   PubSubConfig   `name:"pubsub" description:"Pub/sub messaging configuration"`
-	Interop  InteropConfig  `name:"interop" description:"Interop client configuration"`
+	LinkMode            string                    `name:"link-mode" description:"Mode to link applications to their Network Server (all, explicit)"`
+	Devices             DeviceRegistry            `name:"-"`
+	Links               LinkRegistry              `name:"-"`
+	MQTT                config.MQTT               `name:"mqtt" description:"MQTT configuration"`
+	Webhooks            WebhooksConfig            `name:"webhooks" description:"Webhooks configuration"`
+	PubSub              PubSubConfig              `name:"pubsub" description:"Pub/sub messaging configuration"`
+	ApplicationPackages ApplicationPackagesConfig `name:"application-packages" description:"Application packages configuration"`
+	Interop             InteropConfig             `name:"interop" description:"Interop client configuration"`
 
 	AWS aws.Config `name:"aws" description:"AWS configuration"`
 }
@@ -96,6 +98,11 @@ type WebhooksConfig struct {
 // PubSubConfig contains go-cloud PubSub configuration of the Application Server.
 type PubSubConfig struct {
 	Registry pubsub.Registry `name:"-"`
+}
+
+// ApplicationPackagesConfig contains application packages associations configuration.
+type ApplicationPackagesConfig struct {
+	Registry packages.Registry `name:"-"`
 }
 
 // NewWebhooks returns a new web.Webhooks based on the configuration.
@@ -136,9 +143,18 @@ func (c WebhooksConfig) NewWebhooks(ctx context.Context, server io.Server) (web.
 
 // NewPubSub returns a new pubsub.PubSub based on the configuration.
 // If the registry is nil, it returns nil.
-func (c PubSubConfig) NewPubSub(comp *component.Component, server io.Server, registry pubsub.Registry) (*pubsub.PubSub, error) {
-	if registry == nil {
+func (c PubSubConfig) NewPubSub(comp *component.Component, server io.Server) (*pubsub.PubSub, error) {
+	if c.Registry == nil {
 		return nil, nil
 	}
-	return pubsub.New(comp, server, registry)
+	return pubsub.New(comp, server, c.Registry)
+}
+
+// NewApplicationPackages returns a new applications packages frontend based on the configuration.
+// If the registry is nil, it returns nil.
+func (c ApplicationPackagesConfig) NewApplicationPackages(ctx context.Context, server io.Server) (packages.Server, error) {
+	if c.Registry == nil {
+		return nil, nil
+	}
+	return packages.New(ctx, server, c.Registry)
 }

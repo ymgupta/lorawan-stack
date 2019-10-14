@@ -521,6 +521,15 @@
       "file": "i18n.go"
     }
   },
+  "enum:RIGHT_APPLICATION_SETTINGS_PACKAGES": {
+    "translations": {
+      "en": "view and edit application packages and associations"
+    },
+    "description": {
+      "package": "pkg/ttnpb",
+      "file": "i18n.go"
+    }
+  },
   "enum:RIGHT_APPLICATION_TRAFFIC_DOWN_WRITE": {
     "translations": {
       "en": "write downlink application traffic"
@@ -1385,6 +1394,15 @@
       "file": "end_device_templates.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:no_f_port": {
+    "translations": {
+      "en": "no FPort set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "applications_packages.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:no_gateway_id": {
     "translations": {
       "en": "no gateway ID set"
@@ -1581,6 +1599,42 @@
     "description": {
       "package": "pkg/applicationserver/io/mqtt",
       "file": "mqtt.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages/redis:invalid_fieldmask": {
+    "translations": {
+      "en": "invalid fieldmask"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/redis",
+      "file": "registry.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages/redis:invalid_identifiers": {
+    "translations": {
+      "en": "invalid identifiers"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/redis",
+      "file": "registry.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages:package_already_registered": {
+    "translations": {
+      "en": "package `{name}` already registered"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages",
+      "file": "registration.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages:package_not_implemented": {
+    "translations": {
+      "en": "package `{name}` is not implemented"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages",
+      "file": "registration.go"
     }
   },
   "error:pkg/applicationserver/io/pubsub/provider/mqtt:ca_pem_data": {
@@ -4193,6 +4247,33 @@
       "file": "entity_access.go"
     }
   },
+  "error:pkg/identityserver:user_rejected": {
+    "translations": {
+      "en": "user account was rejected"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "entity_access.go"
+    }
+  },
+  "error:pkg/identityserver:user_requested": {
+    "translations": {
+      "en": "user account approval is pending"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "entity_access.go"
+    }
+  },
+  "error:pkg/identityserver:user_suspended": {
+    "translations": {
+      "en": "user account was suspended"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "entity_access.go"
+    }
+  },
   "error:pkg/identityserver:user_update_admin_field": {
     "translations": {
       "en": "only admins can update the `{field}` field"
@@ -5993,15 +6074,6 @@
       "file": "errors.go"
     }
   },
-  "error:pkg/ttnpb/udp:data_rate": {
-    "translations": {
-      "en": "invalid data rate"
-    },
-    "description": {
-      "package": "pkg/ttnpb/udp",
-      "file": "data_rate.go"
-    }
-  },
   "error:pkg/ttnpb/udp:eui": {
     "translations": {
       "en": "failed to parse EUI"
@@ -6243,6 +6315,15 @@
     "description": {
       "package": "pkg/unique",
       "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/util/datarate:data_rate": {
+    "translations": {
+      "en": "invalid data rate"
+    },
+    "description": {
+      "package": "pkg/util/datarate",
+      "file": "data_rate.go"
     }
   },
   "error:pkg/validate:email": {
