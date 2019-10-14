@@ -1795,7 +1795,7 @@ func NewPopulatedLicense(r randyLicense, easy bool) *License {
 	v8 := r.Intn(10)
 	this.Components = make([]ttnpb.ClusterRole, v8)
 	for i := 0; i < v8; i++ {
-		this.Components[i] = ttnpb.ClusterRole([]int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}[r.Intn(12)])
+		this.Components[i] = ttnpb.ClusterRole([]int32{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 101}[r.Intn(13)])
 	}
 	v9 := r.Intn(10)
 	this.ComponentAddressRegexps = make([]string, v9)

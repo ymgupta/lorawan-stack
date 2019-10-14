@@ -1412,6 +1412,50 @@
           ]
         }
       ]
+    },
+    {
+      "name": "lorawan-stack/api/tti/tenantbillingserver.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": false,
+      "hasServices": true,
+      "enums": [],
+      "extensions": [],
+      "messages": [],
+      "services": [
+        {
+          "name": "Tbs",
+          "longName": "Tbs",
+          "fullName": "tti.lorawan.v3.Tbs",
+          "description": "The Tbs service manages the Tenant Billing Server metering reporting.",
+          "methods": [
+            {
+              "name": "Report",
+              "description": "",
+              "requestType": "MeteringData",
+              "requestLongType": "MeteringData",
+              "requestFullType": "tti.lorawan.v3.MeteringData",
+              "requestStreaming": false,
+              "responseType": "Empty",
+              "responseLongType": ".google.protobuf.Empty",
+              "responseFullType": "google.protobuf.Empty",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/tbs/report"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "scalarValueTypes": [

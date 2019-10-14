@@ -34,6 +34,8 @@
   - [Message `UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest)
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
+- [File `lorawan-stack/api/tti/tenantbillingserver.proto`](#lorawan-stack/api/tti/tenantbillingserver.proto)
+  - [Service `Tbs`](#tti.lorawan.v3.Tbs)
 - [Scalar Value Types](#scalar-value-types)
 
 ## <a name="lorawan-stack/api/tti/application_api_key.proto">File `lorawan-stack/api/tti/application_api_key.proto`</a>
@@ -331,6 +333,22 @@ Tenant is the message that defines a Tenant in the network.
 | `List` | `GET` | `/api/v3/tenants` |  |
 | `Update` | `PUT` | `/api/v3/tenants/{tenant.ids.tenant_id}` | `*` |
 | `Delete` | `DELETE` | `/api/v3/tenants/{tenant_id}` |  |
+
+## <a name="lorawan-stack/api/tti/tenantbillingserver.proto">File `lorawan-stack/api/tti/tenantbillingserver.proto`</a>
+
+### <a name="tti.lorawan.v3.Tbs">Service `Tbs`</a>
+
+The Tbs service manages the Tenant Billing Server metering reporting.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `Report` | [`MeteringData`](#tti.lorawan.v3.MeteringData) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `Report` | `GET` | `/api/v3/tbs/report` |  |
 
 ## Scalar Value Types
 
