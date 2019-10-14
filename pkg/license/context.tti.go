@@ -46,7 +46,7 @@ func FromContext(ctx context.Context) ttipb.License {
 	return defaultLicense
 }
 
-var errComponentNotLicensed = errors.DefineFailedPrecondition("component_not_licensed", "the `{component}` component is not included in this license")
+var errComponentNotLicensed = errors.DefineFailedPrecondition("component_not_licensed", "the `{component}` component is not included in this license", "licensed")
 
 // RequireComponent requires components to be included in the license.
 func RequireComponent(ctx context.Context, components ...ttnpb.ClusterRole) error {
@@ -64,7 +64,7 @@ nextComponent:
 				continue nextComponent
 			}
 		}
-		return errComponentNotLicensed.WithAttributes("component", strings.Title(strings.Replace(component.String(), "_", " ", -1)))
+		return errComponentNotLicensed.WithAttributes("component", strings.Title(strings.Replace(component.String(), "_", " ", -1)), "licensed", license.Components)
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ func getComponentAddressRegexp(s string) (*regexp.Regexp, error) {
 	return re.Regexp, re.err
 }
 
-var errComponentAddressNotLicensed = errors.DefineFailedPrecondition("component_address_not_licensed", "component address is not included in this license")
+var errComponentAddressNotLicensed = errors.DefineFailedPrecondition("component_address_not_licensed", "component address `{address}` is not included in this license", "licensed")
 
 // RequireComponentAddress requires the given address to be included in the license.
 func RequireComponentAddress(ctx context.Context, addr string) error {
@@ -122,12 +122,12 @@ func RequireComponentAddress(ctx context.Context, addr string) error {
 				return nil
 			}
 		}
-		return errComponentAddressNotLicensed
+		return errComponentAddressNotLicensed.WithAttributes("address", addr, "licensed", regexps)
 	}
 	return nil
 }
 
-var errDevAddrPrefixNotLicensed = errors.DefineFailedPrecondition("dev_addr_prefix_not_licensed", "DevAddr prefix {prefix} is not included in this license")
+var errDevAddrPrefixNotLicensed = errors.DefineFailedPrecondition("dev_addr_prefix_not_licensed", "DevAddr prefix `{prefix}` is not included in this license", "licensed")
 
 // RequireDevAddrPrefix requires the given DevAddrPrefix to be included in the license.
 func RequireDevAddrPrefix(ctx context.Context, prefix types.DevAddrPrefix) error {
@@ -143,12 +143,12 @@ func RequireDevAddrPrefix(ctx context.Context, prefix types.DevAddrPrefix) error
 				return nil
 			}
 		}
-		return errDevAddrPrefixNotLicensed.WithAttributes("prefix", prefix.String())
+		return errDevAddrPrefixNotLicensed.WithAttributes("prefix", prefix.String(), "licensed", licensedPrefixes)
 	}
 	return nil
 }
 
-var errJoinEUIPrefixNotLicensed = errors.DefineFailedPrecondition("join_eui_prefix_not_licensed", "JoinEUI prefix {prefix} is not included in this license")
+var errJoinEUIPrefixNotLicensed = errors.DefineFailedPrecondition("join_eui_prefix_not_licensed", "JoinEUI prefix `{prefix}` is not included in this license", "licensed")
 
 // RequireJoinEUIPrefix requires the given JoinEUI prefix to be included in the license.
 func RequireJoinEUIPrefix(ctx context.Context, prefix types.EUI64Prefix) error {
@@ -164,7 +164,7 @@ func RequireJoinEUIPrefix(ctx context.Context, prefix types.EUI64Prefix) error {
 				return nil
 			}
 		}
-		return errJoinEUIPrefixNotLicensed.WithAttributes("prefix", prefix.String())
+		return errJoinEUIPrefixNotLicensed.WithAttributes("prefix", prefix.String(), "licensed", licensedPrefixes)
 	}
 	return nil
 }
