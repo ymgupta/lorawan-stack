@@ -4915,7 +4915,7 @@
   },
   "error:pkg/license:component_address_not_licensed": {
     "translations": {
-      "en": "component address is not included in this license"
+      "en": "component address `{address}` is not included in this license"
     },
     "description": {
       "package": "pkg/license",
@@ -4933,7 +4933,7 @@
   },
   "error:pkg/license:dev_addr_prefix_not_licensed": {
     "translations": {
-      "en": "DevAddr prefix {prefix} is not included in this license"
+      "en": "DevAddr prefix `{prefix}` is not included in this license"
     },
     "description": {
       "package": "pkg/license",
@@ -4951,7 +4951,7 @@
   },
   "error:pkg/license:join_eui_prefix_not_licensed": {
     "translations": {
-      "en": "JoinEUI prefix {prefix} is not included in this license"
+      "en": "JoinEUI prefix `{prefix}` is not included in this license"
     },
     "description": {
       "package": "pkg/license",
