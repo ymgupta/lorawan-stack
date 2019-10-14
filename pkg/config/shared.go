@@ -162,7 +162,6 @@ type KeyVault struct {
 	Static   map[string][]byte `name:"static" description:"Static labeled key encryption keys"`
 
 	AWS struct {
-		Enable         bool   `name:"enable" description:"Enable AWS key vault"`
 		Region         string `name:"region" description:"AWS region"`
 		SecretIDPrefix string `name:"secret-id-prefix" description:"Secret ID prefix"`
 	} `name:"aws"`
