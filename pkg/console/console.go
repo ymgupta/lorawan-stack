@@ -132,7 +132,7 @@ func (console *Console) RegisterRoutes(server *web.Server) {
 				c.Set("app_config", struct {
 					FrontendConfig
 				}{
-					FrontendConfig: frontendConfig.Apply(c.Request().Context()),
+					FrontendConfig: frontendConfig,
 				})
 				return next(c)
 			}
