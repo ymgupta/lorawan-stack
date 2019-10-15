@@ -116,6 +116,18 @@ func NewServer(ctx context.Context, store Store, config Config) Server {
 	return s
 }
 
+type ctxKeyType struct{}
+
+var ctxKey ctxKeyType
+
+func (s *server) configFromContext(ctx context.Context) *Config {
+	if config, ok := ctx.Value(ctxKey).(*Config); ok {
+		return config
+	}
+	config := s.config.Apply(ctx)
+	return &config
+}
+
 func (s *server) now() time.Time { return time.Now().UTC() }
 
 func (s *server) oauth2(ctx context.Context) *osin.Server {
@@ -215,9 +227,10 @@ func (s *server) RegisterRoutes(server *web.Server) {
 		s.config.Mount,
 		func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				c.Set("template_data", s.config.UI.TemplateData)
-				frontendConfig := s.config.UI.FrontendConfig
-				frontendConfig.Language = s.config.UI.TemplateData.Language
+				config := s.configFromContext(c.Request().Context())
+				c.Set("template_data", config.UI.TemplateData)
+				frontendConfig := config.UI.FrontendConfig
+				frontendConfig.Language = config.UI.TemplateData.Language
 				c.Set("app_config", struct {
 					FrontendConfig
 				}{
