@@ -97,7 +97,7 @@ func (is *IdentityServer) getTenantForFetcher(ctx context.Context, ids *ttipb.Te
 }
 
 func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenantsRequest) (tnts *ttipb.Tenants, err error) {
-	if !tenantRightsFromContext(ctx).admin {
+	if !tenantRightsFromContext(ctx).read {
 		return nil, errNoTenantRights
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, getPaths, nil)
