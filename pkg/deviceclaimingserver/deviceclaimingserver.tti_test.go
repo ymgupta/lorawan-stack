@@ -14,6 +14,9 @@ import (
 )
 
 func TestDeviceDeviceClaimingServer(t *testing.T) {
+
+	t.Skip("blocked by oauth config")
+
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
 
 	conf := &component.Config{}
