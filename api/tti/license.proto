@@ -84,8 +84,12 @@ message MeteringConfiguration {
   message AWS {
     string sku = 1 [(gogoproto.customname) = "SKU"];
   }
+  message Prometheus {
+
+  }
   oneof metering {
     AWS aws = 3 [(gogoproto.customname) = "AWS"];
+    Prometheus prometheus = 4;
   }
 }
 

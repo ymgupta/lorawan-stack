@@ -543,6 +543,16 @@
               "fullType": "tti.lorawan.v3.MeteringConfiguration.AWS",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "prometheus",
+              "description": "",
+              "label": "",
+              "type": "Prometheus",
+              "longType": "MeteringConfiguration.Prometheus",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -566,6 +576,16 @@
               "defaultValue": ""
             }
           ]
+        },
+        {
+          "name": "Prometheus",
+          "longName": "MeteringConfiguration.Prometheus",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": false,
+          "extensions": [],
+          "fields": []
         },
         {
           "name": "MeteringData",

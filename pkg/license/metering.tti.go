@@ -11,7 +11,9 @@ import (
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
+	"go.thethings.network/lorawan-stack/pkg/license/prometheusmetrics"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/metrics"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -164,6 +166,11 @@ func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, clu
 	switch reporterConfig := config.Metering.(type) {
 	case *ttipb.MeteringConfiguration_AWS_:
 		globalMetering.reporter, err = awsmetrics.New(reporterConfig.AWS)
+		if err != nil {
+			return err
+		}
+	case *ttipb.MeteringConfiguration_Prometheus_:
+		globalMetering.reporter, err = prometheusmetrics.New(reporterConfig.Prometheus, metrics.Registry)
 		if err != nil {
 			return err
 		}

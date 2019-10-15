@@ -339,6 +339,30 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 							dst.Metering.(*MeteringConfiguration_AWS_).AWS = nil
 						}
 					}
+				case "prometheus":
+					if _, ok := dst.Metering.(*MeteringConfiguration_Prometheus_); !ok {
+						dst.Metering = &MeteringConfiguration_Prometheus_{}
+					}
+					if len(oneofSubs) > 0 {
+						newDst := dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus
+						if newDst == nil {
+							newDst = &MeteringConfiguration_Prometheus{}
+							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = newDst
+						}
+						var newSrc *MeteringConfiguration_Prometheus
+						if src != nil {
+							newSrc = src.GetPrometheus()
+						}
+						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
+							return err
+						}
+					} else {
+						if src != nil {
+							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = src.GetPrometheus()
+						} else {
+							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = nil
+						}
+					}
 
 				default:
 					return fmt.Errorf("invalid oneof field: '%s.%s'", name, oneofName)
@@ -418,6 +442,16 @@ func (dst *MeteringConfiguration_AWS) SetFields(src *MeteringConfiguration_AWS, 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
 		}
+	}
+	return nil
+}
+
+func (dst *MeteringConfiguration_Prometheus) SetFields(src *MeteringConfiguration_Prometheus, paths ...string) error {
+	if len(paths) != 0 {
+		return fmt.Errorf("message MeteringConfiguration_Prometheus has no fields, but paths %s were specified", paths)
+	}
+	if src != nil {
+		*dst = *src
 	}
 	return nil
 }
