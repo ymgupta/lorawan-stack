@@ -21,7 +21,7 @@ import (
 
 // Cluster is the interface used for getting metrics.
 type Cluster interface {
-	WithClusterAuth() grpc.CallOption
+	Auth() grpc.CallOption
 	GetPeerConn(ctx context.Context, role ttnpb.ClusterRole) (*grpc.ClientConn, error)
 }
 
@@ -72,7 +72,7 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	}
 
 	reg := ttipb.NewTenantRegistryClient(cc)
-	creds := s.cluster.WithClusterAuth()
+	creds := s.cluster.Auth()
 
 	var (
 		tenantsPageSize = 1000
@@ -152,37 +152,44 @@ func (s *meteringSetup) Run(ctx context.Context) error {
 	}
 }
 
-var globalMetering *meteringSetup
-
-// SetupMetering sets up metering on cluster.
-func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) (err error) {
-	if globalMetering != nil {
-		return errors.New("only one metering configuration can be set up")
-	}
-	globalMetering = &meteringSetup{
+func newMeteringSetup(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) (*meteringSetup, error) {
+	s := &meteringSetup{
 		config:  config,
 		cluster: cluster,
 	}
+	var err error
 	switch reporterConfig := config.Metering.(type) {
 	case *ttipb.MeteringConfiguration_AWS_:
-		globalMetering.reporter, err = awsmetrics.New(reporterConfig.AWS)
+		s.reporter, err = awsmetrics.New(reporterConfig.AWS)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	case *ttipb.MeteringConfiguration_Prometheus_:
-		globalMetering.reporter, err = prometheusmetrics.New(reporterConfig.Prometheus, metrics.Registry)
+		s.reporter, err = prometheusmetrics.New(reporterConfig.Prometheus, metrics.Registry)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	default:
-		return fmt.Errorf("unsupported metering reporter config type: %T", config.Metering)
+		return nil, fmt.Errorf("unsupported metering reporter config type: %T", config.Metering)
 	}
+	return s, nil
+}
 
+var globalMetering *meteringSetup
+
+// SetupMetering sets up metering on cluster.
+func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) error {
+	if globalMetering != nil {
+		return errors.New("only one metering configuration can be set up")
+	}
+	var err error
+	globalMetering, err = newMeteringSetup(ctx, config, cluster)
+	if err != nil {
+		return err
+	}
 	if err := globalMetering.CollectAndReport(ctx); err != nil {
 		return err
 	}
-
 	go globalMetering.Run(ctx)
-
 	return nil
 }
