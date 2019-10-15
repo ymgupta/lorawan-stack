@@ -167,6 +167,15 @@ brews:
       bin.install "tti-lw-cli"
       libexec.install doc
 
+blobs:
+  - provider: s3
+    # NOTE: GoReleaser documentation says that bucket is a template, but it's not.
+    bucket: the-things-enterprise-stack-releases
+    ids:
+    - stack
+    - cli
+    folder: "{{ .Version }}"
+
 dockers:
   - goos: linux
     goarch: amd64
