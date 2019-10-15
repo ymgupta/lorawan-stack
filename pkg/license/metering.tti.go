@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
@@ -71,26 +72,46 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	reg := ttipb.NewTenantRegistryClient(cc)
 	creds := s.cluster.WithClusterAuth()
 
-	// TODO: List all tenants and range over those (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-	// tenants, err := reg.List(ctx, &ttipb.ListTenantsRequest{
-	// 	FieldMask: pbtypes.FieldMask{Paths: []string{"ids"}},
-	// 	Limit:     0,
-	// 	Page:      1, // TODO: Pagination
-	// }, creds)
-	// if err != nil {
-	// 	return err
-	// }
-
-	totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
-		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-	}, creds)
-	if err != nil {
-		return err
+	var (
+		tenantsPageSize = 1000
+		tenantsPage     = 1
+	)
+	for {
+		res, err := reg.List(ctx, &ttipb.ListTenantsRequest{
+			FieldMask: pbtypes.FieldMask{Paths: []string{"ids"}},
+			Limit:     uint32(tenantsPageSize),
+			Page:      uint32(tenantsPage),
+		}, creds)
+		if err != nil {
+			return err
+		}
+		for _, tenant := range res.Tenants {
+			totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
+				TenantIdentifiers: &tenant.TenantIdentifiers,
+			}, creds)
+			if err != nil {
+				return err
+			}
+			meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
+				TenantIdentifiers: tenant.TenantIdentifiers,
+				Totals:            totals,
+			})
+		}
+		if len(res.Tenants) < tenantsPageSize {
+			break
+		}
+		tenantsPage++
 	}
-	meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
-		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-		Totals: totals,
-	})
+
+	if len(meteringData.Tenants) == 0 {
+		totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{}, creds)
+		if err != nil {
+			return err
+		}
+		meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
+			Totals: totals,
+		})
+	}
 
 	if err = s.reporter.Report(ctx, &meteringData); err != nil {
 		return err
