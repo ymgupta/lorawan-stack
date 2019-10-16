@@ -61,10 +61,10 @@ export default class DeviceClaimForm extends Component {
         validationSchema={deviceClaimValidationSchema}
       >
         <Form.Field
-          title={sharedMessages.claimID}
+          title={sharedMessages.claimAuth}
           name="claim_id"
           type="textarea"
-          description={m.ClaimIdMessage}
+          description={m.ClaimAuthMessage}
           component={Input}
         />
         <SubmitBar>

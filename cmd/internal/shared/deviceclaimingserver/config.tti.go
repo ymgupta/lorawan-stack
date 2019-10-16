@@ -19,7 +19,7 @@ var DefaultDeviceClaimingServerConfig = deviceclaimingserver.Config{
 	},
 	UI: deviceclaimingserver.UIConfig{
 		TemplateData: webui.TemplateData{
-			SiteName:      "The Things Stack for LoRaWAN",
+			SiteName:      "The Things Enterprise Stack",
 			Title:         "Device Claiming Service",
 			Language:      "en",
 			CanonicalURL:  shared.DefaultDeviceClaimingPublicURL,

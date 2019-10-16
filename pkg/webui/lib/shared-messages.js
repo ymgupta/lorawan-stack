@@ -46,7 +46,7 @@ export default defineMessages({
   changeLocation: 'Change location settings',
   changePassword: 'Change Password',
   claimDevice: 'Claim Device',
-  claimID: 'Claim ID',
+  claimAuth: 'Claim Authentication Code',
   claimSuccess: 'Successfully claimed device',
   clear: 'Clear',
   collaborator: 'Collaborator',

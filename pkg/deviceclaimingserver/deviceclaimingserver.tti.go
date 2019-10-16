@@ -136,7 +136,7 @@ func (dcs *DeviceClaimingServer) RegisterHandlers(s *runtime.ServeMux, conn *grp
 	ttnpb.RegisterEndDeviceClaimingServerHandler(dcs.Context(), s, conn)
 }
 
-// RegisterRoutes implements web.Registerer. It registers the Console to the web server.
+// RegisterRoutes implements web.Registerer. It registers the Device Claiming Server to the web server.
 func (dcs *DeviceClaimingServer) RegisterRoutes(server *web.Server) {
 	group := server.Group(
 		dcs.config.Mount,
