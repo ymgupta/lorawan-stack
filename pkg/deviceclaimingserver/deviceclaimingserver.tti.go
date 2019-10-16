@@ -101,6 +101,18 @@ func New(c *component.Component, conf *Config, opts ...Option) (*DeviceClaimingS
 	return dcs, nil
 }
 
+type ctxKeyType struct{}
+
+var ctxKey ctxKeyType
+
+func (dcs *DeviceClaimingServer) configFromContext(ctx context.Context) *Config {
+	if config, ok := ctx.Value(ctxKey).(*Config); ok {
+		return config
+	}
+	config := dcs.config.Apply(ctx)
+	return &config
+}
+
 // Option configures the DeviceClaimingServer.
 type Option func(*DeviceClaimingServer)
 
@@ -130,9 +142,10 @@ func (dcs *DeviceClaimingServer) RegisterRoutes(server *web.Server) {
 		dcs.config.Mount,
 		func(next echo.HandlerFunc) echo.HandlerFunc {
 			return func(c echo.Context) error {
-				c.Set("template_data", dcs.config.UI.TemplateData)
-				frontendConfig := dcs.config.UI.FrontendConfig
-				frontendConfig.Language = dcs.config.UI.TemplateData.Language
+				config := dcs.configFromContext(c.Request().Context())
+				c.Set("template_data", config.UI.TemplateData)
+				frontendConfig := config.UI.FrontendConfig
+				frontendConfig.Language = config.UI.TemplateData.Language
 				c.Set("app_config", struct {
 					FrontendConfig
 				}{
