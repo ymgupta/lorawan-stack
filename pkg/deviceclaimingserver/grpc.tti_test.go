@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
+	"go.thethings.network/lorawan-stack/pkg/web/oauthclient"
 	"google.golang.org/grpc"
 )
 
@@ -43,6 +44,12 @@ func TestAuthorizeApplication(t *testing.T) {
 
 	c := componenttest.NewComponent(t, &component.Config{})
 	test.Must(New(c, &Config{
+		OAuth: oauthclient.Config{
+			AuthorizeURL: "http://localhost/oauth/authorize",
+			TokenURL:     "http://localhost/token",
+			ClientID:     "test",
+			ClientSecret: "test",
+		},
 		AuthorizedApplications: authorizedApplicationsRegistry,
 	}))
 
@@ -1527,6 +1534,12 @@ func TestClaim(t *testing.T) {
 			})
 			dcs := test.Must(New(c,
 				&Config{
+					OAuth: oauthclient.Config{
+						AuthorizeURL: "http://localhost/oauth/authorize",
+						TokenURL:     "http://localhost/token",
+						ClientID:     "test",
+						ClientSecret: "test",
+					},
 					AuthorizedApplications: &mockAuthorizedApplicationsRegistry{
 						GetFunc: tc.GetAuthorizedApplicationFunc,
 					},
