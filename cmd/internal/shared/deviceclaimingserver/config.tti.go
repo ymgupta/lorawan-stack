@@ -20,7 +20,7 @@ var DefaultDeviceClaimingServerConfig = deviceclaimingserver.Config{
 	UI: deviceclaimingserver.UIConfig{
 		TemplateData: webui.TemplateData{
 			SiteName:      "The Things Enterprise Stack",
-			Title:         "Device Claiming Service",
+			Title:         "Device Claiming Server",
 			Language:      "en",
 			CanonicalURL:  shared.DefaultDeviceClaimingPublicURL,
 			AssetsBaseURL: shared.DefaultAssetsBaseURL,
