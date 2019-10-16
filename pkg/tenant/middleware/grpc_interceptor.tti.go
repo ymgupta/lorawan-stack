@@ -22,7 +22,9 @@ func fromRPCContext(ctx context.Context) ttipb.TenantIdentifiers {
 			return ttipb.TenantIdentifiers{TenantID: tenantID(host[0])}
 		}
 		if authority, ok := md[":authority"]; ok { // Set by gRPC clients.
-			return ttipb.TenantIdentifiers{TenantID: tenantID(authority[0])}
+			if authority[0] != "in-process" {
+				return ttipb.TenantIdentifiers{TenantID: tenantID(authority[0])}
+			}
 		}
 	}
 	return ttipb.TenantIdentifiers{}
