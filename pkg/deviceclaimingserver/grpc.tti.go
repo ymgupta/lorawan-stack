@@ -238,6 +238,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
 	); err != nil {
+		logger.WithError(err).Warn("Insufficient rights for source application")
 		return nil, err
 	}
 
