@@ -316,7 +316,10 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	// Get source end device from Network Server and Application Server.
-	var sourceNSClient ttnpb.NsEndDeviceRegistryClient
+	var (
+		skipTargetNSCreate bool
+		sourceNSClient     ttnpb.NsEndDeviceRegistryClient
+	)
 	if sourceDev.NetworkServerAddress != "" {
 		logger := logger.WithField("network_server_address", sourceDev.NetworkServerAddress)
 		logger.Debug("Get source end device from Network Server")
@@ -335,13 +338,19 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}, sourceCallOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to get source end device from Network Server")
-			return nil, err
-		}
-		if err := sourceDev.SetFields(sourceNSDev, transferNSPaths[:]...); err != nil {
+			if !errors.IsNotFound(err) {
+				return nil, err
+			}
+			sourceNSClient = nil
+			skipTargetNSCreate = true
+		} else if err := sourceDev.SetFields(sourceNSDev, transferNSPaths[:]...); err != nil {
 			return nil, err
 		}
 	}
-	var sourceASClient ttnpb.AsEndDeviceRegistryClient
+	var (
+		skipTargetASCreate bool
+		sourceASClient     ttnpb.AsEndDeviceRegistryClient
+	)
 	if sourceDev.ApplicationServerAddress != "" {
 		logger := logger.WithField("application_server_address", sourceDev.ApplicationServerAddress)
 		logger.Debug("Get source end device from Application Server")
@@ -360,9 +369,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}, sourceCallOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to get source end device from Application Server")
-			return nil, err
-		}
-		if err := sourceDev.SetFields(sourceASDev, transferASPaths[:]...); err != nil {
+			if !errors.IsNotFound(err) {
+				return nil, err
+			}
+			sourceASClient = nil
+			skipTargetASCreate = true
+		} else if err := sourceDev.SetFields(sourceASDev, transferASPaths[:]...); err != nil {
 			return nil, err
 		}
 	}
@@ -533,7 +545,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}()
 
 	// Create target end device on Network Server and rollback if subsequent creates fail.
-	if targetNSConn != nil {
+	if targetNSConn != nil && !skipTargetNSCreate {
 		logger := logger.WithField("network_server_address", targetDev.NetworkServerAddress)
 		logger.Debug("Create target end device on Network Server")
 		targetNSClient := ttnpb.NewNsEndDeviceRegistryClient(targetNSConn)
@@ -558,7 +570,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	// Create target end device on Application Server and rollback if subsequent creates fail.
-	if targetASConn != nil {
+	if targetASConn != nil && !skipTargetASCreate {
 		logger := logger.WithField("application_server_address", targetDev.ApplicationServerAddress)
 		logger.Debug("Create target end device on Application Server")
 		targetASClient := ttnpb.NewAsEndDeviceRegistryClient(targetASConn)
