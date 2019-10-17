@@ -56,6 +56,18 @@ func (r *mockTenantRegistry) GetIdentifiersForEndDeviceEUIs(ctx context.Context,
 	return r.GetIdentifiersForEndDeviceEUIsFunc(ctx, in, opts...)
 }
 
+type mockApplicationAccess struct {
+	ttnpb.ApplicationAccessClient
+	ListRightsFunc func(context.Context, *ttnpb.ApplicationIdentifiers, ...grpc.CallOption) (*ttnpb.Rights, error)
+}
+
+func (c *mockApplicationAccess) ListRights(ctx context.Context, in *ttnpb.ApplicationIdentifiers, opts ...grpc.CallOption) (*ttnpb.Rights, error) {
+	if c.ListRightsFunc == nil {
+		panic("ListRightsFunc called, but not set")
+	}
+	return c.ListRightsFunc(ctx, in, opts...)
+}
+
 type mockDeviceRegistry struct {
 	ttnpb.EndDeviceRegistryClient
 	CreateFunc                func(context.Context, *ttnpb.CreateEndDeviceRequest, ...grpc.CallOption) (*ttnpb.EndDevice, error)

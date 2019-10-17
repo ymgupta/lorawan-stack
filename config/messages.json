@@ -2834,6 +2834,15 @@
       "file": "grpc.tti.go"
     }
   },
+  "error:pkg/deviceclaimingserver:permission_denied": {
+    "translations": {
+      "en": "permission denied"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
   "error:pkg/deviceclaimingserver:qr_code_data": {
     "translations": {
       "en": "invalid QR code data"

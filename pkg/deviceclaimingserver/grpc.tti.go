@@ -33,10 +33,11 @@ type endDeviceClaimingServer struct {
 }
 
 var (
-	errParseQRCode              = errors.Define("parse_qr_code", "parse QR code failed")
-	errQRCodeData               = errors.DefineInvalidArgument("qr_code_data", "invalid QR code data")
-	errApplicationNotAuthorized = errors.DefineNotFound("application_not_authorized", "application not authorized")
-	errClaimAuthenticationCode  = errors.DefineAborted("claim_authentication_code", "invalid claim authentication code")
+	errParseQRCode             = errors.Define("parse_qr_code", "parse QR code failed")
+	errQRCodeData              = errors.DefineInvalidArgument("qr_code_data", "invalid QR code data")
+	errAuthorizationNotFound   = errors.DefineNotFound("application_not_authorized", "application not authorized")
+	errPermissionDenied        = errors.DefinePermissionDenied("permission_denied", "permission denied")
+	errClaimAuthenticationCode = errors.DefineAborted("claim_authentication_code", "invalid claim authentication code")
 )
 
 var (
@@ -211,7 +212,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if err != nil {
 		logger.WithError(err).Warn("Failed to load authorized source application API key")
 		if errors.IsNotFound(err) {
-			return nil, errApplicationNotAuthorized.WithCause(err)
+			return nil, errPermissionDenied.WithCause(err)
 		}
 		return nil, err
 	}
@@ -231,15 +232,25 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 
 	// Validate that the authorized application API key has enough rights to read and delete the device.
-	// NOTE: The Access fetcher expects metadata in the incoming context as it uses forwarded auth.
-	if err := rights.RequireApplication(sourceMD.ToIncomingContext(sourceCtx), sourceIDs.ApplicationIdentifiers,
+	sourceAppAccess, err := s.DCS.getApplicationAccess(sourceCtx, &sourceIDs.ApplicationIdentifiers)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to get application access provider to verify authorized source application rights")
+		return nil, err
+	}
+	sourceRights, err := sourceAppAccess.ListRights(sourceCtx, &sourceIDs.ApplicationIdentifiers, sourceCallOpts...)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to list authorized source application rights")
+		return nil, err
+	}
+	missingSourceRights := ttnpb.RightsFrom(
 		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
 		ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE,
 		ttnpb.RIGHT_APPLICATION_DEVICES_WRITE_KEYS,
-	); err != nil {
-		logger.WithError(err).Warn("Insufficient rights for source application")
-		return nil, err
+	).Sub(sourceRights).GetRights()
+	if len(missingSourceRights) > 0 {
+		logger.WithError(err).WithField("missing", missingSourceRights).Warn("Insufficient rights for source application")
+		return nil, errPermissionDenied
 	}
 
 	sourceCtx = events.ContextWithCorrelationID(sourceCtx, fmt.Sprintf("dcs:claim:%s", events.NewCorrelationID()))
@@ -597,7 +608,7 @@ func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req 
 func (s *endDeviceClaimingServer) UnauthorizeApplication(ctx context.Context, ids *ttnpb.ApplicationIdentifiers) (*pbtypes.Empty, error) {
 	_, err := s.DCS.authorizedAppsRegistry.Set(ctx, *ids, nil, func(key *ttipb.ApplicationAPIKey) (*ttipb.ApplicationAPIKey, []string, error) {
 		if key == nil {
-			return nil, nil, errApplicationNotAuthorized
+			return nil, nil, errAuthorizationNotFound
 		}
 		return nil, nil, nil
 	})
