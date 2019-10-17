@@ -429,7 +429,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 		case "metering":
 			if len(subs) == 0 {
 				subs = []string{
-					"aws",
+					"aws", "prometheus",
 				}
 			}
 			for name, subs := range _processPaths(subs) {
@@ -441,6 +441,18 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 						if err := v.ValidateFields(subs...); err != nil {
 							return MeteringConfigurationValidationError{
 								field:  "aws",
+								reason: "embedded message failed validation",
+								cause:  err,
+							}
+						}
+					}
+
+				case "prometheus":
+
+					if v, ok := interface{}(m.GetPrometheus()).(interface{ ValidateFields(...string) error }); ok {
+						if err := v.ValidateFields(subs...); err != nil {
+							return MeteringConfigurationValidationError{
+								field:  "prometheus",
 								reason: "embedded message failed validation",
 								cause:  err,
 							}
@@ -792,6 +804,73 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MeteringConfiguration_AWSValidationError{}
+
+// ValidateFields checks the field values on MeteringConfiguration_Prometheus
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, an error is returned.
+func (m *MeteringConfiguration_Prometheus) ValidateFields(paths ...string) error {
+	if len(paths) > 0 {
+		return fmt.Errorf("message MeteringConfiguration_Prometheus has no fields, but paths %s were specified", paths)
+	}
+	return nil
+}
+
+// MeteringConfiguration_PrometheusValidationError is the validation error
+// returned by MeteringConfiguration_Prometheus.ValidateFields if the
+// designated constraints aren't met.
+type MeteringConfiguration_PrometheusValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringConfiguration_PrometheusValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringConfiguration_PrometheusValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringConfiguration_PrometheusValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringConfiguration_PrometheusValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringConfiguration_PrometheusValidationError) ErrorName() string {
+	return "MeteringConfiguration_PrometheusValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MeteringConfiguration_PrometheusValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringConfiguration_Prometheus.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringConfiguration_PrometheusValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringConfiguration_PrometheusValidationError{}
 
 // ValidateFields checks the field values on LicenseKey_Signature with the
 // rules defined in the proto definition for this message. If any rules are

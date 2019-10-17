@@ -43,6 +43,12 @@ func initializeLicense(ctx context.Context) (context.Context, error) {
 			MaxGateways:      &pbtypes.UInt64Value{Value: 10},
 			MaxOrganizations: &pbtypes.UInt64Value{Value: 10},
 			MaxUsers:         &pbtypes.UInt64Value{Value: 10},
+			Metering: &ttipb.MeteringConfiguration{
+				Interval: time.Minute,
+				Metering: &ttipb.MeteringConfiguration_Prometheus_{
+					Prometheus: &ttipb.MeteringConfiguration_Prometheus{},
+				},
+			},
 		}
 		logger.WithFields(license).Warn("No license configured, running unlicensed mode")
 	}

@@ -25,16 +25,12 @@ type meteredComponent struct {
 	*Component
 }
 
+func (c meteredComponent) Auth() grpc.CallOption {
+	return c.cluster.Auth()
+}
+
 func (c meteredComponent) GetPeerConn(ctx context.Context, role ttnpb.ClusterRole) (*grpc.ClientConn, error) {
-	peer, err := c.GetPeer(ctx, role, nil)
-	if err != nil {
-		return nil, err
-	}
-	conn, err := peer.Conn()
-	if err != nil {
-		return nil, err
-	}
-	return conn, nil
+	return c.cluster.GetPeerConn(ctx, role, nil)
 }
 
 func (c *Component) startMetering() error {

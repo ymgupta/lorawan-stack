@@ -9,8 +9,11 @@ import (
 	"sync"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
+	"go.thethings.network/lorawan-stack/pkg/license/prometheusmetrics"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/metrics"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -18,7 +21,7 @@ import (
 
 // Cluster is the interface used for getting metrics.
 type Cluster interface {
-	WithClusterAuth() grpc.CallOption
+	Auth() grpc.CallOption
 	GetPeerConn(ctx context.Context, role ttnpb.ClusterRole) (*grpc.ClientConn, error)
 }
 
@@ -69,28 +72,48 @@ func (s *meteringSetup) CollectAndReport(ctx context.Context) (err error) {
 	}
 
 	reg := ttipb.NewTenantRegistryClient(cc)
-	creds := s.cluster.WithClusterAuth()
+	creds := s.cluster.Auth()
 
-	// TODO: List all tenants and range over those (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-	// tenants, err := reg.List(ctx, &ttipb.ListTenantsRequest{
-	// 	FieldMask: pbtypes.FieldMask{Paths: []string{"ids"}},
-	// 	Limit:     0,
-	// 	Page:      1, // TODO: Pagination
-	// }, creds)
-	// if err != nil {
-	// 	return err
-	// }
-
-	totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
-		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-	}, creds)
-	if err != nil {
-		return err
+	var (
+		tenantsPageSize = 1000
+		tenantsPage     = 1
+	)
+	for {
+		res, err := reg.List(ctx, &ttipb.ListTenantsRequest{
+			FieldMask: pbtypes.FieldMask{Paths: []string{"ids"}},
+			Limit:     uint32(tenantsPageSize),
+			Page:      uint32(tenantsPage),
+		}, creds)
+		if err != nil {
+			return err
+		}
+		for _, tenant := range res.Tenants {
+			totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
+				TenantIdentifiers: &tenant.TenantIdentifiers,
+			}, creds)
+			if err != nil {
+				return err
+			}
+			meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
+				TenantIdentifiers: tenant.TenantIdentifiers,
+				Totals:            totals,
+			})
+		}
+		if len(res.Tenants) < tenantsPageSize {
+			break
+		}
+		tenantsPage++
 	}
-	meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
-		// TODO: TenantIdentifiers (https://github.com/TheThingsIndustries/lorawan-stack/issues/1706).
-		Totals: totals,
-	})
+
+	if len(meteringData.Tenants) == 0 {
+		totals, err := reg.GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{}, creds)
+		if err != nil {
+			return err
+		}
+		meteringData.Tenants = append(meteringData.Tenants, &ttipb.MeteringData_TenantMeteringData{
+			Totals: totals,
+		})
+	}
 
 	if err = s.reporter.Report(ctx, &meteringData); err != nil {
 		return err
@@ -129,32 +152,44 @@ func (s *meteringSetup) Run(ctx context.Context) error {
 	}
 }
 
-var globalMetering *meteringSetup
-
-// SetupMetering sets up metering on cluster.
-func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) (err error) {
-	if globalMetering != nil {
-		return errors.New("only one metering configuration can be set up")
-	}
-	globalMetering = &meteringSetup{
+func newMeteringSetup(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) (*meteringSetup, error) {
+	s := &meteringSetup{
 		config:  config,
 		cluster: cluster,
 	}
+	var err error
 	switch reporterConfig := config.Metering.(type) {
 	case *ttipb.MeteringConfiguration_AWS_:
-		globalMetering.reporter, err = awsmetrics.New(reporterConfig.AWS)
+		s.reporter, err = awsmetrics.New(reporterConfig.AWS)
 		if err != nil {
-			return err
+			return nil, err
+		}
+	case *ttipb.MeteringConfiguration_Prometheus_:
+		s.reporter, err = prometheusmetrics.New(reporterConfig.Prometheus, metrics.Registry)
+		if err != nil {
+			return nil, err
 		}
 	default:
-		return fmt.Errorf("unsupported metering reporter config type: %T", config.Metering)
+		return nil, fmt.Errorf("unsupported metering reporter config type: %T", config.Metering)
 	}
+	return s, nil
+}
 
+var globalMetering *meteringSetup
+
+// SetupMetering sets up metering on cluster.
+func SetupMetering(ctx context.Context, config *ttipb.MeteringConfiguration, cluster Cluster) error {
+	if globalMetering != nil {
+		return errors.New("only one metering configuration can be set up")
+	}
+	var err error
+	globalMetering, err = newMeteringSetup(ctx, config, cluster)
+	if err != nil {
+		return err
+	}
 	if err := globalMetering.CollectAndReport(ctx); err != nil {
 		return err
 	}
-
 	go globalMetering.Run(ctx)
-
 	return nil
 }

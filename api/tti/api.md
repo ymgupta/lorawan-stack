@@ -17,6 +17,7 @@
   - [Message `LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate)
   - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
   - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
+  - [Message `MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus)
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
   - [Message `MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
@@ -151,12 +152,15 @@
 | `interval` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | How frequently to report to the metering service. |
 | `on_success` | [`LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate) |  | How to update the license on success. |
 | `aws` | [`MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS) |  |  |
+| `prometheus` | [`MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.AWS">Message `MeteringConfiguration.AWS`</a>
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `sku` | [`string`](#string) |  |  |
+
+### <a name="tti.lorawan.v3.MeteringConfiguration.Prometheus">Message `MeteringConfiguration.Prometheus`</a>
 
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 

@@ -25,6 +25,7 @@ var LicenseFieldPathsNested = []string{
 	"metering.metering",
 	"metering.metering.aws",
 	"metering.metering.aws.sku",
+	"metering.metering.prometheus",
 	"metering.on_success",
 	"metering.on_success.extend_valid_until",
 	"min_version",
@@ -69,6 +70,7 @@ var MeteringConfigurationFieldPathsNested = []string{
 	"metering",
 	"metering.aws",
 	"metering.aws.sku",
+	"metering.prometheus",
 	"on_success",
 	"on_success.extend_valid_until",
 }
@@ -101,6 +103,8 @@ var MeteringConfiguration_AWSFieldPathsNested = []string{
 var MeteringConfiguration_AWSFieldPathsTopLevel = []string{
 	"sku",
 }
+var MeteringConfiguration_PrometheusFieldPathsNested []string
+var MeteringConfiguration_PrometheusFieldPathsTopLevel []string
 var LicenseKey_SignatureFieldPathsNested = []string{
 	"key_id",
 	"signature",
