@@ -9,7 +9,6 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/webhook"
-	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
 )
 
@@ -20,8 +19,6 @@ const (
 
 	stripeSignatureHeader = "Stripe-Signature"
 )
-
-var errInvalidEventType = errors.DefineInvalidArgument("invalid_event_type", "invalid event type `{type}` provided")
 
 func (s *Stripe) handleWebhook(c echo.Context) error {
 	ctx := s.component.FillContext(c.Request().Context())
@@ -46,7 +43,7 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 			"event_id", event.ID,
 			"event_type", event.Type,
 		)).Warn("Unexpected event received")
-		return errInvalidEventType.WithAttributes("type", event.Type)
+		return nil
 	}
 
 	sub := &stripe.Subscription{}

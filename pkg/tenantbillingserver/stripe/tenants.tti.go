@@ -111,7 +111,7 @@ func (s *Stripe) getAPIClient() (*client.API, error) {
 	backends := stripe.NewBackends(nil)
 	backends.API = stripe.GetBackendWithConfig(stripe.APIBackend, &stripe.BackendConfig{
 		LeveledLogger: log.FromContext(s.ctx),
-		LogLevel:      2,
+		LogLevel:      s.config.LogLevel,
 	})
 	return client.New(s.config.APIKey, backends), nil
 }
