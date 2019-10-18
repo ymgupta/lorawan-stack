@@ -5,6 +5,7 @@ package stripe
 import (
 	"context"
 
+	"github.com/stripe/stripe-go/client"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
@@ -24,9 +25,8 @@ type Config struct {
 }
 
 var (
-	errNoAPIKey    = errors.DefineInvalidArgument("no_api_key", "no API key provided")
-	errNoSecretKey = errors.DefineInvalidArgument("no_endpoint_secret_key", "no endpoint secret key provided")
-	errNoPlanIDs   = errors.DefineInvalidArgument("no_plan_ids", "no plan ids provided")
+	errNoAPIKey  = errors.DefineInvalidArgument("no_api_key", "no API key provided")
+	errNoPlanIDs = errors.DefineInvalidArgument("no_plan_ids", "no plan ids provided")
 )
 
 // New returns a new Stripe backend using the config.
@@ -36,9 +36,6 @@ func (c Config) New(ctx context.Context, component *component.Component, opts ..
 	}
 	if len(c.APIKey) == 0 {
 		return nil, errNoAPIKey
-	}
-	if len(c.EndpointSecretKey) == 0 {
-		return nil, errNoSecretKey
 	}
 	if len(c.PlanIDs) == 0 {
 		return nil, errNoPlanIDs
@@ -54,6 +51,8 @@ type Stripe struct {
 
 	tenantsClient ttipb.TenantRegistryClient
 	tenantAuth    grpc.CallOption
+
+	apiClient *client.API
 }
 
 // New returns a new Stripe backend.
@@ -95,6 +94,13 @@ func WithTenantRegistryClient(client ttipb.TenantRegistryClient) Option {
 func WithTenantRegistryAuth(auth grpc.CallOption) Option {
 	return Option(func(s *Stripe) {
 		s.tenantAuth = auth
+	})
+}
+
+// WithStripeAPIClient sets the backend to use the given Stripe API client. Generally used for testing.
+func WithStripeAPIClient(c *client.API) Option {
+	return Option(func(s *Stripe) {
+		s.apiClient = c
 	})
 }
 

@@ -29,10 +29,19 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 		return err
 	}
 
-	event, err := webhook.ConstructEvent(body, c.Request().Header.Get(stripeSignatureHeader), s.config.EndpointSecretKey)
-	if err != nil {
-		logger.WithError(err).Warn("Webhook signature validation failed")
-		return err
+	var event stripe.Event
+	if len(s.config.EndpointSecretKey) == 0 {
+		err = json.Unmarshal(body, &event)
+		if err != nil {
+			logger.WithError(err).Warn("Webhook unmarshaling failed")
+			return err
+		}
+	} else {
+		event, err = webhook.ConstructEvent(body, c.Request().Header.Get(stripeSignatureHeader), s.config.EndpointSecretKey)
+		if err != nil {
+			logger.WithError(err).Warn("Webhook signature validation failed")
+			return err
+		}
 	}
 
 	switch event.Type {

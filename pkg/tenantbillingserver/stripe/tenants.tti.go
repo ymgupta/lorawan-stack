@@ -107,7 +107,21 @@ func (s *Stripe) deleteTenant(ctx context.Context, sub *stripe.Subscription) err
 	return nil
 }
 
+func (s *Stripe) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryClient, error) {
+	if s.tenantsClient != nil {
+		return s.tenantsClient, nil
+	}
+	cc, err := s.component.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
+	if err != nil {
+		return nil, err
+	}
+	return ttipb.NewTenantRegistryClient(cc), nil
+}
+
 func (s *Stripe) getAPIClient() (*client.API, error) {
+	if s.apiClient != nil {
+		return s.apiClient, nil
+	}
 	backends := stripe.NewBackends(nil)
 	backends.API = stripe.GetBackendWithConfig(stripe.APIBackend, &stripe.BackendConfig{
 		LeveledLogger: log.FromContext(s.ctx),
