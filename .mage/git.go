@@ -120,6 +120,7 @@ var gitCommitPrefixes = []string{
 	"ns",
 	"oauth",
 	"qrg",
+	"tbs",
 	"util",
 }
 
