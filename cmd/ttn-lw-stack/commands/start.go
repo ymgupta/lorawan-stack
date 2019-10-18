@@ -45,13 +45,14 @@ import (
 	nsredis "go.thethings.network/lorawan-stack/pkg/networkserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
 	"go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
 	"go.thethings.network/lorawan-stack/pkg/web"
 )
 
 var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
 
 var startCommand = &cobra.Command{
-	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|dcs|cs|all]... [flags]",
+	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|dcs|cs|tbs|all]... [flags]",
 	Short: "Start The Things Enterprise Stack",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var start struct {
@@ -67,6 +68,7 @@ var startCommand = &cobra.Command{
 
 			DeviceClaimingServer bool
 			CryptoServer         bool
+			TenantBillingServer  bool
 		}
 		startDefault := len(args) == 0
 		for _, arg := range args {
@@ -102,6 +104,8 @@ var startCommand = &cobra.Command{
 				start.CryptoServer = true
 			case "dcs":
 				start.DeviceClaimingServer = true
+			case "tbs":
+				start.TenantBillingServer = true
 
 			case "all":
 				start.IdentityServer = true
@@ -116,6 +120,7 @@ var startCommand = &cobra.Command{
 
 				start.DeviceClaimingServer = true
 				start.CryptoServer = true
+				start.TenantBillingServer = true
 			default:
 				return errUnknownComponent.WithAttributes("component", arg)
 			}
@@ -292,6 +297,15 @@ var startCommand = &cobra.Command{
 				return shared.ErrInitializeCryptoServer.WithCause(err)
 			}
 			_ = cryptoserver
+		}
+
+		if start.TenantBillingServer || startDefault {
+			logger.Info("Setting up Tenant Billing Server")
+			tbs, err := tenantbillingserver.New(c, &config.TBS)
+			if err != nil {
+				return shared.ErrInitializeTenantBillingServer.WithCause(err)
+			}
+			_ = tbs
 		}
 
 		if start.DeviceClaimingServer || startDefault {

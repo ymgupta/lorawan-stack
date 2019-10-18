@@ -8,4 +8,5 @@ import "go.thethings.network/lorawan-stack/pkg/errors"
 var (
 	ErrInitializeDeviceClaimingServer = errors.Define("initialize_device_claiming_server", "could not initialize Device Claiming Server")
 	ErrInitializeCryptoServer         = errors.Define("initialize_crypto_server", "could not initialize Crypto Server")
+	ErrInitializeTenantBillingServer  = errors.Define("initialize_tenant_billing_server", "could not initialize Tenant Billing Server")
 )

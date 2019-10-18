@@ -102,7 +102,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 				stripeSubscriptionIDAttribute: sub.ID,
 			},
 			ContactInfo: []*ttnpb.ContactInfo{
-				&ttnpb.ContactInfo{
+				{
 					ContactType:   ttnpb.CONTACT_TYPE_BILLING,
 					ContactMethod: ttnpb.CONTACT_METHOD_EMAIL,
 					Value:         sub.Customer.Email,
@@ -149,7 +149,7 @@ func (s *Stripe) handleSubscriptions(c echo.Context) error {
 		return err
 	}
 
-	event, err := webhook.ConstructEvent(body, c.Request().Header.Get(stripeSignatureHeader), s.config.SecretKey)
+	event, err := webhook.ConstructEvent(body, c.Request().Header.Get(stripeSignatureHeader), s.config.EndpointSecretKey)
 	if err != nil {
 		logger.WithError(err).Warn("Webhook signature validation failed")
 		return err
