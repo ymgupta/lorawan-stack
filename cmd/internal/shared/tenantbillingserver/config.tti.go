@@ -4,12 +4,7 @@ package tenantbillingserver
 
 import (
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
-	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/stripe"
 )
 
 // DefaultTenantBillingServerConfig is the default configuration for the Tenant Billing Server.
-var DefaultTenantBillingServerConfig = tenantbillingserver.Config{
-	Stripe: stripe.Config{
-		Enabled: false,
-	},
-}
+var DefaultTenantBillingServerConfig = tenantbillingserver.Config{}

@@ -8,6 +8,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/stripe"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -17,6 +18,8 @@ import (
 // Config is the configuration for the TenantBillingServer.
 type Config struct {
 	Stripe stripe.Config `name:"stripe" description:"Stripe backend configuration"`
+
+	TenantAdminKey string `name:"tenant-admin-key" description:"Tenant administration authentication key"`
 }
 
 // TenantBillingServer is the Tenant Billing Server.
@@ -32,6 +35,11 @@ type Backend interface {
 	Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error
 }
 
+const (
+	// TenantAdminAuthType is the AuthType used for tenant administration.
+	TenantAdminAuthType = "TenantAdminKey"
+)
+
 // New returns a new Tenant Billing component.
 func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingServer, error) {
 	tbs := &TenantBillingServer{
@@ -43,10 +51,16 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		opt(tbs)
 	}
 
-	if strp, err := conf.Stripe.New(c); err != nil {
+	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
+		AuthType:  TenantAdminAuthType,
+		AuthValue: conf.TenantAdminKey,
+	})
+
+	if strp, err := conf.Stripe.New(tbs.ctx, c, stripe.WithTenantRegistryAuth(tenantAuth)); err != nil {
 		return nil, err
 	} else if strp != nil {
 		tbs.backends = append(tbs.backends, strp)
+		c.RegisterWeb(strp)
 	}
 
 	c.RegisterGRPC(tbs)
