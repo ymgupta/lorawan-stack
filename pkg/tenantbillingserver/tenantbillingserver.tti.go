@@ -28,6 +28,7 @@ type TenantBillingServer struct {
 
 // Backend is an tenant handling backend.
 type Backend interface {
+	// Report reports the tenant registry totals to the backend. Only the attributes and IDs are retrieved for the tenant.
 	Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error
 }
 
