@@ -36,8 +36,7 @@ type StackConfig struct {
 
 // FrontendConfig is the configuration for the Device Claiming Server frontend.
 type FrontendConfig struct {
-	Language    string          `json:"language" name:"-"`
-	IS          webui.APIConfig `json:"is" name:"is"`
+	Language    string `json:"language" name:"-"`
 	StackConfig `json:"stack_config" name:",squash"`
 }
 
@@ -265,8 +264,19 @@ func (conf UIConfig) Apply(ctx context.Context) UIConfig {
 }
 
 // Apply the context to the config.
-func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
+func (conf StackConfig) Apply(ctx context.Context) StackConfig {
 	deriv := conf
 	deriv.IS = conf.IS.Apply(ctx)
+	deriv.GS = conf.GS.Apply(ctx)
+	deriv.NS = conf.NS.Apply(ctx)
+	deriv.AS = conf.AS.Apply(ctx)
+	deriv.JS = conf.JS.Apply(ctx)
+	return deriv
+}
+
+// Apply the context to the config.
+func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
+	deriv := conf
+	deriv.StackConfig = conf.StackConfig.Apply(ctx)
 	return deriv
 }
