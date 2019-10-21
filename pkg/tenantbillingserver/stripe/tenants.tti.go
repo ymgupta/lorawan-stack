@@ -8,8 +8,6 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
-	"github.com/stripe/stripe-go/client"
-	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
@@ -116,26 +114,6 @@ func (s *Stripe) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryCli
 		return nil, err
 	}
 	return ttipb.NewTenantRegistryClient(cc), nil
-}
-
-func (s *Stripe) getAPIClient() (*client.API, error) {
-	if s.apiClient != nil {
-		return s.apiClient, nil
-	}
-	backends := stripe.NewBackends(nil)
-	backends.API = stripe.GetBackendWithConfig(stripe.APIBackend, &stripe.BackendConfig{
-		LeveledLogger: log.FromContext(s.ctx),
-		LogLevel:      s.config.LogLevel,
-	})
-	return client.New(s.config.APIKey, backends), nil
-}
-
-func (s *Stripe) getCustomer(id string, params *stripe.CustomerParams) (*stripe.Customer, error) {
-	client, err := s.getAPIClient()
-	if err != nil {
-		return nil, err
-	}
-	return client.Customers.Get(id, params)
 }
 
 func convertCustomerNameToTenantID(name string) string {
