@@ -363,6 +363,30 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = nil
 						}
 					}
+				case "tenant_billing_server":
+					if _, ok := dst.Metering.(*MeteringConfiguration_TenantBillingServer_); !ok {
+						dst.Metering = &MeteringConfiguration_TenantBillingServer_{}
+					}
+					if len(oneofSubs) > 0 {
+						newDst := dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
+						if newDst == nil {
+							newDst = &MeteringConfiguration_TenantBillingServer{}
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = newDst
+						}
+						var newSrc *MeteringConfiguration_TenantBillingServer
+						if src != nil {
+							newSrc = src.GetTenantBillingServer()
+						}
+						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
+							return err
+						}
+					} else {
+						if src != nil {
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = src.GetTenantBillingServer()
+						} else {
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = nil
+						}
+					}
 
 				default:
 					return fmt.Errorf("invalid oneof field: '%s.%s'", name, oneofName)
@@ -452,6 +476,27 @@ func (dst *MeteringConfiguration_Prometheus) SetFields(src *MeteringConfiguratio
 	}
 	if src != nil {
 		*dst = *src
+	}
+	return nil
+}
+
+func (dst *MeteringConfiguration_TenantBillingServer) SetFields(src *MeteringConfiguration_TenantBillingServer, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "authentication_key":
+			if len(subs) > 0 {
+				return fmt.Errorf("'authentication_key' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.AuthenticationKey = src.AuthenticationKey
+			} else {
+				var zero string
+				dst.AuthenticationKey = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
 	}
 	return nil
 }

@@ -429,7 +429,7 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 		case "metering":
 			if len(subs) == 0 {
 				subs = []string{
-					"aws", "prometheus",
+					"aws", "prometheus", "tenant_billing_server",
 				}
 			}
 			for name, subs := range _processPaths(subs) {
@@ -461,6 +461,18 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 						if err := v.ValidateFields(subs...); err != nil {
 							return MeteringConfigurationValidationError{
 								field:  "prometheus",
+								reason: "embedded message failed validation",
+								cause:  err,
+							}
+						}
+					}
+
+				case "tenant_billing_server":
+
+					if v, ok := interface{}(m.GetTenantBillingServer()).(interface{ ValidateFields(...string) error }); ok {
+						if err := v.ValidateFields(subs...); err != nil {
+							return MeteringConfigurationValidationError{
+								field:  "tenant_billing_server",
 								reason: "embedded message failed validation",
 								cause:  err,
 							}
@@ -879,6 +891,97 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = MeteringConfiguration_PrometheusValidationError{}
+
+// ValidateFields checks the field values on
+// MeteringConfiguration_TenantBillingServer with the rules defined in the
+// proto definition for this message. If any rules are violated, an error is returned.
+func (m *MeteringConfiguration_TenantBillingServer) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = MeteringConfiguration_TenantBillingServerFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "authentication_key":
+
+			if utf8.RuneCountInString(m.GetAuthenticationKey()) < 1 {
+				return MeteringConfiguration_TenantBillingServerValidationError{
+					field:  "authentication_key",
+					reason: "value length must be at least 1 runes",
+				}
+			}
+
+		default:
+			return MeteringConfiguration_TenantBillingServerValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// MeteringConfiguration_TenantBillingServerValidationError is the validation
+// error returned by MeteringConfiguration_TenantBillingServer.ValidateFields
+// if the designated constraints aren't met.
+type MeteringConfiguration_TenantBillingServerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e MeteringConfiguration_TenantBillingServerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e MeteringConfiguration_TenantBillingServerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e MeteringConfiguration_TenantBillingServerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e MeteringConfiguration_TenantBillingServerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e MeteringConfiguration_TenantBillingServerValidationError) ErrorName() string {
+	return "MeteringConfiguration_TenantBillingServerValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e MeteringConfiguration_TenantBillingServerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sMeteringConfiguration_TenantBillingServer.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = MeteringConfiguration_TenantBillingServerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = MeteringConfiguration_TenantBillingServerValidationError{}
 
 // ValidateFields checks the field values on LicenseKey_Signature with the
 // rules defined in the proto definition for this message. If any rules are

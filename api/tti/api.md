@@ -18,6 +18,7 @@
   - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
   - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
   - [Message `MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus)
+  - [Message `MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer)
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
   - [Message `MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
@@ -155,6 +156,7 @@
 | `on_success` | [`LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate) |  | How to update the license on success. |
 | `aws` | [`MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS) |  |  |
 | `prometheus` | [`MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus) |  |  |
+| `tenant_billing_server` | [`MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.AWS">Message `MeteringConfiguration.AWS`</a>
 
@@ -163,6 +165,18 @@
 | `sku` | [`string`](#string) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.Prometheus">Message `MeteringConfiguration.Prometheus`</a>
+
+### <a name="tti.lorawan.v3.MeteringConfiguration.TenantBillingServer">Message `MeteringConfiguration.TenantBillingServer`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `authentication_key` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `authentication_key` | <p>`string.min_len`: `1`</p> |
 
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 
