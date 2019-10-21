@@ -18,8 +18,8 @@ import (
 // Config is the configuration for the Stripe payment backend.
 type Config struct {
 	Enabled           bool     `name:"enabled" description:"Enable the backend"`
-	APIKey            string   `name:"api-key" description:"The API key used to report the metrics"`
-	EndpointSecretKey string   `name:"endpoint-secret-key" description:"The endopoint secret used to verify webhook signatures"`
+	APIKey            string   `name:"api-key" description:"The Stripe API key used to report the metrics"`
+	EndpointSecretKey string   `name:"endpoint-secret-key" description:"The Stripe endopoint secret used to verify webhook signatures"`
 	PlanIDs           []string `name:"plan-ids" description:"The IDs of the subscription plans to be handled"`
 	LogLevel          int      `name:"log-level" description:"Log level for the Stripe API client"`
 }
@@ -67,17 +67,6 @@ func New(ctx context.Context, component *component.Component, config *Config, op
 		opt(s)
 	}
 	return s, nil
-}
-
-func (s *Stripe) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryClient, error) {
-	if s.tenantsClient != nil {
-		return s.tenantsClient, nil
-	}
-	cc, err := s.component.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
-	if err != nil {
-		return nil, err
-	}
-	return ttipb.NewTenantRegistryClient(cc), nil
 }
 
 // Option is an option for the Stripe backend.

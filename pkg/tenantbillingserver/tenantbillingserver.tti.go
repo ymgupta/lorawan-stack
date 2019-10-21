@@ -9,23 +9,19 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/stripe"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
 
-// Config is the configuration for the TenantBillingServer.
-type Config struct {
-	Stripe stripe.Config `name:"stripe" description:"Stripe backend configuration"`
-
-	TenantAdminKey string `name:"tenant-admin-key" description:"Tenant administration authentication key"`
-}
-
 // TenantBillingServer is the Tenant Billing Server.
 type TenantBillingServer struct {
 	*component.Component
-	ctx      context.Context
+	ctx context.Context
+
+	config   *Config
 	backends []Backend
 }
 
@@ -36,8 +32,7 @@ type Backend interface {
 }
 
 const (
-	// TenantAdminAuthType is the AuthType used for tenant administration.
-	TenantAdminAuthType = "TenantAdminKey"
+	tenantAdminAuthType = "TenantAdminKey"
 )
 
 // New returns a new Tenant Billing component.
@@ -45,14 +40,19 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 	tbs := &TenantBillingServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "tenantbillingserver"),
+		config:    conf,
 	}
 
 	for _, opt := range opts {
 		opt(tbs)
 	}
 
+	if err := conf.decodeKeys(tbs.ctx); err != nil {
+		return nil, err
+	}
+
 	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
-		AuthType:  TenantAdminAuthType,
+		AuthType:  tenantAdminAuthType,
 		AuthValue: conf.TenantAdminKey,
 	})
 
@@ -62,6 +62,8 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		tbs.backends = append(tbs.backends, strp)
 		c.RegisterWeb(strp)
 	}
+
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.Tbs", "billing-rights", tbs.billingRightsHook)
 
 	c.RegisterGRPC(tbs)
 	return tbs, nil
