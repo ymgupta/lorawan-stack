@@ -88,7 +88,7 @@ func TestClientTokenAuth(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -193,7 +193,7 @@ func TestDiscover(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -433,7 +433,7 @@ func TestVersion(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -731,7 +731,7 @@ func TestTraffic(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -1063,7 +1063,7 @@ func TestRTT(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()

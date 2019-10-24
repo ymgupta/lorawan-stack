@@ -12,16 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.title
-  text-margin-top($ls.m)
-  text-margin-bottom($ls.m)
+import connect from './connect'
+import OrganizationCollaboratorEdit from './organization-collaborator-edit'
 
-.bulk-creation
-  justify-content: flex-end
-  display: flex
-  align-items: center
+const ConnectedOrganizationCollaboratorEdit = connect(OrganizationCollaboratorEdit)
 
-.form
-  +media-query($bp.s)
-    order: 2
-    text-margin-bottom($ls.m)
+export { ConnectedOrganizationCollaboratorEdit as default, OrganizationCollaboratorEdit }
