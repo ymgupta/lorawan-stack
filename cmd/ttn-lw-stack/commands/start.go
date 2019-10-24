@@ -289,14 +289,14 @@ var startCommand = &cobra.Command{
 
 		if start.DeviceClaimingServer || startDefault {
 			logger.Info("Setting up Device Claiming Server")
-			dcs, err := deviceclaimingserver.New(c, &config.DCS)
-			if err != nil {
-				return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
-			}
 			config.DCS.AuthorizedApplications = &dcsredis.AuthorizedApplicationRegistry{Redis: redis.New(&redis.Config{
 				Redis:     config.Redis,
 				Namespace: []string{"dcs", "applications", "authorized"},
 			})}
+			dcs, err := deviceclaimingserver.New(c, &config.DCS)
+			if err != nil {
+				return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
+			}
 			_ = dcs
 		}
 

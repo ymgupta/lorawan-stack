@@ -25,6 +25,7 @@ type DeviceClaimingServer struct {
 
 	authorizedAppsRegistry AuthorizedApplicationRegistry
 	tenantRegistry         ttipb.TenantRegistryClient
+	applicationAccess      ttnpb.ApplicationAccessClient
 	deviceRegistry         ttnpb.EndDeviceRegistryClient
 	jsDeviceRegistry       ttnpb.JsEndDeviceRegistryClient
 
@@ -89,6 +90,24 @@ func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context, ids *ttn
 		return nil, err
 	}
 	return ttipb.NewTenantRegistryClient(conn), nil
+}
+
+// WithApplicationAccess overrides the Device Claiming Server's application access provider.
+func WithApplicationAccess(access ttnpb.ApplicationAccessClient) Option {
+	return func(s *DeviceClaimingServer) {
+		s.applicationAccess = access
+	}
+}
+
+func (dcs *DeviceClaimingServer) getApplicationAccess(ctx context.Context, ids *ttnpb.ApplicationIdentifiers) (ttnpb.ApplicationAccessClient, error) {
+	if dcs.applicationAccess != nil {
+		return dcs.applicationAccess, nil
+	}
+	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_ACCESS, ids)
+	if err != nil {
+		return nil, err
+	}
+	return ttnpb.NewApplicationAccessClient(conn), nil
 }
 
 // WithDeviceRegistry overrides the Device Claiming Server's Entity Registry device registry.

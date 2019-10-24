@@ -261,7 +261,7 @@ func TestClaim(t *testing.T) {
 				return nil, errNotFound
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
-				return assertions.New(t).So(errors.IsNotFound(err), should.BeTrue)
+				return assertions.New(t).So(errors.IsPermissionDenied(err), should.BeTrue)
 			},
 		},
 		{
@@ -1533,6 +1533,11 @@ func TestClaim(t *testing.T) {
 				},
 				WithTenantRegistry(&mockTenantRegistry{
 					GetIdentifiersForEndDeviceEUIsFunc: tc.GetIdentifiersForEndDeviceEUIsFunc,
+				}),
+				WithApplicationAccess(&mockApplicationAccess{
+					ListRightsFunc: func(ctx context.Context, ids *ttnpb.ApplicationIdentifiers, opts ...grpc.CallOption) (*ttnpb.Rights, error) {
+						return tc.ApplicationRights[unique.ID(ctx, ids)], nil
+					},
 				}),
 				WithDeviceRegistry(&mockDeviceRegistry{
 					CreateFunc:                tc.CreateEndDeviceFunc,
