@@ -51,8 +51,8 @@ import (
 var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
 
 var startCommand = &cobra.Command{
-	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|cs|dcs|all]... [flags]",
-	Short: "Start The Things Stack",
+	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|dcs|cs|all]... [flags]",
+	Short: "Start The Things Enterprise Stack",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var start struct {
 			IdentityServer             bool
