@@ -65,6 +65,7 @@ class Devices {
     const params = {
       routeParams: {
         'end_device.ids.application_ids.application_id': appId,
+        ...(create ? {} : { 'end_device.ids.device_id': devId }),
       },
     }
 
@@ -288,8 +289,9 @@ class Devices {
 
   async listTemplateFormats() {
     const result = await this._api.EndDeviceTemplateConverter.ListFormats()
+    const payload = Marshaler.payloadSingleResponse(result)
 
-    return Marshaler.payloadListResponse('formats', result)
+    return payload.formats
   }
 
   convertTemplate(formatId, data) {
