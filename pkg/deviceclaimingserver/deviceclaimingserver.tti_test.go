@@ -11,6 +11,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
+	"go.thethings.network/lorawan-stack/pkg/web/oauthclient"
 )
 
 func TestDeviceDeviceClaimingServer(t *testing.T) {
@@ -19,7 +20,14 @@ func TestDeviceDeviceClaimingServer(t *testing.T) {
 	conf := &component.Config{}
 	c := componenttest.NewComponent(t, conf)
 
-	test.Must(New(c, &Config{}))
+	test.Must(New(c, &Config{
+		OAuth: oauthclient.Config{
+			AuthorizeURL: "http://localhost/oauth/authorize",
+			TokenURL:     "http://localhost/token",
+			ClientID:     "test",
+			ClientSecret: "test",
+		},
+	}))
 
 	componenttest.StartComponent(t, c)
 	defer c.Close()

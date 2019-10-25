@@ -13,3 +13,6 @@ var DefaultTenancyConfig = tenant.Config{
 	DefaultID: "default",
 	CacheTTL:  time.Minute,
 }
+
+// DefaultDeviceClaimingPublicURL is the default public URL where the device claiming is served.
+var DefaultDeviceClaimingPublicURL = DefaultPublicURL + "/claim"
