@@ -2528,15 +2528,6 @@
       "file": "keyvault.tti.go"
     }
   },
-  "error:pkg/crypto/aws:private_key": {
-    "translations": {
-      "en": "invalid private key `{id}`"
-    },
-    "description": {
-      "package": "pkg/crypto/aws",
-      "file": "keyvault.tti.go"
-    }
-  },
   "error:pkg/crypto/aws:secret_content": {
     "translations": {
       "en": "invalid secret content in `{id}`"
