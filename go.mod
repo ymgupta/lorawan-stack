@@ -125,7 +125,6 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/tdewolff/minify/v2 v2.5.2 // indirect
 	github.com/valyala/fasttemplate v1.1.0 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20181201043747-70daafe5d78a
 	go.opencensus.io v0.22.1
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.17.0
