@@ -19,12 +19,14 @@ import (
 //
 // This test requires AWS_REGION, AWS_SECRET_KEY_ID and AWS_SECRET_ACCESS_KEY to be set in the environment.
 //
-// In AWS Secrets Manager, create a secret with ID `testing/kek` with a field `value` set to `AAECAwQFBgcICQoLDA0ODw==`.
-// You can override the secret ID by setting TEST_AWS_KEYVAULT_KEK_SECRET_ID. The key vault needs
-// secretsmanager:GetSecretValue for key wrapping.
+// For testing wrapping, in AWS Secrets Manager, create a secret with ID `testing/kek` with a field `value` set to `AAECAwQFBgcICQoLDA0ODw==`.
+// You can override the secret ID by setting TEST_AWS_KEYVAULT_KEK_SECRET_ID.
+// The key vault needs secretsmanager:GetSecretValue for key wrapping.
 //
-// In AWS Certificate Manager, request a private certificate. Set TEST_AWS_KEYVAULT_CERTIFICATE_ARN to the ARN of the
-// certificate. The key vault needs acm:GetCertificate and acm:ExportCertificate. The CN of the certificate is logged.
+// For testing certificates, in AWS Secrets Manager, create a secret with ID `testing/certificate` with a field
+// `certificate` and `key` set to a PEM encoded certificate and private key.
+// You can override the secret ID by setting TEST_AWS_KEYVAULT_CERTIFICATE_SECRET_ID.
+// The key vault needs secretsmanager:GetSecretValue for getting and exporting the certificate.
 func TestKeyVault(t *testing.T) {
 	a := assertions.New(t)
 
@@ -70,9 +72,9 @@ func TestKeyVault(t *testing.T) {
 	t.Run("Certificate", func(t *testing.T) {
 		a := assertions.New(t)
 
-		id := os.Getenv("TEST_AWS_KEYVAULT_CERTIFICATE_ARN")
+		id := os.Getenv("TEST_AWS_KEYVAULT_CERTIFICATE_SECRET_ID")
 		if id == "" {
-			t.Skip("Missing certificate ARN")
+			id = "testing/certificate"
 		}
 
 		cert, err := kv.GetCertificate(test.Context(), id)

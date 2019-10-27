@@ -4,7 +4,6 @@ package aws
 
 import (
 	"context"
-	stdcrypto "crypto"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
@@ -17,11 +16,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/acm"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/bluele/gcache"
-	"github.com/youmark/pkcs8"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/random"
 )
 
 const (
@@ -132,10 +129,12 @@ func (k *keyVault) Unwrap(ctx context.Context, ciphertext []byte, kekLabel strin
 	return crypto.UnwrapKey(ciphertext, kek)
 }
 
-var (
-	errCertificate = errors.DefineAborted("certificate", "invalid certificate `{id}`")
-	errPrivateKey  = errors.DefineAborted("private_key", "invalid private key `{id}`")
-)
+var errCertificate = errors.DefineAborted("certificate", "invalid certificate `{id}`")
+
+type certificateSecret struct {
+	Certificate string `json:"certificate"`
+	Key         string `json:"key,omitempty"`
+}
 
 func (k *keyVault) GetCertificate(ctx context.Context, id string) (cert *x509.Certificate, err error) {
 	if v, err := k.certErrCache.Get(id); err == nil {
@@ -153,15 +152,20 @@ func (k *keyVault) GetCertificate(ctx context.Context, id string) (cert *x509.Ce
 			k.certErrCache.Remove(id)
 		}
 	}()
-
-	res, err := k.certs.GetCertificateWithContext(ctx, &acm.GetCertificateInput{
-		CertificateArn: aws.String(id),
+	res, err := k.secrets.GetSecretValueWithContext(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(id),
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	certBlock, _ := pem.Decode([]byte(*res.Certificate))
+	if res.SecretString == nil {
+		return nil, errSecretContent.WithAttributes("id", id)
+	}
+	var secret certificateSecret
+	if err := json.Unmarshal([]byte(*res.SecretString), &secret); err != nil {
+		return nil, errSecretContent.WithCause(err).WithAttributes("id", id)
+	}
+	certBlock, _ := pem.Decode([]byte(secret.Certificate))
 	if certBlock == nil {
 		return nil, errCertificate.WithAttributes("id", id)
 	}
@@ -184,41 +188,23 @@ func (k *keyVault) ExportCertificate(ctx context.Context, id string) (cert *tls.
 			k.certExportErrCache.Remove(id)
 		}
 	}()
-
-	passphrase := []byte(random.String(16))
-	res, err := k.certs.ExportCertificateWithContext(ctx, &acm.ExportCertificateInput{
-		CertificateArn: aws.String(id),
-		Passphrase:     passphrase,
+	res, err := k.secrets.GetSecretValueWithContext(ctx, &secretsmanager.GetSecretValueInput{
+		SecretId: aws.String(id),
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	cert = new(tls.Certificate)
-	certBlock, _ := pem.Decode([]byte(*res.Certificate))
-	if certBlock == nil {
-		return nil, errCertificate.WithAttributes("id", id)
+	if res.SecretString == nil {
+		return nil, errSecretContent.WithAttributes("id", id)
 	}
-	cert.Certificate = [][]byte{certBlock.Bytes}
-	if res.CertificateChain != nil {
-		chain := []byte(*res.CertificateChain)
-		for {
-			certBlock, rest := pem.Decode(chain)
-			if certBlock == nil {
-				break
-			}
-			cert.Certificate = append(cert.Certificate, certBlock.Bytes)
-			chain = rest
-		}
+	var secret certificateSecret
+	if err := json.Unmarshal([]byte(*res.SecretString), &secret); err != nil {
+		return nil, errSecretContent.WithCause(err).WithAttributes("id", id)
 	}
-	privateKeyBlock, _ := pem.Decode([]byte(*res.PrivateKey))
-	if privateKeyBlock == nil {
-		return nil, errPrivateKey.WithAttributes("id", id)
-	}
-	key, err := pkcs8.ParsePKCS8PrivateKey(privateKeyBlock.Bytes, passphrase)
+	pair, err := tls.X509KeyPair([]byte(secret.Certificate), []byte(secret.Key))
 	if err != nil {
-		return nil, errPrivateKey.WithAttributes("id").WithCause(err)
+		return nil, err
 	}
-	cert.PrivateKey = stdcrypto.PrivateKey(key)
+	cert = &pair
 	return
 }
