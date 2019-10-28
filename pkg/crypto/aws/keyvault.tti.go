@@ -137,6 +137,9 @@ type certificateSecret struct {
 }
 
 func (k *keyVault) GetCertificate(ctx context.Context, id string) (cert *x509.Certificate, err error) {
+	if k.secretIDPrefix != "" {
+		id = fmt.Sprintf("%s/%s", k.secretIDPrefix, id)
+	}
 	if v, err := k.certErrCache.Get(id); err == nil {
 		return nil, v.(error)
 	}
@@ -173,6 +176,9 @@ func (k *keyVault) GetCertificate(ctx context.Context, id string) (cert *x509.Ce
 }
 
 func (k *keyVault) ExportCertificate(ctx context.Context, id string) (cert *tls.Certificate, err error) {
+	if k.secretIDPrefix != "" {
+		id = fmt.Sprintf("%s/%s", k.secretIDPrefix, id)
+	}
 	if v, err := k.certExportErrCache.Get(id); err == nil {
 		return nil, v.(error)
 	}
