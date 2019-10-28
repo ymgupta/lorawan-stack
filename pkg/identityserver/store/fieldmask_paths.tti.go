@@ -11,3 +11,12 @@ const (
 	maxOrganizationsField = "max_organizations"
 	maxUsersField         = "max_users"
 )
+
+var entityQuotasFields = []string{
+	maxApplicationsField,
+	maxClientsField,
+	maxEndDevicesField,
+	maxGatewaysField,
+	maxOrganizationsField,
+	maxUsersField,
+}
