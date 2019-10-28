@@ -20,7 +20,13 @@ type Tenant struct {
 	Attributes  []Attribute `gorm:"polymorphic:Entity;polymorphic_value:tenant"`
 	// END common fields
 
-	State int `gorm:"not null"`
+	State            int `gorm:"not null"`
+	MaxApplications  *WrappedUint64
+	MaxClients       *WrappedUint64
+	MaxEndDevices    *WrappedUint64
+	MaxGateways      *WrappedUint64
+	MaxOrganizations *WrappedUint64
+	MaxUsers         *WrappedUint64
 }
 
 func init() {
@@ -29,10 +35,16 @@ func init() {
 
 // functions to set fields from the tenant model into the tenant proto.
 var tenantPBSetters = map[string]func(*ttipb.Tenant, *Tenant){
-	nameField:        func(pb *ttipb.Tenant, tnt *Tenant) { pb.Name = tnt.Name },
-	descriptionField: func(pb *ttipb.Tenant, tnt *Tenant) { pb.Description = tnt.Description },
-	attributesField:  func(pb *ttipb.Tenant, tnt *Tenant) { pb.Attributes = attributes(tnt.Attributes).toMap() },
-	stateField:       func(pb *ttipb.Tenant, tnt *Tenant) { pb.State = ttnpb.State(tnt.State) },
+	nameField:             func(pb *ttipb.Tenant, tnt *Tenant) { pb.Name = tnt.Name },
+	descriptionField:      func(pb *ttipb.Tenant, tnt *Tenant) { pb.Description = tnt.Description },
+	attributesField:       func(pb *ttipb.Tenant, tnt *Tenant) { pb.Attributes = attributes(tnt.Attributes).toMap() },
+	stateField:            func(pb *ttipb.Tenant, tnt *Tenant) { pb.State = ttnpb.State(tnt.State) },
+	maxApplicationsField:  func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxApplications = tnt.MaxApplications.toPB() },
+	maxClientsField:       func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxClients = tnt.MaxClients.toPB() },
+	maxEndDevicesField:    func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxEndDevices = tnt.MaxEndDevices.toPB() },
+	maxGatewaysField:      func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxGateways = tnt.MaxGateways.toPB() },
+	maxOrganizationsField: func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxOrganizations = tnt.MaxOrganizations.toPB() },
+	maxUsersField:         func(pb *ttipb.Tenant, tnt *Tenant) { pb.MaxUsers = tnt.MaxUsers.toPB() },
 }
 
 // functions to set fields from the tenant proto into the tenant model.
@@ -42,7 +54,13 @@ var tenantModelSetters = map[string]func(*Tenant, *ttipb.Tenant){
 	attributesField: func(tnt *Tenant, pb *ttipb.Tenant) {
 		tnt.Attributes = attributes(tnt.Attributes).updateFromMap(pb.Attributes)
 	},
-	stateField: func(tnt *Tenant, pb *ttipb.Tenant) { tnt.State = int(pb.State) },
+	stateField:            func(tnt *Tenant, pb *ttipb.Tenant) { tnt.State = int(pb.State) },
+	maxApplicationsField:  func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxApplications = wrappedUint64(pb.MaxApplications) },
+	maxClientsField:       func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxClients = wrappedUint64(pb.MaxClients) },
+	maxEndDevicesField:    func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxEndDevices = wrappedUint64(pb.MaxEndDevices) },
+	maxGatewaysField:      func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxGateways = wrappedUint64(pb.MaxGateways) },
+	maxOrganizationsField: func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxOrganizations = wrappedUint64(pb.MaxOrganizations) },
+	maxUsersField:         func(tnt *Tenant, pb *ttipb.Tenant) { tnt.MaxUsers = wrappedUint64(pb.MaxUsers) },
 }
 
 // fieldMask to use if a nil or empty fieldmask is passed.
@@ -58,11 +76,17 @@ func init() {
 
 // fieldmask path to column name in tenants table.
 var tenantColumnNames = map[string][]string{
-	attributesField:  {},
-	contactInfoField: {},
-	nameField:        {nameField},
-	descriptionField: {descriptionField},
-	stateField:       {stateField},
+	attributesField:       {},
+	contactInfoField:      {},
+	nameField:             {nameField},
+	descriptionField:      {descriptionField},
+	stateField:            {stateField},
+	maxApplicationsField:  {maxApplicationsField},
+	maxClientsField:       {maxClientsField},
+	maxEndDevicesField:    {maxEndDevicesField},
+	maxGatewaysField:      {maxGatewaysField},
+	maxOrganizationsField: {maxOrganizationsField},
+	maxUsersField:         {maxUsersField},
 }
 
 func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) {
