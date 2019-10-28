@@ -5,6 +5,7 @@ package store
 import (
 	"github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 // Tenant model.
@@ -18,6 +19,8 @@ type Tenant struct {
 	Description string      `gorm:"type:TEXT"`
 	Attributes  []Attribute `gorm:"polymorphic:Entity;polymorphic_value:tenant"`
 	// END common fields
+
+	State int `gorm:"not null"`
 }
 
 func init() {
@@ -29,6 +32,7 @@ var tenantPBSetters = map[string]func(*ttipb.Tenant, *Tenant){
 	nameField:        func(pb *ttipb.Tenant, tnt *Tenant) { pb.Name = tnt.Name },
 	descriptionField: func(pb *ttipb.Tenant, tnt *Tenant) { pb.Description = tnt.Description },
 	attributesField:  func(pb *ttipb.Tenant, tnt *Tenant) { pb.Attributes = attributes(tnt.Attributes).toMap() },
+	stateField:       func(pb *ttipb.Tenant, tnt *Tenant) { pb.State = ttnpb.State(tnt.State) },
 }
 
 // functions to set fields from the tenant proto into the tenant model.
@@ -38,6 +42,7 @@ var tenantModelSetters = map[string]func(*Tenant, *ttipb.Tenant){
 	attributesField: func(tnt *Tenant, pb *ttipb.Tenant) {
 		tnt.Attributes = attributes(tnt.Attributes).updateFromMap(pb.Attributes)
 	},
+	stateField: func(tnt *Tenant, pb *ttipb.Tenant) { tnt.State = int(pb.State) },
 }
 
 // fieldMask to use if a nil or empty fieldmask is passed.
@@ -57,6 +62,7 @@ var tenantColumnNames = map[string][]string{
 	contactInfoField: {},
 	nameField:        {nameField},
 	descriptionField: {descriptionField},
+	stateField:       {stateField},
 }
 
 func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) {

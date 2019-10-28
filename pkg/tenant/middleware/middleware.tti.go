@@ -4,6 +4,7 @@ package middleware
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"go.thethings.network/lorawan-stack/pkg/errors"
@@ -14,7 +15,7 @@ import (
 
 var (
 	errMissingTenantID = errors.DefineInvalidArgument("missing_tenant_id", "missing tenant ID")
-	errTenantNotActive = errors.DefinePermissionDenied("tenant_not_active", "tenant is not active")
+	errTenantNotActive = errors.DefinePermissionDenied("tenant_not_active", "tenant is not active", "state")
 )
 
 // tenantID parses the tenant ID from the given value.
@@ -43,7 +44,7 @@ func fetchTenant(ctx context.Context) error {
 		case ttnpb.STATE_APPROVED, ttnpb.STATE_FLAGGED:
 			break
 		default:
-			panic("unreachable")
+			panic(fmt.Sprintf("Unhandled tenant state: %s", tnt.State.String()))
 		}
 	}
 	return nil
