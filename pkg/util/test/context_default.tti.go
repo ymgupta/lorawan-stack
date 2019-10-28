@@ -9,6 +9,7 @@ import (
 
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 func init() {
@@ -22,7 +23,7 @@ func TenantContextFiller(ctx context.Context) context.Context {
 		ctx = tenant.NewContext(ctx, tenantID)
 	}
 	ctx = tenant.NewContextWithFetcher(ctx, tenant.NewMapFetcher(map[string]*ttipb.Tenant{
-		tenantID.TenantID: {TenantIdentifiers: tenantID},
+		tenantID.TenantID: {TenantIdentifiers: tenantID, State: ttnpb.STATE_APPROVED},
 	}))
 	return ctx
 }
