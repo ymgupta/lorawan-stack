@@ -13,6 +13,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 var (
@@ -49,6 +50,7 @@ var (
 			}}
 			tnt := &ttipb.Tenant{
 				TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: tenantID},
+				State:             ttnpb.STATE_APPROVED,
 			}
 
 			tntStore := store.GetTenantStore(db)
