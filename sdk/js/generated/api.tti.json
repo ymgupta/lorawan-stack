@@ -979,6 +979,66 @@
               "defaultValue": ""
             },
             {
+              "name": "max_applications",
+              "description": "If set, restricts the maximum number of applications that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_clients",
+              "description": "If set, restricts the maximum number of clients that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_end_devices",
+              "description": "If set, restricts the maximum number of end_devices that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_gateways",
+              "description": "If set, restricts the maximum number of gateways that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_organizations",
+              "description": "If set, restricts the maximum number of organizations that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_users",
+              "description": "If set, restricts the maximum number of users that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "state",
               "description": "The reviewing state of the tenant.\nThis field can only be modified by tenant admins.",
               "label": "",

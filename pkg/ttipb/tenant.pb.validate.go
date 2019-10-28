@@ -147,6 +147,78 @@ func (m *Tenant) ValidateFields(paths ...string) error {
 
 			}
 
+		case "max_applications":
+
+			if v, ok := interface{}(m.GetMaxApplications()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_applications",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_clients":
+
+			if v, ok := interface{}(m.GetMaxClients()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_clients",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_end_devices":
+
+			if v, ok := interface{}(m.GetMaxEndDevices()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_end_devices",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_gateways":
+
+			if v, ok := interface{}(m.GetMaxGateways()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_gateways",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_organizations":
+
+			if v, ok := interface{}(m.GetMaxOrganizations()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_organizations",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_users":
+
+			if v, ok := interface{}(m.GetMaxUsers()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "max_users",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		case "state":
 
 			if _, ok := ttnpb.State_name[int32(m.GetState())]; !ok {
