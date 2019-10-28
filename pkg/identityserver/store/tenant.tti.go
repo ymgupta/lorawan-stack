@@ -20,7 +20,7 @@ type Tenant struct {
 	Attributes  []Attribute `gorm:"polymorphic:Entity;polymorphic_value:tenant"`
 	// END common fields
 
-	State            int `gorm:"not null"`
+	State            int `gorm:"not null;default:0"`
 	MaxApplications  *WrappedUint64
 	MaxClients       *WrappedUint64
 	MaxEndDevices    *WrappedUint64
