@@ -66,7 +66,7 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	case stripe.SubscriptionStatusIncomplete, stripe.SubscriptionStatusIncompleteExpired:
 		return nil
 	case stripe.SubscriptionStatusCanceled, stripe.SubscriptionStatusPastDue, stripe.SubscriptionStatusUnpaid:
-		return s.deleteTenant(ctx, sub)
+		return s.suspendTenant(ctx, sub)
 	default:
 		panic("unreachable")
 	}
