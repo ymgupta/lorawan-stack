@@ -334,6 +334,36 @@
             "$ref": "#/definitions/v3ContactInfo"
           }
         },
+        "max_applications": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of applications that can be created."
+        },
+        "max_clients": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of clients that can be created."
+        },
+        "max_end_devices": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of end_devices that can be created."
+        },
+        "max_gateways": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of gateways that can be created."
+        },
+        "max_organizations": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of organizations that can be created."
+        },
+        "max_users": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of users that can be created."
+        },
         "state": {
           "$ref": "#/definitions/v3State",
           "description": "The reviewing state of the tenant.\nThis field can only be modified by tenant admins."

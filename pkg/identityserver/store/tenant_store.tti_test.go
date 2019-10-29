@@ -35,6 +35,13 @@ func TestTenantStore(t *testing.T) {
 				"bar": "baz",
 				"baz": "qux",
 			},
+			State:            ttnpb.STATE_APPROVED,
+			MaxApplications:  nil,
+			MaxClients:       &pbtypes.UInt64Value{Value: 2},
+			MaxEndDevices:    &pbtypes.UInt64Value{Value: 3},
+			MaxGateways:      &pbtypes.UInt64Value{Value: 4},
+			MaxOrganizations: &pbtypes.UInt64Value{Value: 5},
+			MaxUsers:         nil,
 		})
 		a.So(err, should.BeNil)
 		a.So(created.TenantID, should.Equal, "foo")
@@ -43,8 +50,21 @@ func TestTenantStore(t *testing.T) {
 		a.So(created.Attributes, should.HaveLength, 3)
 		a.So(created.CreatedAt, should.HappenAfter, time.Now().Add(-1*time.Hour))
 		a.So(created.UpdatedAt, should.HappenAfter, time.Now().Add(-1*time.Hour))
+		a.So(created.State, should.Equal, ttnpb.STATE_APPROVED)
+		a.So(created.MaxApplications, should.BeNil)
+		a.So(created.MaxClients, should.Resemble, &pbtypes.UInt64Value{Value: 2})
+		a.So(created.MaxEndDevices, should.Resemble, &pbtypes.UInt64Value{Value: 3})
+		a.So(created.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 4})
+		a.So(created.MaxOrganizations, should.Resemble, &pbtypes.UInt64Value{Value: 5})
+		a.So(created.MaxUsers, should.BeNil)
 
-		got, err := store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, &pbtypes.FieldMask{Paths: []string{"name", "attributes"}})
+		got, err := store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, &pbtypes.FieldMask{
+			Paths: []string{
+				"name", "attributes", "state", "max_applications",
+				"max_clients", "max_end_devices", "max_gateways",
+				"max_organizations", "max_users",
+			},
+		})
 		a.So(err, should.BeNil)
 		a.So(got.TenantID, should.Equal, "foo")
 		a.So(got.Name, should.Equal, "Foo Tenant")
@@ -52,6 +72,13 @@ func TestTenantStore(t *testing.T) {
 		a.So(got.Attributes, should.HaveLength, 3)
 		a.So(got.CreatedAt, should.Equal, created.CreatedAt)
 		a.So(got.UpdatedAt, should.Equal, created.UpdatedAt)
+		a.So(got.State, should.Equal, ttnpb.STATE_APPROVED)
+		a.So(got.MaxApplications, should.BeNil)
+		a.So(got.MaxClients, should.Resemble, &pbtypes.UInt64Value{Value: 2})
+		a.So(got.MaxEndDevices, should.Resemble, &pbtypes.UInt64Value{Value: 3})
+		a.So(got.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 4})
+		a.So(got.MaxOrganizations, should.Resemble, &pbtypes.UInt64Value{Value: 5})
+		a.So(got.MaxUsers, should.BeNil)
 
 		_, err = store.UpdateTenant(ctx, &ttipb.Tenant{
 			TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: "bar"},
@@ -69,12 +96,32 @@ func TestTenantStore(t *testing.T) {
 				"baz": "baz",
 				"qux": "foo",
 			},
-		}, &pbtypes.FieldMask{Paths: []string{"description", "attributes"}})
+			State:            ttnpb.STATE_FLAGGED,
+			MaxApplications:  &pbtypes.UInt64Value{Value: 2},
+			MaxClients:       nil,
+			MaxEndDevices:    &pbtypes.UInt64Value{Value: 4},
+			MaxGateways:      &pbtypes.UInt64Value{Value: 5},
+			MaxOrganizations: nil,
+			MaxUsers:         &pbtypes.UInt64Value{Value: 7},
+		}, &pbtypes.FieldMask{
+			Paths: []string{
+				"description", "attributes", "state", "max_applications",
+				"max_clients", "max_end_devices", "max_gateways",
+				"max_organizations", "max_users",
+			},
+		})
 		a.So(err, should.BeNil)
 		a.So(updated.Description, should.Equal, "The Amazing Foobar Tenant")
 		a.So(updated.Attributes, should.HaveLength, 3)
 		a.So(updated.CreatedAt, should.Equal, created.CreatedAt)
 		a.So(updated.UpdatedAt, should.HappenAfter, created.CreatedAt)
+		a.So(updated.State, should.Equal, ttnpb.STATE_FLAGGED)
+		a.So(updated.MaxApplications, should.Resemble, &pbtypes.UInt64Value{Value: 2})
+		a.So(updated.MaxClients, should.BeNil)
+		a.So(updated.MaxEndDevices, should.Resemble, &pbtypes.UInt64Value{Value: 4})
+		a.So(updated.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 5})
+		a.So(updated.MaxOrganizations, should.BeNil)
+		a.So(updated.MaxUsers, should.Resemble, &pbtypes.UInt64Value{Value: 7})
 
 		got, err = store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, nil)
 		a.So(err, should.BeNil)

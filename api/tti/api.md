@@ -250,6 +250,12 @@ Tenant is the message that defines a Tenant in the network.
 | `description` | [`string`](#string) |  |  |
 | `attributes` | [`Tenant.AttributesEntry`](#tti.lorawan.v3.Tenant.AttributesEntry) | repeated |  |
 | `contact_info` | [`ttn.lorawan.v3.ContactInfo`](#ttn.lorawan.v3.ContactInfo) | repeated |  |
+| `max_applications` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of applications that can be created. |
+| `max_clients` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of clients that can be created. |
+| `max_end_devices` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of end_devices that can be created. |
+| `max_gateways` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of gateways that can be created. |
+| `max_organizations` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of organizations that can be created. |
+| `max_users` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of users that can be created. |
 | `state` | [`ttn.lorawan.v3.State`](#ttn.lorawan.v3.State) |  | The reviewing state of the tenant. This field can only be modified by tenant admins. |
 | `capabilities` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  |  |
 
