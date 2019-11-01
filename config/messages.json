@@ -1178,6 +1178,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_tenant_billing_server": {
+    "translations": {
+      "en": "could not initialize Tenant Billing Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.tti.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:antenna_index": {
     "translations": {
       "en": "index of antenna to update out of bounds"
@@ -6081,6 +6090,69 @@
     "description": {
       "package": "pkg/tenant",
       "file": "fetcher.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_api_key": {
+    "translations": {
+      "en": "no API key provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
+    "translations": {
+      "en": "no plan ids provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_tenant_attribute": {
+    "translations": {
+      "en": "no tenant attribute {attribute} available"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:billing_reporter_key": {
+    "translations": {
+      "en": "invalid billing reporter key"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "access.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:no_billing_rights": {
+    "translations": {
+      "en": "no billing rights"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "access.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:unauthenticated": {
+    "translations": {
+      "en": "unauthenticated"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "access.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:unsupported_authorization": {
+    "translations": {
+      "en": "unsupported authorization method"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "access.tti.go"
     }
   },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {
