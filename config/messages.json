@@ -6119,6 +6119,15 @@
       "file": "stripe.tti.go"
     }
   },
+  "error:pkg/tenantbillingserver/stripe:no_tenant_id": {
+    "translations": {
+      "en": "no tenant ID set"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
   "error:pkg/tenantbillingserver:invalid_reporter_address_regexp": {
     "translations": {
       "en": "invalid reporter address regular expression"
