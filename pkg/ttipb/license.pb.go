@@ -340,7 +340,7 @@ type MeteringConfiguration_Prometheus_ struct {
 	Prometheus *MeteringConfiguration_Prometheus `protobuf:"bytes,4,opt,name=prometheus,proto3,oneof" json:"prometheus,omitempty"`
 }
 type MeteringConfiguration_TenantBillingServer_ struct {
-	TenantBillingServer *MeteringConfiguration_TenantBillingServer `protobuf:"bytes,5,opt,name=tenant_billing_server,json=tenantBillingServer,proto3,oneof"`
+	TenantBillingServer *MeteringConfiguration_TenantBillingServer `protobuf:"bytes,5,opt,name=tenant_billing_server,json=tenantBillingServer,proto3,oneof" json:"tenant_billing_server,omitempty"`
 }
 
 func (*MeteringConfiguration_AWS_) isMeteringConfiguration_Metering()                 {}
@@ -1650,7 +1650,8 @@ func (m *MeteringConfiguration_Prometheus_) MarshalToSizedBuffer(dAtA []byte) (i
 	return len(dAtA) - i, nil
 }
 func (m *MeteringConfiguration_TenantBillingServer_) MarshalTo(dAtA []byte) (int, error) {
-	return m.MarshalToSizedBuffer(dAtA[:m.Size()])
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
 func (m *MeteringConfiguration_TenantBillingServer_) MarshalToSizedBuffer(dAtA []byte) (int, error) {

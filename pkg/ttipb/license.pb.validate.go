@@ -468,6 +468,10 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 					}
 
 				case "tenant_billing_server":
+					w, ok := m.Metering.(*MeteringConfiguration_TenantBillingServer_)
+					if !ok || w == nil {
+						continue
+					}
 
 					if v, ok := interface{}(m.GetTenantBillingServer()).(interface{ ValidateFields(...string) error }); ok {
 						if err := v.ValidateFields(subs...); err != nil {

@@ -69,6 +69,7 @@ var ListTenantsRequestFieldPathsTopLevel = []string{
 	"page",
 }
 var CreateTenantRequestFieldPathsNested = []string{
+	"initial_user",
 	"tenant",
 	"tenant.attributes",
 	"tenant.capabilities",
@@ -89,6 +90,7 @@ var CreateTenantRequestFieldPathsNested = []string{
 }
 
 var CreateTenantRequestFieldPathsTopLevel = []string{
+	"initial_user",
 	"tenant",
 }
 var UpdateTenantRequestFieldPathsNested = []string{

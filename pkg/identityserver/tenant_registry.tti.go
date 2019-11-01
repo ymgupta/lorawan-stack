@@ -12,6 +12,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 )
 
 func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTenantRequest) (tnt *ttipb.Tenant, err error) {
@@ -35,6 +36,13 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		if len(req.ContactInfo) > 0 {
 			cleanContactInfo(req.ContactInfo)
 			tnt.ContactInfo, err = store.GetContactInfoStore(db).SetContactInfo(ctx, tnt.TenantIdentifiers, req.ContactInfo)
+			if err != nil {
+				return err
+			}
+		}
+		if req.InitialUser != nil {
+			tenantCtx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
+			_, err := store.GetUserStore(db).CreateUser(tenantCtx, req.InitialUser)
 			if err != nil {
 				return err
 			}

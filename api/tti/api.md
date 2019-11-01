@@ -188,6 +188,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `tenant` | [`Tenant`](#tti.lorawan.v3.Tenant) |  |  |
+| `initial_user` | [`ttn.lorawan.v3.User`](#ttn.lorawan.v3.User) |  |  |
 
 #### Field Rules
 

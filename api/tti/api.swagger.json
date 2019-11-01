@@ -246,6 +246,20 @@
         }
       }
     },
+    "PictureEmbedded": {
+      "type": "object",
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "description": "MIME type of the picture."
+        },
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Picture data. A data URI can be constructed as follows:\n`data:\u003cmime_type\u003e;base64,\u003cdata\u003e`."
+        }
+      }
+    },
     "protobufFieldMask": {
       "type": "object",
       "properties": {
@@ -314,6 +328,25 @@
       "properties": {
         "tenant": {
           "$ref": "#/definitions/v3Tenant"
+        },
+        "initial_user": {
+          "$ref": "#/definitions/v3User"
+        }
+      }
+    },
+    "v3Picture": {
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$ref": "#/definitions/PictureEmbedded",
+          "description": "Embedded picture.\nOmitted if there are external URLs available (in sizes)."
+        },
+        "sizes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "URLs of the picture for different sizes, if available on a CDN."
         }
       }
     },
@@ -457,6 +490,98 @@
         },
         "field_mask": {
           "$ref": "#/definitions/protobufFieldMask"
+        }
+      }
+    },
+    "v3User": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/v3UserIdentifiers"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "contact_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ContactInfo"
+          }
+        },
+        "primary_email_address": {
+          "type": "string",
+          "description": "Primary email address that can be used for logging in.\nThis address is not public, use contact_info for that."
+        },
+        "primary_email_address_validated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "password": {
+          "type": "string",
+          "description": "Only used on create; never returned on API calls."
+        },
+        "password_updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "require_password_update": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "state": {
+          "$ref": "#/definitions/v3State",
+          "description": "The reviewing state of the user.\nThis field can only be modified by admins."
+        },
+        "admin": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "This user is an admin.\nThis field can only be modified by other admins."
+        },
+        "temporary_password": {
+          "type": "string",
+          "description": "The temporary password can only be used to update a user's password; never returned on API calls."
+        },
+        "temporary_password_created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "temporary_password_expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "profile_picture": {
+          "$ref": "#/definitions/v3Picture"
+        }
+      },
+      "description": "User is the message that defines an user on the network."
+    },
+    "v3UserIdentifiers": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "This ID shares namespace with organization IDs."
+        },
+        "email": {
+          "type": "string",
+          "description": "Secondary identifier, which can only be used in specific requests."
         }
       }
     }

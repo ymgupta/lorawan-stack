@@ -699,6 +699,16 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "initial_user",
+              "description": "",
+              "label": "",
+              "type": "User",
+              "longType": "ttn.lorawan.v3.User",
+              "fullType": "ttn.lorawan.v3.User",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },

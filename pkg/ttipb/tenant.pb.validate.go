@@ -638,6 +638,18 @@ func (m *CreateTenantRequest) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "initial_user":
+
+			if v, ok := interface{}(m.GetInitialUser()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return CreateTenantRequestValidationError{
+						field:  "initial_user",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return CreateTenantRequestValidationError{
 				field:  name,
