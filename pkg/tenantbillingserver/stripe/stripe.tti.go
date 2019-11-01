@@ -4,6 +4,7 @@ package stripe
 
 import (
 	"context"
+	"time"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
@@ -22,13 +23,14 @@ type Config struct {
 	Enabled           bool     `name:"enabled" description:"Enable the backend"`
 	APIKey            string   `name:"api-key" description:"The Stripe API key used to report the metrics"`
 	EndpointSecretKey string   `name:"endpoint-secret-key" description:"The Stripe endopoint secret used to verify webhook signatures"`
-	PlanIDs           []string `name:"plan-ids" description:"The IDs of the subscription plans to be handled"`
+	RecurringPlanIDs  []string `name:"recurring-plan-ids" description:"The IDs of the recurring subscription plans to be handled"`
+	MeteredPlanIDs    []string `name:"metered-plan-ids" description:"The IDs of the metered subscription plans to be handled"`
 	LogLevel          int      `name:"log-level" description:"Log level for the Stripe API client"`
 }
 
 var (
 	errNoAPIKey          = errors.DefineInvalidArgument("no_api_key", "no API key provided")
-	errNoPlanIDs         = errors.DefineInvalidArgument("no_plan_ids", "no plan ids provided")
+	errNoPlanIDs         = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
 	errNoTenantAttribute = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute {attribute} available")
 )
 
@@ -40,17 +42,20 @@ func (c Config) New(ctx context.Context, component *component.Component, opts ..
 	if len(c.APIKey) == 0 {
 		return nil, errNoAPIKey
 	}
-	if len(c.PlanIDs) == 0 {
+	if len(c.RecurringPlanIDs)+len(c.MeteredPlanIDs) == 0 {
 		return nil, errNoPlanIDs
 	}
-	return New(ctx, component, &c, opts...)
+	return New(ctx, component, c, opts...)
 }
 
 // Stripe is the payment and tenant configuration backend.
 type Stripe struct {
 	ctx       context.Context
 	component *component.Component
-	config    *Config
+	config    Config
+
+	recurringPlanIDs map[string]bool
+	meteredPlanIDs   map[string]bool
 
 	tenantsClient ttipb.TenantRegistryClient
 	tenantAuth    grpc.CallOption
@@ -59,15 +64,23 @@ type Stripe struct {
 }
 
 // New returns a new Stripe backend.
-func New(ctx context.Context, component *component.Component, config *Config, opts ...Option) (*Stripe, error) {
+func New(ctx context.Context, component *component.Component, config Config, opts ...Option) (*Stripe, error) {
 	s := &Stripe{
-		ctx:        log.NewContextWithField(ctx, "namespace", "tenantbillingserver/stripe"),
-		component:  component,
-		config:     config,
-		tenantAuth: grpc.EmptyCallOption{},
+		ctx:              log.NewContextWithField(ctx, "namespace", "tenantbillingserver/stripe"),
+		component:        component,
+		config:           config,
+		recurringPlanIDs: make(map[string]bool),
+		meteredPlanIDs:   make(map[string]bool),
+		tenantAuth:       grpc.EmptyCallOption{},
 	}
 	for _, opt := range opts {
 		opt(s)
+	}
+	for _, v := range config.RecurringPlanIDs {
+		s.recurringPlanIDs[v] = true
+	}
+	for _, v := range config.MeteredPlanIDs {
+		s.meteredPlanIDs[v] = true
 	}
 	return s, nil
 }
@@ -101,8 +114,12 @@ func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb
 	if manager, ok := tenant.Attributes[managedTenantAttribute]; !ok || manager != stripeManagerAttributeValue {
 		return nil
 	}
+	if tenant.State != ttnpb.STATE_APPROVED {
+		// Do not report metrics of inactive tenants.
+		return nil
+	}
 	var ok bool
-	var planID, customerID, subscriptionID string
+	var planID, customerID, subscriptionID, subscriptionItemID string
 	if planID, ok = tenant.Attributes[stripePlanIDAttribute]; !ok || len(planID) == 0 {
 		return errNoTenantAttribute.WithAttributes("attribute", stripePlanIDAttribute)
 	}
@@ -112,17 +129,31 @@ func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb
 	if subscriptionID, ok = tenant.Attributes[stripeSubscriptionIDAttribute]; !ok || len(subscriptionID) == 0 {
 		return errNoTenantAttribute.WithAttributes("attribute", stripeSubscriptionIDAttribute)
 	}
-	endDeviceCount := int64(totals.GetEndDevices())
-	params := &stripe.SubscriptionParams{
-		Customer: stripe.String(customerID),
-		Items: []*stripe.SubscriptionItemsParams{
-			{
-				Plan:     stripe.String(planID),
-				Quantity: stripe.Int64(endDeviceCount),
-			},
-		},
+	if subscriptionItemID, ok = tenant.Attributes[stripeSubscriptionItemIDAttribute]; !ok || len(subscriptionItemID) == 0 {
+		return errNoTenantAttribute.WithAttributes("attribute", stripeSubscriptionItemIDAttribute)
 	}
-	if _, err := s.updateSubscription(subscriptionID, params); err != nil {
+	var quantity int64
+	if b, ok := s.recurringPlanIDs[planID]; ok && b {
+		// Recurring plans do not need usage records.
+		return nil
+	} else if b, ok = s.meteredPlanIDs[planID]; ok && b {
+		quantity = int64(totals.GetEndDevices())
+	} else {
+		log.FromContext(ctx).WithFields(log.Fields(
+			"plan_id", planID,
+			"customer_id", customerID,
+			"subscription_id", subscriptionID,
+			"subscription_item_id", subscriptionItemID,
+		)).Warn("Unrecognized plan ID")
+		return nil
+	}
+	params := &stripe.UsageRecordParams{
+		Quantity:         stripe.Int64(quantity),
+		Timestamp:        stripe.Int64(time.Now().Unix()),
+		SubscriptionItem: stripe.String(subscriptionItemID),
+		Action:           stripe.String(stripe.UsageRecordActionSet),
+	}
+	if _, err := s.newUsageRecord(params); err != nil {
 		return err
 	}
 	return nil
@@ -153,12 +184,20 @@ func (s *Stripe) getCustomer(id string, params *stripe.CustomerParams) (*stripe.
 	return client.Customers.Get(id, params)
 }
 
-func (s *Stripe) updateSubscription(id string, params *stripe.SubscriptionParams) (*stripe.Subscription, error) {
+func (s *Stripe) getPlan(id string, params *stripe.PlanParams) (*stripe.Plan, error) {
 	client, err := s.getAPIClient()
 	if err != nil {
 		return nil, err
 	}
-	return client.Subscriptions.Update(id, params)
+	return client.Plans.Get(id, params)
+}
+
+func (s *Stripe) newUsageRecord(params *stripe.UsageRecordParams) (*stripe.UsageRecord, error) {
+	client, err := s.getAPIClient()
+	if err != nil {
+		return nil, err
+	}
+	return client.UsageRecords.New(params)
 }
 
 func init() {

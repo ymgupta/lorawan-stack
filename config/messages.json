@@ -6103,7 +6103,7 @@
   },
   "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
     "translations": {
-      "en": "no plan ids provided"
+      "en": "no plan IDs provided"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",

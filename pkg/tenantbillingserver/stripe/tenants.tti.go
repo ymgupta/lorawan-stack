@@ -4,6 +4,7 @@ package stripe
 
 import (
 	"context"
+	"strconv"
 	"strings"
 
 	"github.com/gogo/protobuf/types"
@@ -14,13 +15,68 @@ import (
 )
 
 const (
-	managedTenantAttribute        = "managed-by"
-	stripeManagerAttributeValue   = "stripe"
-	stripeCustomerIDAttribute     = "stripe-customer-id"
-	stripePlanIDAttribute         = "stripe-plan-id"
-	stripeSubscriptionIDAttribute = "stripe-subscription-id"
-	tenantIDStripeAttribute       = "tenant-id"
+	managedTenantAttribute            = "managed-by"
+	stripeManagerAttributeValue       = "stripe"
+	stripeCustomerIDAttribute         = "stripe-customer-id"
+	stripePlanIDAttribute             = "stripe-plan-id"
+	stripeSubscriptionIDAttribute     = "stripe-subscription-id"
+	stripeSubscriptionItemIDAttribute = "stripe-subscription-item-id"
+
+	tenantIDStripeAttribute         = "tenant-id"
+	maxApplicationsStripeAttribute  = "max-applications"
+	maxClientsStripeAttribute       = "max-clients"
+	maxEndDevicesStripeAttribute    = "max-end-devices"
+	maxGatewaysStripeAttribute      = "max-gateways"
+	maxOrganizationsStripeAttribute = "max-organizations"
+	maxUsersStripeAttribute         = "max-users"
 )
+
+func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) error {
+	plan, err := s.getPlan(sub.Plan.ID, nil)
+	if err != nil {
+		return err
+	}
+
+	for _, field := range []struct {
+		attribute string
+		value     **types.UInt64Value
+	}{
+		{
+			attribute: maxApplicationsStripeAttribute,
+			value:     &tnt.MaxApplications,
+		},
+		{
+			attribute: maxClientsStripeAttribute,
+			value:     &tnt.MaxClients,
+		},
+		{
+			attribute: maxEndDevicesStripeAttribute,
+			value:     &tnt.MaxEndDevices,
+		},
+		{
+			attribute: maxGatewaysStripeAttribute,
+			value:     &tnt.MaxGateways,
+		},
+		{
+			attribute: maxOrganizationsStripeAttribute,
+			value:     &tnt.MaxOrganizations,
+		},
+		{
+			attribute: maxUsersStripeAttribute,
+			value:     &tnt.MaxUsers,
+		},
+	} {
+		if v, ok := plan.Metadata[field.attribute]; ok {
+			limit, err := strconv.ParseUint(v, 10, 64)
+			if err != nil {
+				return err
+			}
+			*field.value = &types.UInt64Value{Value: limit}
+		}
+	}
+
+	return nil
+}
 
 func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) error {
 	client, err := s.getTenantRegistry(ctx)
@@ -40,10 +96,11 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		Name:              customer.Name,
 		Description:       customer.Description,
 		Attributes: map[string]string{
-			managedTenantAttribute:        stripeManagerAttributeValue,
-			stripeCustomerIDAttribute:     customer.ID,
-			stripePlanIDAttribute:         sub.Plan.ID,
-			stripeSubscriptionIDAttribute: sub.ID,
+			managedTenantAttribute:            stripeManagerAttributeValue,
+			stripeCustomerIDAttribute:         customer.ID,
+			stripePlanIDAttribute:             sub.Plan.ID,
+			stripeSubscriptionIDAttribute:     sub.ID,
+			stripeSubscriptionItemIDAttribute: sub.Items.Data[0].ID,
 		},
 		ContactInfo: []*ttnpb.ContactInfo{
 			{
@@ -55,11 +112,23 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		},
 		State: ttnpb.STATE_APPROVED,
 	}
+
+	err = s.addTenantLimits(&tnt, sub)
+	if err != nil {
+		return err
+	}
+
 	tntFieldMask := types.FieldMask{
 		Paths: []string{
 			"attributes",
 			"contact_info",
 			"description",
+			"max_applications",
+			"max_clients",
+			"max_end_devices",
+			"max_gateways",
+			"max_organizations",
+			"max_users",
 			"name",
 			"state",
 		},
