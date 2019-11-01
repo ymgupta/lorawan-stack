@@ -603,28 +603,9 @@
           "fullName": "tti.lorawan.v3.MeteringConfiguration.TenantBillingServer",
           "description": "",
           "hasExtensions": false,
-          "hasFields": true,
+          "hasFields": false,
           "extensions": [],
-          "fields": [
-            {
-              "name": "authentication_key",
-              "description": "",
-              "label": "",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "string.min_len",
-                    "value": 1
-                  }
-                ]
-              }
-            }
-          ]
+          "fields": []
         },
         {
           "name": "MeteringData",
@@ -1485,7 +1466,7 @@
                 "google.api.http": {
                   "rules": [
                     {
-                      "method": "GET",
+                      "method": "PUT",
                       "pattern": "/tbs/report"
                     }
                   ]

@@ -5,7 +5,6 @@ package tbsmetrics
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -19,17 +18,12 @@ type ConnectionProvider interface {
 // Reporter is a license.MeteringReporter that reports the stats
 // to the Tenant Billing Server found in the cluster.
 type Reporter struct {
-	auth         grpc.CallOption
 	connProvider ConnectionProvider
 }
 
 // New returns a new license.MeteringReporter that reports the metrics to the Tenant Billing Server of the cluster.
 func New(config *ttipb.MeteringConfiguration_TenantBillingServer, connProvider ConnectionProvider) (*Reporter, error) {
 	return &Reporter{
-		auth: grpc.PerRPCCredentials(rpcmetadata.MD{
-			AuthType:  "BillingReporterKey",
-			AuthValue: config.AuthenticationKey,
-		}),
 		connProvider: connProvider,
 	}, nil
 }
@@ -41,7 +35,7 @@ func (r *Reporter) Report(ctx context.Context, data *ttipb.MeteringData) error {
 		return err
 	}
 	client := ttipb.NewTbsClient(cc)
-	_, err = client.Report(ctx, data, r.auth)
+	_, err = client.Report(ctx, data)
 	if err != nil {
 		return err
 	}

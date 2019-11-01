@@ -6119,36 +6119,18 @@
       "file": "stripe.tti.go"
     }
   },
-  "error:pkg/tenantbillingserver:billing_reporter_key": {
+  "error:pkg/tenantbillingserver:invalid_reporter_address_regexp": {
     "translations": {
-      "en": "invalid billing reporter key"
+      "en": "invalid reporter address regular expression"
     },
     "description": {
       "package": "pkg/tenantbillingserver",
-      "file": "access.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver:no_billing_rights": {
-    "translations": {
-      "en": "no billing rights"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver",
-      "file": "access.tti.go"
+      "file": "config.tti.go"
     }
   },
   "error:pkg/tenantbillingserver:unauthenticated": {
     "translations": {
       "en": "unauthenticated"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver",
-      "file": "access.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver:unsupported_authorization": {
-    "translations": {
-      "en": "unsupported authorization method"
     },
     "description": {
       "package": "pkg/tenantbillingserver",

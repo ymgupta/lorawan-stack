@@ -47,7 +47,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		opt(tbs)
 	}
 
-	if err := conf.decodeKeys(tbs.ctx); err != nil {
+	if err := conf.compileRegex(tbs.ctx); err != nil {
 		return nil, err
 	}
 

@@ -7,4 +7,9 @@ import (
 )
 
 // DefaultTenantBillingServerConfig is the default configuration for the Tenant Billing Server.
-var DefaultTenantBillingServerConfig = tenantbillingserver.Config{}
+var DefaultTenantBillingServerConfig = tenantbillingserver.Config{
+	ReporterAddressRegexps: []string{
+		"localhost",
+		"pipe",
+	},
+}

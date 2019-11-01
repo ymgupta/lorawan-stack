@@ -88,7 +88,7 @@ message MeteringConfiguration {
 
   }
   message TenantBillingServer {
-    string authentication_key = 1 [(validate.rules).string.min_len = 1];
+
   }
   oneof metering {
     AWS aws = 3 [(gogoproto.customname) = "AWS"];

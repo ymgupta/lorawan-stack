@@ -168,16 +168,6 @@
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.TenantBillingServer">Message `MeteringConfiguration.TenantBillingServer`</a>
 
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `authentication_key` | [`string`](#string) |  |  |
-
-#### Field Rules
-
-| Field | Validations |
-| ----- | ----------- |
-| `authentication_key` | <p>`string.min_len`: `1`</p> |
-
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 
 | Field | Type | Label | Description |
@@ -362,7 +352,7 @@ The Tbs service manages the Tenant Billing Server metering reporting.
 
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
-| `Report` | `GET` | `/api/v3/tbs/report` |  |
+| `Report` | `PUT` | `/api/v3/tbs/report` |  |
 
 ## Scalar Value Types
 

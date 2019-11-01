@@ -13,15 +13,12 @@ import (
 
 // Report implements ttipb.TbsServer.
 func (tbs *TenantBillingServer) Report(ctx context.Context, data *ttipb.MeteringData) (*types.Empty, error) {
-	if !billingRightsFromContext(ctx).report {
-		return nil, errNoBillingRights
-	}
 	tenantFetcher, ok := tenant.FetcherFromContext(ctx)
 	if !ok {
 		panic("tenant fetcher not available")
 	}
 	for _, tenantData := range data.Tenants {
-		tenant, err := tenantFetcher.FetchTenant(ctx, &tenantData.TenantIdentifiers, "attributes")
+		tenant, err := tenantFetcher.FetchTenant(ctx, &tenantData.TenantIdentifiers, "attributes", "state")
 		if err != nil {
 			return nil, err
 		}

@@ -896,32 +896,8 @@ var _ interface {
 // MeteringConfiguration_TenantBillingServer with the rules defined in the
 // proto definition for this message. If any rules are violated, an error is returned.
 func (m *MeteringConfiguration_TenantBillingServer) ValidateFields(paths ...string) error {
-	if m == nil {
-		return nil
-	}
-
-	if len(paths) == 0 {
-		paths = MeteringConfiguration_TenantBillingServerFieldPathsNested
-	}
-
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
-		_ = subs
-		switch name {
-		case "authentication_key":
-
-			if utf8.RuneCountInString(m.GetAuthenticationKey()) < 1 {
-				return MeteringConfiguration_TenantBillingServerValidationError{
-					field:  "authentication_key",
-					reason: "value length must be at least 1 runes",
-				}
-			}
-
-		default:
-			return MeteringConfiguration_TenantBillingServerValidationError{
-				field:  name,
-				reason: "invalid field path",
-			}
-		}
+	if len(paths) > 0 {
+		return fmt.Errorf("message MeteringConfiguration_TenantBillingServer has no fields, but paths %s were specified", paths)
 	}
 	return nil
 }

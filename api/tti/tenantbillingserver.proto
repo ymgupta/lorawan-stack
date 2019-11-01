@@ -16,7 +16,7 @@ option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
 service Tbs {
   rpc Report(MeteringData) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      get: "/tbs/report"
+      put: "/tbs/report"
     };
   }
 }

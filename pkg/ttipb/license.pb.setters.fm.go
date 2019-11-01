@@ -481,22 +481,11 @@ func (dst *MeteringConfiguration_Prometheus) SetFields(src *MeteringConfiguratio
 }
 
 func (dst *MeteringConfiguration_TenantBillingServer) SetFields(src *MeteringConfiguration_TenantBillingServer, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
-		switch name {
-		case "authentication_key":
-			if len(subs) > 0 {
-				return fmt.Errorf("'authentication_key' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.AuthenticationKey = src.AuthenticationKey
-			} else {
-				var zero string
-				dst.AuthenticationKey = zero
-			}
-
-		default:
-			return fmt.Errorf("invalid field: '%s'", name)
-		}
+	if len(paths) != 0 {
+		return fmt.Errorf("message MeteringConfiguration_TenantBillingServer has no fields, but paths %s were specified", paths)
+	}
+	if src != nil {
+		*dst = *src
 	}
 	return nil
 }
