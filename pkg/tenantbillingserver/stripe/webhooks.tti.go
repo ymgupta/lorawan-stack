@@ -60,6 +60,10 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 		return err
 	}
 
+	if !s.shouldHandlePlan(sub.Plan.ID) {
+		return nil
+	}
+
 	switch sub.Status {
 	case stripe.SubscriptionStatusActive, stripe.SubscriptionStatusTrialing:
 		return s.createTenant(ctx, sub)
@@ -70,4 +74,14 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	default:
 		panic("unreachable")
 	}
+}
+
+func (s *Stripe) shouldHandlePlan(id string) bool {
+	if b, ok := s.meteredPlanIDs[id]; ok && b {
+		return true
+	}
+	if b, ok := s.recurringPlanIDs[id]; ok && b {
+		return true
+	}
+	return false
 }

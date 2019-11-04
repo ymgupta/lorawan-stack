@@ -20,12 +20,12 @@ import (
 
 // Config is the configuration for the Stripe payment backend.
 type Config struct {
-	Enabled           bool     `name:"enabled" description:"Enable the backend"`
-	APIKey            string   `name:"api-key" description:"The Stripe API key used to report the metrics"`
-	EndpointSecretKey string   `name:"endpoint-secret-key" description:"The Stripe endopoint secret used to verify webhook signatures"`
-	RecurringPlanIDs  []string `name:"recurring-plan-ids" description:"The IDs of the recurring subscription plans to be handled"`
-	MeteredPlanIDs    []string `name:"metered-plan-ids" description:"The IDs of the metered subscription plans to be handled"`
-	LogLevel          int      `name:"log-level" description:"Log level for the Stripe API client"`
+	Enabled           bool     `name:"enabled" description:"Enable the Stripe backend"`
+	APIKey            string   `name:"api-key" description:"API key used to connect to Stripe"`
+	EndpointSecretKey string   `name:"endpoint-secret-key" description:"Endpoint secret key used to verify webhook signatures"`
+	RecurringPlanIDs  []string `name:"recurring-plan-ids" description:"Recurring subscription plan IDs to be handled"`
+	MeteredPlanIDs    []string `name:"metered-plan-ids" description:"Metered subscription plan IDs to be handled"`
+	LogLevel          int      `name:"log-level" description:"Log level of the API client"`
 }
 
 var (
