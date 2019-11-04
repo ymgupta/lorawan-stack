@@ -30,6 +30,7 @@ import DevAddrInput from '../../containers/dev-addr-input'
 import JoinEUIPrefixesInput from '../../containers/join-eui-prefixes-input'
 
 import sharedMessages from '../../../lib/shared-messages'
+import { selectNsConfig, selectJsConfig, selectAsConfig } from '../../../lib/selectors/env'
 import errorMessages from '../../../lib/errors/error-messages'
 import { getDeviceId } from '../../../lib/selectors/id'
 import PropTypes from '../../../lib/prop-types'
@@ -87,7 +88,8 @@ class DeviceDataForm extends Component {
       resets_join_nonces: external_js ? false : resets_join_nonces,
     }))
 
-    const { initialValues, jsConfig } = this.props
+    const { initialValues } = this.props
+    const jsConfig = selectJsConfig()
     const { setValues, state } = this.formRef.current
 
     // Reset Join Server related entries if the device is provisined by
@@ -227,7 +229,21 @@ class DeviceDataForm extends Component {
 
   get OTAASection() {
     const { resets_join_nonces, external_js } = this.state
-    const { update } = this.props
+    const {
+      update,
+      initialValues: { root_keys },
+    } = this.props
+
+    const rootKeysNotExposed =
+      root_keys && root_keys.root_key_id && !root_keys.nwk_key && !root_keys.app_key
+
+    let rootKeyPlaceholder = m.leaveBlankPlaceholder
+    if (external_js) {
+      rootKeyPlaceholder = sharedMessages.provisionedOnExternalJoinServer
+    } else if (rootKeysNotExposed) {
+      rootKeyPlaceholder = m.unexposed
+    }
+
     return (
       <React.Fragment>
         <JoinEUIPrefixesInput
@@ -269,12 +285,10 @@ class DeviceDataForm extends Component {
           type="byte"
           min={16}
           max={16}
-          placeholder={
-            external_js ? sharedMessages.provisionedOnExternalJoinServer : m.leaveBlankPlaceholder
-          }
+          placeholder={rootKeyPlaceholder}
           description={m.appKeyDescription}
           component={Input}
-          disabled={external_js}
+          disabled={external_js || rootKeysNotExposed}
         />
         <Form.Field
           title={sharedMessages.nwkKey}
@@ -282,12 +296,10 @@ class DeviceDataForm extends Component {
           type="byte"
           min={16}
           max={16}
-          placeholder={
-            external_js ? sharedMessages.provisionedOnExternalJoinServer : m.leaveBlankPlaceholder
-          }
+          placeholder={rootKeyPlaceholder}
           description={m.nwkKeyDescription}
           component={Input}
-          disabled={external_js}
+          disabled={external_js || rootKeysNotExposed}
         />
         <Form.Field
           title={m.resetsJoinNonces}
@@ -326,8 +338,8 @@ class DeviceDataForm extends Component {
       supports_class_c: false,
       resets_join_nonces: false,
       root_keys: {
-        nwk_key: {},
-        app_key: {},
+        nwk_key: { key: undefined },
+        app_key: { key: undefined },
       },
       session: {
         dev_addr: undefined,
@@ -343,12 +355,19 @@ class DeviceDataForm extends Component {
       },
     }
 
+    const nsConfig = selectNsConfig()
+    const asConfig = selectAsConfig()
+    const jsConfig = selectJsConfig()
+    const joinServerAddress = jsConfig.enabled ? new URL(jsConfig.base_url).hostname : ''
+
     const formValues = {
+      network_server_address: nsConfig.enabled ? new URL(nsConfig.base_url).hostname : '',
+      application_server_address: asConfig.enabled ? new URL(asConfig.base_url).hostname : '',
+      join_server_address: external_js ? undefined : joinServerAddress,
       ...emptyValues,
       ...initialValues,
       activation_mode: otaa ? 'otaa' : 'abp',
       external_js,
-      join_server_address: external_js ? undefined : initialValues.join_server_address,
     }
 
     return (
@@ -483,6 +502,7 @@ const initialValuesPropType = PropTypes.shape({
   root_keys: PropTypes.shape({
     nwk_key: keyPropType,
     app_key: keyPropType,
+    root_key_id: PropTypes.string,
   }),
   session: PropTypes.shape({
     dev_addr: PropTypes.string,
@@ -500,7 +520,6 @@ const initialValuesPropType = PropTypes.shape({
 
 DeviceDataForm.propTypes = {
   initialValues: initialValuesPropType,
-  jsConfig: PropTypes.stackComponent.isRequired,
   onDelete: PropTypes.func,
   onDeleteSuccess: PropTypes.func,
   onSubmit: PropTypes.func.isRequired,

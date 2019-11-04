@@ -19,6 +19,7 @@ import {
   GET_APP_API_KEY_BASE,
   GET_APP_API_KEYS_LIST_BASE,
   GET_APP_COLLABORATOR_BASE,
+  GET_APP_COLLABORATORS_LIST_BASE,
 } from '../actions/applications'
 import { GET_APP_LINK_BASE } from '../actions/link'
 
@@ -33,10 +34,15 @@ import {
 } from './events'
 import { createRightsSelector, createPseudoRightsSelector } from './rights'
 import {
+  createCollaboratorsSelector,
+  createTotalCountSelector as createCollaboratorsTotalCountSelector,
   createUserCollaboratorSelector,
   createOrganizationCollaboratorSelector,
 } from './collaborators'
-import { createApiKeysSelector } from './api-keys'
+import {
+  createApiKeysSelector,
+  createTotalCountSelector as createApiKeysTotalCountSelector,
+} from './api-keys'
 import { createApiKeySelector } from './api-key'
 import { createFetchingSelector } from './fetching'
 import { createErrorSelector } from './error'
@@ -80,6 +86,7 @@ export const selectApplicationRightsFetching = createFetchingSelector(GET_APPS_R
 
 // Api Keys
 export const selectApplicationApiKeys = createApiKeysSelector(ENTITY)
+export const selectApplicationApiKeysTotalCount = createApiKeysTotalCountSelector(ENTITY)
 export const selectApplicationApiKeysError = createErrorSelector(GET_APP_API_KEYS_LIST_BASE)
 export const selectApplicationApiKeysFetching = createFetchingSelector(GET_APP_API_KEYS_LIST_BASE)
 export const selectApplicationApiKey = createApiKeySelector(ENTITY_SINGLE)
@@ -112,6 +119,13 @@ export const selectApplicationIsLinked = function(state) {
 }
 
 // Collaborators
+export const selectApplicationCollaborators = createCollaboratorsSelector(ENTITY)
+export const selectApplicationCollaboratorsTotalCount = createCollaboratorsTotalCountSelector(
+  ENTITY,
+)
+export const selectApplicationCollaboratorsFetching = createFetchingSelector(
+  GET_APP_COLLABORATORS_LIST_BASE,
+)
 export const selectApplicationUserCollaborator = createUserCollaboratorSelector(ENTITY_SINGLE)
 export const selectApplicationOrganizationCollaborator = createOrganizationCollaboratorSelector(
   ENTITY_SINGLE,

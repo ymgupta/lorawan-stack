@@ -151,20 +151,25 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 		tenantmiddleware.Middleware(options.tenant),
 	)
 
+	var rootGroupMiddleware []echo.MiddlewareFunc
+
 	if options.redirectToHost != "" {
-		server.Use(middleware.RedirectToHost(options.redirectToHost))
+		rootGroupMiddleware = append(rootGroupMiddleware, middleware.RedirectToHost(options.redirectToHost))
 	}
 
 	if options.redirectToHTTPS != nil {
-		server.Use(middleware.RedirectToHTTPS(options.redirectToHTTPS))
+		rootGroupMiddleware = append(rootGroupMiddleware, middleware.RedirectToHTTPS(options.redirectToHTTPS))
 	}
+
+	rootGroupMiddleware = append(rootGroupMiddleware, middleware.Log(logger))
+
+	rootGroupMiddleware = append(rootGroupMiddleware, middleware.Normalize(middleware.RedirectPermanent))
 
 	s := &Server{
 		rootGroup: &rootGroup{
 			Group: server.Group(
 				"",
-				middleware.Log(logger),
-				middleware.Normalize(middleware.RedirectPermanent),
+				rootGroupMiddleware...,
 			),
 		},
 		server: server,
@@ -219,8 +224,8 @@ func (s *Server) Static(prefix string, fs http.FileSystem, middleware ...echo.Mi
 	t := strings.TrimSuffix(prefix, "/")
 	path := path.Join(t, "*")
 	handler := echo.WrapHandler(http.StripPrefix(t, http.FileServer(fs)))
-	s.GET(path, handler, middleware...)
-	s.HEAD(path, handler, middleware...)
+	s.server.GET(path, handler, middleware...)
+	s.server.HEAD(path, handler, middleware...)
 }
 
 // Routes returns the defined routes.
