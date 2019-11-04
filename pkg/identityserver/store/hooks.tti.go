@@ -24,14 +24,12 @@ func checkLicense(model *Model) (*ttipb.License, error) {
 	return &l, nil
 }
 
-var errNoFetcher = errors.DefineInternal("no_fetcher", "no fetcher found in context")
-
-func retrieveTenant(model *Model) (*ttipb.Tenant, error) {
+func retrieveTenant(db *gorm.DB, model *Model) (*ttipb.Tenant, error) {
 	ctx, tenantID := model.ctx, tenant.FromContext(model.ctx)
 	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
 		return tenantFetcher.FetchTenant(ctx, &tenantID, entityQuotasFields...)
 	}
-	panic(errNoFetcher)
+	return GetTenantStore(db).GetTenant(ctx, &tenantID, &types.FieldMask{Paths: entityQuotasFields})
 }
 
 func countInTenant(ctx context.Context, db *gorm.DB, entityType string) (uint64, error) {
@@ -59,7 +57,7 @@ func (app *Application) BeforeCreate(db *gorm.DB) error {
 	if license.MaxApplications != nil {
 		maxApplications = license.MaxApplications
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&app.Model)
+		tenant, err := retrieveTenant(db, &app.Model)
 		if err != nil {
 			return err
 		}
@@ -92,7 +90,7 @@ func (cli *Client) BeforeCreate(db *gorm.DB) error {
 	if license.MaxClients != nil {
 		maxClients = license.MaxClients
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&cli.Model)
+		tenant, err := retrieveTenant(db, &cli.Model)
 		if err != nil {
 			return err
 		}
@@ -125,7 +123,7 @@ func (dev *EndDevice) BeforeCreate(db *gorm.DB) error {
 	if license.MaxEndDevices != nil {
 		maxEndDevices = license.MaxEndDevices
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&dev.Model)
+		tenant, err := retrieveTenant(db, &dev.Model)
 		if err != nil {
 			return err
 		}
@@ -158,7 +156,7 @@ func (gtw *Gateway) BeforeCreate(db *gorm.DB) error {
 	if license.MaxGateways != nil {
 		maxGateways = license.MaxGateways
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&gtw.Model)
+		tenant, err := retrieveTenant(db, &gtw.Model)
 		if err != nil {
 			return err
 		}
@@ -191,7 +189,7 @@ func (org *Organization) BeforeCreate(db *gorm.DB) error {
 	if license.MaxOrganizations != nil {
 		maxOrganizations = license.MaxOrganizations
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&org.Model)
+		tenant, err := retrieveTenant(db, &org.Model)
 		if err != nil {
 			return err
 		}
@@ -224,7 +222,7 @@ func (usr *User) BeforeCreate(db *gorm.DB) error {
 	if license.MaxUsers != nil {
 		maxUsers = license.MaxUsers
 	} else if license.MultiTenancy {
-		tenant, err := retrieveTenant(&usr.Model)
+		tenant, err := retrieveTenant(db, &usr.Model)
 		if err != nil {
 			return err
 		}

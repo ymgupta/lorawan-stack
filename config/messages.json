@@ -3977,15 +3977,6 @@
       "file": "end_device_store.go"
     }
   },
-  "error:pkg/identityserver/store:no_fetcher": {
-    "translations": {
-      "en": "no fetcher found in context"
-    },
-    "description": {
-      "package": "pkg/identityserver/store",
-      "file": "hooks.tti.go"
-    }
-  },
   "error:pkg/identityserver/store:organization_not_found": {
     "translations": {
       "en": "organization `{organization_id}` not found"
