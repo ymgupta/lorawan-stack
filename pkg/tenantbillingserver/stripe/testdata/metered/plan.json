@@ -1,0 +1,38 @@
+{
+  "id": "plan_FyH3GcT0Q0s5uc",
+  "object": "plan",
+  "active": true,
+  "aggregate_usage": "last_during_period",
+  "amount": null,
+  "amount_decimal": null,
+  "billing_scheme": "tiered",
+  "created": 1570786443,
+  "currency": "eur",
+  "interval": "month",
+  "interval_count": 1,
+  "livemode": false,
+  "metadata": {
+  },
+  "nickname": "Metered",
+  "product": "prod_FyGd9sqdXAw0Ha",
+  "tiers": [
+    {
+      "flat_amount": null,
+      "flat_amount_decimal": null,
+      "unit_amount": 50,
+      "unit_amount_decimal": "50",
+      "up_to": 1000
+    },
+    {
+      "flat_amount": null,
+      "flat_amount_decimal": null,
+      "unit_amount": 40,
+      "unit_amount_decimal": "40",
+      "up_to": null
+    }
+  ],
+  "tiers_mode": "graduated",
+  "transform_usage": null,
+  "trial_period_days": null,
+  "usage_type": "metered"
+}
