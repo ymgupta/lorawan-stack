@@ -52,10 +52,11 @@ func getTenantAdminCreds(cmd *cobra.Command) grpc.CallOption {
 
 var (
 	tenantsCommand = &cobra.Command{
-		Use:     "tenants",
-		Hidden:  true,
-		Aliases: []string{"tenant", "tnt", "t"},
-		Short:   "Tenant commands",
+		Use:               "tenants",
+		Hidden:            true,
+		Aliases:           []string{"tenant", "tnt", "t"},
+		Short:             "Tenant commands",
+		PersistentPreRunE: preRun(),
 	}
 	tenantsListCommand = &cobra.Command{
 		Use:     "list",
@@ -87,6 +88,9 @@ var (
 		Aliases: []string{"info"},
 		Short:   "Get a tenant",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			refreshToken() // NOTE: ignore errors.
+			optionalAuth()
+
 			cliID := getTenantID(cmd.Flags(), args)
 			if cliID == nil {
 				return errNoTenantID
@@ -151,6 +155,9 @@ var (
 		Aliases: []string{"set"},
 		Short:   "Update a tenant",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			refreshToken() // NOTE: ignore errors.
+			optionalAuth()
+
 			cliID := getTenantID(cmd.Flags(), args)
 			if cliID == nil {
 				return errNoTenantID
