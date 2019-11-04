@@ -436,6 +436,10 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 				_ = subs
 				switch name {
 				case "aws":
+					w, ok := m.Metering.(*MeteringConfiguration_AWS_)
+					if !ok || w == nil {
+						continue
+					}
 
 					if v, ok := interface{}(m.GetAWS()).(interface{ ValidateFields(...string) error }); ok {
 						if err := v.ValidateFields(subs...); err != nil {
@@ -448,6 +452,10 @@ func (m *MeteringConfiguration) ValidateFields(paths ...string) error {
 					}
 
 				case "prometheus":
+					w, ok := m.Metering.(*MeteringConfiguration_Prometheus_)
+					if !ok || w == nil {
+						continue
+					}
 
 					if v, ok := interface{}(m.GetPrometheus()).(interface{ ValidateFields(...string) error }); ok {
 						if err := v.ValidateFields(subs...); err != nil {
