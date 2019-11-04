@@ -41,7 +41,7 @@ export default class QrField extends Component {
           delay={200}
           onScan={this.handleScan}
           onError={this.handleError}
-          style={{ width: '100%' }}
+          style={{ width: '80%' }}
           showViewFinder={false}
         />
         <p>{result}</p>
