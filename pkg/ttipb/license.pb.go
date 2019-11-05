@@ -333,10 +333,10 @@ type isMeteringConfiguration_Metering interface {
 }
 
 type MeteringConfiguration_AWS_ struct {
-	AWS *MeteringConfiguration_AWS `protobuf:"bytes,3,opt,name=aws,proto3,oneof"`
+	AWS *MeteringConfiguration_AWS `protobuf:"bytes,3,opt,name=aws,proto3,oneof" json:"aws,omitempty"`
 }
 type MeteringConfiguration_Prometheus_ struct {
-	Prometheus *MeteringConfiguration_Prometheus `protobuf:"bytes,4,opt,name=prometheus,proto3,oneof"`
+	Prometheus *MeteringConfiguration_Prometheus `protobuf:"bytes,4,opt,name=prometheus,proto3,oneof" json:"prometheus,omitempty"`
 }
 
 func (*MeteringConfiguration_AWS_) isMeteringConfiguration_Metering()        {}
@@ -1506,7 +1506,8 @@ func (m *MeteringConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 }
 
 func (m *MeteringConfiguration_AWS_) MarshalTo(dAtA []byte) (int, error) {
-	return m.MarshalToSizedBuffer(dAtA[:m.Size()])
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
 func (m *MeteringConfiguration_AWS_) MarshalToSizedBuffer(dAtA []byte) (int, error) {
@@ -1526,7 +1527,8 @@ func (m *MeteringConfiguration_AWS_) MarshalToSizedBuffer(dAtA []byte) (int, err
 	return len(dAtA) - i, nil
 }
 func (m *MeteringConfiguration_Prometheus_) MarshalTo(dAtA []byte) (int, error) {
-	return m.MarshalToSizedBuffer(dAtA[:m.Size()])
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
 }
 
 func (m *MeteringConfiguration_Prometheus_) MarshalToSizedBuffer(dAtA []byte) (int, error) {
@@ -4073,6 +4075,7 @@ func (m *MeteringData_TenantMeteringData) Unmarshal(dAtA []byte) error {
 func skipLicense(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -4104,10 +4107,8 @@ func skipLicense(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -4128,55 +4129,30 @@ func skipLicense(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthLicense
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthLicense
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowLicense
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipLicense(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthLicense
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupLicense
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthLicense
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthLicense = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowLicense   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthLicense        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowLicense          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupLicense = fmt.Errorf("proto: unexpected end of group")
 )
