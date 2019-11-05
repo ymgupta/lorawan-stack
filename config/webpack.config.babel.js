@@ -135,6 +135,7 @@ export default {
     path: path.resolve(context, PUBLIC_DIR),
     crossOriginLoading: 'anonymous',
     publicPath: ASSETS_ROOT,
+    globalObject: 'this',
   },
   optimization: {
     splitChunks: {
@@ -159,6 +160,10 @@ export default {
           sourceMap: true,
           babelrc: true,
         },
+      },
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' },
       },
       {
         test: /\.(woff|woff2|ttf|eot|jpg|jpeg|png|svg)$/i,

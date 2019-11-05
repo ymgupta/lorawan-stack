@@ -12,8 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { defineMessages } from 'react-intl'
+import jsQR from 'jsqr'
 
-export default defineMessages({
-  ClaimAuthMessage: 'Scan authentication QR code',
+self.addEventListener('message', event => {
+  const { data, width, height } = event.data
+  const code = jsQR(data, width, height)
+  self.postMessage(code)
 })
