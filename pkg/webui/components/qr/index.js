@@ -24,10 +24,14 @@ import style from './qr.styl'
 
 export default class QR extends React.Component {
   state = {
-    result: 'No result',
+    result: {
+      data: 'No Result',
+      location: null,
+    },
   }
 
   webWorker = null
+  location = null
 
   componentWillMount() {
     this.webWorker = new Worker()
@@ -56,14 +60,22 @@ export default class QR extends React.Component {
 
   onFrameDecoded = event => {
     const { onChange } = this.props
+    const { result } = this.state
     const code = event.data
 
     if (code && code.binaryData) {
       const { data } = code
       if (data.length > 0) {
-        this.setState({ result: code.data })
+        this.setState({ result: code })
         onChange(code.data)
       }
+    } else {
+      this.setState({
+        result: {
+          ...result,
+          location: null,
+        },
+      })
     }
 
     this.drawVideoFrame()
@@ -77,8 +89,9 @@ export default class QR extends React.Component {
           onFrame={this.onFrame}
           onInit={this.onVideoStreamInit}
           rearCamera={this.props.rearCamera}
+          location={result.location}
         />
-        <p className={style.result}>{result}</p>
+        <p className={style.result}>{result.data}</p>
       </div>
     )
   }

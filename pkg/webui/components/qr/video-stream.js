@@ -23,7 +23,8 @@ class VideoStream extends Component {
   stream = null
   streamWidth = 0
   streamHeight = 0
-  video = React.createRef()
+  video = document.createElement('video')
+  canvas = React.createRef()
   canvasContext = null
 
   async componentDidMount() {
@@ -79,62 +80,95 @@ class VideoStream extends Component {
       video: videoMode,
     })
 
-    if (this.video.current.srcObject !== undefined) {
-      this.video.current.srcObject = this.stream
-    } else if (this.video.current.mozSrcObject !== undefined) {
-      this.video.current.mozSrcObject = this.stream
+    if (this.video.srcObject !== undefined) {
+      this.video.srcObject = this.stream
+    } else if (this.video.mozSrcObject !== undefined) {
+      this.video.mozSrcObject = this.stream
     } else if (window.URL.createObjectURL) {
-      this.video.current.src = window.URL.createObjectURL(this.stream)
+      this.video.src = window.URL.createObjectURL(this.stream)
     } else if (window.webkitURL) {
-      this.video.current.src = window.webkitURL.createObjectURL(this.stream)
+      this.video.src = window.webkitURL.createObjectURL(this.stream)
     } else {
-      this.video.current.src = this.stream
+      this.video.src = this.stream
     }
 
-    this.video.current.playsInline = true
-    this.video.current.play() // firefox does not emit `loadeddata` if video not playing
+    this.video.playsInline = true
+    this.video.play() // firefox does not emit `loadeddata` if video not playing
     await this.streamLoadedPromise()
 
-    this.streamWidth = this.video.current.videoWidth
-    this.streamHeight = this.video.current.videoHeight
+    this.streamWidth = this.video.videoWidth
+    this.streamHeight = this.video.videoHeight
 
     if (!this.canvasContext) {
-      const canvas = document.createElement('canvas')
-      canvas.width = this.streamWidth
-      canvas.height = this.streamHeight
-      this.canvasContext = canvas.getContext('2d')
+      this.canvas.current.width = this.streamWidth
+      this.canvas.current.height = this.streamHeight
+      this.canvasContext = this.canvas.current.getContext('2d')
     }
+  }
+
+  drawLine = (begin, end, color) => {
+    this.canvasContext.beginPath()
+    this.canvasContext.moveTo(begin.x, begin.y)
+    const midX = begin.x + (end.x - begin.x) * 0.25
+    const midY = begin.y + (end.y - begin.y) * 0.25
+
+    this.canvasContext.lineTo(midX, midY)
+    this.canvasContext.lineWidth = 4
+    this.canvasContext.strokeStyle = color
+    this.canvasContext.stroke()
   }
 
   streamLoadedPromise = () =>
     new Promise((resolve, reject) => {
-      this.video.current.addEventListener('loadeddata', resolve, { once: true })
-      this.video.current.addEventListener('error', reject, { once: true })
+      this.video.addEventListener('loadeddata', resolve, { once: true })
+      this.video.addEventListener('error', reject, { once: true })
     })
 
   captureFrame = () => {
-    this.canvasContext.drawImage(this.video.current, 0, 0, this.streamWidth, this.streamHeight)
+    this.canvasContext.drawImage(this.video, 0, 0, this.streamWidth, this.streamHeight)
     return this.canvasContext.getImageData(0, 0, this.streamWidth, this.streamHeight)
   }
 
   drawFrame = () => {
     window.requestAnimationFrame(() => {
-      if (!this.canvasContext) return
-      const { data } = this.captureFrame()
-      this.props.onFrame({
-        data,
-        width: this.streamWidth,
-        height: this.streamHeight,
-      })
+      this.tick()
+    })
+  }
+
+  tick = () => {
+    const { location } = this.props
+    if (!this.canvasContext) return
+
+    const { data } = this.captureFrame()
+
+    if (location) {
+      this.drawLine(location.topLeftCorner, location.topRightCorner, '#0030b5')
+      this.drawLine(location.topLeftCorner, location.bottomLeftCorner, '#0030b5')
+
+      this.drawLine(location.topRightCorner, location.bottomRightCorner, '#0030b5')
+      this.drawLine(location.topRightCorner, location.topLeftCorner, '#0030b5')
+
+      this.drawLine(location.bottomRightCorner, location.bottomLeftCorner, '#0030b5')
+      this.drawLine(location.bottomRightCorner, location.topRightCorner, '#0030b5')
+
+      this.drawLine(location.bottomLeftCorner, location.topLeftCorner, '#0030b5')
+      this.drawLine(location.bottomLeftCorner, location.bottomRightCorner, '#0030b5')
+    }
+
+    this.props.onFrame({
+      data,
+      width: this.streamWidth,
+      height: this.streamHeight,
     })
   }
 
   render() {
-    return <video ref={this.video} className={style.video} autoPlay />
+    return <canvas ref={this.canvas} className={style.video} />
   }
 }
 
 VideoStream.propTypes = {
+  location: PropTypes.object,
   onFrame: PropTypes.func.isRequired,
   onInit: PropTypes.func.isRequired,
   rearCamera: PropTypes.bool,
