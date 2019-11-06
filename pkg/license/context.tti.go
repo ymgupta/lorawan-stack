@@ -4,6 +4,7 @@ package license
 
 import (
 	"context"
+	"net/url"
 	"regexp"
 	"strings"
 	"sync"
@@ -107,6 +108,13 @@ var errComponentAddressNotLicensed = errors.DefineFailedPrecondition("component_
 func RequireComponentAddress(ctx context.Context, addr string) error {
 	if addr == "" {
 		return nil
+	}
+	if strings.HasPrefix(addr, "http://") || strings.HasPrefix(addr, "https://") {
+		url, err := url.Parse(addr)
+		if err != nil {
+			return err
+		}
+		addr = url.Hostname()
 	}
 	license := FromContext(ctx)
 	if err := CheckValidity(&license); err != nil {
