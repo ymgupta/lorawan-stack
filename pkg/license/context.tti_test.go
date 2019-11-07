@@ -27,6 +27,7 @@ func TestContext(t *testing.T) {
 		a.So(RequireComponent(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY), should.BeNil)
 		a.So(RequireMultiTenancy(ctx), should.BeNil)
 		a.So(RequireComponentAddress(ctx, "localhost"), should.BeNil)
+		a.So(RequireComponentAddress(ctx, "https://localhost:8885/console"), should.BeNil)
 		a.So(RequireDevAddrPrefix(ctx, types.DevAddrPrefix{}), should.BeNil)
 		a.So(RequireJoinEUIPrefix(ctx, types.EUI64Prefix{}), should.BeNil)
 	})
@@ -83,7 +84,9 @@ func TestContext(t *testing.T) {
 		ctx := NewContextWithLicense(test.Context(), testLicense)
 
 		a.So(RequireComponentAddress(ctx, "localhost"), should.BeNil)
+		a.So(RequireComponentAddress(ctx, "https://localhost:8885/console"), should.BeNil)
 		a.So(RequireComponentAddress(ctx, "foo.localhost"), should.BeNil)
+		a.So(RequireComponentAddress(ctx, "https://foo.localhost:8885/console"), should.BeNil)
 		a.So(RequireComponentAddress(ctx, "localhost.com"), should.NotBeNil)
 		a.So(RequireComponentAddress(ctx, "other.foo.localhost"), should.NotBeNil)
 	})
