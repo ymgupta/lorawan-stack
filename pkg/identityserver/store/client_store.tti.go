@@ -33,7 +33,7 @@ func (s *clientStore) getClientWithoutTenant(ctx context.Context, id *ttnpb.Clie
 	cliModel.toPB(cliProto, fieldMask)
 
 	// Add tenant ID as prefix in Redirect URIs:
-	if fieldPaths := fieldMask.GetPaths(); len(fieldPaths) > 0 && ttnpb.HasAnyField(fieldPaths, "redirect_uris") {
+	if fieldPaths := fieldMask.GetPaths(); len(fieldPaths) == 0 || ttnpb.HasAnyField(fieldPaths, "redirect_uris") {
 		var tenantRedirectURIs []string
 		for _, redirectURI := range cliProto.RedirectURIs {
 			if !strings.Contains(redirectURI, "://") {
@@ -44,7 +44,9 @@ func (s *clientStore) getClientWithoutTenant(ctx context.Context, id *ttnpb.Clie
 				tenantRedirectURIs = append(tenantRedirectURIs, uri.String())
 			}
 		}
-		cliProto.RedirectURIs = append(cliProto.RedirectURIs, tenantRedirectURIs...)
+		if len(tenantRedirectURIs) > 0 {
+			cliProto.RedirectURIs = append(cliProto.RedirectURIs, tenantRedirectURIs...)
+		}
 	}
 	return cliProto, nil
 }
