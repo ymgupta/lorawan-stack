@@ -10,6 +10,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/stripe"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -22,13 +23,7 @@ type TenantBillingServer struct {
 	ctx context.Context
 
 	config   *Config
-	backends []Backend
-}
-
-// Backend is an tenant handling backend.
-type Backend interface {
-	// Report reports the tenant registry totals to the backend. Only the attributes and IDs are retrieved for the tenant.
-	Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error
+	backends []backend.Interface
 }
 
 const (
@@ -56,14 +51,17 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		AuthValue: conf.TenantAdminKey,
 	})
 
-	if strp, err := conf.Stripe.New(tbs.ctx, c, stripe.WithTenantRegistryAuth(tenantAuth)); err != nil {
-		return nil, err
-	} else if strp != nil {
-		tbs.backends = append(tbs.backends, strp)
-		c.RegisterWeb(strp)
+	if conf.Stripe.Enable {
+		strp, err := conf.Stripe.New(tbs.ctx, c, stripe.WithTenantRegistryAuth(tenantAuth))
+		if err != nil {
+			return nil, err
+		} else if strp != nil {
+			tbs.backends = append(tbs.backends, strp)
+			c.RegisterWeb(strp)
+		}
 	}
 
-	hooks.RegisterUnaryHook("/tti.lorawan.v3.Tbs", "billing-rights", tbs.billingRightsHook)
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.Tbs", "billing-rights", tbs.billingRightsUnaryHook)
 
 	c.RegisterGRPC(tbs)
 	return tbs, nil

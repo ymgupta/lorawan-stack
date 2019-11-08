@@ -11,18 +11,20 @@ import (
 )
 
 var (
-	errUnauthenticated = errors.DefineUnauthenticated("unauthenticated", "unauthenticated")
+	errPeerAddressNotAllowed = errors.DefineUnauthenticated("peer_address_not_allowed", "peer address `{peer_address}` is not allowed")
 )
 
-func (tbs *TenantBillingServer) billingRightsHook(h grpc.UnaryHandler) grpc.UnaryHandler {
+func (tbs *TenantBillingServer) billingRightsUnaryHook(h grpc.UnaryHandler) grpc.UnaryHandler {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
-		if p, ok := peer.FromContext(ctx); ok {
-			for _, r := range tbs.config.reporterAddressRegexps {
-				if r.MatchString(p.Addr.String()) {
-					return h(ctx, req)
-				}
+		p, ok := peer.FromContext(ctx)
+		if !ok {
+			panic("Peer missing from context")
+		}
+		for _, r := range tbs.config.reporterAddressRegexps {
+			if r.MatchString(p.Addr.String()) {
+				return h(ctx, req)
 			}
 		}
-		return nil, errUnauthenticated
+		return nil, errPeerAddressNotAllowed
 	}
 }

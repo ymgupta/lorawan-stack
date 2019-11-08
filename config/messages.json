@@ -6112,7 +6112,7 @@
   },
   "error:pkg/tenantbillingserver/stripe:no_tenant_attribute": {
     "translations": {
-      "en": "no tenant attribute {attribute} available"
+      "en": "no tenant attribute `{attribute}` available"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",
@@ -6128,6 +6128,15 @@
       "file": "tenants.tti.go"
     }
   },
+  "error:pkg/tenantbillingserver/stripe:unknown_tenant_state": {
+    "translations": {
+      "en": "tenant state `{state}` is unknown"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
   "error:pkg/tenantbillingserver:invalid_reporter_address_regexp": {
     "translations": {
       "en": "invalid reporter address regular expression"
@@ -6137,9 +6146,9 @@
       "file": "config.tti.go"
     }
   },
-  "error:pkg/tenantbillingserver:unauthenticated": {
+  "error:pkg/tenantbillingserver:peer_address_not_allowed": {
     "translations": {
-      "en": "unauthenticated"
+      "en": "peer address `{peer_address}` is not allowed"
     },
     "description": {
       "package": "pkg/tenantbillingserver",

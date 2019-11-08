@@ -21,7 +21,8 @@ func TestAuth(t *testing.T) {
 	withTBS(t, tenantbillingserver.Config{
 		ReporterAddressRegexps: []string{"pipe"},
 	},
-		func(t *testing.T, a *assertions.Assertion, c *component.Component) {
+		func(t *testing.T, c *component.Component) {
+			a := assertions.New(t)
 			ctx := test.Context()
 
 			cc, err := c.GetPeerConn(ctx, ttnpb.ClusterRole_TENANT_BILLING_SERVER, nil)
@@ -40,7 +41,8 @@ func TestAuth(t *testing.T) {
 	withTBS(t, tenantbillingserver.Config{
 		ReporterAddressRegexps: []string{"never-valid-address"},
 	},
-		func(t *testing.T, a *assertions.Assertion, c *component.Component) {
+		func(t *testing.T, c *component.Component) {
+			a := assertions.New(t)
 			ctx := test.Context()
 
 			cc, err := c.GetPeerConn(ctx, ttnpb.ClusterRole_TENANT_BILLING_SERVER, nil)
@@ -50,15 +52,13 @@ func TestAuth(t *testing.T) {
 
 			client := ttipb.NewTbsClient(cc)
 
-			res, err := client.Report(ctx, &ttipb.MeteringData{})
-			a.So(err, should.NotBeNil)
+			_, err = client.Report(ctx, &ttipb.MeteringData{})
 			a.So(errors.IsUnauthenticated(err), should.BeTrue)
-			a.So(res, should.BeNil)
 		},
 	)
 }
 
-func withTBS(t *testing.T, cfg tenantbillingserver.Config, testFunc func(*testing.T, *assertions.Assertion, *component.Component)) {
+func withTBS(t *testing.T, cfg tenantbillingserver.Config, testFunc func(*testing.T, *component.Component)) {
 	a := assertions.New(t)
 
 	c := componenttest.NewComponent(t, &component.Config{
@@ -71,15 +71,15 @@ func withTBS(t *testing.T, cfg tenantbillingserver.Config, testFunc func(*testin
 	})
 
 	s, err := tenantbillingserver.New(c, &cfg)
-	a.So(s, should.NotBeNil)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
 	}
+	a.So(s, should.NotBeNil)
 
 	componenttest.StartComponent(t, c)
 	defer c.Close()
 
 	mustHavePeer(c.Context(), c, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
 
-	testFunc(t, a, c)
+	testFunc(t, c)
 }

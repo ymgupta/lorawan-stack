@@ -4,11 +4,13 @@ package stripe
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/webhook"
+	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
 )
 
@@ -17,29 +19,30 @@ const (
 	customerSubscriptionUpdated = "customer.subscription.updated"
 	customerSubscriptionDeleted = "customer.subscription.deleted"
 
-	stripeSignatureHeader = "Stripe-Signature"
+	signatureHeader = "Stripe-Signature"
+
+	correlationIDFormat = "tbs:stripe:%s"
 )
 
 func (s *Stripe) handleWebhook(c echo.Context) error {
-	ctx := s.component.FillContext(c.Request().Context())
+	ctx := c.Request().Context()
 	logger := log.FromContext(ctx)
 
 	body, err := ioutil.ReadAll(c.Request().Body)
 	if err != nil {
 		return err
 	}
+	defer c.Request().Body.Close()
 
 	var event stripe.Event
 	if len(s.config.EndpointSecretKey) == 0 {
 		err = json.Unmarshal(body, &event)
 		if err != nil {
-			logger.WithError(err).Warn("Webhook unmarshaling failed")
 			return err
 		}
 	} else {
-		event, err = webhook.ConstructEvent(body, c.Request().Header.Get(stripeSignatureHeader), s.config.EndpointSecretKey)
+		event, err = webhook.ConstructEvent(body, c.Request().Header.Get(signatureHeader), s.config.EndpointSecretKey)
 		if err != nil {
-			logger.WithError(err).Warn("Webhook signature validation failed")
 			return err
 		}
 	}
@@ -64,6 +67,10 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 		return nil
 	}
 
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Plan.ID))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Customer.ID))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.ID))
+
 	switch sub.Status {
 	case stripe.SubscriptionStatusActive, stripe.SubscriptionStatusTrialing:
 		return s.createTenant(ctx, sub)
@@ -72,15 +79,16 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	case stripe.SubscriptionStatusCanceled, stripe.SubscriptionStatusPastDue, stripe.SubscriptionStatusUnpaid:
 		return s.suspendTenant(ctx, sub)
 	default:
-		panic("unreachable")
+		logger.Errorf("Unhandled Stripe subscription status: %s", sub.Status)
+		return nil
 	}
 }
 
 func (s *Stripe) shouldHandlePlan(id string) bool {
-	if b, ok := s.meteredPlanIDs[id]; ok && b {
+	if _, ok := s.meteredPlanIDs[id]; ok {
 		return true
 	}
-	if b, ok := s.recurringPlanIDs[id]; ok && b {
+	if _, ok := s.recurringPlanIDs[id]; ok {
 		return true
 	}
 	return false

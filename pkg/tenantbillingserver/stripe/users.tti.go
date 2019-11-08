@@ -19,9 +19,8 @@ const (
 )
 
 func (s *Stripe) generateInitialUser(ctx context.Context, sub *stripe.Subscription, cust *stripe.Customer) (*ttnpb.User, error) {
-	var password string
-	var ok bool
-	if password, ok = sub.Metadata[adminPasswordStripeAttribute]; !ok {
+	password, ok := sub.Metadata[adminPasswordStripeAttribute]
+	if !ok {
 		password = random.String(256)
 	}
 	hashedPassword, err := auth.Hash(ctx, password)
@@ -29,8 +28,8 @@ func (s *Stripe) generateInitialUser(ctx context.Context, sub *stripe.Subscripti
 		return nil, err
 	}
 
-	var userID string
-	if userID, ok = sub.Metadata[adminUserIDStripeAttribute]; !ok {
+	userID, ok := sub.Metadata[adminUserIDStripeAttribute]
+	if !ok {
 		userID = defaultAdminUserID
 	}
 

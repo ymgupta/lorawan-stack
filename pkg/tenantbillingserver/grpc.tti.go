@@ -19,18 +19,17 @@ func (tbs *TenantBillingServer) Report(ctx context.Context, data *ttipb.Metering
 		panic("tenant fetcher not available")
 	}
 	logger := log.FromContext(ctx)
-outer:
 	for _, tenantData := range data.Tenants {
 		tenant, err := tenantFetcher.FetchTenant(ctx, &tenantData.TenantIdentifiers, "attributes", "state")
 		if err != nil {
 			logger.WithError(err).Error("Failed to retrieve tenant")
-			break outer
+			continue
 		}
 		for _, backend := range tbs.backends {
 			err := backend.Report(ctx, tenant, tenantData.Totals)
 			if err != nil {
 				logger.WithError(err).Error("Failed to report metrics to backend")
-				break outer
+				continue
 			}
 		}
 	}

@@ -11,35 +11,32 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/version"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"google.golang.org/grpc"
 )
 
 // Config is the configuration for the Stripe payment backend.
 type Config struct {
-	Enabled           bool     `name:"enabled" description:"Enable the Stripe backend"`
+	Enable            bool     `name:"Enable" description:"Enable the Stripe backend"`
 	APIKey            string   `name:"api-key" description:"API key used to connect to Stripe"`
 	EndpointSecretKey string   `name:"endpoint-secret-key" description:"Endpoint secret key used to verify webhook signatures"`
 	RecurringPlanIDs  []string `name:"recurring-plan-ids" description:"Recurring subscription plan IDs to be handled"`
 	MeteredPlanIDs    []string `name:"metered-plan-ids" description:"Metered subscription plan IDs to be handled"`
-	LogLevel          int      `name:"log-level" description:"Log level of the API client"`
 }
 
 var (
-	errNoAPIKey          = errors.DefineInvalidArgument("no_api_key", "no API key provided")
-	errNoPlanIDs         = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
-	errNoTenantAttribute = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute {attribute} available")
+	errNoAPIKey           = errors.DefineInvalidArgument("no_api_key", "no API key provided")
+	errNoPlanIDs          = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
+	errNoTenantAttribute  = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute `{attribute}` available")
+	errUnknownTenantState = errors.DefineInternal("unknown_tenant_state", "tenant state `{state}` is unknown")
 )
 
 // New returns a new Stripe backend using the config.
 func (c Config) New(ctx context.Context, component *component.Component, opts ...Option) (*Stripe, error) {
-	if !c.Enabled {
-		return nil, nil
-	}
-	if len(c.APIKey) == 0 {
+	if c.APIKey == "" {
 		return nil, errNoAPIKey
 	}
 	if len(c.RecurringPlanIDs)+len(c.MeteredPlanIDs) == 0 {
@@ -54,8 +51,8 @@ type Stripe struct {
 	component *component.Component
 	config    Config
 
-	recurringPlanIDs map[string]bool
-	meteredPlanIDs   map[string]bool
+	recurringPlanIDs map[string]struct{}
+	meteredPlanIDs   map[string]struct{}
 
 	tenantsClient ttipb.TenantRegistryClient
 	tenantAuth    grpc.CallOption
@@ -69,18 +66,18 @@ func New(ctx context.Context, component *component.Component, config Config, opt
 		ctx:              log.NewContextWithField(ctx, "namespace", "tenantbillingserver/stripe"),
 		component:        component,
 		config:           config,
-		recurringPlanIDs: make(map[string]bool),
-		meteredPlanIDs:   make(map[string]bool),
+		recurringPlanIDs: make(map[string]struct{}),
+		meteredPlanIDs:   make(map[string]struct{}),
 		tenantAuth:       grpc.EmptyCallOption{},
 	}
 	for _, opt := range opts {
 		opt(s)
 	}
 	for _, v := range config.RecurringPlanIDs {
-		s.recurringPlanIDs[v] = true
+		s.recurringPlanIDs[v] = struct{}{}
 	}
 	for _, v := range config.MeteredPlanIDs {
-		s.meteredPlanIDs[v] = true
+		s.meteredPlanIDs[v] = struct{}{}
 	}
 	return s, nil
 }
@@ -111,42 +108,58 @@ func WithStripeAPIClient(c *client.API) Option {
 
 // Report updates the Stripe subscription of the tenant if the tenant is managed by Stripe.
 func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error {
-	if manager, ok := tenant.Attributes[managedTenantAttribute]; !ok || manager != stripeManagerAttributeValue {
+	manager, ok := tenant.Attributes[backend.ManagedByTenantAttribute]
+	if !ok || manager != managerAttributeValue {
 		return nil
 	}
-	if tenant.State != ttnpb.STATE_APPROVED {
+
+	switch tenant.State {
+	case ttnpb.STATE_REQUESTED, ttnpb.STATE_REJECTED, ttnpb.STATE_SUSPENDED:
 		// Do not report metrics of inactive tenants.
 		return nil
+	case ttnpb.STATE_APPROVED, ttnpb.STATE_FLAGGED:
+		break
+	default:
+		return errUnknownTenantState.WithAttributes("state", tenant.State)
 	}
-	var ok bool
-	var planID, customerID, subscriptionID, subscriptionItemID string
-	if planID, ok = tenant.Attributes[stripePlanIDAttribute]; !ok || len(planID) == 0 {
-		return errNoTenantAttribute.WithAttributes("attribute", stripePlanIDAttribute)
+
+	planID := tenant.Attributes[planIDAttribute]
+	if planID == "" {
+		return errNoTenantAttribute.WithAttributes("attribute", planIDAttribute)
 	}
-	if customerID, ok = tenant.Attributes[stripeCustomerIDAttribute]; !ok || len(customerID) == 0 {
-		return errNoTenantAttribute.WithAttributes("attribute", stripeCustomerIDAttribute)
+	customerID := tenant.Attributes[customerIDAttribute]
+	if customerID == "" {
+		return errNoTenantAttribute.WithAttributes("attribute", customerIDAttribute)
 	}
-	if subscriptionID, ok = tenant.Attributes[stripeSubscriptionIDAttribute]; !ok || len(subscriptionID) == 0 {
-		return errNoTenantAttribute.WithAttributes("attribute", stripeSubscriptionIDAttribute)
+	subscriptionID := tenant.Attributes[subscriptionIDAttribute]
+	if subscriptionID == "" {
+		return errNoTenantAttribute.WithAttributes("attribute", subscriptionIDAttribute)
 	}
-	if subscriptionItemID, ok = tenant.Attributes[stripeSubscriptionItemIDAttribute]; !ok || len(subscriptionItemID) == 0 {
-		return errNoTenantAttribute.WithAttributes("attribute", stripeSubscriptionItemIDAttribute)
+	subscriptionItemID := tenant.Attributes[subscriptionItemIDAttribute]
+	if subscriptionItemID == "" {
+		return errNoTenantAttribute.WithAttributes("attribute", subscriptionItemIDAttribute)
 	}
+
+	logger := log.FromContext(ctx).WithFields(log.Fields(
+		"tenant_id", tenant.TenantID, // The context does not contain a tenant.
+		"plan_id", planID,
+		"customer_id", customerID,
+		"subscription_id", subscriptionID,
+		"subscription_item_id", subscriptionItemID,
+	))
+
 	var quantity int64
-	if b, ok := s.recurringPlanIDs[planID]; ok && b {
+	if _, ok := s.recurringPlanIDs[planID]; ok {
 		// Recurring plans do not need usage records.
 		return nil
-	} else if b, ok = s.meteredPlanIDs[planID]; ok && b {
+	}
+	if _, ok := s.meteredPlanIDs[planID]; ok {
 		quantity = int64(totals.GetEndDevices())
 	} else {
-		log.FromContext(ctx).WithFields(log.Fields(
-			"plan_id", planID,
-			"customer_id", customerID,
-			"subscription_id", subscriptionID,
-			"subscription_item_id", subscriptionItemID,
-		)).Warn("Unrecognized plan ID")
+		logger.Error("Unrecognized plan ID")
 		return nil
 	}
+
 	params := &stripe.UsageRecordParams{
 		Quantity:         stripe.Int64(quantity),
 		Timestamp:        stripe.Int64(time.Now().Unix()),
@@ -156,6 +169,8 @@ func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb
 	if _, err := s.newUsageRecord(params); err != nil {
 		return err
 	}
+	logger.WithField("quantity", quantity).Debug("Usage recorded")
+
 	return nil
 }
 
@@ -171,7 +186,7 @@ func (s *Stripe) getAPIClient() (*client.API, error) {
 	backends := stripe.NewBackends(nil)
 	backends.API = stripe.GetBackendWithConfig(stripe.APIBackend, &stripe.BackendConfig{
 		LeveledLogger: log.FromContext(s.ctx),
-		LogLevel:      s.config.LogLevel,
+		LogLevel:      convertLogLevel(s.ctx, s.component),
 	})
 	return client.New(s.config.APIKey, backends), nil
 }
@@ -200,10 +215,17 @@ func (s *Stripe) newUsageRecord(params *stripe.UsageRecordParams) (*stripe.Usage
 	return client.UsageRecords.New(params)
 }
 
-func init() {
-	stripe.SetAppInfo(&stripe.AppInfo{
-		Name:    "The Things Enterprise Stack",
-		URL:     "https://www.thethingsindustries.com",
-		Version: version.String(),
-	})
+func convertLogLevel(ctx context.Context, c *component.Component) int {
+	level := c.GetBaseConfig(ctx).Log.Level
+	switch level {
+	case log.DebugLevel:
+		return 3
+	case log.InfoLevel:
+		return 2
+	case log.WarnLevel, log.ErrorLevel, log.FatalLevel:
+		return 1
+	default:
+		log.FromContext(ctx).WithField("level", level).Error("Unknown log level provided. Default to 0")
+		return 0
+	}
 }

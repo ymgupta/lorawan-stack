@@ -9,25 +9,25 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 const (
-	managedTenantAttribute            = "managed-by"
-	stripeManagerAttributeValue       = "stripe"
-	stripeCustomerIDAttribute         = "stripe-customer-id"
-	stripePlanIDAttribute             = "stripe-plan-id"
-	stripeSubscriptionIDAttribute     = "stripe-subscription-id"
-	stripeSubscriptionItemIDAttribute = "stripe-subscription-item-id"
+	managerAttributeValue       = "stripe"
+	customerIDAttribute         = "stripe-customer-id"
+	planIDAttribute             = "stripe-plan-id"
+	subscriptionIDAttribute     = "stripe-subscription-id"
+	subscriptionItemIDAttribute = "stripe-subscription-item-id"
 
-	tenantIDStripeAttribute         = "tenant-id"
-	maxApplicationsStripeAttribute  = "max-applications"
-	maxClientsStripeAttribute       = "max-clients"
-	maxEndDevicesStripeAttribute    = "max-end-devices"
-	maxGatewaysStripeAttribute      = "max-gateways"
-	maxOrganizationsStripeAttribute = "max-organizations"
-	maxUsersStripeAttribute         = "max-users"
+	tenantIDAttribute         = "tenant-id"
+	maxApplicationsAttribute  = "max-applications"
+	maxClientsAttribute       = "max-clients"
+	maxEndDevicesAttribute    = "max-end-devices"
+	maxGatewaysAttribute      = "max-gateways"
+	maxOrganizationsAttribute = "max-organizations"
+	maxUsersAttribute         = "max-users"
 )
 
 func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) error {
@@ -41,27 +41,27 @@ func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) er
 		value     **types.UInt64Value
 	}{
 		{
-			attribute: maxApplicationsStripeAttribute,
+			attribute: maxApplicationsAttribute,
 			value:     &tnt.MaxApplications,
 		},
 		{
-			attribute: maxClientsStripeAttribute,
+			attribute: maxClientsAttribute,
 			value:     &tnt.MaxClients,
 		},
 		{
-			attribute: maxEndDevicesStripeAttribute,
+			attribute: maxEndDevicesAttribute,
 			value:     &tnt.MaxEndDevices,
 		},
 		{
-			attribute: maxGatewaysStripeAttribute,
+			attribute: maxGatewaysAttribute,
 			value:     &tnt.MaxGateways,
 		},
 		{
-			attribute: maxOrganizationsStripeAttribute,
+			attribute: maxOrganizationsAttribute,
 			value:     &tnt.MaxOrganizations,
 		},
 		{
-			attribute: maxUsersStripeAttribute,
+			attribute: maxUsersAttribute,
 			value:     &tnt.MaxUsers,
 		},
 	} {
@@ -87,7 +87,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		return err
 	}
 
-	ids, err := generateTenantID(sub)
+	ids, err := toTenantIDs(sub)
 	if err != nil {
 		return err
 	}
@@ -96,11 +96,11 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		Name:              customer.Name,
 		Description:       customer.Description,
 		Attributes: map[string]string{
-			managedTenantAttribute:            stripeManagerAttributeValue,
-			stripeCustomerIDAttribute:         customer.ID,
-			stripePlanIDAttribute:             sub.Plan.ID,
-			stripeSubscriptionIDAttribute:     sub.ID,
-			stripeSubscriptionItemIDAttribute: sub.Items.Data[0].ID,
+			backend.ManagedByTenantAttribute: managerAttributeValue,
+			customerIDAttribute:              customer.ID,
+			planIDAttribute:                  sub.Plan.ID,
+			subscriptionIDAttribute:          sub.ID,
+			subscriptionItemIDAttribute:      sub.Items.Data[0].ID,
 		},
 		ContactInfo: []*ttnpb.ContactInfo{
 			{
@@ -171,7 +171,7 @@ func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) er
 	if err != nil {
 		return err
 	}
-	ids, err := generateTenantID(sub)
+	ids, err := toTenantIDs(sub)
 	if err != nil {
 		return err
 	}
@@ -205,8 +205,8 @@ func (s *Stripe) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryCli
 
 var errNoTenantID = errors.DefineInvalidArgument("no_tenant_id", "no tenant ID set")
 
-func generateTenantID(sub *stripe.Subscription) (*ttipb.TenantIdentifiers, error) {
-	if tenantID, ok := sub.Metadata[tenantIDStripeAttribute]; ok {
+func toTenantIDs(sub *stripe.Subscription) (*ttipb.TenantIdentifiers, error) {
+	if tenantID, ok := sub.Metadata[tenantIDAttribute]; ok {
 		return &ttipb.TenantIdentifiers{
 			TenantID: tenantID,
 		}, nil

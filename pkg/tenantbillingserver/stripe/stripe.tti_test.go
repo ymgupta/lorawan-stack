@@ -23,11 +23,19 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
 
+// The test data is obtained from the webhooks forwarded by the Stripe CLI tool
+// (https://github.com/stripe/stripe-cli). In order to regenerate it, it is necessary
+// to create a product in Stripe, add two billing plans to it (one metered and recurring),
+// and then create a customer with a subscription to each of the plans.
+// The test data is tied to the Stripe API version, which itself is tied to the stripe-go library
+// for the backend. As such, it should be regenerated only after updating the stripe-go library.
+
 const (
 	tenantID     = "testclient1"
 	tenantName   = "TestClient1"
 	stripeAPIKey = "valid-api-key"
 
+	// The IDs can be obtained from both the dumped test data, and from the Stripe web UI.
 	recurringPlanID           = "plan_G6CmtjyI1lsDhn"
 	meteredPlanID             = "plan_FyH3GcT0Q0s5uc"
 	meteredSubscriptionItemID = "si_G7O9VTXtw5gGVU"
@@ -35,7 +43,8 @@ const (
 )
 
 func TestRecurringPlan(t *testing.T) {
-	withStripe(t, func(t *testing.T, a *assertions.Assertion, s *stripe.Stripe, tnt *mockTenantClient, strp *mockStripeBackend) {
+	withStripe(t, func(t *testing.T, s *stripe.Stripe, tnt *mockTenantClient, strp *mockStripeBackend) {
+		a := assertions.New(t)
 		ctx := test.Context()
 
 		strp.CallMock = func(method, path, key string, params stripego.ParamsContainer, v interface{}) error {
@@ -110,7 +119,8 @@ func TestRecurringPlan(t *testing.T) {
 }
 
 func TestMeteredPlan(t *testing.T) {
-	withStripe(t, func(t *testing.T, a *assertions.Assertion, s *stripe.Stripe, tnt *mockTenantClient, strp *mockStripeBackend) {
+	withStripe(t, func(t *testing.T, s *stripe.Stripe, tnt *mockTenantClient, strp *mockStripeBackend) {
+		a := assertions.New(t)
 		ctx := test.Context()
 
 		strp.CallMock = func(method, path, key string, params stripego.ParamsContainer, v interface{}) error {
@@ -192,7 +202,7 @@ func TestMeteredPlan(t *testing.T) {
 	})
 }
 
-func withStripe(t *testing.T, testFunc func(*testing.T, *assertions.Assertion, *stripe.Stripe, *mockTenantClient, *mockStripeBackend)) {
+func withStripe(t *testing.T, testFunc func(*testing.T, *stripe.Stripe, *mockTenantClient, *mockStripeBackend)) {
 	ctx := test.Context()
 	a := assertions.New(t)
 
@@ -209,11 +219,10 @@ func withStripe(t *testing.T, testFunc func(*testing.T, *assertions.Assertion, *
 	})
 
 	config := stripe.Config{
-		Enabled:          true,
+		Enable:           true,
 		APIKey:           stripeAPIKey,
 		RecurringPlanIDs: []string{recurringPlanID},
 		MeteredPlanIDs:   []string{meteredPlanID},
-		LogLevel:         1,
 	}
 
 	tnt := &mockTenantClient{}
@@ -231,7 +240,7 @@ func withStripe(t *testing.T, testFunc func(*testing.T, *assertions.Assertion, *
 	componenttest.StartComponent(t, c)
 	defer c.Close()
 
-	testFunc(t, a, s, tnt, backend)
+	testFunc(t, s, tnt, backend)
 }
 
 var (
