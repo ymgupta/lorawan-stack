@@ -4,15 +4,19 @@ package identityserver
 
 import (
 	"context"
+	"time"
 
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/pkg/auth"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/blacklist"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/validate"
 )
 
 func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTenantRequest) (tnt *ttipb.Tenant, err error) {
@@ -28,6 +32,42 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 	if err := validateContactInfo(req.Tenant.ContactInfo); err != nil {
 		return nil, err
 	}
+
+	if req.InitialUser != nil {
+		if err := validate.Email(req.InitialUser.PrimaryEmailAddress); err != nil {
+			return nil, err
+		}
+		if err := validateContactInfo(req.InitialUser.ContactInfo); err != nil {
+			return nil, err
+		}
+
+		var primaryEmailAddressFound bool
+		for _, contactInfo := range req.InitialUser.ContactInfo {
+			if contactInfo.ContactMethod == ttnpb.CONTACT_METHOD_EMAIL && contactInfo.Value == req.InitialUser.PrimaryEmailAddress {
+				primaryEmailAddressFound = true
+				if contactInfo.ValidatedAt != nil {
+					req.InitialUser.PrimaryEmailAddressValidatedAt = contactInfo.ValidatedAt
+					break
+				}
+			}
+		}
+		if !primaryEmailAddressFound {
+			req.InitialUser.ContactInfo = append(req.InitialUser.ContactInfo, &ttnpb.ContactInfo{
+				ContactMethod: ttnpb.CONTACT_METHOD_EMAIL,
+				Value:         req.InitialUser.PrimaryEmailAddress,
+				ValidatedAt:   req.InitialUser.PrimaryEmailAddressValidatedAt,
+			})
+		}
+
+		hashedPassword, err := auth.Hash(ctx, req.InitialUser.Password)
+		if err != nil {
+			return nil, err
+		}
+		req.InitialUser.Password = hashedPassword
+		now := time.Now()
+		req.InitialUser.PasswordUpdatedAt = &now
+	}
+
 	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
 		tnt, err = store.GetTenantStore(db).CreateTenant(ctx, &req.Tenant)
 		if err != nil {
@@ -41,10 +81,22 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 			}
 		}
 		if req.InitialUser != nil {
-			tenantCtx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
-			_, err := store.GetUserStore(db).CreateUser(tenantCtx, req.InitialUser)
+			ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
+			usr, err := store.GetUserStore(db).CreateUser(ctx, req.InitialUser)
 			if err != nil {
 				return err
+			}
+
+			if len(req.InitialUser.ContactInfo) > 0 {
+				cleanContactInfo(req.InitialUser.ContactInfo)
+				_, err = store.GetContactInfoStore(db).SetContactInfo(ctx, usr.UserIdentifiers, req.InitialUser.ContactInfo)
+				if err != nil {
+					return err
+				}
+			}
+
+			if _, err := is.requestContactInfoValidation(ctx, req.InitialUser.EntityIdentifiers()); err != nil {
+				log.FromContext(ctx).WithError(err).Error("Could not send contact info validations")
 			}
 		}
 		return nil

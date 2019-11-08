@@ -9,6 +9,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -28,6 +29,10 @@ const (
 	maxGatewaysAttribute      = "max-gateways"
 	maxOrganizationsAttribute = "max-organizations"
 	maxUsersAttribute         = "max-users"
+	adminUserIDAttribute      = "admin-user"
+	adminPasswordAttribute    = "admin-password"
+
+	defaultAdminUserID = "admin"
 )
 
 func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) error {
@@ -150,13 +155,26 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 			return err
 		}
 	} else {
-		initialUser, err := s.generateInitialUser(ctx, sub, customer)
-		if err != nil {
-			return err
+		password, ok := sub.Metadata[adminPasswordAttribute]
+		if !ok {
+			password = random.String(256)
 		}
+		userID, ok := sub.Metadata[adminUserIDAttribute]
+		if !ok {
+			userID = defaultAdminUserID
+		}
+
 		_, err = client.Create(ctx, &ttipb.CreateTenantRequest{
-			Tenant:      tnt,
-			InitialUser: initialUser,
+			Tenant: tnt,
+			InitialUser: &ttnpb.User{
+				UserIdentifiers: ttnpb.UserIdentifiers{
+					UserID: userID,
+				},
+				PrimaryEmailAddress: customer.Email,
+				State:               ttnpb.STATE_APPROVED,
+				Password:            password,
+				Admin:               true,
+			},
 		}, s.tenantAuth)
 		if err != nil {
 			return err
