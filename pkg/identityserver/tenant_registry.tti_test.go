@@ -7,12 +7,15 @@ import (
 	"testing"
 
 	pbtypes "github.com/gogo/protobuf/types"
+	"github.com/jinzhu/gorm"
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"google.golang.org/grpc"
@@ -169,11 +172,37 @@ func TestTenantsCRUD(t *testing.T) {
 			Tenant: ttipb.Tenant{
 				TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: "foo"},
 				Name:              "Foo Tenant",
+				State:             ttnpb.STATE_APPROVED,
+			},
+			InitialUser: &ttnpb.User{
+				UserIdentifiers: ttnpb.UserIdentifiers{
+					UserID: "foo-user",
+				},
+				Name:                "Foo User",
+				Password:            "foo-password",
+				PrimaryEmailAddress: "foo@bar.com",
 			},
 		}, creds)
 
 		a.So(err, should.BeNil)
 		a.So(created.Name, should.Equal, "Foo Tenant")
+
+		is.withDatabase(ctx, func(db *gorm.DB) error {
+			ctx := tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: "foo"})
+			usr, err := store.GetUserStore(db).GetUser(ctx,
+				&ttnpb.UserIdentifiers{
+					UserID: "foo-user",
+				},
+				&pbtypes.FieldMask{
+					Paths: []string{"name"},
+				},
+			)
+
+			a.So(err, should.BeNil)
+			a.So(usr.Name, should.Equal, "Foo User")
+
+			return nil
+		})
 
 		got, err := reg.Get(ctx, &ttipb.GetTenantRequest{
 			TenantIdentifiers: created.TenantIdentifiers,

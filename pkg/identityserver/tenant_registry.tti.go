@@ -82,6 +82,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		}
 		if req.InitialUser != nil {
 			ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
+			ctx = store.WithoutTenantFetcher(ctx)
 			usr, err := store.GetUserStore(db).CreateUser(ctx, req.InitialUser)
 			if err != nil {
 				return err
@@ -102,6 +103,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 	}
 
 	if req.InitialUser != nil {
+		ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
 		_, err := is.requestContactInfoValidation(ctx, req.InitialUser.EntityIdentifiers())
 		if err != nil {
 			log.FromContext(ctx).WithError(err).Error("Could not send contact info validations")
