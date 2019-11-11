@@ -35,7 +35,7 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	defer c.Request().Body.Close()
 
 	var event stripe.Event
-	if len(s.config.EndpointSecretKey) == 0 {
+	if s.config.EndpointSecretKey == "" {
 		err = json.Unmarshal(body, &event)
 		if err != nil {
 			return err

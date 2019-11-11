@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/gogo/protobuf/types"
+	"github.com/howeyc/gopass"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"go.thethings.network/lorawan-stack/cmd/ttn-lw-cli/internal/api"
@@ -13,12 +14,14 @@ import (
 	"go.thethings.network/lorawan-stack/cmd/ttn-lw-cli/internal/util"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
 
 var (
-	selectTenantFlags = util.FieldMaskFlags(&ttipb.Tenant{})
-	setTenantFlags    = util.FieldFlags(&ttipb.Tenant{})
+	selectTenantFlags   = util.FieldMaskFlags(&ttipb.Tenant{})
+	setTenantFlags      = util.FieldFlags(&ttipb.Tenant{})
+	setInitialUserFlags = util.FieldFlags(&ttnpb.User{}, "initial_user")
 )
 
 func tenantIDFlags() *pflag.FlagSet {
@@ -136,12 +139,41 @@ var (
 				return errNoTenantID
 			}
 
+			var initialUser *ttnpb.User
+			if createInitialUser, _ := cmd.Flags().GetBool("initial_user"); createInitialUser {
+				var user ttnpb.User
+				if err := util.SetFields(&user, setInitialUserFlags, "initial_user"); err != nil {
+					return err
+				}
+				if user.UserID == "" {
+					return errNoUserID
+				}
+
+				if user.Password == "" {
+					pw, err := gopass.GetPasswdPrompt("Please enter password:", true, os.Stdin, os.Stderr)
+					if err != nil {
+						return err
+					}
+					user.Password = string(pw)
+					pw, err = gopass.GetPasswdPrompt("Please confirm password:", true, os.Stdin, os.Stderr)
+					if err != nil {
+						return err
+					}
+					if string(pw) != user.Password {
+						return errPasswordMismatch
+					}
+				}
+
+				initialUser = &user
+			}
+
 			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
 			if err != nil {
 				return err
 			}
 			res, err := ttipb.NewTenantRegistryClient(is).Create(ctx, &ttipb.CreateTenantRequest{
-				Tenant: tenant,
+				Tenant:      tenant,
+				InitialUser: initialUser,
 			}, getTenantAdminCreds(cmd))
 			if err != nil {
 				return err
@@ -222,6 +254,9 @@ func init() {
 	tenantsCommand.AddCommand(tenantsGetCommand)
 	tenantsCreateCommand.Flags().AddFlagSet(tenantIDFlags())
 	tenantsCreateCommand.Flags().AddFlagSet(setTenantFlags)
+	tenantsCreateCommand.Flags().Bool("initial_user", false, "create initial tenant user")
+	tenantsCreateCommand.Flags().AddFlagSet(setInitialUserFlags)
+	tenantsCreateCommand.Flags().Lookup("initial_user.state").DefValue = ttnpb.STATE_APPROVED.String()
 	tenantsCreateCommand.Flags().AddFlagSet(attributesFlags())
 	tenantsCommand.AddCommand(tenantsCreateCommand)
 	tenantsUpdateCommand.Flags().AddFlagSet(tenantIDFlags())

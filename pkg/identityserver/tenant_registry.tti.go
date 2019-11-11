@@ -94,16 +94,20 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 					return err
 				}
 			}
-
-			if _, err := is.requestContactInfoValidation(ctx, req.InitialUser.EntityIdentifiers()); err != nil {
-				log.FromContext(ctx).WithError(err).Error("Could not send contact info validations")
-			}
 		}
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
+
+	if req.InitialUser != nil {
+		_, err := is.requestContactInfoValidation(ctx, req.InitialUser.EntityIdentifiers())
+		if err != nil {
+			log.FromContext(ctx).WithError(err).Error("Could not send contact info validations")
+		}
+	}
+
 	return tnt, nil
 }
 
