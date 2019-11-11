@@ -327,7 +327,7 @@ func (ns *NetworkServer) generateDownlink(ctx context.Context, dev *ttnpb.EndDev
 				Up: &ttnpb.ApplicationUp_DownlinkQueueInvalidated{
 					DownlinkQueueInvalidated: &ttnpb.ApplicationInvalidatedDownlinks{
 						Downlinks:    dev.QueuedApplicationDownlinks,
-						LastFCntDown: dev.Session.LastNFCntDown + 1,
+						LastFCntDown: dev.Session.LastNFCntDown,
 					},
 				},
 			})
@@ -817,13 +817,13 @@ loop:
 }
 
 // downlinkRetryInterval is the time interval, which defines the interval between downlink task retries.
-const downlinkRetryInterval = time.Second
+const downlinkRetryInterval = 2 * time.Second
 
 // gsScheduleWindow is the time interval, which is sufficient for GS to ensure downlink is scheduled.
 const gsScheduleWindow = 30 * time.Second
 
 // nsScheduleWindow is the time interval, which is sufficient for NS to ensure downlink is scheduled.
-var nsScheduleWindow = time.Second
+var nsScheduleWindow = 100 * time.Millisecond
 
 func recordDataDownlink(dev *ttnpb.EndDevice, genDown *generatedDownlink, genState generateDownlinkState, down *scheduledDownlink, defaults ttnpb.MACSettings) {
 	if genState.ApplicationDownlink == nil || dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) < 0 && genDown.FCnt > dev.Session.LastNFCntDown {
@@ -1386,20 +1386,9 @@ func (ns *NetworkServer) processDownlinkTask(ctx context.Context) error {
 			},
 		)
 		if len(queuedApplicationUplinks) > 0 {
-			go func() {
-				// TODO: Enqueue the uplinks and let a task processor take care of them.
-				// (https://github.com/TheThingsNetwork/lorawan-stack/issues/560)
-				for _, up := range queuedApplicationUplinks {
-					ok, err := ns.handleASUplink(ctx, devID.ApplicationIdentifiers, up)
-					if !ok {
-						logger.Warn("Application Server not found, drop uplinks associated with downlink task processing")
-						return
-					}
-					if err != nil {
-						logger.WithError(err).Warn("Failed to send uplink to Application Server")
-					}
-				}
-			}()
+			if err := ns.applicationUplinks.Add(ctx, queuedApplicationUplinks...); err != nil {
+				logger.WithError(err).Warn("Failed to queue application uplinks for sending to Application Server")
+			}
 		}
 		if len(queuedEvents) > 0 {
 			for _, ev := range queuedEvents {

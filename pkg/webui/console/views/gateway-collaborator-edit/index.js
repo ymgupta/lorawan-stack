@@ -27,11 +27,11 @@ import IntlHelmet from '../../../lib/components/intl-helmet'
 import toast from '../../../components/toast'
 import withRequest from '../../../lib/components/with-request'
 
-import { getGatewayCollaborator, getGatewaysRightsList } from '../../store/actions/gateways'
+import { getGatewayCollaborator } from '../../store/actions/gateways'
 import {
   selectSelectedGatewayId,
   selectGatewayRights,
-  selectGatewayUniversalRights,
+  selectGatewayPseudoRights,
   selectGatewayRightsFetching,
   selectGatewayRightsError,
   selectGatewayUserCollaborator,
@@ -62,14 +62,13 @@ import api from '../../api'
       collaborator,
       gtwId,
       rights: selectGatewayRights(state),
-      universalRights: selectGatewayUniversalRights(state),
+      pseudoRights: selectGatewayPseudoRights(state),
       fetching,
       error,
     }
   },
   (dispatch, ownProps) => ({
-    loadData(gtwId, collaboratorId, isUser) {
-      dispatch(getGatewaysRightsList(gtwId))
+    getGatewayCollaborator(gtwId, collaboratorId, isUser) {
       dispatch(getGatewayCollaborator(gtwId, collaboratorId, isUser))
     },
     redirectToList(gtwId) {
@@ -80,8 +79,8 @@ import api from '../../api'
     ...stateProps,
     ...dispatchProps,
     ...ownProps,
-    loadData: () =>
-      dispatchProps.loadData(
+    getGatewayCollaborator: () =>
+      dispatchProps.getGatewayCollaborator(
         stateProps.gtwId,
         stateProps.collaboratorId,
         stateProps.collaboratorType === 'user',
@@ -90,7 +89,7 @@ import api from '../../api'
   }),
 )
 @withRequest(
-  ({ loadData }) => loadData(),
+  ({ getGatewayCollaborator }) => getGatewayCollaborator(),
   ({ fetching, collaborator }) => fetching || !Boolean(collaborator),
 )
 @withBreadcrumb('gtws.single.collaborators.edit', function(props) {
@@ -130,7 +129,7 @@ export default class GatewayCollaboratorEdit extends React.Component {
   }
 
   render() {
-    const { collaborator, rights, redirectToList, universalRights } = this.props
+    const { collaborator, rights, redirectToList, pseudoRights } = this.props
 
     return (
       <Container>
@@ -156,7 +155,7 @@ export default class GatewayCollaboratorEdit extends React.Component {
               onDelete={this.handleDelete}
               onDeleteSuccess={redirectToList}
               collaborator={collaborator}
-              universalRights={universalRights}
+              pseudoRights={pseudoRights}
               rights={rights}
               update
             />
