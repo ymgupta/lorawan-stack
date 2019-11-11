@@ -143,6 +143,7 @@ var startCommand = &cobra.Command{
 		if err != nil {
 			return err
 		}
+		redisConsumerID := redis.Key(host, strconv.Itoa(os.Getpid()))
 
 		if start.IdentityServer || startDefault {
 			logger.Info("Setting up Identity Server")
@@ -171,7 +172,13 @@ var startCommand = &cobra.Command{
 		}
 
 		if start.NetworkServer || startDefault {
+			redisConsumerGroup := "ns"
+
 			logger.Info("Setting up Network Server")
+			config.NS.ApplicationUplinks = nsredis.NewApplicationUplinkQueue(redis.New(&redis.Config{
+				Redis:     config.Redis,
+				Namespace: []string{"ns", "application-uplinks"},
+			}), 100, redisConsumerGroup, redisConsumerID)
 			config.NS.Devices = &nsredis.DeviceRegistry{Redis: redis.New(&redis.Config{
 				Redis:     config.Redis,
 				Namespace: []string{"ns", "devices"},
@@ -179,7 +186,7 @@ var startCommand = &cobra.Command{
 			nsDownlinkTasks := nsredis.NewDownlinkTaskQueue(redis.New(&redis.Config{
 				Redis:     config.Redis,
 				Namespace: []string{"ns", "tasks"},
-			}), 100000, "ns", redis.Key(host, strconv.Itoa(os.Getpid())))
+			}), 100000, redisConsumerGroup, redisConsumerID)
 			if err := nsDownlinkTasks.Init(); err != nil {
 				return shared.ErrInitializeNetworkServer.WithCause(err)
 			}

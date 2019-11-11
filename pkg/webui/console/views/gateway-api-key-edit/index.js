@@ -26,11 +26,11 @@ import IntlHelmet from '../../../lib/components/intl-helmet'
 import { ApiKeyEditForm } from '../../components/api-key-form'
 import withRequest from '../../../lib/components/with-request'
 
-import { getGatewayApiKey, getGatewaysRightsList } from '../../store/actions/gateways'
+import { getGatewayApiKey } from '../../store/actions/gateways'
 import {
   selectSelectedGatewayId,
   selectGatewayRights,
-  selectGatewayUniversalRights,
+  selectGatewayPseudoRights,
   selectGatewayRightsError,
   selectGatewayRightsFetching,
   selectGatewayApiKey,
@@ -53,21 +53,20 @@ import api from '../../api'
       gtwId: selectSelectedGatewayId(state),
       apiKey: selectGatewayApiKey(state),
       rights: selectGatewayRights(state),
-      universalRights: selectGatewayUniversalRights(state),
+      pseudoRights: selectGatewayPseudoRights(state),
       fetching: keyFetching || rightsFetching,
       error: keyError || rightsError,
     }
   },
   dispatch => ({
-    loadData(gtwId, apiKeyId) {
-      dispatch(getGatewaysRightsList(gtwId))
+    getGatewayApiKey(gtwId, apiKeyId) {
       dispatch(getGatewayApiKey(gtwId, apiKeyId))
     },
     deleteSuccess: gtwId => dispatch(replace(`/gateways/${gtwId}/api-keys`)),
   }),
 )
 @withRequest(
-  ({ gtwId, keyId, loadData }) => loadData(gtwId, keyId),
+  ({ gtwId, keyId, getGatewayApiKey }) => getGatewayApiKey(gtwId, keyId),
   ({ fetching, apiKey }) => fetching || !Boolean(apiKey),
 )
 @withBreadcrumb('gtws.single.api-keys.edit', function(props) {
@@ -97,7 +96,7 @@ export default class GatewayApiKeyEdit extends React.Component {
   }
 
   render() {
-    const { apiKey, rights, universalRights } = this.props
+    const { apiKey, rights, pseudoRights } = this.props
 
     return (
       <Container>
@@ -111,7 +110,7 @@ export default class GatewayApiKeyEdit extends React.Component {
           <Col lg={8} md={12}>
             <ApiKeyEditForm
               rights={rights}
-              universalRights={universalRights}
+              pseudoRights={pseudoRights}
               apiKey={apiKey}
               onEdit={this.editGatewayKey}
               onDelete={this.deleteGatewayKey}

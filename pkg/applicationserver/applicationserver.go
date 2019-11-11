@@ -118,7 +118,7 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		interopConf.GetFallbackTLSConfig = func(ctx context.Context) (*tls.Config, error) {
 			return c.GetTLSClientConfig(ctx)
 		}
-		interopConf.BlobConfig = c.GetBaseConfig(ctx).Blob
+		interopConf.BlobConfig = baseConf.Blob
 
 		interopCl, err = interop.NewClient(ctx, interopConf)
 		if err != nil {
@@ -126,7 +126,7 @@ func New(c *component.Component, conf *Config) (as *ApplicationServer, err error
 		}
 	}
 
-	drFetcher, err := baseConf.DeviceRepository.Fetcher(ctx, baseConf.Blob)
+	drFetcher, err := baseConf.DeviceRepositoryFetcher(ctx)
 	if err != nil {
 		return nil, err
 	}

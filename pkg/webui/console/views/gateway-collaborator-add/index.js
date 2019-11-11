@@ -24,12 +24,11 @@ import sharedMessages from '../../../lib/shared-messages'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import CollaboratorForm from '../../components/collaborator-form'
-import withRequest from '../../../lib/components/with-request'
 
 import {
   selectSelectedGatewayId,
   selectGatewayRights,
-  selectGatewayUniversalRights,
+  selectGatewayPseudoRights,
   selectGatewayRightsFetching,
   selectGatewayRightsError,
 } from '../../store/selectors/gateways'
@@ -47,7 +46,7 @@ import api from '../../api'
       fetching: selectGatewayRightsFetching(state),
       error: selectGatewayRightsError(state),
       rights: selectGatewayRights(state),
-      universalRights: selectGatewayUniversalRights(state),
+      pseudoRights: selectGatewayPseudoRights(state),
     }
   },
   (dispatch, ownProps) => ({
@@ -61,10 +60,6 @@ import api from '../../api'
     getGatewaysRightsList: () => dispatchProps.getGatewaysRightsList(stateProps.gtwId),
     redirectToList: () => dispatchProps.redirectToList(stateProps.gtwId),
   }),
-)
-@withRequest(
-  ({ getGatewaysRightsList }) => getGatewaysRightsList(),
-  ({ fetching, rights }) => fetching || !Boolean(rights.length),
 )
 @withBreadcrumb('gtws.single.collaborators.add', function(props) {
   const gtwId = props.gtwId
@@ -89,7 +84,7 @@ export default class GatewayCollaboratorAdd extends React.Component {
   }
 
   render() {
-    const { rights, redirectToList, universalRights } = this.props
+    const { rights, redirectToList, pseudoRights } = this.props
 
     return (
       <Container>
@@ -105,7 +100,7 @@ export default class GatewayCollaboratorAdd extends React.Component {
               error={this.state.error}
               onSubmit={this.handleSubmit}
               onSubmitSuccess={redirectToList}
-              universalRights={universalRights}
+              pseudoRights={pseudoRights}
               rights={rights}
             />
           </Col>

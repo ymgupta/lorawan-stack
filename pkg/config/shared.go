@@ -119,12 +119,6 @@ type HTTP struct {
 	Health          Health           `name:"health"`
 }
 
-// InteropServer represents the server-side interoperability through LoRaWAN Backend Interfaces configuration.
-type InteropServer struct {
-	ListenTLS       string            `name:"listen-tls" description:"Address for the interop server to listen on"`
-	SenderClientCAs map[string]string `name:"sender-client-cas" description:"Path to PEM encoded file with client CAs of sender IDs to trust"`
-}
-
 // Redis represents Redis configuration.
 type Redis struct {
 	Address   string   `name:"address" description:"Address of the Redis server"`
@@ -207,21 +201,6 @@ type BlobConfigAWS struct {
 	SessionToken    string `name:"session-token" description:"Session token"`
 }
 
-type blobConfigAWSCredentials BlobConfigAWS
-
-func (c blobConfigAWSCredentials) Retrieve() (credentials.Value, error) {
-	if c.AccessKeyID == "" || c.SecretAccessKey == "" {
-		return credentials.Value{}, errMissingBlobConfig
-	}
-	return credentials.Value{
-		ProviderName:    "TTNConfigProvider",
-		AccessKeyID:     c.AccessKeyID,
-		SecretAccessKey: c.SecretAccessKey,
-	}, nil
-}
-
-func (c blobConfigAWSCredentials) IsExpired() bool { return false }
-
 // BlobConfigGCP is the blob store configuration for the GCP provider.
 type BlobConfigGCP struct {
 	CredentialsFile string `name:"credentials-file" description:"Path to the GCP credentials JSON file"`
@@ -242,11 +221,19 @@ func (c BlobConfig) Bucket(ctx context.Context, bucket string) (*blob.Bucket, er
 	case "local":
 		return ttnblob.Local(ctx, bucket, c.Local.Directory)
 	case "aws":
-		return ttnblob.AWS(ctx, bucket, &aws.Config{
-			Endpoint:    &c.AWS.Endpoint,
-			Region:      &c.AWS.Region,
-			Credentials: credentials.NewCredentials(blobConfigAWSCredentials(c.AWS)),
-		})
+		conf := aws.NewConfig()
+		if c.AWS.Endpoint != "" {
+			conf = conf.WithEndpoint(c.AWS.Endpoint)
+		}
+		if c.AWS.Region != "" {
+			conf = conf.WithRegion(c.AWS.Region)
+		}
+		if c.AWS.AccessKeyID != "" && c.AWS.SecretAccessKey != "" {
+			conf = conf.WithCredentials(credentials.NewStaticCredentials(
+				c.AWS.AccessKeyID, c.AWS.SecretAccessKey, c.AWS.SessionToken,
+			))
+		}
+		return ttnblob.AWS(ctx, bucket, conf)
 	case "gcp":
 		var jsonCreds []byte
 		if c.GCP.Credentials != "" {
@@ -384,7 +371,7 @@ func (c InteropClient) IsZero() bool {
 
 // Fetcher returns fetch.Interface defined by conf.
 // If no configuration source is set, this method returns nil, nil.
-func (c InteropClient) Fetcher(ctx context.Context, blobConf BlobConfig) (fetch.Interface, error) {
+func (c InteropClient) Fetcher(ctx context.Context) (fetch.Interface, error) {
 	// TODO: Remove detection mechanism (https://github.com/TheThingsNetwork/lorawan-stack/issues/1450)
 	if c.ConfigSource == "" {
 		switch {
@@ -402,7 +389,7 @@ func (c InteropClient) Fetcher(ctx context.Context, blobConf BlobConfig) (fetch.
 	case "url":
 		return fetch.FromHTTP(c.URL, true)
 	case "blob":
-		b, err := blobConf.Bucket(ctx, c.Blob.Bucket)
+		b, err := c.BlobConfig.Bucket(ctx, c.Blob.Bucket)
 		if err != nil {
 			return nil, err
 		}
@@ -410,6 +397,42 @@ func (c InteropClient) Fetcher(ctx context.Context, blobConf BlobConfig) (fetch.
 	default:
 		return nil, nil
 	}
+}
+
+type SenderClientCA struct {
+	Source    string            `name:"source" description:"Source of the sender client CA configuration (static, directory, url, blob)"`
+	Static    map[string][]byte `name:"-"`
+	Directory string            `name:"directory" description:"OS filesystem directory, which contains sender client CA configuration"`
+	URL       string            `name:"url" description:"URL, which contains sender client CA configuration"`
+	Blob      BlobPathConfig    `name:"blob"`
+
+	BlobConfig BlobConfig `name:"-"`
+}
+
+// Fetcher returns fetch.Interface defined by conf.
+// If no configuration source is set, this method returns nil, nil.
+func (c SenderClientCA) Fetcher(ctx context.Context) (fetch.Interface, error) {
+	switch c.Source {
+	case "directory":
+		return fetch.FromFilesystem(c.Directory), nil
+	case "url":
+		return fetch.FromHTTP(c.URL, true)
+	case "blob":
+		b, err := c.BlobConfig.Bucket(ctx, c.Blob.Bucket)
+		if err != nil {
+			return nil, err
+		}
+		return fetch.FromBucket(ctx, b, c.Blob.Path), nil
+	default:
+		return nil, nil
+	}
+}
+
+// InteropServer represents the server-side interoperability through LoRaWAN Backend Interfaces configuration.
+type InteropServer struct {
+	ListenTLS                string            `name:"listen-tls" description:"Address for the interop server to listen on"`
+	SenderClientCA           SenderClientCA    `name:"sender-client-ca"`
+	SenderClientCADeprecated map[string]string `name:"sender-client-cas" description:"Path to PEM encoded file with client CAs of sender IDs to trust; deprecated - use sender-client-ca instead"`
 }
 
 // ServiceBase represents base service configuration.
@@ -432,6 +455,18 @@ type ServiceBase struct {
 
 	Tenancy tenant.Config  `name:"tenancy"`
 	License license.Config `name:"license"`
+}
+
+// FrequencyPlansFetcher returns a fetch.Interface based on the frequency plans configuration.
+// If no configuration source is set, this method returns nil, nil.
+func (c ServiceBase) FrequencyPlansFetcher(ctx context.Context) (fetch.Interface, error) {
+	return c.FrequencyPlans.Fetcher(ctx, c.Blob)
+}
+
+// DeviceRepositoryFetcher returns a fetch.Interface based on the device repository configuration.
+// If no configuration source is set, this method returns nil, nil.
+func (c ServiceBase) DeviceRepositoryFetcher(ctx context.Context) (fetch.Interface, error) {
+	return c.DeviceRepository.Fetcher(ctx, c.Blob)
 }
 
 // MQTT contains the listen and public addresses of an MQTT frontend.
