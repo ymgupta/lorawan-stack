@@ -16,7 +16,7 @@
   ],
   "paths": {
     "/tbs/report": {
-      "put": {
+      "post": {
         "operationId": "Report",
         "responses": {
           "200": {

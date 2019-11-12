@@ -353,7 +353,7 @@ The Tbs service manages the Tenant Billing Server metering reporting.
 
 | Method Name | Method | Pattern | Body |
 | ----------- | ------ | ------- | ---- |
-| `Report` | `PUT` | `/api/v3/tbs/report` |  |
+| `Report` | `POST` | `/api/v3/tbs/report` |  |
 
 ## Scalar Value Types
 

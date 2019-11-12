@@ -1476,7 +1476,7 @@
                 "google.api.http": {
                   "rules": [
                     {
-                      "method": "PUT",
+                      "method": "POST",
                       "pattern": "/tbs/report"
                     }
                   ]

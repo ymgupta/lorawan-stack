@@ -69,7 +69,7 @@ func local_request_Tbs_Report_0(ctx context.Context, marshaler runtime.Marshaler
 // StreamingRPC :currently unsupported pending https://github.com/grpc/grpc-go/issues/906.
 func RegisterTbsHandlerServer(ctx context.Context, mux *runtime.ServeMux, server TbsServer) error {
 
-	mux.Handle("PUT", pattern_Tbs_Report_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Tbs_Report_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -130,7 +130,7 @@ func RegisterTbsHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.C
 // "TbsClient" to call the correct interceptors.
 func RegisterTbsHandlerClient(ctx context.Context, mux *runtime.ServeMux, client TbsClient) error {
 
-	mux.Handle("PUT", pattern_Tbs_Report_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Tbs_Report_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
