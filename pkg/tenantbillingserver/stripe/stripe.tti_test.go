@@ -219,10 +219,11 @@ func withStripe(t *testing.T, testFunc func(*testing.T, *stripe.Stripe, *mockTen
 	})
 
 	config := stripe.Config{
-		Enable:           true,
-		APIKey:           stripeAPIKey,
-		RecurringPlanIDs: []string{recurringPlanID},
-		MeteredPlanIDs:   []string{meteredPlanID},
+		Enable:                  true,
+		APIKey:                  stripeAPIKey,
+		SkipSignatureValidation: true,
+		RecurringPlanIDs:        []string{recurringPlanID},
+		MeteredPlanIDs:          []string{meteredPlanID},
 	}
 
 	tnt := &mockTenantClient{}

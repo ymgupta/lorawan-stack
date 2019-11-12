@@ -35,6 +35,11 @@ const (
 	defaultAdminUserID = "admin"
 )
 
+var (
+	errTenantNotManaged   = errors.DefineFailedPrecondition("tenant_not_managed", "tenant is not managed by Stripe")
+	errCustomerIDMismatch = errors.DefineFailedPrecondition("customer_id_mismatch", "tenant is owned by another customer")
+)
+
 func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) error {
 	plan, err := s.getPlan(sub.Plan.ID, nil)
 	if err != nil {
@@ -140,13 +145,26 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	}
 
 	var tntExists bool
-	_, err = client.Get(ctx, &ttipb.GetTenantRequest{TenantIdentifiers: *ids, FieldMask: tntFieldMask}, s.tenantAuth)
+	existingTnt, err := client.Get(ctx, &ttipb.GetTenantRequest{TenantIdentifiers: *ids, FieldMask: tntFieldMask}, s.tenantAuth)
 	if err != nil && !errors.IsNotFound(err) {
 		return err
 	} else if err == nil {
 		tntExists = true
 	}
+
 	if tntExists {
+		manager, ok := existingTnt.Attributes[backend.ManagedByTenantAttribute]
+		if !ok || manager != managerAttributeValue {
+			return errTenantNotManaged
+		}
+		customerID, ok := existingTnt.Attributes[customerIDAttribute]
+		if !ok {
+			return errNoTenantAttribute.WithAttributes("attribute", customerIDAttribute)
+		}
+		if customerID != customer.ID {
+			return errCustomerIDMismatch
+		}
+
 		_, err := client.Update(ctx, &ttipb.UpdateTenantRequest{
 			Tenant:    tnt,
 			FieldMask: tntFieldMask,

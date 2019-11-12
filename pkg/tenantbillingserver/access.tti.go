@@ -25,6 +25,6 @@ func (tbs *TenantBillingServer) billingRightsUnaryHook(h grpc.UnaryHandler) grpc
 				return h(ctx, req)
 			}
 		}
-		return nil, errPeerAddressNotAllowed
+		return nil, errPeerAddressNotAllowed.WithAttributes("peer_address", p.Addr.String())
 	}
 }

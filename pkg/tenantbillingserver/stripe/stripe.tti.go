@@ -20,24 +20,29 @@ import (
 
 // Config is the configuration for the Stripe payment backend.
 type Config struct {
-	Enable            bool     `name:"Enable" description:"Enable the Stripe backend"`
-	APIKey            string   `name:"api-key" description:"API key used to connect to Stripe"`
-	EndpointSecretKey string   `name:"endpoint-secret-key" description:"Endpoint secret key used to verify webhook signatures"`
-	RecurringPlanIDs  []string `name:"recurring-plan-ids" description:"Recurring subscription plan IDs to be handled"`
-	MeteredPlanIDs    []string `name:"metered-plan-ids" description:"Metered subscription plan IDs to be handled"`
+	Enable                  bool     `name:"enable" description:"Enable the Stripe backend"`
+	APIKey                  string   `name:"api-key" description:"API key used to connect to Stripe"`
+	EndpointSecretKey       string   `name:"endpoint-secret-key" description:"Endpoint secret key used to verify webhook signatures"`
+	SkipSignatureValidation bool     `name:"skip-signature-validation" description:"Skip the webhook signature validation"`
+	RecurringPlanIDs        []string `name:"recurring-plan-ids" description:"Recurring subscription plan IDs to be handled"`
+	MeteredPlanIDs          []string `name:"metered-plan-ids" description:"Metered subscription plan IDs to be handled"`
 }
 
 var (
-	errNoAPIKey           = errors.DefineInvalidArgument("no_api_key", "no API key provided")
-	errNoPlanIDs          = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
-	errNoTenantAttribute  = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute `{attribute}` available")
-	errUnknownTenantState = errors.DefineInternal("unknown_tenant_state", "tenant state `{state}` is unknown")
+	errNoAPIKey            = errors.DefineInvalidArgument("no_api_key", "no API key provided")
+	errNoEndpointSecretKey = errors.DefineInvalidArgument("no_endpoint_secret_key", "no endpoint secret key provided")
+	errNoPlanIDs           = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
+	errNoTenantAttribute   = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute `{attribute}` available")
+	errUnknownTenantState  = errors.DefineInternal("unknown_tenant_state", "tenant state `{state}` is unknown")
 )
 
 // New returns a new Stripe backend using the config.
 func (c Config) New(ctx context.Context, component *component.Component, opts ...Option) (*Stripe, error) {
 	if c.APIKey == "" {
 		return nil, errNoAPIKey
+	}
+	if c.EndpointSecretKey == "" && !c.SkipSignatureValidation {
+		return nil, errNoEndpointSecretKey
 	}
 	if len(c.RecurringPlanIDs)+len(c.MeteredPlanIDs) == 0 {
 		return nil, errNoPlanIDs

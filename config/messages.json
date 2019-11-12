@@ -6092,9 +6092,27 @@
       "file": "fetcher.tti.go"
     }
   },
+  "error:pkg/tenantbillingserver/stripe:customer_id_mismatch": {
+    "translations": {
+      "en": "tenant is owned by another customer"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
   "error:pkg/tenantbillingserver/stripe:no_api_key": {
     "translations": {
       "en": "no API key provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_endpoint_secret_key": {
+    "translations": {
+      "en": "no endpoint secret key provided"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",
@@ -6122,6 +6140,15 @@
   "error:pkg/tenantbillingserver/stripe:no_tenant_id": {
     "translations": {
       "en": "no tenant ID set"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:tenant_not_managed": {
+    "translations": {
+      "en": "tenant is not managed by Stripe"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",

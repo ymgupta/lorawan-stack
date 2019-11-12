@@ -34,6 +34,9 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 	}
 
 	if req.InitialUser != nil {
+		if err = blacklist.Check(ctx, req.InitialUser.UserID); err != nil {
+			return nil, err
+		}
 		if err := validate.Email(req.InitialUser.PrimaryEmailAddress); err != nil {
 			return nil, err
 		}
