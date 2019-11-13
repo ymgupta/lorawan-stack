@@ -18,8 +18,5 @@ import sharedMessages from '../../../lib/shared-messages'
 
 /* eslint import/prefer-default-export: "off"*/
 export const deviceClaimValidationSchema = Yup.object().shape({
-  claim_id: Yup.string()
-    .min(60, sharedMessages.validateTooShort)
-    .max(100, sharedMessages.validateTooLong)
-    .required(sharedMessages.validateRequired),
+  claim_id: Yup.string().required(sharedMessages.validateRequired),
 })
