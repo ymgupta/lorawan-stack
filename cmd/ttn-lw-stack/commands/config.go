@@ -27,6 +27,7 @@ import (
 	shared_identityserver "go.thethings.network/lorawan-stack/cmd/internal/shared/identityserver"
 	shared_joinserver "go.thethings.network/lorawan-stack/cmd/internal/shared/joinserver"
 	shared_networkserver "go.thethings.network/lorawan-stack/cmd/internal/shared/networkserver"
+	shared_tenantbillingserver "go.thethings.network/lorawan-stack/cmd/internal/shared/tenantbillingserver"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver"
 	conf "go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/console"
@@ -39,6 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/joinserver"
 	"go.thethings.network/lorawan-stack/pkg/networkserver"
 	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
 )
 
 // Config for the ttn-lw-stack binary.
@@ -56,6 +58,7 @@ type Config struct {
 
 	DCS deviceclaimingserver.Config `name:"dcs"`
 	CS  cryptoserver.Config         `name:"cs"`
+	TBS tenantbillingserver.Config  `name:"tbs"`
 }
 
 // DefaultConfig contains the default config for the ttn-lw-stack binary.
@@ -71,6 +74,7 @@ var DefaultConfig = Config{
 	DTC:         shared_devicetemplateconverter.DefaultDeviceTemplateConverterConfig,
 	DCS:         shared_deviceclaimingserver.DefaultDeviceClaimingServerConfig,
 	CS:          shared_cryptoserver.DefaultCryptoServerConfig,
+	TBS:         shared_tenantbillingserver.DefaultTenantBillingServerConfig,
 }
 
 func init() {

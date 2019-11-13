@@ -1178,6 +1178,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_tenant_billing_server": {
+    "translations": {
+      "en": "could not initialize Tenant Billing Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.tti.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:antenna_index": {
     "translations": {
       "en": "index of antenna to update out of bounds"
@@ -6081,6 +6090,96 @@
     "description": {
       "package": "pkg/tenant",
       "file": "fetcher.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:customer_id_mismatch": {
+    "translations": {
+      "en": "tenant is owned by another customer"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_api_key": {
+    "translations": {
+      "en": "no API key provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_endpoint_secret_key": {
+    "translations": {
+      "en": "no endpoint secret key provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
+    "translations": {
+      "en": "no plan IDs provided"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_tenant_attribute": {
+    "translations": {
+      "en": "no tenant attribute `{attribute}` available"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:no_tenant_id": {
+    "translations": {
+      "en": "no tenant ID set"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:tenant_not_managed": {
+    "translations": {
+      "en": "tenant is not managed by Stripe"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver/stripe:unknown_tenant_state": {
+    "translations": {
+      "en": "tenant state `{state}` is unknown"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "stripe.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:invalid_reporter_address_regexp": {
+    "translations": {
+      "en": "invalid reporter address regular expression"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "config.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:peer_address_not_allowed": {
+    "translations": {
+      "en": "peer address `{peer_address}` is not allowed"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "access.tti.go"
     }
   },
   "error:pkg/thethingsgateway/cups:no_default_firmware_path": {

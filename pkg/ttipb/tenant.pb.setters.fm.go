@@ -303,6 +303,15 @@ func (dst *CreateTenantRequest) SetFields(src *CreateTenantRequest, paths ...str
 					dst.Tenant = zero
 				}
 			}
+		case "initial_user":
+			if len(subs) > 0 {
+				return fmt.Errorf("'initial_user' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.InitialUser = src.InitialUser
+			} else {
+				dst.InitialUser = nil
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)

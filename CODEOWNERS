@@ -42,6 +42,7 @@
 /pkg/networkserver @johanstokking @rvolosatovs
 
 /pkg/deviceclaimingserver @johanstokking @adriansmares
+/pkg/tenantbillingserver @htdvisser @adriansmares
 
 # SDKs
 /sdk/js @bafonins @kschiffer

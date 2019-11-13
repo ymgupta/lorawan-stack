@@ -10,6 +10,7 @@ import "google/protobuf/field_mask.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "lorawan-stack/api/user.proto";
 import "lorawan-stack/api/contact_info.proto";
 import "lorawan-stack/api/enums.proto";
 import "lorawan-stack/api/tti/identifiers.proto";
@@ -69,6 +70,7 @@ message ListTenantsRequest {
 
 message CreateTenantRequest {
   Tenant tenant = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  ttn.lorawan.v3.User initial_user = 2;
 }
 
 message UpdateTenantRequest {

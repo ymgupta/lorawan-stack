@@ -13,6 +13,23 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
 
+type skipTenantFetcherKeyType struct{}
+
+var skipTenantFetcherKey skipTenantFetcherKeyType
+
+// WithoutTenantFetcher informs the store to query the database directly
+// instead of retrieving the tenants using the contextual tenant fetcher.
+func WithoutTenantFetcher(ctx context.Context) context.Context {
+	return context.WithValue(ctx, skipTenantFetcherKey, true)
+}
+
+func skipTenantFetcher(ctx context.Context) bool {
+	if skip, ok := ctx.Value(skipTenantFetcherKey).(bool); ok {
+		return skip
+	}
+	return false
+}
+
 func checkLicense(model *Model) (*ttipb.License, error) {
 	l := license.FromContext(model.ctx)
 	if err := license.CheckValidity(&l); err != nil {
@@ -26,10 +43,11 @@ func checkLicense(model *Model) (*ttipb.License, error) {
 
 func retrieveTenant(db *gorm.DB, model *Model) (*ttipb.Tenant, error) {
 	ctx, tenantID := model.ctx, tenant.FromContext(model.ctx)
-	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
-		return tenantFetcher.FetchTenant(ctx, &tenantID, entityQuotasFields...)
+	tenantFetcher, ok := tenant.FetcherFromContext(ctx)
+	if !ok || skipTenantFetcher(ctx) {
+		return GetTenantStore(db).GetTenant(ctx, &tenantID, &types.FieldMask{Paths: entityQuotasFields})
 	}
-	return GetTenantStore(db).GetTenant(ctx, &tenantID, &types.FieldMask{Paths: entityQuotasFields})
+	return tenantFetcher.FetchTenant(ctx, &tenantID, entityQuotasFields...)
 }
 
 func countInTenant(ctx context.Context, db *gorm.DB, entityType string) (uint64, error) {

@@ -18,6 +18,7 @@
   - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
   - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
   - [Message `MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus)
+  - [Message `MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer)
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
   - [Message `MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
@@ -34,6 +35,8 @@
   - [Message `UpdateTenantRequest`](#tti.lorawan.v3.UpdateTenantRequest)
 - [File `lorawan-stack/api/tti/tenant_services.proto`](#lorawan-stack/api/tti/tenant_services.proto)
   - [Service `TenantRegistry`](#tti.lorawan.v3.TenantRegistry)
+- [File `lorawan-stack/api/tti/tenantbillingserver.proto`](#lorawan-stack/api/tti/tenantbillingserver.proto)
+  - [Service `Tbs`](#tti.lorawan.v3.Tbs)
 - [Scalar Value Types](#scalar-value-types)
 
 ## <a name="lorawan-stack/api/tti/application_api_key.proto">File `lorawan-stack/api/tti/application_api_key.proto`</a>
@@ -153,6 +156,7 @@
 | `on_success` | [`LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate) |  | How to update the license on success. |
 | `aws` | [`MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS) |  |  |
 | `prometheus` | [`MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus) |  |  |
+| `tenant_billing_server` | [`MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.AWS">Message `MeteringConfiguration.AWS`</a>
 
@@ -161,6 +165,8 @@
 | `sku` | [`string`](#string) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.Prometheus">Message `MeteringConfiguration.Prometheus`</a>
+
+### <a name="tti.lorawan.v3.MeteringConfiguration.TenantBillingServer">Message `MeteringConfiguration.TenantBillingServer`</a>
 
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 
@@ -182,6 +188,7 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `tenant` | [`Tenant`](#tti.lorawan.v3.Tenant) |  |  |
+| `initial_user` | [`ttn.lorawan.v3.User`](#ttn.lorawan.v3.User) |  |  |
 
 #### Field Rules
 
@@ -331,6 +338,22 @@ Tenant is the message that defines a Tenant in the network.
 | `List` | `GET` | `/api/v3/tenants` |  |
 | `Update` | `PUT` | `/api/v3/tenants/{tenant.ids.tenant_id}` | `*` |
 | `Delete` | `DELETE` | `/api/v3/tenants/{tenant_id}` |  |
+
+## <a name="lorawan-stack/api/tti/tenantbillingserver.proto">File `lorawan-stack/api/tti/tenantbillingserver.proto`</a>
+
+### <a name="tti.lorawan.v3.Tbs">Service `Tbs`</a>
+
+The Tbs service manages the Tenant Billing Server metering reporting.
+
+| Method Name | Request Type | Response Type | Description |
+| ----------- | ------------ | ------------- | ------------|
+| `Report` | [`MeteringData`](#tti.lorawan.v3.MeteringData) | [`.google.protobuf.Empty`](#google.protobuf.Empty) |  |
+
+#### HTTP bindings
+
+| Method Name | Method | Pattern | Body |
+| ----------- | ------ | ------- | ---- |
+| `Report` | `POST` | `/api/v3/tbs/report` |  |
 
 ## Scalar Value Types
 

@@ -8977,6 +8977,11 @@
               "name": "QR_CODE_GENERATOR",
               "number": "11",
               "description": ""
+            },
+            {
+              "name": "TENANT_BILLING_SERVER",
+              "number": "101",
+              "description": ""
             }
           ]
         },

@@ -363,6 +363,30 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = nil
 						}
 					}
+				case "tenant_billing_server":
+					if _, ok := dst.Metering.(*MeteringConfiguration_TenantBillingServer_); !ok {
+						dst.Metering = &MeteringConfiguration_TenantBillingServer_{}
+					}
+					if len(oneofSubs) > 0 {
+						newDst := dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
+						if newDst == nil {
+							newDst = &MeteringConfiguration_TenantBillingServer{}
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = newDst
+						}
+						var newSrc *MeteringConfiguration_TenantBillingServer
+						if src != nil {
+							newSrc = src.GetTenantBillingServer()
+						}
+						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
+							return err
+						}
+					} else {
+						if src != nil {
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = src.GetTenantBillingServer()
+						} else {
+							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = nil
+						}
+					}
 
 				default:
 					return fmt.Errorf("invalid oneof field: '%s.%s'", name, oneofName)
@@ -449,6 +473,16 @@ func (dst *MeteringConfiguration_AWS) SetFields(src *MeteringConfiguration_AWS, 
 func (dst *MeteringConfiguration_Prometheus) SetFields(src *MeteringConfiguration_Prometheus, paths ...string) error {
 	if len(paths) != 0 {
 		return fmt.Errorf("message MeteringConfiguration_Prometheus has no fields, but paths %s were specified", paths)
+	}
+	if src != nil {
+		*dst = *src
+	}
+	return nil
+}
+
+func (dst *MeteringConfiguration_TenantBillingServer) SetFields(src *MeteringConfiguration_TenantBillingServer, paths ...string) error {
+	if len(paths) != 0 {
+		return fmt.Errorf("message MeteringConfiguration_TenantBillingServer has no fields, but paths %s were specified", paths)
 	}
 	if src != nil {
 		*dst = *src
