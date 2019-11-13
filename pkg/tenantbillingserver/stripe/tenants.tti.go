@@ -31,8 +31,6 @@ const (
 	maxUsersAttribute         = "max-users"
 	adminUserIDAttribute      = "admin-user"
 	adminPasswordAttribute    = "admin-password"
-
-	defaultAdminUserID = "admin"
 )
 
 var (
@@ -179,7 +177,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		}
 		userID, ok := sub.Metadata[adminUserIDAttribute]
 		if !ok {
-			userID = defaultAdminUserID
+			userID = ids.TenantID
 		}
 
 		_, err = client.Create(ctx, &ttipb.CreateTenantRequest{
