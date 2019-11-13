@@ -24,6 +24,7 @@ const appRoot = selectApplicationRootPath()
 
 const stack = {
   is: stackConfig.is.enabled ? stackConfig.is.base_url : undefined,
+  dcs: stackConfig.dcs.enabled ? stackConfig.dcs.base_url : undefined,
 }
 
 const isBaseUrl = stackConfig.is.base_url
@@ -71,7 +72,7 @@ export default {
   },
   device: {
     async claim(payload) {
-      return instance.post(`${isBaseUrl}/edcs/claim`, payload, {
+      return instance.post(`${dcsBaseUrl}/edcs/claim`, payload, {
         headers: {
           Authorization: `Bearer ${(await token()).access_token}`,
         },
