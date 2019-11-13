@@ -30,11 +30,8 @@ var DefaultDeviceClaimingServerConfig = deviceclaimingserver.Config{
 		},
 		FrontendConfig: deviceclaimingserver.FrontendConfig{
 			StackConfig: deviceclaimingserver.StackConfig{
-				IS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
-				GS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
-				NS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
-				AS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
-				JS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
+				IS:  webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
+				DCS: webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
 			},
 		},
 	},
