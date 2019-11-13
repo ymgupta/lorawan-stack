@@ -30,6 +30,8 @@ func (conf StackConfig) Apply(ctx context.Context) StackConfig {
 	deriv.NS = conf.NS.Apply(ctx)
 	deriv.AS = conf.AS.Apply(ctx)
 	deriv.JS = conf.JS.Apply(ctx)
+	deriv.EDTC = conf.EDTC.Apply(ctx)
+	deriv.QRG = conf.QRG.Apply(ctx)
 	return deriv
 }
 
