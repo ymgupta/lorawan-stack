@@ -36,6 +36,10 @@
   "components.safe-inspector.index.copyClipboard": "Copy to clipboard",
   "components.safe-inspector.index.arrayFormatting": "Toggle array formatting",
   "components.safe-inspector.index.byteOrder": "Switch byte order",
+  "components.status.index.good": "good",
+  "components.status.index.bad": "bad",
+  "components.status.index.mediocre": "mediocre",
+  "components.status.index.unknown": "unknown",
   "console.components.api-key-form.edit.deleteKey": "Delete Key",
   "console.components.api-key-form.edit.modalWarning": "Are you sure you want to delete the {keyName} API Key? Deleting an API Key cannot be undone!",
   "console.components.api-key-form.edit.updateSuccess": "Successfully updated API Key",
@@ -482,5 +486,8 @@
   "oauth.views.update-password.index.passwordChanged": "Password changed successfully",
   "oauth.views.update-password.index.revokeAllAccess": "Log out from all devices",
   "oauth.views.update-password.index.revokeWarning": "This will revoke access from all logged in devices",
-  "oauth.views.update-password.index.sessionRevoked": "Your session is revoked"
+  "oauth.views.update-password.index.sessionRevoked": "Your session is revoked",
+  "oauth.views.validate.index.validateSuccess": "Contact info validated successfully",
+  "oauth.views.validate.index.validateFail": "Contact info validation failed",
+  "oauth.views.validate.index.goToLogin": "Go to Login"
 }
