@@ -31,7 +31,6 @@ export default class QR extends React.Component {
   }
 
   webWorker = null
-  location = null
 
   componentWillMount() {
     this.webWorker = new Worker()
@@ -56,7 +55,6 @@ export default class QR extends React.Component {
   }
 
   onFrame = frameData => this.webWorker.postMessage(frameData)
-  drawVideoFrame = () => {}
 
   onFrameDecoded = event => {
     const { onChange } = this.props
@@ -104,6 +102,6 @@ QR.propTypes = {
 }
 
 QR.defaultProps = {
-  onInit: () => {},
+  onInit: () => null,
   rearCamera: true,
 }

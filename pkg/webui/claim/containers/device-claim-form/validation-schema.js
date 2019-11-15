@@ -13,10 +13,9 @@
 // limitations under the License.
 
 import * as Yup from 'yup'
-
 import sharedMessages from '../../../lib/shared-messages'
 
 /* eslint import/prefer-default-export: "off"*/
 export const deviceClaimValidationSchema = Yup.object().shape({
-  claim_qr: Yup.string().required(sharedMessages.validateRequired)
+  qrCode: Yup.string().required(sharedMessages.validateRequired),
 })

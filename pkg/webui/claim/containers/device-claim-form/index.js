@@ -17,7 +17,6 @@ import React, { Component } from 'react'
 import Form from '../../../components/form'
 import SubmitButton from '../../../components/submit-button'
 import SubmitBar from '../../../components/submit-bar'
-
 import QR from '../../../components/qr'
 
 import sharedMessages from '../../../lib/shared-messages'
@@ -64,7 +63,7 @@ export default class DeviceClaimForm extends Component {
         >
           <Form.Field
             title={sharedMessages.claimAuth}
-            name="claim_qr"
+            name="qrCode"
             description={m.ClaimAuthMessage}
             component={QR}
           />

@@ -49,7 +49,7 @@ class InnerForm extends React.PureComponent {
       const firstErrorNode = document.querySelectorAll('[data-needs-focus="true"]')[0]
       if (firstErrorNode) {
         scrollIntoView(firstErrorNode, { behavior: 'smooth' })
-        firstErrorNode.querySelector('input,textarea').focus({ preventScroll: true })
+        firstErrorNode.querySelector('input,textarea,canvas,video').focus({ preventScroll: true })
       }
     }
   }
@@ -138,19 +138,19 @@ class Form extends React.PureComponent {
 
 Form.propTypes = {
   // formik props
-  onSubmit: PropTypes.func.isRequired,
-  onReset: PropTypes.func,
+  className: PropTypes.string,
+  disabled: PropTypes.bool,
+  error: PropTypes.error,
+  formikRef: PropTypes.shape({ current: PropTypes.instanceOf(Formik) }),
+  horizontal: PropTypes.bool,
   initialValues: PropTypes.object.isRequired,
+  isInitialValid: PropTypes.bool,
+  onReset: PropTypes.func,
+  // custom props
+  onSubmit: PropTypes.func.isRequired,
   validateOnBlur: PropTypes.bool,
   validateOnChange: PropTypes.bool,
   validationSchema: PropTypes.object,
-  isInitialValid: PropTypes.bool,
-  formikRef: PropTypes.shape({ current: PropTypes.instanceOf(Formik) }),
-  // custom props
-  horizontal: PropTypes.bool,
-  className: PropTypes.string,
-  error: PropTypes.error,
-  disabled: PropTypes.bool,
 }
 
 Form.defaultProps = {
