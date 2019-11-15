@@ -36,6 +36,10 @@
   "components.safe-inspector.index.copyClipboard": "Xxxx xx xxxxxxxxx",
   "components.safe-inspector.index.arrayFormatting": "Xxxxxx xxxxx xxxxxxxxxx",
   "components.safe-inspector.index.byteOrder": "Xxxxxx xxxx xxxxx",
+  "components.status.index.good": "xxxx",
+  "components.status.index.bad": "xxx",
+  "components.status.index.mediocre": "xxxxxxxx",
+  "components.status.index.unknown": "xxxxxxx",
   "console.components.api-key-form.edit.deleteKey": "Xxxxxx Xxx",
   "console.components.api-key-form.edit.modalWarning": "Xxx xxx xxxx xxx xxxx xx xxxxxx xxx {keyName} XXX Xxx? Xxxxxxxx xx XXX Xxx xxxxxx xx xxxxxx!",
   "console.components.api-key-form.edit.updateSuccess": "Xxxxxxxxxxxx xxxxxxx XXX Xxx",
@@ -482,5 +486,8 @@
   "oauth.views.update-password.index.passwordChanged": "Xxxxxxxx xxxxxxx xxxxxxxxxxxx",
   "oauth.views.update-password.index.revokeAllAccess": "Xxx xxx xxxx xxx xxxxxxx",
   "oauth.views.update-password.index.revokeWarning": "Xxxx xxxx xxxxxx xxxxxx xxxx xxx xxxxxx xx xxxxxxx",
-  "oauth.views.update-password.index.sessionRevoked": "Xxxx xxxxxxx xx xxxxxxx"
+  "oauth.views.update-password.index.sessionRevoked": "Xxxx xxxxxxx xx xxxxxxx",
+  "oauth.views.validate.index.validateSuccess": "Xxxxxxx xxxx xxxxxxxxx xxxxxxxxxxxx",
+  "oauth.views.validate.index.validateFail": "Xxxxxxx xxxx xxxxxxxxxx xxxxxx",
+  "oauth.views.validate.index.goToLogin": "Xx xx Xxxxx"
 }
