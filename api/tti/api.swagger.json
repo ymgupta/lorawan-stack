@@ -4,10 +4,6 @@
     "title": "lorawan-stack/api/tti/application_api_key.proto",
     "version": "version not set"
   },
-  "schemes": [
-    "http",
-    "https"
-  ],
   "consumes": [
     "application/json"
   ],
