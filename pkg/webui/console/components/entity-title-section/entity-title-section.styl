@@ -12,6 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+.container-device
+  padding-bottom: $ls.xs
+  &.has-description
+    padding-bottom: 0
+
+    .description
+      text-margin-bottom($ls.xs)
+
 .title
   text-margin-top($ls.m)
-  text-margin-bottom($ls.m)
+  text-margin-bottom($cs.m)
+
+.id
+  one-liner()
+  display: block
+  color: $tc-subtle-gray
+
+.description
+  text-margin-top($ls.s)
+  text-margin-bottom($ls.s)
+  display: block
+
+.bottom
+  horizontalize()
+  text-margin-top(2.5rem)
+  text-margin-bottom(1.3rem)
+
+.children, .creation-date
+  display: flex
+  align-items: center
+
+.creation-date
+  color: $tc-subtle-gray
+
+.h-rule
+  margin-top: 0
+  margin-bottom: $ls.m

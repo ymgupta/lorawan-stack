@@ -12,15 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.overview-info
-  margin-top: $ls.xs
-
-  .title
-    margin-top: $ls.xs
-    margin-bottom: $ls.xxs
-
-  .statistics
-    margin-bottom: $ls.xs
-
-.latest-events
-  margin-top: $ls.xs
+// eslint-disable-next-line import/prefer-default-export
+export const selectOfflineStatus = state => (state.offline ? state.offline.online : undefined)
