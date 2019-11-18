@@ -19,12 +19,17 @@ import { routerMiddleware } from 'connected-react-router'
 import dev from '../../lib/dev'
 
 import createRootReducer from './reducers'
-import logic from './middleware/logics'
+import requestPromiseMiddleware from './middleware/request-promise-middleware'
+import logics from './middleware/logics'
 
 const composeEnhancers = (dev && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose
 
 export default function(history) {
-  const middleware = applyMiddleware(routerMiddleware(history), createLogicMiddleware(logic))
+  const middleware = applyMiddleware(
+    requestPromiseMiddleware,
+    routerMiddleware(history),
+    createLogicMiddleware(logics),
+  )
 
   const store = createStore(createRootReducer(history), composeEnhancers(middleware))
   if (dev && module.hot) {

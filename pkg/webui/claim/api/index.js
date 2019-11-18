@@ -70,14 +70,8 @@ export default {
       })
     },
   },
-  device: {
-    async claim(payload) {
-      return instance.post(`${dcsBaseUrl}/edcs/claim`, payload, {
-        headers: {
-          Authorization: `Bearer ${(await token()).access_token}`,
-        },
-      })
-    },
+  deviceClaim: {
+    claim: ttnClient.DeviceClaim.claim.bind(ttnClient.DeviceClaim),
   },
   applications: {
     list: ttnClient.Applications.getAll.bind(ttnClient.Applications),

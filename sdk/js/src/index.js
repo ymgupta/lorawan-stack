@@ -21,6 +21,7 @@ import Gateways from './service/gateways'
 import Js from './service/join-server'
 import Ns from './service/network-server'
 import Organizations from './service/organizations'
+import DeviceClaim from './service/claim'
 
 class TtnLw {
   constructor(token, { stackConfig, connectionType, defaultUserId, proxy, axiosConfig }) {
@@ -35,6 +36,7 @@ class TtnLw {
     this.Js = new Js(this.api.Js)
     this.Ns = new Ns(this.api.Ns)
     this.Organizations = new Organizations(this.api)
+    this.DeviceClaim = new DeviceClaim(this.api, { proxy, stackConfig })
   }
 }
 
