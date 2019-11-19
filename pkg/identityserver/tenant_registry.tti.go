@@ -9,7 +9,9 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
 	"go.thethings.network/lorawan-stack/pkg/auth"
+	"go.thethings.network/lorawan-stack/pkg/email"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/blacklist"
+	"go.thethings.network/lorawan-stack/pkg/identityserver/emails"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
@@ -33,6 +35,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		return nil, err
 	}
 
+	var initialUserPassword string
 	if req.InitialUser != nil {
 		if err = blacklist.Check(ctx, req.InitialUser.UserID); err != nil {
 			return nil, err
@@ -62,6 +65,13 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 			})
 		}
 
+		if req.InitialUser.Password == "" {
+			initialUserPassword, err = auth.GenerateKey(ctx)
+			if err != nil {
+				return nil, err
+			}
+			req.InitialUser.Password = initialUserPassword
+		}
 		hashedPassword, err := auth.Hash(ctx, req.InitialUser.Password)
 		if err != nil {
 			return nil, err
@@ -70,6 +80,8 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		now := time.Now()
 		req.InitialUser.PasswordUpdatedAt = &now
 	}
+
+	var usr *ttnpb.User
 
 	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
 		tnt, err = store.GetTenantStore(db).CreateTenant(ctx, &req.Tenant)
@@ -86,14 +98,14 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		if req.InitialUser != nil {
 			ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
 			ctx = store.WithoutTenantFetcher(ctx)
-			usr, err := store.GetUserStore(db).CreateUser(ctx, req.InitialUser)
+			usr, err = store.GetUserStore(db).CreateUser(ctx, req.InitialUser)
 			if err != nil {
 				return err
 			}
 
 			if len(req.InitialUser.ContactInfo) > 0 {
 				cleanContactInfo(req.InitialUser.ContactInfo)
-				_, err = store.GetContactInfoStore(db).SetContactInfo(ctx, usr.UserIdentifiers, req.InitialUser.ContactInfo)
+				usr.ContactInfo, err = store.GetContactInfoStore(db).SetContactInfo(ctx, usr.UserIdentifiers, req.InitialUser.ContactInfo)
 				if err != nil {
 					return err
 				}
@@ -105,9 +117,20 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		return nil, err
 	}
 
-	if req.InitialUser != nil {
+	if usr != nil {
 		ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
-		_, err := is.requestContactInfoValidation(ctx, req.InitialUser.EntityIdentifiers())
+		err = is.SendUserEmail(ctx, &usr.UserIdentifiers, func(data emails.Data) email.MessageData {
+			data.Entity.Type, data.Entity.ID = "tenant", tnt.TenantID
+			return &emails.TenantCreated{
+				Data:              data,
+				GlobalNetworkName: is.config.Email.Network.Name,
+				InitialPassword:   initialUserPassword,
+			}
+		})
+		if err != nil {
+			log.FromContext(ctx).WithError(err).Error("Could not send tenant created email")
+		}
+		_, err := is.requestContactInfoValidation(ctx, usr.EntityIdentifiers())
 		if err != nil {
 			log.FromContext(ctx).WithError(err).Error("Could not send contact info validations")
 		}
