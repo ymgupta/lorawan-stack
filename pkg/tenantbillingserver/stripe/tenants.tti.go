@@ -9,7 +9,6 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -171,10 +170,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 			return err
 		}
 	} else {
-		password, ok := sub.Metadata[adminPasswordAttribute]
-		if !ok {
-			password = random.String(256)
-		}
+		password, _ := sub.Metadata[adminPasswordAttribute]
 		userID, ok := sub.Metadata[adminUserIDAttribute]
 		if !ok {
 			userID = ids.TenantID
