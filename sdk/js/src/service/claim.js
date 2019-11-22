@@ -12,11 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Yup from 'yup'
+class DeviceClaim {
+  constructor(api, { stackConfig, proxy = true }) {
+    if (!api) {
+      throw new Error('Cannot initialize DeviceClaim service without api object.')
+    }
+    this._api = api
+    this._proxy = proxy
+    this._stackConfig = stackConfig
+  }
 
-import sharedMessages from '../../../lib/shared-messages'
+  // Claim
+  async claim(qrCode, applicationId) {
+    const payload = {
+      qr_code: btoa(qrCode),
+      target_application_ids: {
+        application_id: applicationId,
+      },
+    }
 
-/* eslint import/prefer-default-export: "off"*/
-export const deviceClaimValidationSchema = Yup.object().shape({
-  claim_id: Yup.string().required(sharedMessages.validateRequired),
-})
+    const response = await this._api.EndDeviceClaimingServer.Claim(undefined, payload)
+
+    return response
+  }
+}
+
+export default DeviceClaim

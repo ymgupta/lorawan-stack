@@ -31,7 +31,7 @@ export default class Overview extends Component {
     if (message) {
       return (
         <div className={style.padding}>
-          <Notification success={message} small />
+          <Notification content={message} success small />
         </div>
       )
     }

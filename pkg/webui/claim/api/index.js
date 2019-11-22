@@ -24,6 +24,7 @@ const appRoot = selectApplicationRootPath()
 
 const stack = {
   is: stackConfig.is.enabled ? stackConfig.is.base_url : undefined,
+  edcs: stackConfig.edcs.enabled ? stackConfig.edcs.base_url : undefined,
 }
 
 const isBaseUrl = stackConfig.is.base_url
@@ -69,14 +70,8 @@ export default {
       })
     },
   },
-  device: {
-    async claim(payload) {
-      return instance.post(`${isBaseUrl}/edcs/claim`, payload, {
-        headers: {
-          Authorization: `Bearer ${(await token()).access_token}`,
-        },
-      })
-    },
+  deviceClaim: {
+    claim: ttnClient.DeviceClaim.claim.bind(ttnClient.DeviceClaim),
   },
   applications: {
     list: ttnClient.Applications.getAll.bind(ttnClient.Applications),

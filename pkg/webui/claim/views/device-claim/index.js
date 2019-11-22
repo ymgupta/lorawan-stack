@@ -22,50 +22,31 @@ import api from '../../api'
 import sharedMessages from '../../../lib/shared-messages'
 import IntlHelmet from '../../../lib/components/intl-helmet'
 import Message from '../../../lib/components/message'
-import withRequest from '../../../lib/components/with-request'
 
 import DeviceClaimForm from '../../containers/device-claim-form'
-
-import { getApplication } from '../../store/actions/applications'
-import {
-  selectSelectedApplication,
-  selectApplicationFetching,
-  selectApplicationError,
-} from '../../store/selectors/applications'
 
 @connect(
   function(state, props) {
     return {
       appId: props.match.params.appId,
-      fetching: selectApplicationFetching(state),
-      application: selectSelectedApplication(state),
-      error: selectApplicationError(state),
     }
   },
-  dispatch => ({
-    getApplication: id => dispatch(getApplication(id, 'name,description')),
+  {
     redirectHome: message =>
-      dispatch(
-        push('/', {
-          message,
-        }),
-      ),
-  }),
-)
-@withRequest(
-  ({ appId, getApplication }) => getApplication(appId),
-  ({ fetching, application }) => fetching || !Boolean(application),
+      push('/', {
+        message,
+      }),
+  },
 )
 export default class DeviceClaim extends Component {
   handleSubmit = async values => {
     const { appId } = this.props
-    // Example QR code: URN:LW:DP:0016C00000000001:58A0CBFFFFFEFFFF:FACE800C:%VF1FB552B%S201907160010
-    return api.device.claim({
-      qr_code: btoa(values.claim_id),
-      target_application_ids: {
-        application_id: appId,
-      },
-    })
+    try {
+      const device = await api.deviceClaim.claim(values.claim_id, appId)
+      return device
+    } catch (err) {
+      throw err
+    }
   }
 
   handleSubmitSuccess = () => {
@@ -102,7 +83,5 @@ DeviceClaim.propTypes = {
 
 DeviceClaim.defaultProps = {
   appId: '',
-  redirectHome() {
-    return false
-  },
+  redirectHome: () => null,
 }
