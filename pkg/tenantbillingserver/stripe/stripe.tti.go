@@ -24,8 +24,8 @@ type Config struct {
 	APIKey                  string   `name:"api-key" description:"API key used to connect to Stripe"`
 	EndpointSecretKey       string   `name:"endpoint-secret-key" description:"Endpoint secret key used to verify webhook signatures"`
 	SkipSignatureValidation bool     `name:"skip-signature-validation" description:"Skip the webhook signature validation"`
-	RecurringPlanIDs        []string `name:"recurring-plan-ids" description:"Recurring subscription plan IDs to be handled"`
-	MeteredPlanIDs          []string `name:"metered-plan-ids" description:"Metered subscription plan IDs to be handled"`
+	RecurringPlanIDs        []string `name:"recurring-plan-ids" description:"Recurring pricing plan IDs to be handled"`
+	MeteredPlanIDs          []string `name:"metered-plan-ids" description:"Metered pricing plan IDs to be handled"`
 }
 
 var (
