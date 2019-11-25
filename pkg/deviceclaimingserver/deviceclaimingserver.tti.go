@@ -27,8 +27,8 @@ type UIConfig struct {
 
 // StackConfig is the configuration of the stack components.
 type StackConfig struct {
-	IS   webui.APIConfig `json:"is" name:"is"`
-	EDCS webui.APIConfig `json:"edcs" name:"edcs"`
+	IS  webui.APIConfig `json:"is" name:"is"`
+	DCS webui.APIConfig `json:"dcs" name:"dcs"`
 }
 
 // FrontendConfig is the configuration for the Device Claiming Server frontend.
@@ -264,7 +264,7 @@ func (conf UIConfig) Apply(ctx context.Context) UIConfig {
 func (conf StackConfig) Apply(ctx context.Context) StackConfig {
 	deriv := conf
 	deriv.IS = conf.IS.Apply(ctx)
-	deriv.EDCS = conf.EDCS.Apply(ctx)
+	deriv.DCS = conf.DCS.Apply(ctx)
 	return deriv
 }
 
