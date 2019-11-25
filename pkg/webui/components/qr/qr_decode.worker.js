@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as Yup from 'yup'
-import sharedMessages from '../../../lib/shared-messages'
+import jsQR from 'jsqr'
 
-/* eslint import/prefer-default-export: "off"*/
-export const deviceClaimValidationSchema = Yup.object().shape({
-  qrCode: Yup.string().required(sharedMessages.validateRequired),
+self.addEventListener('message', event => {
+  const { data, width, height } = event.data
+  const code = jsQR(data, width, height)
+  self.postMessage(code)
 })

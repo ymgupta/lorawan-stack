@@ -10,6 +10,10 @@ export default {
     ...ttnConfig.entry,
     claim: ['./config/root.js', './pkg/webui/claim.js'],
   },
+  output: {
+    ...ttnConfig.output,
+    globalObject: 'this',
+  },
   devServer: {
     ...ttnConfig.devServer,
     proxy: [
@@ -18,6 +22,15 @@ export default {
         context: ['/claim'],
         target: 'http://localhost:1885',
         changeOrigin: true,
+      },
+    ],
+  },
+  module: {
+    rules: [
+      ...ttnConfig.module.rules,
+      {
+        test: /\.worker\.js$/,
+        use: { loader: 'worker-loader' },
       },
     ],
   },

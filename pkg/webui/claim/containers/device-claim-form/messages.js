@@ -15,5 +15,5 @@
 import { defineMessages } from 'react-intl'
 
 export default defineMessages({
-  ClaimAuthMessage: 'Enter the claim authentication code or scan QR code',
+  ClaimAuthMessage: 'Scan authentication QR code',
 })
