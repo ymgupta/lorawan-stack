@@ -159,7 +159,7 @@ The folder structure of the frontend looks as follows:
 ├── template.go       go template module used to render the frontend HTML
 ```
 
-For development purposes, the frontend can be run using `webpack-dev-server`. After following the [Getting Started](#getting-started) section to initialize The Things Stack and doing an initial build of the frontend via `mage js:build`, it can be served using:
+For development purposes, the frontend can be run using `webpack-dev-server`. After following the [Getting Started](#getting-started) section to initialize The Things Stack and doing an initial build of the frontend via `mage js:buildTTI`, it can be served using:
 
 ```bash
 $ export NODE_ENV=development
@@ -438,7 +438,7 @@ The difference of a development build includes:
 The frontend can then be built using:
 
 ```bash
-$ mage js:build
+$ mage js:buildTTI
 ```
 
 For development/testing purposes we suggest to run the binaries directly via `go run`:

@@ -136,7 +136,7 @@ after_success:
 - |
   if [[ "$RUNTYPE" == "release" ]]; then
     set -e
-    $MAGE js:build
+    $MAGE js:buildTTI
     $MAGE docs:build
     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
     if [[ -f snapcraft.login ]]; then snapcraft login --with snapcraft.login; fi
