@@ -19,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [3.3.1] - 2019-11-26
+
+### Added
+
+- Add support for Redis Sentinel (see `redis.failover.enable`, `redis.failover.master-name`, `redis.failover.addresses` options).
+
+### Fixed
+
+- Fix `AppKey` decryption in Join Server.
+
+### Security
+
 ## [3.3.0] - 2019-11-25
 
 ### Added
@@ -33,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix an issue causing unexpected behavior surrounding login, logout and token management in the Console.
-- Fix an issue causing the application link page of the Console to load infinitely. 
+- Fix an issue causing the application link page of the Console to load infinitely.
 
 ## [3.2.6] - 2019-11-18
 
@@ -432,7 +444,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.3.0...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.3.1...HEAD
+[3.3.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.3.0...v3.3.1
 [3.3.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.2.6...v3.3.0
 [3.2.6]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.2.5...v3.2.6
 [3.2.5]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.2.4...v3.2.5
