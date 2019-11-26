@@ -1823,6 +1823,7 @@ SDKs are responsible for combining (if desired) the three.
 | `application_server_id` | [`string`](#string) |  | The AS-ID of the Application Server to use. Stored in Join Server. |
 | `join_server_address` | [`string`](#string) |  | The address of the Join Server where this device is supposed to be registered. Stored in Entity Registry. The typical format of the address is "host:port". If the port is omitted, the normal port inference (with DNS lookup, otherwise defaults) is used. The connection shall be established with transport layer security (TLS). Custom certificate authorities may be configured out-of-band. |
 | `locations` | [`EndDevice.LocationsEntry`](#ttn.lorawan.v3.EndDevice.LocationsEntry) | repeated | Location of the device. Stored in Entity Registry. |
+| `picture` | [`Picture`](#ttn.lorawan.v3.Picture) |  | Stored in Entity Registry. |
 | `supports_class_b` | [`bool`](#bool) |  | Whether the device supports class B. Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any. |
 | `supports_class_c` | [`bool`](#bool) |  | Whether the device supports class C. Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any. |
 | `lorawan_version` | [`MACVersion`](#ttn.lorawan.v3.MACVersion) |  | LoRaWAN MAC version. Stored in Network Server. Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any. |
@@ -4632,6 +4633,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | `app_s_key` | [`KeyEnvelope`](#ttn.lorawan.v3.KeyEnvelope) |  | Encrypted Application Session Key (if Join Server sent it to Network Server). |
 | `invalidated_downlinks` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) | repeated | Downlink messages in the queue that got invalidated because of the session change. |
 | `pending_session` | [`bool`](#bool) |  | Indicates whether the security context refers to the pending session, i.e. when this join-accept is an answer to a rejoin-request. |
+| `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Server time when the Network Server received the message. |
 
 #### Field Rules
 
@@ -4667,7 +4669,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | ----- | ---- | ----- | ----------- |
 | `end_device_ids` | [`EndDeviceIdentifiers`](#ttn.lorawan.v3.EndDeviceIdentifiers) |  |  |
 | `correlation_ids` | [`string`](#string) | repeated |  |
-| `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Server time when the Application Server received the message. |
 | `uplink_message` | [`ApplicationUplink`](#ttn.lorawan.v3.ApplicationUplink) |  |  |
 | `join_accept` | [`ApplicationJoinAccept`](#ttn.lorawan.v3.ApplicationJoinAccept) |  |  |
 | `downlink_ack` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) |  |  |
@@ -4696,6 +4698,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | `decoded_payload` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  |  |
 | `rx_metadata` | [`RxMetadata`](#ttn.lorawan.v3.RxMetadata) | repeated |  |
 | `settings` | [`TxSettings`](#ttn.lorawan.v3.TxSettings) |  |  |
+| `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Server time when the Network Server received the message. |
 
 #### Field Rules
 

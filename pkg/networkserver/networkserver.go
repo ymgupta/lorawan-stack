@@ -119,6 +119,8 @@ type NetworkServer struct {
 	defaultMACSettings ttnpb.MACSettings
 
 	interopClient InteropClient
+
+	deviceKEKLabel string
 }
 
 // Option configures the NetworkServer.
@@ -205,7 +207,8 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 			ClassCTimeout:         conf.DefaultMACSettings.ClassCTimeout,
 			StatusTimePeriodicity: conf.DefaultMACSettings.StatusTimePeriodicity,
 		},
-		interopClient: interopCl,
+		interopClient:  interopCl,
+		deviceKEKLabel: conf.DeviceKEKLabel,
 	}
 	ns.hashPool.New = func() interface{} {
 		return fnv.New64a()

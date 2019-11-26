@@ -91,6 +91,8 @@ export class SafeInspector extends Component {
   constructor(props) {
     super(props)
 
+    this._timer = null
+
     this.state = {
       hidden: (props.hideable && !props.initiallyVisible) || false,
       byteStyle: true,
@@ -122,20 +124,22 @@ export class SafeInspector extends Component {
     this.setState(prev => ({ msb: !prev.msb }))
   }
 
-  handleDataClick() {
+  handleDataClick(e) {
     if (!this.state.hidden) {
       selectText(this.displayElem.current)
     }
+    e.stopPropagation()
   }
 
-  handleCopyClick() {
+  handleCopyClick(e) {
     const { noCopyPopup } = this.props
     this.setState({ copied: true, copyIcon: 'done' })
     if (noCopyPopup) {
-      setTimeout(() => {
+      this._timer = setTimeout(() => {
         this.setState({ copied: false, copyIcon: 'file_copy' })
       }, 2000)
     }
+    e.stopPropagation()
   }
 
   handleCopyAnimationEnd() {
@@ -151,11 +155,12 @@ export class SafeInspector extends Component {
     }
   }
 
-  componentWillUmount() {
+  componentWillUnmount() {
     const { disableResize } = this.props
     if (!disableResize) {
       window.removeEventListener('resize', this.handleWindowResize)
     }
+    clearTimeout(this._timer)
   }
 
   handleWindowResize() {

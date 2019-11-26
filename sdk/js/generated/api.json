@@ -6319,6 +6319,16 @@
               }
             },
             {
+              "name": "picture",
+              "description": "Stored in Entity Registry.",
+              "label": "",
+              "type": "Picture",
+              "longType": "Picture",
+              "fullType": "ttn.lorawan.v3.Picture",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "supports_class_b",
               "description": "Whether the device supports class B.\nCopied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any.",
               "label": "",
@@ -18520,6 +18530,16 @@
               "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "received_at",
+              "description": "Server time when the Network Server received the message.",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -18662,7 +18682,7 @@
             },
             {
               "name": "received_at",
-              "description": "",
+              "description": "Server time when the Application Server received the message.",
               "label": "",
               "type": "Timestamp",
               "longType": "google.protobuf.Timestamp",
@@ -18882,6 +18902,16 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "received_at",
+              "description": "Server time when the Network Server received the message.",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },

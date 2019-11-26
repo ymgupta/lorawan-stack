@@ -896,6 +896,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -942,6 +943,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -998,6 +1000,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1041,6 +1044,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -1121,6 +1125,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1151,6 +1156,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1181,6 +1187,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1221,6 +1228,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1251,6 +1259,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 					},
@@ -1289,6 +1298,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -1337,6 +1347,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -1417,6 +1428,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
@@ -1580,6 +1592,7 @@ hardware_versions:
 									},
 								},
 								CorrelationIDs: up.CorrelationIDs,
+								ReceivedAt:     up.ReceivedAt,
 							})
 						},
 						AssertDevice: func(t *testing.T, dev *ttnpb.EndDevice, queue []*ttnpb.ApplicationDownlink) {
