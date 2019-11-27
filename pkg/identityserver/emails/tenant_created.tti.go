@@ -16,8 +16,9 @@ type TenantCreated struct {
 	InitialPassword string
 }
 
+// TTESVersion renders the current major.minor.path version (without v prefix or candidate suffix).
 func (TenantCreated) TTESVersion() string {
-	return strings.TrimSuffix(version.TTN, "-dev")
+	return strings.TrimSuffix(strings.TrimPrefix(version.TTN, "v"), "-dev")
 }
 
 // TemplateName returns the name of the template to use for this email.
@@ -42,11 +43,11 @@ Before you get started, please reset your password by following the link below:
 To access the console, you can use the URL {{.Network.ConsoleURL}}.
 
 You can read how to get started with the console in the Getting Started guide:
-https://enterprise.thethingsstack.io/{{.TTESVersion}}/guides/getting-started/console/
+https://enterprise.thethingsstack.io/v{{.TTESVersion}}/guides/getting-started/console/
 
 It is also possible to use the command-line interface (CLI).
 You can read how to get started with the CLI in the Getting Started guide:
-https://enterprise.thethingsstack.io/{{.TTESVersion}}/guides/getting-started/cli/
+https://enterprise.thethingsstack.io/v{{.TTESVersion}}/guides/getting-started/cli/
 
 Other users of your tenant can register accounts, but they can not use it until
 the account is approved by an admin user. Approving accounts is currently only
