@@ -210,15 +210,16 @@ func validateCallerByAddress(dn pkix.Name, addr string) error {
 // If the configured key vault cannot find the KEK, the key is returned in the clear.
 func (js *JoinServer) wrapKeyIfKEKExists(ctx context.Context, key types.AES128Key, kekLabel string) (*ttnpb.KeyEnvelope, error) {
 	env, err := cryptoutil.WrapAES128Key(ctx, key, kekLabel, js.KeyVault)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return &ttnpb.KeyEnvelope{
-				Key: &key,
-			}, nil
-		}
-		return nil, err
+	if err == nil {
+		return &env, nil
 	}
-	return &env, nil
+	if errors.IsNotFound(err) {
+		log.FromContext(ctx).WithError(err).WithField("kek_label", kekLabel).Debug("Key not wrapped")
+		return &ttnpb.KeyEnvelope{
+			Key: &key,
+		}, nil
+	}
+	return nil, err
 }
 
 // HandleJoin handles the given join-request.
@@ -469,20 +470,20 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			}
 			sessionKeys.FNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.FNwkSIntKey, nsKEKLabel)
 			if err != nil {
-				return nil, nil, errWrapKey.WithCause(err)
+				return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 			}
 			sessionKeys.AppSKey, err = js.wrapKeyIfKEKExists(ctx, appSKey, asKEKLabel)
 			if err != nil {
-				return nil, nil, errWrapKey.WithCause(err)
+				return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", asKEKLabel)
 			}
 			if req.SelectedMACVersion >= ttnpb.MAC_V1_1 {
 				sessionKeys.SNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.SNwkSIntKey, nsKEKLabel)
 				if err != nil {
-					return nil, nil, errWrapKey.WithCause(err)
+					return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 				}
 				sessionKeys.NwkSEncKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.NwkSEncKey, nsKEKLabel)
 				if err != nil {
-					return nil, nil, errWrapKey.WithCause(err)
+					return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 				}
 			}
 
@@ -532,10 +533,9 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 		if !handled {
 			logger.Info("Join not accepted")
 			return nil, err
-		} else {
-			logger.Error("Failed to update device")
-			return nil, errRegistryOperation.WithCause(err)
 		}
+		logger.Error("Failed to update device")
+		return nil, errRegistryOperation.WithCause(err)
 	}
 
 	registerAcceptJoin(ctx, dev, req)
