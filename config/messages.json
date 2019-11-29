@@ -2564,6 +2564,15 @@
       "file": "keyvault.tti.go"
     }
   },
+  "error:pkg/crypto/aws:secret_not_found": {
+    "translations": {
+      "en": "secret `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/crypto/aws",
+      "file": "keyvault.tti.go"
+    }
+  },
   "error:pkg/crypto/cryptoservices:no_app_key": {
     "translations": {
       "en": "no AppKey specified"
