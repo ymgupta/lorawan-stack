@@ -5354,6 +5354,15 @@
       "file": "application_uplink_queue.go"
     }
   },
+  "error:pkg/networkserver/redis:not_found": {
+    "translations": {
+      "en": "not found"
+    },
+    "description": {
+      "package": "pkg/networkserver/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/networkserver/redis:read_only_field": {
     "translations": {
       "en": "read-only field `{field}`"
