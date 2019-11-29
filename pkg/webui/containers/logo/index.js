@@ -23,13 +23,13 @@ import {
 } from '../../lib/selectors/env'
 
 const logo = {
-  src: `${selectAssetsRootPath()}/logo.svg`,
+  src: `${selectAssetsRootPath()}/ttes.svg`,
   alt: `${selectApplicationSiteName} Logo`,
 }
 const hasCustomBranding = selectBrandingRootPath() !== selectAssetsRootPath()
 const secondaryLogo = hasCustomBranding
   ? {
-      src: `${selectBrandingRootPath()}/logo.svg`,
+      src: `${selectBrandingRootPath()}/ttes.svg`,
       alt: 'Logo',
     }
   : undefined
