@@ -19,12 +19,14 @@ import LogoComponent from '../../components/logo'
 import {
   selectAssetsRootPath,
   selectBrandingRootPath,
+  selectBrandingText,
+  selectBrandingClusterID,
   selectApplicationSiteName,
 } from '../../lib/selectors/env'
 
 const logo = {
   src: `${selectAssetsRootPath()}/ttes.svg`,
-  alt: `${selectApplicationSiteName} Logo`,
+  alt: `${selectApplicationSiteName()} Logo`,
 }
 const hasCustomBranding = selectBrandingRootPath() !== selectAssetsRootPath()
 const secondaryLogo = hasCustomBranding
@@ -34,6 +36,14 @@ const secondaryLogo = hasCustomBranding
     }
   : undefined
 
-const Logo = props => <LogoComponent logo={logo} secondaryLogo={secondaryLogo} {...props} />
+const Logo = props => (
+  <LogoComponent
+    logo={logo}
+    secondaryLogo={secondaryLogo}
+    {...props}
+    text={selectBrandingText()}
+    clusterTag={selectBrandingClusterID()}
+  />
+)
 
 export default Logo
