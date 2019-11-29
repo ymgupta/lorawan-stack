@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/acm"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
@@ -75,7 +76,10 @@ func NewKeyVault(region, secretIDPrefix string) (crypto.KeyVault, error) {
 	return kv, nil
 }
 
-var errSecretContent = errors.DefineAborted("secret_content", "invalid secret content in `{id}`")
+var (
+	errSecretContent  = errors.DefineAborted("secret_content", "invalid secret content in `{id}`")
+	errSecretNotFound = errors.DefineNotFound("secret_not_found", "secret `{id}` not found")
+)
 
 func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, err error) {
 	id := kekLabel
@@ -101,6 +105,12 @@ func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, er
 		SecretId: aws.String(id),
 	})
 	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			switch awsErr.Code() {
+			case secretsmanager.ErrCodeResourceNotFoundException:
+				return nil, errSecretNotFound.WithCause(err).WithAttributes("id", id)
+			}
+		}
 		return nil, err
 	}
 	if res.SecretString == nil {

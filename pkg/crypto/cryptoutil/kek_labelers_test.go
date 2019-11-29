@@ -35,9 +35,9 @@ func TestComponentPrefixKEKLabeler(t *testing.T) {
 		Expected      string
 	}{
 		{
-			Addr: "localhost",
+			Addr: "",
 			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
-				return labeler.NsKEKLabel(ctx, nil, "")
+				return labeler.NsKEKLabel(ctx, nil, addr)
 			},
 			Expected: "ns",
 		},
@@ -105,6 +105,55 @@ func TestComponentPrefixKEKLabeler(t *testing.T) {
 				return labeler.NsKEKLabel(ctx, &types.NetID{0x00, 0x00, 0x42}, addr)
 			},
 			Expected: "ns_000042_localhost",
+		},
+		{
+			Addr: "12.34.56.78",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, nil, addr)
+			},
+			Expected: "ns/12.34.56.78",
+		},
+		{
+			Addr: "12.34.56.78:1234",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, nil, addr)
+			},
+			Expected: "ns/12.34.56.78",
+		},
+		{
+			Addr: "localhost.",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, nil, addr)
+			},
+			Expected: "ns/localhost",
+		},
+		{
+			Addr: "foo-tenant.localhost",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, nil, addr)
+			},
+			Expected: "ns/localhost",
+		},
+		{
+			Addr: "foo-tenant.localhost",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.AsKEKLabel(ctx, addr)
+			},
+			Expected: "as/localhost",
+		},
+		{
+			Addr: "foo-tenant.localhost:1234",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, &types.NetID{0x00, 0x00, 0x42}, addr)
+			},
+			Expected: "ns/000042/localhost",
+		},
+		{
+			Addr: "http://foo-tenant.localhost:1234",
+			Func: func(ctx context.Context, labeler ComponentPrefixKEKLabeler, addr string) string {
+				return labeler.NsKEKLabel(ctx, &types.NetID{0x00, 0x00, 0x42}, addr)
+			},
+			Expected: "ns/000042/localhost",
 		},
 	} {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {

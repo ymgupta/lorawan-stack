@@ -46,9 +46,9 @@ func TestKeyVault(t *testing.T) {
 	t.Run("Wrapping", func(t *testing.T) {
 		a := assertions.New(t)
 
-		a.So(kv.AsKEKLabel(test.Context(), "example.com:8884"), should.Equal, "as/example.com")
+		a.So(kv.AsKEKLabel(test.Context(), "foo-tenant.example.com:8884"), should.Equal, "as/example.com")
 		a.So(kv.AsKEKLabel(test.Context(), "[::1]:8884"), should.Equal, "as/__1")
-		a.So(kv.NsKEKLabel(test.Context(), &types.NetID{0x0, 0x0, 0x13}, "example.com:8884"), should.Equal, "ns/000013/example.com")
+		a.So(kv.NsKEKLabel(test.Context(), &types.NetID{0x0, 0x0, 0x13}, "foo-tenant.example.com:8884"), should.Equal, "ns/000013/example.com")
 
 		plaintext, _ := hex.DecodeString("00112233445566778899AABBCCDDEEFF")
 		ciphertext, _ := hex.DecodeString("1FA68B0A8112B447AEF34BD8FB5A7B829D3E862371D2CFE5")
