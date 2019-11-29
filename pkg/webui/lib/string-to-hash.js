@@ -12,39 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.full-height-center
-  height: 100%
-  display: flex
-  justify-content: center
-  align-items: center
-
-  & > div
-    display: flex
-    justify-content: center
-    nudge('up', 4%)
-    nudge('left', 2%)
-
-.left
-  border-normal('right')
-  flex: 0 1 0
-  width: 12rem
-  display: flex
-  align-items: center
-  padding-right: $ls.l
-  text-align: center
-
-  & > div > span
-    one-liner()
-
-.logo img
-  width: 100%
-
-.right
-  padding-left: $ls.l
-  padding-top: $ls.xs
-  padding-bottom: $ls.xs
-  width: 330px
-
-  h1
-    margin-bottom: $ls.m
-    line-height: 1
+export default function(string) {
+  let hash = 0
+  let chr = 0
+  if (string.length === 0) return hash
+  for (let i = 0; i < string.length; i++) {
+    chr = string.charCodeAt(i)
+    hash = (hash << 5) - hash + chr
+    hash |= 0 // Convert to 32bit integer
+  }
+  return hash
+}
