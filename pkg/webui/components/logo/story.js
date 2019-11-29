@@ -15,12 +15,12 @@
 import React from 'react'
 import { storiesOf } from '@storybook/react'
 
-import TtesLogo from '../../assets/static/ttes.svg'
+import TtsLogo from '../../assets/static/logo.svg'
 import ExampleLogo from './story-logo.svg'
 import Logo from '.'
 
 storiesOf('Logo', module)
-  .add('Default', () => <Logo logo={{ src: TtesLogo, alt: 'Logo' }} />)
+  .add('Default', () => <Logo logo={{ src: TtsLogo, alt: 'Logo' }} />)
   .add('With secondary Logo', () => (
     <Logo
       logo={{ src: TtsLogo, alt: 'Logo' }}
