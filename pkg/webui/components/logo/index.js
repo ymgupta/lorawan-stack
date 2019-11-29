@@ -57,7 +57,7 @@ const imgPropType = PropTypes.shape({
 })
 
 Logo.propTypes = {
-  anchored: PropTypes.boolean,
+  anchored: PropTypes.bool,
   className: PropTypes.string,
   clusterTag: PropTypes.string,
   logo: imgPropType.isRequired,
