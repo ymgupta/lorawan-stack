@@ -14,15 +14,21 @@
 
 .container
   display: flex
-  line-height: 0
+  align-items: center
+
+  .logo a
+    display: block
+    line-height: 0
 
   &:not(.vertical)
-    max-height: 2.2rem
-
     &:not(.custom-branding)
       img
         height: 100%
 
+    .logo
+      width: 100%
+      display: flex
+      align-items: center
 
     &.custom-branding .logo
       border-dark('right')
@@ -34,6 +40,7 @@
 
     .secondary-logo
       display: flex
+      flex-direction: column
       align-items: center
       padding-left: $ls.xs
 
@@ -43,7 +50,7 @@
   &.vertical
     max-width: 15rem
     flex-direction: column
-    margin-bottom: $ls.xs
+    margin-bottom: $ls.s
 
     &.custom-branding .logo
       border-dark('bottom')
@@ -60,6 +67,21 @@
       align-items: center
       margin-left: auto
       margin-right: auto
+      flex-direction: column
 
       img
         height: 2.2rem
+
+.text
+  one-liner()
+  color: $tc-deep-gray
+  text-decoration: none
+  margin-top: $cs.xs
+  font-size: $fs.s
+
+  .cluster-tag
+    font-family: $font-family-mono
+    font-weight: bold
+    font-size: $fs.s
+    margin-right: $cs.xxs
+    color: $tc-active
