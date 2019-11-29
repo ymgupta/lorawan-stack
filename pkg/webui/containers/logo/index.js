@@ -31,7 +31,7 @@ const logo = {
 const hasCustomBranding = selectBrandingRootPath() !== selectAssetsRootPath()
 const secondaryLogo = hasCustomBranding
   ? {
-      src: `${selectBrandingRootPath()}/ttes.svg`,
+      src: `${selectBrandingRootPath()}/logo.svg`,
       alt: 'Logo',
     }
   : undefined
