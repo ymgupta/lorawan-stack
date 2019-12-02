@@ -4652,6 +4652,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/joinserver/redis:not_found": {
+    "translations": {
+      "en": "not found"
+    },
+    "description": {
+      "package": "pkg/joinserver/redis",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/joinserver/redis:provisioner_not_found": {
     "translations": {
       "en": "provisioner `{id}` not found"
