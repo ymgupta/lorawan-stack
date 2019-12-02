@@ -23,6 +23,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -33,6 +34,7 @@ var (
 	errInvalidIdentifiers   = errors.DefineInvalidArgument("invalid_identifiers", "invalid identifiers")
 	errDuplicateIdentifiers = errors.DefineAlreadyExists("duplicate_identifiers", "duplicate identifiers")
 	errReadOnlyField        = errors.DefineInvalidArgument("read_only_field", "read-only field `{field}`")
+	errNotFound             = errors.DefineNotFound("not_found", "not found")
 )
 
 // DeviceRegistry is an implementation of networkserver.DeviceRegistry.
@@ -77,6 +79,13 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 
 	pb := &ttnpb.EndDevice{}
 	if err := ttnredis.FindProto(r.Redis, r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
+		tid, err := unique.ToTenantID(uid)
+		if err != nil {
+			return "", err
+		}
+		if tid != tenant.FromContext(ctx) {
+			return "", errNotFound
+		}
 		return r.uidKey(uid), nil
 	}).ScanProto(pb); err != nil {
 		return nil, err
@@ -88,7 +97,16 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 func (r *DeviceRegistry) RangeByAddr(ctx context.Context, addr types.DevAddr, paths []string, f func(*ttnpb.EndDevice) bool) error {
 	defer trace.StartRegion(ctx, "range end devices by dev_addr").End()
 
-	return ttnredis.FindProtos(r.Redis, r.addrKey(addr), r.uidKey).Range(func() (proto.Message, func() (bool, error)) {
+	ctxTID := tenant.FromContext(ctx)
+	return ttnredis.FindProtosWithKeys(r.Redis, r.addrKey(addr), r.uidKey).Range(func(k string) (proto.Message, func() (bool, error)) {
+		tid, err := unique.ToTenantID(k)
+		if err != nil {
+			return nil, nil
+		}
+		if tid != ctxTID {
+			return nil, nil
+		}
+
 		pb := &ttnpb.EndDevice{}
 		return pb, func() (bool, error) {
 			pb, err := ttnpb.FilterGetEndDevice(pb, paths...)
