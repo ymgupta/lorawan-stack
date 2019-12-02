@@ -303,7 +303,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			"root_keys",
 			"used_dev_nonces",
 		},
-		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
+		func(ctx context.Context, dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			if dn, ok := auth.X509DNFromContext(ctx); ok {
 				if dev.NetID == nil {
 					return nil, nil, errNoNetID
@@ -491,7 +491,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 				RawPayload:  append(b[:1], enc...),
 				SessionKeys: sessionKeys,
 			}
-			_, err = js.keys.SetByID(ctx, *dev.DevEUI, res.SessionKeys.SessionKeyID,
+			_, err = js.keys.SetByID(ctx, *dev.JoinEUI, *dev.DevEUI, res.SessionKeys.SessionKeyID,
 				[]string{
 					"session_key_id",
 					"f_nwk_s_int_key",
@@ -538,7 +538,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 		return nil, errRegistryOperation.WithCause(err)
 	}
 
-	registerAcceptJoin(ctx, dev, req)
+	registerAcceptJoin(dev.Context, dev.EndDevice, req)
 	return res, nil
 }
 
@@ -562,7 +562,7 @@ func (js *JoinServer) GetNwkSKeys(ctx context.Context, req *ttnpb.SessionKeyRequ
 		return nil, err
 	}
 
-	ks, err := js.keys.GetByID(ctx, req.DevEUI, req.SessionKeyID,
+	ks, err := js.keys.GetByID(ctx, req.JoinEUI, req.DevEUI, req.SessionKeyID,
 		[]string{
 			"f_nwk_s_int_key",
 			"nwk_s_enc_key",
@@ -617,7 +617,7 @@ func (js *JoinServer) GetAppSKey(ctx context.Context, req *ttnpb.SessionKeyReque
 		return nil, err
 	}
 
-	ks, err := js.keys.GetByID(ctx, req.DevEUI, req.SessionKeyID,
+	ks, err := js.keys.GetByID(ctx, req.JoinEUI, req.DevEUI, req.SessionKeyID,
 		[]string{
 			"app_s_key",
 		},
