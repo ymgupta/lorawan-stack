@@ -16,23 +16,35 @@ import React from 'react'
 import classnames from 'classnames'
 
 import PropTypes from '../../lib/prop-types'
+import Link from '../link'
 
 import style from './logo.styl'
 
-const Logo = function({ className, logo, secondaryLogo, vertical }) {
+const Logo = function({ className, logo, secondaryLogo, vertical, text, clusterTag, anchored }) {
   const classname = classnames(style.container, className, {
     [style.vertical]: vertical,
     [style.customBranding]: Boolean(secondaryLogo),
   })
+  const LinkComponent = anchored ? Link.BaseAnchor : Link
+  const cappedText = text ? text.substr(0, 25) : undefined
+  const cappedClusterTag = clusterTag ? clusterTag.substr(0, 5) : undefined
 
   return (
     <div className={classname}>
       <div className={style.logo}>
-        <img {...logo} />
+        <LinkComponent {...(anchored ? { href: '/' } : { to: '/' })}>
+          <img {...logo} />
+        </LinkComponent>
       </div>
       {Boolean(secondaryLogo) && (
         <div className={style.secondaryLogo}>
           <img {...secondaryLogo} />
+          {text && (
+            <div className={style.text}>
+              {clusterTag && <span className={style.clusterTag}>{cappedClusterTag}</span>}
+              {cappedText}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -45,15 +57,21 @@ const imgPropType = PropTypes.shape({
 })
 
 Logo.propTypes = {
+  anchored: PropTypes.bool,
   className: PropTypes.string,
+  clusterTag: PropTypes.string,
   logo: imgPropType.isRequired,
   secondaryLogo: imgPropType,
+  text: PropTypes.string,
   vertical: PropTypes.bool,
 }
 
 Logo.defaultProps = {
+  anchored: false,
   className: undefined,
+  clusterTag: undefined,
   secondaryLogo: undefined,
+  text: undefined,
   vertical: false,
 }
 

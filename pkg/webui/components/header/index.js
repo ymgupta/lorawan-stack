@@ -16,7 +16,7 @@ import React from 'react'
 import classnames from 'classnames'
 
 import Logo from '../../containers/logo'
-import Link from '../link'
+
 import NavigationBar from '../navigation/bar'
 import ProfileDropdown from '../profile-dropdown'
 import Input from '../input'
@@ -35,14 +35,11 @@ const Header = function({
   ...rest
 }) {
   const isGuest = !Boolean(user)
-  const LinkComponent = anchored ? Link.BaseAnchor : Link
 
   return (
     <header {...rest} className={classnames(className, styles.bar)}>
       <div className={styles.left}>
-        <LinkComponent {...(anchored ? { href: '/' } : { to: '/' })} className={styles.logo}>
-          <Logo />
-        </LinkComponent>
+        <Logo anchored href="/" />
         {!isGuest && (
           <NavigationBar
             className={styles.navList}

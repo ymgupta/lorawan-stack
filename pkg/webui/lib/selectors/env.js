@@ -20,6 +20,10 @@ export const selectAssetsRootPath = () => configSelector().ASSETS_ROOT
 
 export const selectBrandingRootPath = () => configSelector().BRANDING_ROOT
 
+export const selectBrandingText = () => configSelector().BRANDING_TEXT
+
+export const selectBrandingClusterID = () => configSelector().BRANDING_CLUSTER_ID
+
 export const selectApplicationConfig = () => configSelector().APP_CONFIG
 
 export const selectApplicationSiteName = () => configSelector().SITE_NAME
