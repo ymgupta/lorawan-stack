@@ -32,7 +32,7 @@ const Logo = function({ className, logo, secondaryLogo, vertical, text, clusterT
   return (
     <div className={classname}>
       <div className={style.logo}>
-        <LinkComponent {...(anchored ? { href: '/' } : { to: '/' })}>
+        <LinkComponent className={style.link} {...(anchored ? { href: '/' } : { to: '/' })}>
           <img {...logo} />
         </LinkComponent>
       </div>
