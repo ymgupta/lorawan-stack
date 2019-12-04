@@ -16,7 +16,6 @@ package identityserver
 
 import (
 	"context"
-	"sync"
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
@@ -78,16 +77,9 @@ type Config struct {
 	} `name:"end-device-picture"`
 	Email struct {
 		email.Config `name:",squash"`
-		SendGrid     sendgrid.Config `name:"sendgrid"`
-		SMTP         smtp.Config     `name:"smtp"`
-		Templates    struct {
-			Static     map[string][]byte `name:"-"`
-			Directory  string            `name:"directory" description:"Retrieve the email templates from the filesystem"`
-			URL        string            `name:"url" description:"Retrieve the email templates from a web server"`
-			Includes   []string          `name:"includes" description:"The email templates that will be preloaded on startup"`
-			registry   *email.TemplateRegistry
-			registryMu sync.Mutex
-		} `name:"templates"`
+		SendGrid     sendgrid.Config      `name:"sendgrid"`
+		SMTP         smtp.Config          `name:"smtp"`
+		Templates    emailTemplatesConfig `name:"templates"`
 	} `name:"email"`
 	Tenancy TenancyConfig `name:"tenancy"`
 }
@@ -98,12 +90,12 @@ type Config struct {
 // OAuth clients, Gateways, Organizations and Users.
 type IdentityServer struct {
 	*component.Component
-	ctx    context.Context
-	config *Config
-	db     *gorm.DB
-	oauth  oauth.Server
-
-	redis *redis.Client
+	ctx            context.Context
+	config         *Config
+	db             *gorm.DB
+	redis          *redis.Client
+	emailTemplates *email.TemplateRegistry
+	oauth          oauth.Server
 }
 
 // Context returns the context of the Identity Server.
@@ -168,6 +160,11 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 		ctx = tenant.NewContextWithFetcher(ctx, fetcher)
 		return ctx
 	})
+
+	is.emailTemplates, err = is.initEmailTemplates(is.Context())
+	if err != nil {
+		return nil, err
+	}
 
 	is.oauth = oauth.NewServer(is.Context(), struct {
 		store.UserStore
@@ -240,7 +237,8 @@ func (is *IdentityServer) RegisterServices(s *grpc.Server) {
 	ttnpb.RegisterUserRegistryServer(s, &userRegistry{IdentityServer: is})
 	ttnpb.RegisterUserAccessServer(s, &userAccess{IdentityServer: is})
 	ttnpb.RegisterUserInvitationRegistryServer(s, &invitationRegistry{IdentityServer: is})
-	ttnpb.RegisterEntityRegistrySearchServer(s, &registrySearch{IdentityServer: is, adminOnly: true})
+	ttnpb.RegisterEntityRegistrySearchServer(s, &registrySearch{IdentityServer: is})
+	ttnpb.RegisterEndDeviceRegistrySearchServer(s, &registrySearch{IdentityServer: is})
 	ttnpb.RegisterOAuthAuthorizationRegistryServer(s, &oauthRegistry{IdentityServer: is})
 	ttnpb.RegisterContactInfoRegistryServer(s, &contactInfoRegistry{IdentityServer: is})
 
@@ -263,6 +261,7 @@ func (is *IdentityServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.Clien
 	ttnpb.RegisterUserAccessHandler(is.Context(), s, conn)
 	ttnpb.RegisterUserInvitationRegistryHandler(is.Context(), s, conn)
 	ttnpb.RegisterEntityRegistrySearchHandler(is.Context(), s, conn)
+	ttnpb.RegisterEndDeviceRegistrySearchHandler(is.Context(), s, conn)
 	ttnpb.RegisterOAuthAuthorizationRegistryHandler(is.Context(), s, conn)
 	ttnpb.RegisterContactInfoRegistryHandler(is.Context(), s, conn)
 

@@ -25,7 +25,7 @@ import {
 } from '../../lib/selectors/env'
 
 const logo = {
-  src: `${selectAssetsRootPath()}/ttes.svg`,
+  src: `${selectAssetsRootPath()}/logo.svg`,
   alt: `${selectApplicationSiteName()} Logo`,
 }
 const hasCustomBranding = selectBrandingRootPath() !== selectAssetsRootPath()
