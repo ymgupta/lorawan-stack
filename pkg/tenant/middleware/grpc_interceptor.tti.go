@@ -56,9 +56,6 @@ func StreamClientInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grp
 // UnaryServerInterceptor is a gRPC interceptor that extracts the tenant ID from the context.
 func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
-			return handler(ctx, req)
-		}
 		if license.RequireMultiTenancy(ctx) == nil {
 			if id := tenant.FromContext(ctx); !id.IsZero() {
 				if err := fetchTenant(ctx); err != nil {
@@ -78,6 +75,9 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
 			return handler(ctx, req)
 		}
+		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
+			return handler(ctx, req)
+		}
 		return nil, errMissingTenantID
 	}
 }
@@ -85,9 +85,6 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 // StreamServerInterceptor is a gRPC interceptor that extracts the tenant ID from the context.
 func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor {
 	return func(srv interface{}, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
-			return handler(srv, stream)
-		}
 		ctx := stream.Context()
 		if license.RequireMultiTenancy(ctx) == nil {
 			if id := tenant.FromContext(ctx); !id.IsZero() {
@@ -111,6 +108,9 @@ func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor 
 			wrapped := grpc_middleware.WrapServerStream(stream)
 			wrapped.WrappedContext = ctx
 			return handler(srv, wrapped)
+		}
+		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
+			return handler(srv, stream)
 		}
 		return errMissingTenantID
 	}
