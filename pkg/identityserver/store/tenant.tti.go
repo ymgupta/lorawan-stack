@@ -3,7 +3,10 @@
 package store
 
 import (
+	"encoding/json"
+
 	"github.com/gogo/protobuf/types"
+	"github.com/jinzhu/gorm/dialects/postgres"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
@@ -27,6 +30,8 @@ type Tenant struct {
 	MaxGateways      *WrappedUint64
 	MaxOrganizations *WrappedUint64
 	MaxUsers         *WrappedUint64
+
+	Configuration postgres.Jsonb
 }
 
 func init() {
@@ -87,9 +92,10 @@ var tenantColumnNames = map[string][]string{
 	maxGatewaysField:      {maxGatewaysField},
 	maxOrganizationsField: {maxOrganizationsField},
 	maxUsersField:         {maxUsersField},
+	configurationField:    {configurationField},
 }
 
-func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) {
+func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) error {
 	pb.TenantIdentifiers.TenantID = tnt.TenantID
 	pb.CreatedAt = cleanTime(tnt.CreatedAt)
 	pb.UpdatedAt = cleanTime(tnt.UpdatedAt)
@@ -101,9 +107,20 @@ func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) {
 			setter(pb, &tnt)
 		}
 	}
+	if ttnpb.HasAnyField(ttnpb.TopLevelFields(fieldMask.Paths), configurationField) {
+		var configuration ttipb.Configuration
+		if err := json.Unmarshal(tnt.Configuration.RawMessage, &configuration); err != nil {
+			return err
+		}
+		pb.Configuration = &configuration
+		if err := pb.SetFields(pb, fieldMask.Paths...); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns []string) {
+func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns []string, err error) {
 	if fieldMask == nil || len(fieldMask.Paths) == 0 {
 		fieldMask = defaultTenantFieldMask
 	}
@@ -117,6 +134,21 @@ func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns
 			}
 			continue
 		}
+	}
+	if ttnpb.HasAnyField(ttnpb.TopLevelFields(fieldMask.Paths), configurationField) {
+		var configuration ttipb.Configuration
+		if len(tnt.Configuration.RawMessage) > 0 {
+			if err = json.Unmarshal(tnt.Configuration.RawMessage, &configuration); err != nil {
+				return nil, err
+			}
+		}
+		if err := (&ttipb.Tenant{Configuration: &configuration}).SetFields(pb, fieldMask.Paths...); err != nil {
+			return nil, err
+		}
+		if tnt.Configuration.RawMessage, err = json.Marshal(&configuration); err != nil {
+			return nil, err
+		}
+		columns = append(columns, configurationField)
 	}
 	return
 }

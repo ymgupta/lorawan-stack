@@ -126,7 +126,10 @@ func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, field
 		return nil, err
 	}
 	oldAttributes := tntModel.Attributes
-	columns := tntModel.fromPB(tnt, fieldMask)
+	columns, err := tntModel.fromPB(tnt, fieldMask)
+	if err != nil {
+		return nil, err
+	}
 	if err = s.updateEntity(ctx, &tntModel, columns...); err != nil {
 		return nil, err
 	}
