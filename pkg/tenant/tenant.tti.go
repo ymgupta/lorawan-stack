@@ -7,6 +7,7 @@ import "time"
 
 // Config represents tenancy configuration.
 type Config struct {
-	DefaultID string        `name:"default-id" description:"Default tenant ID"`
-	CacheTTL  time.Duration `name:"ttl" description:"TTL of cached tenant configurations"`
+	DefaultID   string        `name:"default-id" description:"Default tenant ID"`
+	BaseDomains []string      `name:"base-domains" description:"Base domains for tenant ID inference"`
+	CacheTTL    time.Duration `name:"ttl" description:"TTL of cached tenant configurations"`
 }
