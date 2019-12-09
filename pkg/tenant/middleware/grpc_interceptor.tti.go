@@ -14,17 +14,17 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-func fromRPCContext(ctx context.Context) ttipb.TenantIdentifiers {
+func fromRPCContext(ctx context.Context, config tenant.Config) ttipb.TenantIdentifiers {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		if id, ok := md["tenant-id"]; ok {
 			return ttipb.TenantIdentifiers{TenantID: id[0]}
 		}
 		if host, ok := md["x-forwarded-host"]; ok { // Set by gRPC gateway.
-			return ttipb.TenantIdentifiers{TenantID: tenantID(host[0])}
+			return ttipb.TenantIdentifiers{TenantID: tenantID(host[0], config)}
 		}
 		if authority, ok := md[":authority"]; ok { // Set by gRPC clients.
 			if authority[0] != "in-process" {
-				return ttipb.TenantIdentifiers{TenantID: tenantID(authority[0])}
+				return ttipb.TenantIdentifiers{TenantID: tenantID(authority[0], config)}
 			}
 		}
 	}
@@ -66,7 +66,7 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 				}
 				return handler(ctx, req)
 			}
-			if id := fromRPCContext(ctx); !id.IsZero() {
+			if id := fromRPCContext(ctx, config); !id.IsZero() {
 				ctx = tenant.NewContext(ctx, id)
 				if err := fetchTenant(ctx); err != nil {
 					return nil, err
@@ -96,7 +96,7 @@ func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor 
 				}
 				return handler(srv, stream)
 			}
-			if id := fromRPCContext(ctx); !id.IsZero() {
+			if id := fromRPCContext(ctx, config); !id.IsZero() {
 				ctx = tenant.NewContext(ctx, id)
 				wrapped := grpc_middleware.WrapServerStream(stream)
 				wrapped.WrappedContext = ctx

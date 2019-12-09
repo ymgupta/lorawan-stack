@@ -8,10 +8,19 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"google.golang.org/grpc/metadata"
 )
 
 func TestGRPCInterceptor(t *testing.T) {
+	config := tenant.Config{
+		DefaultID: "default",
+		BaseDomains: []string{
+			"nz.cluster.ttn",
+			"identity.ttn",
+		},
+	}
+
 	testCases := []struct {
 		desc string
 		ctx  context.Context
@@ -27,7 +36,7 @@ func TestGRPCInterceptor(t *testing.T) {
 	}
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			assertions.New(t).So(fromRPCContext(tc.ctx).TenantID, should.Equal, "foo-bar")
+			assertions.New(t).So(fromRPCContext(tc.ctx, config).TenantID, should.Equal, "foo-bar")
 		})
 	}
 }
