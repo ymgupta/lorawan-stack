@@ -41,7 +41,7 @@ var (
 func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 	license, err := licenseKey.UnmarshalLicense()
 	if err != nil {
-		return ttipb.License{}, err
+		return ttipb.License{}, errInvalidLicense.WithCause(err)
 	}
 	if license == nil {
 		return ttipb.License{}, errMissingLicense
