@@ -164,6 +164,27 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 				var zero types.Struct
 				dst.Capabilities = zero
 			}
+		case "configuration":
+			if len(subs) > 0 {
+				newDst := dst.Configuration
+				if newDst == nil {
+					newDst = &Configuration{}
+					dst.Configuration = newDst
+				}
+				var newSrc *Configuration
+				if src != nil {
+					newSrc = src.Configuration
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Configuration = src.Configuration
+				} else {
+					dst.Configuration = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)

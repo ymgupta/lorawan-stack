@@ -62,6 +62,83 @@
       "services": []
     },
     {
+      "name": "lorawan-stack/api/tti/configuration.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "Configuration",
+          "longName": "Configuration",
+          "fullName": "tti.lorawan.v3.Configuration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "default_cluster",
+              "description": "Default cluster configuration.",
+              "label": "",
+              "type": "Cluster",
+              "longType": "Configuration.Cluster",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Cluster",
+          "longName": "Configuration.Cluster",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ui",
+              "description": "",
+              "label": "",
+              "type": "UI",
+              "longType": "Configuration.UI",
+              "fullType": "tti.lorawan.v3.Configuration.UI",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UI",
+          "longName": "Configuration.UI",
+          "fullName": "tti.lorawan.v3.Configuration.UI",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "branding_base_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
       "name": "lorawan-stack/api/tti/identifiers.proto",
       "description": "",
       "package": "tti.lorawan.v3",
@@ -1093,6 +1170,16 @@
               "type": "Struct",
               "longType": "google.protobuf.Struct",
               "fullType": "google.protobuf.Struct",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "configuration",
+              "description": "",
+              "label": "",
+              "type": "Configuration",
+              "longType": "Configuration",
+              "fullType": "tti.lorawan.v3.Configuration",
               "ismap": false,
               "defaultValue": ""
             }

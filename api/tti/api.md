@@ -6,6 +6,10 @@
 
 - [File `lorawan-stack/api/tti/application_api_key.proto`](#lorawan-stack/api/tti/application_api_key.proto)
   - [Message `ApplicationAPIKey`](#tti.lorawan.v3.ApplicationAPIKey)
+- [File `lorawan-stack/api/tti/configuration.proto`](#lorawan-stack/api/tti/configuration.proto)
+  - [Message `Configuration`](#tti.lorawan.v3.Configuration)
+  - [Message `Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster)
+  - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
   - [Message `LicenseIssuerIdentifiers`](#tti.lorawan.v3.LicenseIssuerIdentifiers)
@@ -54,6 +58,26 @@
 | ----- | ----------- |
 | `application_ids` | <p>`message.required`: `true`</p> |
 | `api_key` | <p>`string.min_len`: `1`</p> |
+
+## <a name="lorawan-stack/api/tti/configuration.proto">File `lorawan-stack/api/tti/configuration.proto`</a>
+
+### <a name="tti.lorawan.v3.Configuration">Message `Configuration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `default_cluster` | [`Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster) |  | Default cluster configuration. |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster">Message `Configuration.Cluster`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ui` | [`Configuration.UI`](#tti.lorawan.v3.Configuration.UI) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.UI">Message `Configuration.UI`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `branding_base_url` | [`string`](#string) |  |  |
 
 ## <a name="lorawan-stack/api/tti/identifiers.proto">File `lorawan-stack/api/tti/identifiers.proto`</a>
 
@@ -265,6 +289,7 @@ Tenant is the message that defines a Tenant in the network.
 | `max_users` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of users that can be created. |
 | `state` | [`ttn.lorawan.v3.State`](#ttn.lorawan.v3.State) |  | The reviewing state of the tenant. This field can only be modified by tenant admins. |
 | `capabilities` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  |  |
+| `configuration` | [`Configuration`](#tti.lorawan.v3.Configuration) |  |  |
 
 #### Field Rules
 

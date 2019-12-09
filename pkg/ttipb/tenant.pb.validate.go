@@ -240,6 +240,18 @@ func (m *Tenant) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "configuration":
+
+			if v, ok := interface{}(m.GetConfiguration()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "configuration",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return TenantValidationError{
 				field:  name,

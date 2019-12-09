@@ -231,6 +231,22 @@
     }
   },
   "definitions": {
+    "ConfigurationCluster": {
+      "type": "object",
+      "properties": {
+        "ui": {
+          "$ref": "#/definitions/ConfigurationUI"
+        }
+      }
+    },
+    "ConfigurationUI": {
+      "type": "object",
+      "properties": {
+        "branding_base_url": {
+          "type": "string"
+        }
+      }
+    },
     "MeteringDataTenantMeteringData": {
       "type": "object",
       "properties": {
@@ -277,6 +293,15 @@
       ],
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "v3Configuration": {
+      "type": "object",
+      "properties": {
+        "default_cluster": {
+          "$ref": "#/definitions/ConfigurationCluster",
+          "description": "Default cluster configuration."
+        }
+      }
     },
     "v3ContactInfo": {
       "type": "object",
@@ -426,6 +451,9 @@
         },
         "capabilities": {
           "type": "object"
+        },
+        "configuration": {
+          "$ref": "#/definitions/v3Configuration"
         }
       },
       "description": "Tenant is the message that defines a Tenant in the network."
