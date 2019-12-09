@@ -231,11 +231,23 @@
     }
   },
   "definitions": {
+    "ClusterIdentityServer": {
+      "type": "object",
+      "properties": {
+        "user_registration": {
+          "$ref": "#/definitions/IdentityServerUserRegistration"
+        }
+      }
+    },
     "ConfigurationCluster": {
       "type": "object",
       "properties": {
         "ui": {
           "$ref": "#/definitions/ConfigurationUI"
+        },
+        "is": {
+          "$ref": "#/definitions/ClusterIdentityServer",
+          "description": "Identity Server configuration."
         }
       }
     },
@@ -243,6 +255,44 @@
       "type": "object",
       "properties": {
         "branding_base_url": {
+          "type": "string"
+        }
+      }
+    },
+    "IdentityServerUserRegistration": {
+      "type": "object",
+      "properties": {
+        "invitation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationInvitation"
+        },
+        "contact_info_validation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationContactInfoValidation"
+        },
+        "admin_approval": {
+          "$ref": "#/definitions/UserRegistrationAdminApproval"
+        },
+        "password_requirements": {
+          "$ref": "#/definitions/UserRegistrationPasswordRequirements"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationContactInfoValidation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationInvitation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "token_ttl": {
           "type": "string"
         }
       }
@@ -269,6 +319,40 @@
           "type": "string",
           "format": "byte",
           "description": "Picture data. A data URI can be constructed as follows:\n`data:\u003cmime_type\u003e;base64,\u003cdata\u003e`."
+        }
+      }
+    },
+    "UserRegistrationAdminApproval": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "UserRegistrationPasswordRequirements": {
+      "type": "object",
+      "properties": {
+        "min_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_uppercase": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_digits": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_special": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },

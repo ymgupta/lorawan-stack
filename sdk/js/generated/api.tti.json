@@ -111,6 +111,222 @@
               "fullType": "tti.lorawan.v3.Configuration.UI",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "is",
+              "description": "Identity Server configuration.",
+              "label": "",
+              "type": "IdentityServer",
+              "longType": "Configuration.Cluster.IdentityServer",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "IdentityServer",
+          "longName": "Configuration.Cluster.IdentityServer",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "user_registration",
+              "description": "",
+              "label": "",
+              "type": "UserRegistration",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UserRegistration",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "invitation",
+              "description": "",
+              "label": "",
+              "type": "Invitation",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "contact_info_validation",
+              "description": "",
+              "label": "",
+              "type": "ContactInfoValidation",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "admin_approval",
+              "description": "",
+              "label": "",
+              "type": "AdminApproval",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "password_requirements",
+              "description": "",
+              "label": "",
+              "type": "PasswordRequirements",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AdminApproval",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ContactInfoValidation",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Invitation",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "token_ttl",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "PasswordRequirements",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "min_length",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_length",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_uppercase",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_digits",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_special",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },

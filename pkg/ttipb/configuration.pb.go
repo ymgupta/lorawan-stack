@@ -10,10 +10,13 @@ import (
 	math_bits "math/bits"
 	reflect "reflect"
 	strings "strings"
+	time "time"
 
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	_ "github.com/gogo/protobuf/gogoproto"
 	proto "github.com/gogo/protobuf/proto"
+	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
+	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
 )
 
@@ -22,6 +25,7 @@ var _ = proto.Marshal
 var _ = golang_proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
+var _ = time.Kitchen
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the proto package it is being compiled against.
@@ -121,9 +125,11 @@ func (m *Configuration_UI) GetBrandingBaseURL() string {
 }
 
 type Configuration_Cluster struct {
-	UI                   *Configuration_UI `protobuf:"bytes,1,opt,name=ui,proto3" json:"ui,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
-	XXX_sizecache        int32             `json:"-"`
+	UI *Configuration_UI `protobuf:"bytes,1,opt,name=ui,proto3" json:"ui,omitempty"`
+	// Identity Server configuration.
+	IS                   *Configuration_Cluster_IdentityServer `protobuf:"bytes,2,opt,name=is,proto3" json:"is,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                              `json:"-"`
+	XXX_sizecache        int32                                 `json:"-"`
 }
 
 func (m *Configuration_Cluster) Reset()      { *m = Configuration_Cluster{} }
@@ -165,6 +171,357 @@ func (m *Configuration_Cluster) GetUI() *Configuration_UI {
 	return nil
 }
 
+func (m *Configuration_Cluster) GetIS() *Configuration_Cluster_IdentityServer {
+	if m != nil {
+		return m.IS
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer struct {
+	UserRegistration     *Configuration_Cluster_IdentityServer_UserRegistration `protobuf:"bytes,3,opt,name=user_registration,json=userRegistration,proto3" json:"user_registration,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
+	XXX_sizecache        int32                                                  `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer) Reset()      { *m = Configuration_Cluster_IdentityServer{} }
+func (*Configuration_Cluster_IdentityServer) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0}
+}
+func (m *Configuration_Cluster_IdentityServer) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer) GetUserRegistration() *Configuration_Cluster_IdentityServer_UserRegistration {
+	if m != nil {
+		return m.UserRegistration
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRegistration struct {
+	Invitation            *Configuration_Cluster_IdentityServer_UserRegistration_Invitation            `protobuf:"bytes,1,opt,name=invitation,proto3" json:"invitation,omitempty"`
+	ContactInfoValidation *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation `protobuf:"bytes,2,opt,name=contact_info_validation,json=contactInfoValidation,proto3" json:"contact_info_validation,omitempty"`
+	AdminApproval         *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval         `protobuf:"bytes,3,opt,name=admin_approval,json=adminApproval,proto3" json:"admin_approval,omitempty"`
+	PasswordRequirements  *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements  `protobuf:"bytes,4,opt,name=password_requirements,json=passwordRequirements,proto3" json:"password_requirements,omitempty"`
+	XXX_NoUnkeyedLiteral  struct{}                                                                     `json:"-"`
+	XXX_sizecache         int32                                                                        `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRegistration{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRegistration) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRegistration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 0}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) GetInvitation() *Configuration_Cluster_IdentityServer_UserRegistration_Invitation {
+	if m != nil {
+		return m.Invitation
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) GetContactInfoValidation() *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation {
+	if m != nil {
+		return m.ContactInfoValidation
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) GetAdminApproval() *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval {
+	if m != nil {
+		return m.AdminApproval
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) GetPasswordRequirements() *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements {
+	if m != nil {
+		return m.PasswordRequirements
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRegistration_Invitation struct {
+	Required             *types.BoolValue `protobuf:"bytes,1,opt,name=required,proto3" json:"required,omitempty"`
+	TokenTTL             *time.Duration   `protobuf:"bytes,2,opt,name=token_ttl,json=tokenTtl,proto3,stdduration" json:"token_ttl,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRegistration_Invitation{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_Invitation) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 0, 0}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_Invitation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_Invitation.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_Invitation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_Invitation proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) GetRequired() *types.BoolValue {
+	if m != nil {
+		return m.Required
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) GetTokenTTL() *time.Duration {
+	if m != nil {
+		return m.TokenTTL
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation struct {
+	Required             *types.BoolValue `protobuf:"bytes,1,opt,name=required,proto3" json:"required,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 0, 1}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) GetRequired() *types.BoolValue {
+	if m != nil {
+		return m.Required
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval struct {
+	Required             *types.BoolValue `protobuf:"bytes,1,opt,name=required,proto3" json:"required,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 0, 2}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) GetRequired() *types.BoolValue {
+	if m != nil {
+		return m.Required
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements struct {
+	MinLength            *types.UInt32Value `protobuf:"bytes,1,opt,name=min_length,json=minLength,proto3" json:"min_length,omitempty"`
+	MaxLength            *types.UInt32Value `protobuf:"bytes,2,opt,name=max_length,json=maxLength,proto3" json:"max_length,omitempty"`
+	MinUppercase         *types.UInt32Value `protobuf:"bytes,3,opt,name=min_uppercase,json=minUppercase,proto3" json:"min_uppercase,omitempty"`
+	MinDigits            *types.UInt32Value `protobuf:"bytes,4,opt,name=min_digits,json=minDigits,proto3" json:"min_digits,omitempty"`
+	MinSpecial           *types.UInt32Value `protobuf:"bytes,5,opt,name=min_special,json=minSpecial,proto3" json:"min_special,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 0, 3}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) GetMinLength() *types.UInt32Value {
+	if m != nil {
+		return m.MinLength
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) GetMaxLength() *types.UInt32Value {
+	if m != nil {
+		return m.MaxLength
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) GetMinUppercase() *types.UInt32Value {
+	if m != nil {
+		return m.MinUppercase
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) GetMinDigits() *types.UInt32Value {
+	if m != nil {
+		return m.MinDigits
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) GetMinSpecial() *types.UInt32Value {
+	if m != nil {
+		return m.MinSpecial
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Configuration)(nil), "tti.lorawan.v3.Configuration")
 	golang_proto.RegisterType((*Configuration)(nil), "tti.lorawan.v3.Configuration")
@@ -172,6 +529,18 @@ func init() {
 	golang_proto.RegisterType((*Configuration_UI)(nil), "tti.lorawan.v3.Configuration.UI")
 	proto.RegisterType((*Configuration_Cluster)(nil), "tti.lorawan.v3.Configuration.Cluster")
 	golang_proto.RegisterType((*Configuration_Cluster)(nil), "tti.lorawan.v3.Configuration.Cluster")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_Invitation)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_Invitation)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements")
 }
 
 func init() {
@@ -182,34 +551,63 @@ func init() {
 }
 
 var fileDescriptor_1cc10cab306641c7 = []byte{
-	// 424 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x92, 0x31, 0x68, 0xdb, 0x40,
-	0x14, 0x86, 0xef, 0x69, 0x48, 0xa9, 0x42, 0x63, 0xea, 0x2e, 0xc1, 0xc3, 0x8b, 0x29, 0x14, 0x52,
-	0xa8, 0x4f, 0x90, 0x2c, 0xdd, 0x4a, 0x65, 0x3a, 0x18, 0x4a, 0x07, 0x83, 0x97, 0x2e, 0xe6, 0x24,
-	0x9f, 0xcf, 0x87, 0xd5, 0x3b, 0x71, 0x3a, 0x39, 0xcd, 0x96, 0x31, 0x63, 0xc7, 0x8e, 0xa5, 0x53,
-	0xc6, 0x8c, 0x19, 0x33, 0x66, 0xcc, 0x98, 0x29, 0x44, 0x77, 0x4b, 0xa0, 0x4b, 0xc6, 0x8c, 0xa5,
-	0x92, 0x06, 0x9b, 0x42, 0xb6, 0xf7, 0xdf, 0xfd, 0xdf, 0xcf, 0x0f, 0xef, 0x85, 0x6f, 0x33, 0x6d,
-	0xd8, 0x11, 0x53, 0x83, 0xc2, 0xb2, 0x74, 0x19, 0xb1, 0x5c, 0x46, 0xd6, 0xca, 0x28, 0xd5, 0x6a,
-	0x2e, 0x45, 0x69, 0x98, 0x95, 0x5a, 0xd1, 0xdc, 0x68, 0xab, 0xbb, 0x3b, 0xd6, 0x4a, 0xda, 0xda,
-	0xe9, 0xea, 0xb0, 0xf7, 0x51, 0x48, 0xbb, 0x28, 0x13, 0x9a, 0xea, 0x6f, 0x11, 0x57, 0x2b, 0x7d,
-	0x9c, 0x1b, 0xfd, 0xfd, 0x38, 0xaa, 0xcd, 0xe9, 0x40, 0x70, 0x35, 0x58, 0xb1, 0x4c, 0xce, 0x98,
-	0xe5, 0xd1, 0x7f, 0x43, 0x13, 0xd9, 0x1b, 0xac, 0x45, 0x08, 0x2d, 0x74, 0x03, 0x27, 0xe5, 0xbc,
-	0x56, 0xb5, 0xa8, 0xa7, 0xc6, 0xfe, 0xfa, 0x0f, 0x84, 0x2f, 0x86, 0xeb, 0xcd, 0xba, 0x5f, 0xc2,
-	0xce, 0x8c, 0xcf, 0x59, 0x99, 0xd9, 0x69, 0x9a, 0x95, 0x85, 0xe5, 0x66, 0x37, 0xe8, 0xc3, 0xfe,
-	0xf6, 0xc1, 0x1b, 0xba, 0xd9, 0x96, 0x6e, 0x70, 0x74, 0xd8, 0x98, 0xc7, 0x3b, 0x2d, 0xdd, 0xea,
-	0xde, 0xa7, 0x30, 0x98, 0x8c, 0xba, 0x1f, 0xc2, 0x97, 0x89, 0x61, 0x6a, 0x26, 0x95, 0x98, 0x26,
-	0xac, 0xe0, 0xd3, 0xd2, 0x64, 0xbb, 0xd0, 0x87, 0xfd, 0xe7, 0xf1, 0x2b, 0x77, 0xbb, 0xd7, 0x89,
-	0xdb, 0xcf, 0x98, 0x15, 0x7c, 0x32, 0xfe, 0x3c, 0xee, 0x24, 0xeb, 0x0f, 0x26, 0xeb, 0x0d, 0xc3,
-	0x67, 0x6d, 0x62, 0xf7, 0x7d, 0x18, 0x94, 0xb2, 0x86, 0xb7, 0x0f, 0xfa, 0x4f, 0x97, 0x9a, 0x8c,
-	0xe2, 0x2d, 0x77, 0xbb, 0x17, 0x4c, 0x46, 0xe3, 0xa0, 0x94, 0xf1, 0x6f, 0xb8, 0xaa, 0x10, 0xae,
-	0x2b, 0x84, 0x9b, 0x0a, 0xc9, 0x5d, 0x85, 0xe4, 0xbe, 0x42, 0xf2, 0x50, 0x21, 0x79, 0xac, 0x10,
-	0x4e, 0x1c, 0xc2, 0xa9, 0x43, 0x72, 0xe6, 0x10, 0xce, 0x1d, 0x92, 0x0b, 0x87, 0xe4, 0xd2, 0x21,
-	0xb9, 0x72, 0x08, 0xd7, 0x0e, 0xe1, 0xc6, 0x21, 0xb9, 0x73, 0x08, 0xf7, 0x0e, 0xc9, 0x83, 0x43,
-	0x78, 0x74, 0x48, 0x4e, 0x3c, 0x92, 0x53, 0x8f, 0xf0, 0xc3, 0x23, 0xf9, 0xe9, 0x11, 0x7e, 0x79,
-	0x24, 0x67, 0x1e, 0xc9, 0xb9, 0x47, 0xb8, 0xf0, 0x08, 0x97, 0x1e, 0xe1, 0xeb, 0x3b, 0xa1, 0xa9,
-	0x5d, 0x70, 0xbb, 0x90, 0x4a, 0x14, 0x54, 0x71, 0x7b, 0xa4, 0xcd, 0x32, 0xda, 0x3c, 0x93, 0x7c,
-	0x29, 0xfe, 0x9d, 0x49, 0x9e, 0x24, 0x5b, 0xf5, 0x66, 0x0e, 0xff, 0x06, 0x00, 0x00, 0xff, 0xff,
-	0x56, 0x36, 0xec, 0xfe, 0x48, 0x02, 0x00, 0x00,
+	// 886 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x56, 0x4d, 0x68, 0xdc, 0x46,
+	0x14, 0xd6, 0x28, 0x6b, 0x5b, 0x1e, 0x77, 0xed, 0x8d, 0x1a, 0xd3, 0xad, 0x28, 0x63, 0x53, 0x28,
+	0xa4, 0x50, 0x6b, 0xc1, 0x2e, 0xa5, 0x50, 0x4a, 0xf1, 0x3a, 0xa1, 0xd5, 0x62, 0xda, 0x20, 0x7b,
+	0x73, 0x48, 0x0f, 0x62, 0x56, 0x9a, 0x95, 0x07, 0x6b, 0x67, 0xd4, 0xd1, 0x68, 0x6d, 0xf7, 0x94,
+	0x63, 0x2e, 0xfd, 0x81, 0x5e, 0x72, 0x2c, 0x85, 0x42, 0x0e, 0x3d, 0xe4, 0x98, 0x63, 0x8e, 0xb9,
+	0x35, 0xc7, 0x9c, 0xdc, 0xac, 0x74, 0xc9, 0x31, 0xc7, 0x1c, 0x8b, 0xa4, 0xb1, 0xb3, 0x1b, 0x9b,
+	0xc4, 0x98, 0xbd, 0x69, 0x66, 0xbe, 0xbf, 0x37, 0xef, 0x31, 0x08, 0x7e, 0x1a, 0x71, 0x81, 0x0f,
+	0x30, 0x5b, 0x4b, 0x24, 0xf6, 0xf7, 0x5b, 0x38, 0xa6, 0x2d, 0x29, 0x69, 0xcb, 0xe7, 0xac, 0x4f,
+	0xc3, 0x54, 0x60, 0x49, 0x39, 0xb3, 0x63, 0xc1, 0x25, 0x37, 0x17, 0xa5, 0xa4, 0xb6, 0x82, 0xdb,
+	0xc3, 0x0d, 0x6b, 0x33, 0xa4, 0x72, 0x2f, 0xed, 0xd9, 0x3e, 0x1f, 0xb4, 0x08, 0x1b, 0xf2, 0xa3,
+	0x58, 0xf0, 0xc3, 0xa3, 0x56, 0x09, 0xf6, 0xd7, 0x42, 0xc2, 0xd6, 0x86, 0x38, 0xa2, 0x01, 0x96,
+	0xa4, 0x75, 0xe6, 0xa3, 0x92, 0xb4, 0xd6, 0xc6, 0x24, 0x42, 0x1e, 0xf2, 0x8a, 0xdc, 0x4b, 0xfb,
+	0xe5, 0xaa, 0x5c, 0x94, 0x5f, 0x0a, 0x8e, 0x42, 0xce, 0xc3, 0x88, 0xbc, 0x46, 0x05, 0x13, 0x09,
+	0xcf, 0x9e, 0x1f, 0x08, 0x1c, 0xc7, 0x44, 0x24, 0xd5, 0xf9, 0xc7, 0xbf, 0xd4, 0x61, 0x7d, 0x6b,
+	0xbc, 0x32, 0xf3, 0x7b, 0xb8, 0x14, 0x90, 0x3e, 0x4e, 0x23, 0xe9, 0xf9, 0x51, 0x9a, 0x48, 0x22,
+	0x9a, 0xfa, 0x2a, 0xb8, 0xbe, 0xb0, 0xfe, 0x89, 0x3d, 0x59, 0xad, 0x3d, 0xc1, 0xb3, 0xb7, 0x2a,
+	0xb0, 0xbb, 0xa8, 0xd8, 0x6a, 0x6d, 0xdd, 0x84, 0x7a, 0xd7, 0x31, 0xbf, 0x81, 0x57, 0x7b, 0x02,
+	0xb3, 0x80, 0xb2, 0xd0, 0xeb, 0xe1, 0x84, 0x78, 0xa9, 0x88, 0x9a, 0x60, 0x15, 0x5c, 0x9f, 0x6f,
+	0xbf, 0x9f, 0x1d, 0xaf, 0x2c, 0xb5, 0xd5, 0x61, 0x1b, 0x27, 0xa4, 0xeb, 0x6e, 0xbb, 0x4b, 0xbd,
+	0xf1, 0x0d, 0x11, 0x59, 0xc7, 0x0b, 0x70, 0x4e, 0x49, 0x9a, 0x5f, 0x42, 0x3d, 0xa5, 0x25, 0x7b,
+	0x61, 0x7d, 0xf5, 0xed, 0xa9, 0xba, 0x4e, 0x7b, 0x36, 0x3b, 0x5e, 0xd1, 0xbb, 0x8e, 0xab, 0xa7,
+	0xd4, 0xdc, 0x86, 0x3a, 0x4d, 0x54, 0x3d, 0x9f, 0x5f, 0xa8, 0x1e, 0xdb, 0x09, 0x08, 0x93, 0x54,
+	0x1e, 0xed, 0x10, 0x31, 0x24, 0xa2, 0x52, 0x73, 0x76, 0x5c, 0x9d, 0x26, 0xd6, 0x3f, 0x10, 0x2e,
+	0x4e, 0x1e, 0x9b, 0x02, 0x5e, 0x4d, 0x13, 0x22, 0x3c, 0x41, 0x42, 0x9a, 0xc8, 0x4a, 0xaa, 0x79,
+	0xa5, 0xf4, 0xbb, 0x79, 0x19, 0x3f, 0xbb, 0x9b, 0x10, 0xe1, 0x8e, 0x89, 0xb9, 0x8d, 0xf4, 0x8d,
+	0x1d, 0xeb, 0xef, 0x79, 0xd8, 0x78, 0x13, 0x66, 0xc6, 0x10, 0x52, 0x36, 0xa4, 0xb2, 0x4a, 0x50,
+	0xdd, 0xd5, 0xad, 0xa9, 0x24, 0xb0, 0x9d, 0x53, 0x5d, 0x77, 0xcc, 0xc3, 0xfc, 0x03, 0xc0, 0x0f,
+	0x7c, 0xce, 0x24, 0xf6, 0xa5, 0x47, 0x59, 0x9f, 0x7b, 0x6a, 0xb2, 0x0b, 0xff, 0xea, 0xc6, 0x7f,
+	0x9c, 0x8e, 0xff, 0x56, 0x65, 0xe2, 0xb0, 0x3e, 0xbf, 0x7d, 0x6a, 0xe1, 0x2e, 0xfb, 0xe7, 0x6d,
+	0x9b, 0x3f, 0xc3, 0x45, 0x1c, 0x0c, 0x28, 0xf3, 0x70, 0x1c, 0x0b, 0x3e, 0xc4, 0x91, 0xea, 0xc6,
+	0xce, 0x74, 0xb2, 0x6c, 0x16, 0xda, 0x9b, 0x4a, 0xda, 0xad, 0xe3, 0xf1, 0xa5, 0xf9, 0x1b, 0x80,
+	0xcb, 0x31, 0x4e, 0x92, 0x03, 0x2e, 0x02, 0x4f, 0x90, 0x9f, 0x52, 0x2a, 0xc8, 0x80, 0x30, 0x99,
+	0x34, 0x6b, 0x65, 0x86, 0x3b, 0xd3, 0xc9, 0x70, 0x4b, 0x59, 0xb8, 0x63, 0x0e, 0xee, 0xb5, 0xf8,
+	0x9c, 0x5d, 0xeb, 0x57, 0x00, 0xe1, 0xeb, 0xf6, 0x99, 0x5f, 0x40, 0x43, 0xc5, 0x0a, 0xd4, 0x88,
+	0x58, 0x76, 0xf5, 0x60, 0xd8, 0x27, 0x0f, 0x86, 0xdd, 0xe6, 0x3c, 0xba, 0x8d, 0xa3, 0x94, 0xb8,
+	0xa7, 0x58, 0xf3, 0x3b, 0x38, 0x2f, 0xf9, 0x3e, 0x61, 0x9e, 0x94, 0x91, 0xea, 0xed, 0x87, 0x67,
+	0x88, 0x37, 0x54, 0x1d, 0xed, 0x46, 0x76, 0xbc, 0x62, 0xec, 0x16, 0xf8, 0xdd, 0xdd, 0xed, 0xfb,
+	0xff, 0xad, 0x00, 0xd7, 0x28, 0xd9, 0xbb, 0x32, 0xb2, 0x7e, 0x80, 0xcb, 0xe7, 0xb6, 0xf3, 0xb2,
+	0xd1, 0xac, 0x6f, 0x61, 0x7d, 0xa2, 0x27, 0x97, 0x16, 0xfa, 0x57, 0x87, 0xd7, 0xce, 0xbb, 0x59,
+	0xf3, 0x2b, 0x08, 0x8b, 0x79, 0x8a, 0x08, 0x0b, 0xe5, 0x9e, 0x92, 0xfc, 0xe8, 0x8c, 0x64, 0xd7,
+	0x61, 0x72, 0x63, 0xbd, 0x12, 0x9d, 0x1f, 0x50, 0xb6, 0x5d, 0xc2, 0x4b, 0x32, 0x3e, 0x3c, 0x21,
+	0xeb, 0x17, 0x22, 0xe3, 0x43, 0x45, 0xde, 0x84, 0xf5, 0xc2, 0x39, 0x2d, 0x1e, 0x70, 0x1f, 0x27,
+	0x44, 0x8d, 0xf2, 0xdb, 0xf9, 0xef, 0x0d, 0x28, 0xeb, 0x9e, 0x30, 0x4e, 0xc2, 0x07, 0x34, 0xa4,
+	0xa7, 0x63, 0xf8, 0xee, 0xf0, 0x37, 0x4a, 0xb8, 0xf9, 0x35, 0x5c, 0x28, 0xc8, 0x49, 0x4c, 0x7c,
+	0x8a, 0xa3, 0xe6, 0xcc, 0x05, 0xd8, 0x85, 0xdb, 0x4e, 0x85, 0xef, 0xd4, 0x8c, 0x2b, 0x8d, 0x5a,
+	0xa7, 0x66, 0xd4, 0x1a, 0x33, 0x9d, 0x9a, 0x31, 0xd3, 0x98, 0xed, 0xd4, 0x8c, 0xd9, 0xc6, 0x5c,
+	0xa7, 0x66, 0xcc, 0x35, 0x8c, 0xea, 0xb4, 0xfd, 0x17, 0x78, 0x32, 0x42, 0xe0, 0xe9, 0x08, 0x81,
+	0x67, 0x23, 0xa4, 0x3d, 0x1f, 0x21, 0xed, 0xc5, 0x08, 0x69, 0x2f, 0x47, 0x48, 0x7b, 0x35, 0x42,
+	0xe0, 0x6e, 0x86, 0xc0, 0xbd, 0x0c, 0x69, 0x0f, 0x32, 0x04, 0x1e, 0x66, 0x48, 0x7b, 0x94, 0x21,
+	0xed, 0x71, 0x86, 0xb4, 0x27, 0x19, 0x02, 0x4f, 0x33, 0x04, 0x9e, 0x65, 0x48, 0x7b, 0x9e, 0x21,
+	0xf0, 0x22, 0x43, 0xda, 0xcb, 0x0c, 0x81, 0x57, 0x19, 0xd2, 0xee, 0xe6, 0x48, 0xbb, 0x97, 0x23,
+	0xf0, 0x7b, 0x8e, 0xb4, 0xfb, 0x39, 0x02, 0x7f, 0xe6, 0x48, 0x7b, 0x90, 0x23, 0xed, 0x61, 0x8e,
+	0xc0, 0xa3, 0x1c, 0x81, 0xc7, 0x39, 0x02, 0x77, 0x3e, 0x0b, 0xb9, 0x2d, 0xf7, 0x88, 0xdc, 0xa3,
+	0x2c, 0x4c, 0x6c, 0x46, 0xe4, 0x01, 0x17, 0xfb, 0xad, 0xc9, 0x1f, 0x81, 0x78, 0x3f, 0x2c, 0x7e,
+	0x04, 0xe2, 0x5e, 0x6f, 0xb6, 0x2c, 0x75, 0xe3, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0x9c, 0xe0,
+	0xa3, 0x27, 0x2a, 0x08, 0x00, 0x00,
 }
 
 func (this *Configuration) Equal(that interface{}) bool {
@@ -280,6 +678,183 @@ func (this *Configuration_Cluster) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.UI.Equal(that1.UI) {
+		return false
+	}
+	if !this.IS.Equal(that1.IS) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.UserRegistration.Equal(that1.UserRegistration) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRegistration)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRegistration)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Invitation.Equal(that1.Invitation) {
+		return false
+	}
+	if !this.ContactInfoValidation.Equal(that1.ContactInfoValidation) {
+		return false
+	}
+	if !this.AdminApproval.Equal(that1.AdminApproval) {
+		return false
+	}
+	if !this.PasswordRequirements.Equal(that1.PasswordRequirements) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRegistration_Invitation)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRegistration_Invitation)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Required.Equal(that1.Required) {
+		return false
+	}
+	if this.TokenTTL != nil && that1.TokenTTL != nil {
+		if *this.TokenTTL != *that1.TokenTTL {
+			return false
+		}
+	} else if this.TokenTTL != nil {
+		return false
+	} else if that1.TokenTTL != nil {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Required.Equal(that1.Required) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.Required.Equal(that1.Required) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.MinLength.Equal(that1.MinLength) {
+		return false
+	}
+	if !this.MaxLength.Equal(that1.MaxLength) {
+		return false
+	}
+	if !this.MinUppercase.Equal(that1.MinUppercase) {
+		return false
+	}
+	if !this.MinDigits.Equal(that1.MinDigits) {
+		return false
+	}
+	if !this.MinSpecial.Equal(that1.MinSpecial) {
 		return false
 	}
 	return true
@@ -369,9 +944,325 @@ func (m *Configuration_Cluster) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.IS != nil {
+		{
+			size, err := m.IS.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
 	if m.UI != nil {
 		{
 			size, err := m.UI.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.UserRegistration != nil {
+		{
+			size, err := m.UserRegistration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.PasswordRequirements != nil {
+		{
+			size, err := m.PasswordRequirements.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.AdminApproval != nil {
+		{
+			size, err := m.AdminApproval.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.ContactInfoValidation != nil {
+		{
+			size, err := m.ContactInfoValidation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Invitation != nil {
+		{
+			size, err := m.Invitation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.TokenTTL != nil {
+		n9, err9 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.TokenTTL, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL):])
+		if err9 != nil {
+			return 0, err9
+		}
+		i -= n9
+		i = encodeVarintConfiguration(dAtA, i, uint64(n9))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Required != nil {
+		{
+			size, err := m.Required.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Required != nil {
+		{
+			size, err := m.Required.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.Required != nil {
+		{
+			size, err := m.Required.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.MinSpecial != nil {
+		{
+			size, err := m.MinSpecial.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.MinDigits != nil {
+		{
+			size, err := m.MinDigits.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.MinUppercase != nil {
+		{
+			size, err := m.MinUppercase.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.MaxLength != nil {
+		{
+			size, err := m.MaxLength.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.MinLength != nil {
+		{
+			size, err := m.MinLength.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
@@ -417,6 +1308,93 @@ func NewPopulatedConfiguration_Cluster(r randyConfiguration, easy bool) *Configu
 	this := &Configuration_Cluster{}
 	if r.Intn(5) != 0 {
 		this.UI = NewPopulatedConfiguration_UI(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.IS = NewPopulatedConfiguration_Cluster_IdentityServer(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer {
+	this := &Configuration_Cluster_IdentityServer{}
+	if r.Intn(5) != 0 {
+		this.UserRegistration = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRegistration {
+	this := &Configuration_Cluster_IdentityServer_UserRegistration{}
+	if r.Intn(5) != 0 {
+		this.Invitation = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_Invitation(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.ContactInfoValidation = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.AdminApproval = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_AdminApproval(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.PasswordRequirements = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_PasswordRequirements(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_Invitation(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRegistration_Invitation {
+	this := &Configuration_Cluster_IdentityServer_UserRegistration_Invitation{}
+	if r.Intn(5) != 0 {
+		this.Required = types.NewPopulatedBoolValue(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.TokenTTL = github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation {
+	this := &Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{}
+	if r.Intn(5) != 0 {
+		this.Required = types.NewPopulatedBoolValue(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_AdminApproval(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval {
+	this := &Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{}
+	if r.Intn(5) != 0 {
+		this.Required = types.NewPopulatedBoolValue(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_PasswordRequirements(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements {
+	this := &Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{}
+	if r.Intn(5) != 0 {
+		this.MinLength = types.NewPopulatedUInt32Value(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.MaxLength = types.NewPopulatedUInt32Value(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.MinUppercase = types.NewPopulatedUInt32Value(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.MinDigits = types.NewPopulatedUInt32Value(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.MinSpecial = types.NewPopulatedUInt32Value(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -531,6 +1509,120 @@ func (m *Configuration_Cluster) Size() (n int) {
 		l = m.UI.Size()
 		n += 1 + l + sovConfiguration(uint64(l))
 	}
+	if m.IS != nil {
+		l = m.IS.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.UserRegistration != nil {
+		l = m.UserRegistration.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Invitation != nil {
+		l = m.Invitation.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.ContactInfoValidation != nil {
+		l = m.ContactInfoValidation.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.AdminApproval != nil {
+		l = m.AdminApproval.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.PasswordRequirements != nil {
+		l = m.PasswordRequirements.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Required != nil {
+		l = m.Required.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.TokenTTL != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL)
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Required != nil {
+		l = m.Required.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Required != nil {
+		l = m.Required.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.MinLength != nil {
+		l = m.MinLength.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.MaxLength != nil {
+		l = m.MaxLength.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.MinUppercase != nil {
+		l = m.MinUppercase.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.MinDigits != nil {
+		l = m.MinDigits.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.MinSpecial != nil {
+		l = m.MinSpecial.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
 	return n
 }
 
@@ -566,6 +1658,75 @@ func (this *Configuration_Cluster) String() string {
 	}
 	s := strings.Join([]string{`&Configuration_Cluster{`,
 		`UI:` + strings.Replace(fmt.Sprintf("%v", this.UI), "Configuration_UI", "Configuration_UI", 1) + `,`,
+		`IS:` + strings.Replace(fmt.Sprintf("%v", this.IS), "Configuration_Cluster_IdentityServer", "Configuration_Cluster_IdentityServer", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer{`,
+		`UserRegistration:` + strings.Replace(fmt.Sprintf("%v", this.UserRegistration), "Configuration_Cluster_IdentityServer_UserRegistration", "Configuration_Cluster_IdentityServer_UserRegistration", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRegistration{`,
+		`Invitation:` + strings.Replace(fmt.Sprintf("%v", this.Invitation), "Configuration_Cluster_IdentityServer_UserRegistration_Invitation", "Configuration_Cluster_IdentityServer_UserRegistration_Invitation", 1) + `,`,
+		`ContactInfoValidation:` + strings.Replace(fmt.Sprintf("%v", this.ContactInfoValidation), "Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation", "Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation", 1) + `,`,
+		`AdminApproval:` + strings.Replace(fmt.Sprintf("%v", this.AdminApproval), "Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval", "Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval", 1) + `,`,
+		`PasswordRequirements:` + strings.Replace(fmt.Sprintf("%v", this.PasswordRequirements), "Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements", "Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRegistration_Invitation{`,
+		`Required:` + strings.Replace(fmt.Sprintf("%v", this.Required), "BoolValue", "types.BoolValue", 1) + `,`,
+		`TokenTTL:` + strings.Replace(fmt.Sprintf("%v", this.TokenTTL), "Duration", "types.Duration", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{`,
+		`Required:` + strings.Replace(fmt.Sprintf("%v", this.Required), "BoolValue", "types.BoolValue", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{`,
+		`Required:` + strings.Replace(fmt.Sprintf("%v", this.Required), "BoolValue", "types.BoolValue", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{`,
+		`MinLength:` + strings.Replace(fmt.Sprintf("%v", this.MinLength), "UInt32Value", "types.UInt32Value", 1) + `,`,
+		`MaxLength:` + strings.Replace(fmt.Sprintf("%v", this.MaxLength), "UInt32Value", "types.UInt32Value", 1) + `,`,
+		`MinUppercase:` + strings.Replace(fmt.Sprintf("%v", this.MinUppercase), "UInt32Value", "types.UInt32Value", 1) + `,`,
+		`MinDigits:` + strings.Replace(fmt.Sprintf("%v", this.MinDigits), "UInt32Value", "types.UInt32Value", 1) + `,`,
+		`MinSpecial:` + strings.Replace(fmt.Sprintf("%v", this.MinSpecial), "UInt32Value", "types.UInt32Value", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -814,6 +1975,864 @@ func (m *Configuration_Cluster) Unmarshal(dAtA []byte) error {
 				m.UI = &Configuration_UI{}
 			}
 			if err := m.UI.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IS", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.IS == nil {
+				m.IS = &Configuration_Cluster_IdentityServer{}
+			}
+			if err := m.IS.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: IdentityServer: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: IdentityServer: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserRegistration", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.UserRegistration == nil {
+				m.UserRegistration = &Configuration_Cluster_IdentityServer_UserRegistration{}
+			}
+			if err := m.UserRegistration.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: UserRegistration: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: UserRegistration: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Invitation", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Invitation == nil {
+				m.Invitation = &Configuration_Cluster_IdentityServer_UserRegistration_Invitation{}
+			}
+			if err := m.Invitation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ContactInfoValidation", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ContactInfoValidation == nil {
+				m.ContactInfoValidation = &Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{}
+			}
+			if err := m.ContactInfoValidation.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AdminApproval", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AdminApproval == nil {
+				m.AdminApproval = &Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{}
+			}
+			if err := m.AdminApproval.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PasswordRequirements", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PasswordRequirements == nil {
+				m.PasswordRequirements = &Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{}
+			}
+			if err := m.PasswordRequirements.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Invitation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Invitation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Required", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Required == nil {
+				m.Required = &types.BoolValue{}
+			}
+			if err := m.Required.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field TokenTTL", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.TokenTTL == nil {
+				m.TokenTTL = new(time.Duration)
+			}
+			if err := github_com_gogo_protobuf_types.StdDurationUnmarshal(m.TokenTTL, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ContactInfoValidation: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ContactInfoValidation: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Required", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Required == nil {
+				m.Required = &types.BoolValue{}
+			}
+			if err := m.Required.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AdminApproval: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AdminApproval: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Required", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Required == nil {
+				m.Required = &types.BoolValue{}
+			}
+			if err := m.Required.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PasswordRequirements: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PasswordRequirements: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinLength", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MinLength == nil {
+				m.MinLength = &types.UInt32Value{}
+			}
+			if err := m.MinLength.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaxLength", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaxLength == nil {
+				m.MaxLength = &types.UInt32Value{}
+			}
+			if err := m.MaxLength.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinUppercase", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MinUppercase == nil {
+				m.MinUppercase = &types.UInt32Value{}
+			}
+			if err := m.MinUppercase.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinDigits", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MinDigits == nil {
+				m.MinDigits = &types.UInt32Value{}
+			}
+			if err := m.MinDigits.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MinSpecial", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MinSpecial == nil {
+				m.MinSpecial = &types.UInt32Value{}
+			}
+			if err := m.MinSpecial.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

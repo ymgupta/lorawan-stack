@@ -234,6 +234,18 @@ func (m *Configuration_Cluster) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "is":
+
+			if v, ok := interface{}(m.GetIS()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_ClusterValidationError{
+						field:  "is",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return Configuration_ClusterValidationError{
 				field:  name,
@@ -299,3 +311,711 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = Configuration_ClusterValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServerFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "user_registration":
+
+			if v, ok := interface{}(m.GetUserRegistration()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServerValidationError{
+						field:  "user_registration",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServerValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServerValidationError is the validation error
+// returned by Configuration_Cluster_IdentityServer.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_IdentityServerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServerValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServerValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServerValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRegistration with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRegistration) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRegistrationFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "invitation":
+
+			if v, ok := interface{}(m.GetInvitation()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistrationValidationError{
+						field:  "invitation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "contact_info_validation":
+
+			if v, ok := interface{}(m.GetContactInfoValidation()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistrationValidationError{
+						field:  "contact_info_validation",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "admin_approval":
+
+			if v, ok := interface{}(m.GetAdminApproval()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistrationValidationError{
+						field:  "admin_approval",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "password_requirements":
+
+			if v, ok := interface{}(m.GetPasswordRequirements()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistrationValidationError{
+						field:  "password_requirements",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRegistrationValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRegistrationValidationError is the
+// validation error returned by
+// Configuration_Cluster_IdentityServer_UserRegistration.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRegistrationValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRegistrationValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRegistration.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRegistrationValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRegistrationValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRegistration_Invitation with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRegistration_InvitationFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "required":
+
+			if v, ok := interface{}(m.GetRequired()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError{
+						field:  "required",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "token_ttl":
+
+			if v, ok := interface{}(m.GetTokenTTL()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError{
+						field:  "token_ttl",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError
+// is the validation error returned by
+// Configuration_Cluster_IdentityServer_UserRegistration_Invitation.ValidateFields
+// if the designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRegistration_Invitation.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRegistration_InvitationValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "required":
+
+			if v, ok := interface{}(m.GetRequired()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError{
+						field:  "required",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError
+// is the validation error returned by
+// Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation.ValidateFields
+// if the designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidationValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval with
+// the rules defined in the proto definition for this message. If any rules
+// are violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "required":
+
+			if v, ok := interface{}(m.GetRequired()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError{
+						field:  "required",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError
+// is the validation error returned by
+// Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval.ValidateFields
+// if the designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRegistration_AdminApproval.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRegistration_AdminApprovalValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements
+// with the rules defined in the proto definition for this message. If any
+// rules are violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "min_length":
+
+			if v, ok := interface{}(m.GetMinLength()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+						field:  "min_length",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "max_length":
+
+			if v, ok := interface{}(m.GetMaxLength()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+						field:  "max_length",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "min_uppercase":
+
+			if v, ok := interface{}(m.GetMinUppercase()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+						field:  "min_uppercase",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "min_digits":
+
+			if v, ok := interface{}(m.GetMinDigits()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+						field:  "min_digits",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "min_special":
+
+			if v, ok := interface{}(m.GetMinSpecial()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+						field:  "min_special",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError
+// is the validation error returned by
+// Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements.ValidateFields
+// if the designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRegistration_PasswordRequirements.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsValidationError{}
