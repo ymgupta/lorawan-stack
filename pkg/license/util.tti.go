@@ -17,6 +17,7 @@ import (
 )
 
 var (
+	errInvalidLicense     = errors.DefineFailedPrecondition("invalid_license", "invalid license")
 	errLicenseNotValidYet = errors.DefineFailedPrecondition("license_not_valid_yet", "the license is not valid yet", "valid_from")
 	errLicenseExpired     = errors.DefineFailedPrecondition("license_expired", "the license is expired", "valid_until")
 	errLicenseNotRenewed  = errors.DefineFailedPrecondition("license_not_renewed", "the license was not renewed by the metering service")

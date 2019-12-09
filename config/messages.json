@@ -5147,6 +5147,15 @@
       "file": "context.tti.go"
     }
   },
+  "error:pkg/license:invalid_license": {
+    "translations": {
+      "en": "invalid license"
+    },
+    "description": {
+      "package": "pkg/license",
+      "file": "util.tti.go"
+    }
+  },
   "error:pkg/license:invalid_license_signature": {
     "translations": {
       "en": "invalid license signature"

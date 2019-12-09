@@ -34,7 +34,7 @@ func Read(config Config) (*ttipb.License, error) {
 	}
 	var licenseKey ttipb.LicenseKey
 	if err = licenseKey.Unmarshal(licenseKeyBytes); err != nil {
-		return nil, err
+		return nil, errInvalidLicense.WithCause(err)
 	}
 	license, err := VerifyKey(&licenseKey)
 	if err != nil {
