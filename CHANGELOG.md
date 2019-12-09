@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix the PubSub integration edit page in the Console.
+- Fix logout action in device claiming frontend.
 
 ### Security
 
