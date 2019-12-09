@@ -19,9 +19,10 @@ import (
 )
 
 var (
-	selectTenantFlags   = util.FieldMaskFlags(&ttipb.Tenant{})
-	setTenantFlags      = util.FieldFlags(&ttipb.Tenant{})
-	setInitialUserFlags = util.FieldFlags(&ttnpb.User{}, "initial_user")
+	selectTenantFlags               = util.FieldMaskFlags(&ttipb.Tenant{})
+	setTenantFlags                  = util.FieldFlags(&ttipb.Tenant{})
+	setInitialUserFlags             = util.FieldFlags(&ttnpb.User{}, "initial_user")
+	selectTenantRegistryTotalsFlags = util.FieldMaskFlags(&ttipb.TenantRegistryTotals{})
 )
 
 func tenantIDFlags() *pflag.FlagSet {
@@ -243,6 +244,29 @@ var (
 			return nil
 		},
 	}
+	tenantsGetRegistryTotalsCommand = &cobra.Command{
+		Use:     "get-registry-totals [tenant-id]",
+		Aliases: []string{"totals"},
+		Short:   "Get registry totals of a tenant",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			tntID := getTenantID(cmd.Flags(), args)
+			paths := util.SelectFieldMask(cmd.Flags(), selectTenantRegistryTotalsFlags)
+
+			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
+			if err != nil {
+				return err
+			}
+			res, err := ttipb.NewTenantRegistryClient(is).GetRegistryTotals(ctx, &ttipb.GetTenantRegistryTotalsRequest{
+				TenantIdentifiers: tntID,
+				FieldMask:         types.FieldMask{Paths: paths},
+			}, getTenantAdminCreds(cmd))
+			if err != nil {
+				return err
+			}
+
+			return io.Write(os.Stdout, config.OutputFormat, res)
+		},
+	}
 )
 
 func init() {
@@ -265,6 +289,9 @@ func init() {
 	tenantsCommand.AddCommand(tenantsUpdateCommand)
 	tenantsDeleteCommand.Flags().AddFlagSet(tenantIDFlags())
 	tenantsCommand.AddCommand(tenantsDeleteCommand)
+	tenantsGetRegistryTotalsCommand.Flags().AddFlagSet(tenantIDFlags())
+	tenantsGetRegistryTotalsCommand.Flags().AddFlagSet(selectTenantRegistryTotalsFlags)
+	tenantsCommand.AddCommand(tenantsGetRegistryTotalsCommand)
 	tenantsCommand.PersistentFlags().String("tenant-admin-key", "", "Tenant Admin Key")
 	Root.AddCommand(tenantsCommand)
 }
