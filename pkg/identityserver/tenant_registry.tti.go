@@ -140,8 +140,8 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 }
 
 func (is *IdentityServer) getTenant(ctx context.Context, req *ttipb.GetTenantRequest) (tnt *ttipb.Tenant, err error) {
-	if rights := tenantRightsFromContext(ctx); !rights.admin {
-		if rights.canRead(ctx, &req.TenantIdentifiers) {
+	if !tenantRightsFromContext(ctx).canRead(ctx, &req.TenantIdentifiers) {
+		if ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths, ttipb.PublicTenantFields...) {
 			defer func() { tnt = tnt.PublicSafe() }()
 		} else {
 			return nil, errNoTenantRights
@@ -217,8 +217,7 @@ func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenant
 func (is *IdentityServer) updateTenant(ctx context.Context, req *ttipb.UpdateTenantRequest) (tnt *ttipb.Tenant, err error) {
 	if rights := tenantRightsFromContext(ctx); !rights.admin {
 		if rights.canWrite(ctx, &req.TenantIdentifiers) {
-			// TODO: Allow admins in tenants to edit some fields (https://github.com/TheThingsIndustries/lorawan-stack/issues/1648).
-			if !ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths) {
+			if !ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths, "configuration") {
 				return nil, errInsufficientTenantRights
 			}
 		} else {
