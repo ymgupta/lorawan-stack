@@ -61,6 +61,7 @@ var (
 		"last_join_nonce",
 		"net_id",
 		"network_server_address",
+		"network_server_kek_label",
 		"provisioner_id",
 		"provisioning_data",
 		"resets_join_nonces",
