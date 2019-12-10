@@ -108,11 +108,15 @@ func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) error {
 		}
 	}
 	if ttnpb.HasAnyField(ttnpb.TopLevelFields(fieldMask.Paths), configurationField) {
-		var configuration ttipb.Configuration
-		if err := json.Unmarshal(tnt.Configuration.RawMessage, &configuration); err != nil {
-			return err
+		if len(tnt.Configuration.RawMessage) > 0 {
+			var configuration ttipb.Configuration
+			if err := json.Unmarshal(tnt.Configuration.RawMessage, &configuration); err != nil {
+				return err
+			}
+			pb.Configuration = &configuration
+		} else {
+			pb.Configuration = nil
 		}
-		pb.Configuration = &configuration
 		if err := pb.SetFields(pb, fieldMask.Paths...); err != nil {
 			return err
 		}
