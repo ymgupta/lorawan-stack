@@ -146,10 +146,11 @@ func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns
 				return nil, err
 			}
 		}
-		if err := (&ttipb.Tenant{Configuration: &configuration}).SetFields(pb, fieldMask.Paths...); err != nil {
+		tmp := &ttipb.Tenant{Configuration: &configuration}
+		if err := tmp.SetFields(pb, fieldMask.Paths...); err != nil {
 			return nil, err
 		}
-		if tnt.Configuration.RawMessage, err = json.Marshal(&configuration); err != nil {
+		if tnt.Configuration.RawMessage, err = json.Marshal(tmp.Configuration); err != nil {
 			return nil, err
 		}
 		columns = append(columns, configurationField)
