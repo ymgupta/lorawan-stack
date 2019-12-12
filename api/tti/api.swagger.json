@@ -231,6 +231,72 @@
     }
   },
   "definitions": {
+    "ClusterIdentityServer": {
+      "type": "object",
+      "properties": {
+        "user_registration": {
+          "$ref": "#/definitions/IdentityServerUserRegistration"
+        }
+      }
+    },
+    "ConfigurationCluster": {
+      "type": "object",
+      "properties": {
+        "ui": {
+          "$ref": "#/definitions/ConfigurationUI"
+        },
+        "is": {
+          "$ref": "#/definitions/ClusterIdentityServer",
+          "description": "Identity Server configuration."
+        }
+      }
+    },
+    "ConfigurationUI": {
+      "type": "object",
+      "properties": {
+        "branding_base_url": {
+          "type": "string"
+        }
+      }
+    },
+    "IdentityServerUserRegistration": {
+      "type": "object",
+      "properties": {
+        "invitation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationInvitation"
+        },
+        "contact_info_validation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationContactInfoValidation"
+        },
+        "admin_approval": {
+          "$ref": "#/definitions/UserRegistrationAdminApproval"
+        },
+        "password_requirements": {
+          "$ref": "#/definitions/UserRegistrationPasswordRequirements"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationContactInfoValidation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationInvitation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "token_ttl": {
+          "type": "string"
+        }
+      }
+    },
     "MeteringDataTenantMeteringData": {
       "type": "object",
       "properties": {
@@ -256,6 +322,40 @@
         }
       }
     },
+    "UserRegistrationAdminApproval": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "UserRegistrationPasswordRequirements": {
+      "type": "object",
+      "properties": {
+        "min_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_uppercase": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_digits": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_special": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "protobufFieldMask": {
       "type": "object",
       "properties": {
@@ -277,6 +377,15 @@
       ],
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "v3Configuration": {
+      "type": "object",
+      "properties": {
+        "default_cluster": {
+          "$ref": "#/definitions/ConfigurationCluster",
+          "description": "Default cluster configuration."
+        }
+      }
     },
     "v3ContactInfo": {
       "type": "object",
@@ -426,6 +535,9 @@
         },
         "capabilities": {
           "type": "object"
+        },
+        "configuration": {
+          "$ref": "#/definitions/v3Configuration"
         }
       },
       "description": "Tenant is the message that defines a Tenant in the network."

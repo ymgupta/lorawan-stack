@@ -6,6 +6,16 @@
 
 - [File `lorawan-stack/api/tti/application_api_key.proto`](#lorawan-stack/api/tti/application_api_key.proto)
   - [Message `ApplicationAPIKey`](#tti.lorawan.v3.ApplicationAPIKey)
+- [File `lorawan-stack/api/tti/configuration.proto`](#lorawan-stack/api/tti/configuration.proto)
+  - [Message `Configuration`](#tti.lorawan.v3.Configuration)
+  - [Message `Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster)
+  - [Message `Configuration.Cluster.IdentityServer`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer)
+  - [Message `Configuration.Cluster.IdentityServer.UserRegistration`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration)
+  - [Message `Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval)
+  - [Message `Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation)
+  - [Message `Configuration.Cluster.IdentityServer.UserRegistration.Invitation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation)
+  - [Message `Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements)
+  - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
   - [Message `LicenseIssuerIdentifiers`](#tti.lorawan.v3.LicenseIssuerIdentifiers)
@@ -54,6 +64,71 @@
 | ----- | ----------- |
 | `application_ids` | <p>`message.required`: `true`</p> |
 | `api_key` | <p>`string.min_len`: `1`</p> |
+
+## <a name="lorawan-stack/api/tti/configuration.proto">File `lorawan-stack/api/tti/configuration.proto`</a>
+
+### <a name="tti.lorawan.v3.Configuration">Message `Configuration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `default_cluster` | [`Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster) |  | Default cluster configuration. |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster">Message `Configuration.Cluster`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ui` | [`Configuration.UI`](#tti.lorawan.v3.Configuration.UI) |  |  |
+| `is` | [`Configuration.Cluster.IdentityServer`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer) |  | Identity Server configuration. |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer">Message `Configuration.Cluster.IdentityServer`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `user_registration` | [`Configuration.Cluster.IdentityServer.UserRegistration`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration">Message `Configuration.Cluster.IdentityServer.UserRegistration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `invitation` | [`Configuration.Cluster.IdentityServer.UserRegistration.Invitation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation) |  |  |
+| `contact_info_validation` | [`Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation) |  |  |
+| `admin_approval` | [`Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval) |  |  |
+| `password_requirements` | [`Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval">Message `Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `required` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation">Message `Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `required` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation">Message `Configuration.Cluster.IdentityServer.UserRegistration.Invitation`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `required` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `token_ttl` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements">Message `Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `min_length` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+| `max_length` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+| `min_uppercase` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+| `min_digits` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+| `min_special` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.UI">Message `Configuration.UI`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `branding_base_url` | [`string`](#string) |  |  |
 
 ## <a name="lorawan-stack/api/tti/identifiers.proto">File `lorawan-stack/api/tti/identifiers.proto`</a>
 
@@ -265,6 +340,7 @@ Tenant is the message that defines a Tenant in the network.
 | `max_users` | [`google.protobuf.UInt64Value`](#google.protobuf.UInt64Value) |  | If set, restricts the maximum number of users that can be created. |
 | `state` | [`ttn.lorawan.v3.State`](#ttn.lorawan.v3.State) |  | The reviewing state of the tenant. This field can only be modified by tenant admins. |
 | `capabilities` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  |  |
+| `configuration` | [`Configuration`](#tti.lorawan.v3.Configuration) |  |  |
 
 #### Field Rules
 

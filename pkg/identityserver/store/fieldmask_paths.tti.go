@@ -4,6 +4,7 @@ package store
 
 const (
 	// NOTE: please keep this sorted
+	configurationField    = "configuration"
 	maxApplicationsField  = "max_applications"
 	maxClientsField       = "max_clients"
 	maxEndDevicesField    = "max_end_devices"

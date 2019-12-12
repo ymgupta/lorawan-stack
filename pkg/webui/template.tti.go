@@ -25,9 +25,13 @@ func (t TemplateData) Apply(ctx context.Context) TemplateData {
 		deriv.CanonicalURL = canonical.String()
 	}
 	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
-		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name"); err == nil {
+		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name", "configuration"); err == nil {
 			if tenant.Name != "" {
 				deriv.SiteName = tenant.Name
+			}
+			clusterConfiguration := tenant.GetConfiguration().GetDefaultCluster()
+			if url := clusterConfiguration.GetUI().GetBrandingBaseURL(); url != "" {
+				deriv.BrandingBaseURL = url
 			}
 		}
 	}

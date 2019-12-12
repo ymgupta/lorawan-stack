@@ -59,12 +59,16 @@ func (s *tenantStore) CreateTenant(ctx context.Context, tnt *ttipb.Tenant) (*tti
 	tntModel := Tenant{
 		TenantID: tnt.TenantID, // The ID is not mutated by fromPB.
 	}
-	tntModel.fromPB(tnt, nil)
+	if _, err := tntModel.fromPB(tnt, nil); err != nil {
+		return nil, err
+	}
 	if err := s.createEntity(ctx, &tntModel); err != nil {
 		return nil, err
 	}
 	var tntProto ttipb.Tenant
-	tntModel.toPB(&tntProto, nil)
+	if err := tntModel.toPB(&tntProto, nil); err != nil {
+		return nil, err
+	}
 	return &tntProto, nil
 }
 
@@ -89,7 +93,9 @@ func (s *tenantStore) FindTenants(ctx context.Context, ids []*ttipb.TenantIdenti
 	tntProtos := make([]*ttipb.Tenant, len(tntModels))
 	for i, tntModel := range tntModels {
 		tntProto := &ttipb.Tenant{}
-		tntModel.toPB(tntProto, fieldMask)
+		if err := tntModel.toPB(tntProto, fieldMask); err != nil {
+			return nil, err
+		}
 		tntProtos[i] = tntProto
 	}
 	return tntProtos, nil
@@ -107,7 +113,9 @@ func (s *tenantStore) GetTenant(ctx context.Context, id *ttipb.TenantIdentifiers
 		return nil, err
 	}
 	tntProto := &ttipb.Tenant{}
-	tntModel.toPB(tntProto, fieldMask)
+	if err := tntModel.toPB(tntProto, fieldMask); err != nil {
+		return nil, err
+	}
 	return tntProto, nil
 }
 
@@ -126,7 +134,10 @@ func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, field
 		return nil, err
 	}
 	oldAttributes := tntModel.Attributes
-	columns := tntModel.fromPB(tnt, fieldMask)
+	columns, err := tntModel.fromPB(tnt, fieldMask)
+	if err != nil {
+		return nil, err
+	}
 	if err = s.updateEntity(ctx, &tntModel, columns...); err != nil {
 		return nil, err
 	}
@@ -136,7 +147,9 @@ func (s *tenantStore) UpdateTenant(ctx context.Context, tnt *ttipb.Tenant, field
 		}
 	}
 	updated = &ttipb.Tenant{}
-	tntModel.toPB(updated, fieldMask)
+	if err = tntModel.toPB(updated, fieldMask); err != nil {
+		return nil, err
+	}
 	return updated, nil
 }
 

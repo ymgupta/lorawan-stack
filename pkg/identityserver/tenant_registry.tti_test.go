@@ -116,7 +116,7 @@ func TestTenantsPermissionDenied(t *testing.T) {
 
 		_, err = reg.Get(ctx, &ttipb.GetTenantRequest{
 			TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: "foo-tnt"},
-			FieldMask:         pbtypes.FieldMask{Paths: []string{"name"}},
+			FieldMask:         pbtypes.FieldMask{Paths: []string{"attributes"}},
 		}, creds)
 
 		if a.So(err, should.NotBeNil) {
