@@ -25,13 +25,4 @@ export default {
       },
     ],
   },
-  module: {
-    rules: [
-      ...ttnConfig.module.rules,
-      {
-        test: /\.worker\.js$/,
-        use: { loader: 'worker-loader' },
-      },
-    ],
-  },
 }
