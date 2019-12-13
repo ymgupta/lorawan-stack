@@ -93,7 +93,7 @@ func (is *IdentityServer) listUserAPIKeys(ctx context.Context, req *ttnpb.ListUs
 		}
 	}()
 	keys = &ttnpb.APIKeys{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		keys.APIKeys, err = store.GetAPIKeyStore(db).FindAPIKeys(ctx, req.UserIdentifiers)
 		return err
 	})
@@ -111,7 +111,7 @@ func (is *IdentityServer) getUserAPIKey(ctx context.Context, req *ttnpb.GetUserA
 		return nil, err
 	}
 
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		_, key, err = store.GetAPIKeyStore(db).GetAPIKey(ctx, req.KeyID)
 		if err != nil {
 			return err
