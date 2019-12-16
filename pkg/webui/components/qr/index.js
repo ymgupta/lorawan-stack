@@ -16,9 +16,8 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
+import jsQR from 'jsqr'
 import VideoStream from './video-stream'
-// eslint-disable-next-line import/default
-import Worker from './qr_decode.worker'
 
 import style from './qr.styl'
 
@@ -28,20 +27,6 @@ export default class QR extends React.Component {
       data: 'No Result',
       location: null,
     },
-  }
-
-  webWorker = null
-
-  componentWillMount() {
-    this.webWorker = new Worker()
-    this.webWorker.addEventListener('message', this.onFrameDecoded)
-  }
-
-  componentWillUnmount() {
-    if (this.webWorker !== null) {
-      this.webWorker.terminate()
-      this.webWorker = null
-    }
   }
 
   onVideoStreamInit = (state, drawFrame) => {
@@ -54,18 +39,21 @@ export default class QR extends React.Component {
     this.drawVideoFrame()
   }
 
-  onFrame = frameData => this.webWorker.postMessage(frameData)
+  onFrame = event => {
+    const { data, width, height } = event
+    const code = jsQR(data, width, height)
+    this.onFrameDecoded(code)
+  }
 
-  onFrameDecoded = event => {
+  onFrameDecoded = code => {
     const { onChange } = this.props
     const { result } = this.state
-    const code = event.data
 
-    if (code && code.binaryData) {
+    if (code !== null) {
       const { data } = code
       if (data.length > 0) {
         this.setState({ result: code })
-        onChange(code.data)
+        onChange(data)
       }
     } else {
       this.setState({
@@ -86,7 +74,6 @@ export default class QR extends React.Component {
         <VideoStream
           onFrame={this.onFrame}
           onInit={this.onVideoStreamInit}
-          rearCamera={this.props.rearCamera}
           location={result.location}
         />
         <p className={style.result}>{result.data}</p>
@@ -98,10 +85,8 @@ export default class QR extends React.Component {
 QR.propTypes = {
   onChange: PropTypes.func.isRequired,
   onInit: PropTypes.func,
-  rearCamera: PropTypes.bool,
 }
 
 QR.defaultProps = {
   onInit: () => null,
-  rearCamera: true,
 }

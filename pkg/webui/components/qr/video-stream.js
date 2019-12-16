@@ -65,14 +65,12 @@ class VideoStream extends Component {
 
     const devices = await navigator.mediaDevices.enumerateDevices()
     const cameras = devices.filter(device => device.kind === 'videoinput')
-    let videoMode = { facingMode: 'user' }
+    let videoMode = { facingMode: 'environment' }
     if (cameras.length > 1) {
-      const cameraIndex = this.props.rearCamera ? 1 : 0
-      const cameraEnv = this.props.rearCamera ? 'environment' : 'user'
       videoMode =
         ua.indexOf('safari') !== -1 && ua.indexOf('chrome') === -1
-          ? { facingMode: { exact: cameraEnv } }
-          : { deviceId: cameras[cameraIndex].deviceId }
+          ? { facingMode: { exact: 'environment' } }
+          : { deviceId: cameras[1].deviceId }
     }
 
     this.stream = await navigator.mediaDevices.getUserMedia({
@@ -137,6 +135,7 @@ class VideoStream extends Component {
 
   tick = () => {
     const { location } = this.props
+
     if (!this.canvasContext) return
 
     const { data } = this.captureFrame()
@@ -168,14 +167,22 @@ class VideoStream extends Component {
 }
 
 VideoStream.propTypes = {
-  location: PropTypes.object,
+  location: PropTypes.shape({
+    bottomLeftCorner: PropTypes.objectOf(PropTypes.number),
+    bottomLeftFinderPattern: PropTypes.objectOf(PropTypes.number),
+    bottomRightAlignmentPattern: PropTypes.objectOf(PropTypes.number),
+    bottomRightCorner: PropTypes.objectOf(PropTypes.number),
+    topLeftCorner: PropTypes.objectOf(PropTypes.number),
+    topLeftFinderPattern: PropTypes.objectOf(PropTypes.number),
+    topRightCorner: PropTypes.objectOf(PropTypes.number),
+    topRightFinderPattern: PropTypes.objectOf(PropTypes.number),
+  }),
   onFrame: PropTypes.func.isRequired,
   onInit: PropTypes.func.isRequired,
-  rearCamera: PropTypes.bool,
 }
 
 VideoStream.defaultProps = {
-  rearCamera: true,
+  location: null,
 }
 
 export default VideoStream
