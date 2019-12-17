@@ -105,7 +105,7 @@ func (is *IdentityServer) listOrganizationAPIKeys(ctx context.Context, req *ttnp
 		}
 	}()
 	keys = &ttnpb.APIKeys{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		keys.APIKeys, err = store.GetAPIKeyStore(db).FindAPIKeys(ctx, req.OrganizationIdentifiers)
 		return err
 	})
@@ -123,7 +123,7 @@ func (is *IdentityServer) getOrganizationAPIKey(ctx context.Context, req *ttnpb.
 		return nil, err
 	}
 
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		_, key, err = store.GetAPIKeyStore(db).GetAPIKey(ctx, req.KeyID)
 		if err != nil {
 			return err
@@ -196,7 +196,7 @@ func (is *IdentityServer) getOrganizationCollaborator(ctx context.Context, req *
 	res := &ttnpb.GetCollaboratorResponse{
 		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
 	}
-	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		rights, err := is.getMembershipStore(ctx, db).GetMember(
 			ctx,
 			&req.OrganizationOrUserIdentifiers,
@@ -280,7 +280,7 @@ func (is *IdentityServer) listOrganizationCollaborators(ctx context.Context, req
 			setTotalHeader(ctx, total)
 		}
 	}()
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		memberRights, err := is.getMembershipStore(ctx, db).FindMembers(ctx, req.OrganizationIdentifiers)
 		if err != nil {
 			return err

@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"fmt"
 
+	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -79,4 +81,17 @@ func (c *TenancyConfig) decodeAdminKeys(ctx context.Context) error {
 		log.FromContext(ctx).WithField("key", hex.EncodeToString(c.decodedAdminKeys[0])).Warn("No tenant admin key configured, generated a random one")
 	}
 	return nil
+}
+
+func (is *IdentityServer) withReadDatabase(ctx context.Context, f func(*gorm.DB) error) error {
+	db := is.db
+	if is.readDB != nil {
+		db = is.readDB
+	}
+	return store.Transact(ctx, db, func(db *gorm.DB) error {
+		if err := db.Exec("SET TRANSACTION READ ONLY").Error; err != nil {
+			return err
+		}
+		return f(db)
+	})
 }

@@ -148,7 +148,7 @@ func (is *IdentityServer) getTenant(ctx context.Context, req *ttipb.GetTenantReq
 		}
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, getPaths, nil)
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		tnt, err = store.GetTenantStore(db).GetTenant(ctx, &req.TenantIdentifiers, &req.FieldMask)
 		if err != nil {
 			return err
@@ -201,7 +201,7 @@ func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenant
 		}
 	}()
 	tnts = &ttipb.Tenants{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		tnts.Tenants, err = store.GetTenantStore(db).FindTenants(ctx, nil, &req.FieldMask)
 		if err != nil {
 			return err
@@ -270,7 +270,7 @@ func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Conte
 	if rights := tenantRightsFromContext(ctx); !rights.read {
 		return nil, errNoTenantRights
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		ids, err = store.GetTenantStore(db).GetTenantIDForEndDeviceEUIs(ctx, req.JoinEUI, req.DevEUI)
 		return err
 	})
@@ -284,7 +284,7 @@ func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context,
 	if rights := tenantRightsFromContext(ctx); !rights.read {
 		return nil, errNoTenantRights
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		ids, err = store.GetTenantStore(db).GetTenantIDForGatewayEUI(ctx, req.EUI)
 		return err
 	})
@@ -302,7 +302,7 @@ func (is *IdentityServer) getTenantRegistryTotals(ctx context.Context, req *ttip
 		req.FieldMask.Paths = ttipb.TenantRegistryTotalsFieldPathsTopLevel
 	}
 	var totals ttipb.TenantRegistryTotals
-	err := is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		store := store.GetTenantStore(db)
 		if ttnpb.HasAnyField(req.FieldMask.Paths, "applications") {
 			applications, err := store.CountEntities(ctx, req.TenantIdentifiers, "application")

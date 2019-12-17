@@ -73,7 +73,7 @@ func (is *IdentityServer) getRights(ctx context.Context, entityID ttnpb.Identifi
 		return nil, universalRights, nil
 	}
 
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		membershipStore := is.getMembershipStore(ctx, db)
 
 		// Find direct membership rights of the organization or user.
@@ -132,7 +132,7 @@ func (is *IdentityServer) ApplicationRights(ctx context.Context, appIDs ttnpb.Ap
 	if !is.IsAdmin(ctx) && universal == nil {
 		return &ttnpb.Rights{}, nil
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		_, err := store.GetApplicationStore(db).GetApplication(ctx, &appIDs, &types.FieldMask{Paths: []string{"ids"}})
 		return err
 	})
@@ -154,7 +154,7 @@ func (is *IdentityServer) ClientRights(ctx context.Context, cliIDs ttnpb.ClientI
 	if !is.IsAdmin(ctx) && universal == nil {
 		return &ttnpb.Rights{}, nil
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		_, err := store.GetClientStore(db).GetClient(ctx, &cliIDs, &types.FieldMask{Paths: []string{"ids"}})
 		return err
 	})
@@ -179,7 +179,7 @@ func (is *IdentityServer) GatewayRights(ctx context.Context, gtwIDs ttnpb.Gatewa
 	if !is.IsAdmin(ctx) && universal == nil {
 		return &ttnpb.Rights{}, nil
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		_, err := store.GetGatewayStore(db).GetGateway(ctx, &gtwIDs, &types.FieldMask{Paths: []string{"ids"}})
 		return err
 	})
@@ -204,7 +204,7 @@ func (is *IdentityServer) OrganizationRights(ctx context.Context, orgIDs ttnpb.O
 	if !is.IsAdmin(ctx) && universal == nil {
 		return &ttnpb.Rights{}, nil
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		_, err := store.GetOrganizationStore(db).GetOrganization(ctx, &orgIDs, &types.FieldMask{Paths: []string{"ids"}})
 		return err
 	})
@@ -229,7 +229,7 @@ func (is *IdentityServer) UserRights(ctx context.Context, userIDs ttnpb.UserIden
 	if !is.IsAdmin(ctx) && universal == nil {
 		return &ttnpb.Rights{}, nil
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		_, err := store.GetUserStore(db).GetUser(ctx, &userIDs, &types.FieldMask{Paths: []string{"ids"}})
 		return err
 	})

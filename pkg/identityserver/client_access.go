@@ -57,7 +57,7 @@ func (is *IdentityServer) getClientCollaborator(ctx context.Context, req *ttnpb.
 	res := &ttnpb.GetCollaboratorResponse{
 		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
 	}
-	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		rights, err := is.getMembershipStore(ctx, db).GetMember(
 			ctx,
 			&req.OrganizationOrUserIdentifiers,
@@ -141,7 +141,7 @@ func (is *IdentityServer) listClientCollaborators(ctx context.Context, req *ttnp
 			setTotalHeader(ctx, total)
 		}
 	}()
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		memberRights, err := is.getMembershipStore(ctx, db).FindMembers(ctx, req.ClientIdentifiers)
 		if err != nil {
 			return err

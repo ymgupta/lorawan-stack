@@ -43,6 +43,7 @@ import (
 // Config for the Identity Server
 type Config struct {
 	DatabaseURI      string `name:"database-uri" description:"Database connection URI"`
+	ReadDatabaseURI  string `name:"read-database-uri" description:"Read-Only Database connection URI"`
 	UserRegistration struct {
 		Invitation struct {
 			Required bool          `name:"required" description:"Require invitations for new users"`
@@ -93,6 +94,7 @@ type IdentityServer struct {
 	ctx            context.Context
 	config         *Config
 	db             *gorm.DB
+	readDB         *gorm.DB
 	redis          *redis.Client
 	emailTemplates *email.TemplateRegistry
 	oauth          oauth.Server
@@ -148,6 +150,23 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 		<-is.Context().Done()
 		is.db.Close()
 	}()
+
+	if is.config.ReadDatabaseURI != "" {
+		is.readDB, err = store.Open(is.Context(), is.config.ReadDatabaseURI)
+		if err != nil {
+			return nil, err
+		}
+		if c.LogDebug() {
+			is.readDB = is.readDB.Debug()
+		}
+		if err = store.Check(is.readDB); err != nil {
+			return nil, err
+		}
+		go func() {
+			<-is.Context().Done()
+			is.readDB.Close()
+		}()
+	}
 
 	if err := is.config.Tenancy.decodeAdminKeys(is.ctx); err != nil {
 		return nil, err
