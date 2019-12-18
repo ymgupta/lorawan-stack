@@ -12,11 +12,11 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 		switch name {
 		case "id":
 			if len(subs) > 0 {
-				newDst := &dst.LicenseIdentifiers
-				var newSrc *LicenseIdentifiers
+				var newDst, newSrc *LicenseIdentifiers
 				if src != nil {
 					newSrc = &src.LicenseIdentifiers
 				}
+				newDst = &dst.LicenseIdentifiers
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -30,11 +30,11 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 			}
 		case "license_issuer_ids":
 			if len(subs) > 0 {
-				newDst := &dst.LicenseIssuerIdentifiers
-				var newSrc *LicenseIssuerIdentifiers
+				var newDst, newSrc *LicenseIssuerIdentifiers
 				if src != nil {
 					newSrc = &src.LicenseIssuerIdentifiers
 				}
+				newDst = &dst.LicenseIssuerIdentifiers
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -218,14 +218,18 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 			}
 		case "metering":
 			if len(subs) > 0 {
-				newDst := dst.Metering
-				if newDst == nil {
-					newDst = &MeteringConfiguration{}
-					dst.Metering = newDst
+				var newDst, newSrc *MeteringConfiguration
+				if (src == nil || src.Metering == nil) && dst.Metering == nil {
+					continue
 				}
-				var newSrc *MeteringConfiguration
 				if src != nil {
 					newSrc = src.Metering
+				}
+				if dst.Metering != nil {
+					newDst = dst.Metering
+				} else {
+					newDst = &MeteringConfiguration{}
+					dst.Metering = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -280,14 +284,18 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 			}
 		case "on_success":
 			if len(subs) > 0 {
-				newDst := dst.OnSuccess
-				if newDst == nil {
-					newDst = &LicenseUpdate{}
-					dst.OnSuccess = newDst
+				var newDst, newSrc *LicenseUpdate
+				if (src == nil || src.OnSuccess == nil) && dst.OnSuccess == nil {
+					continue
 				}
-				var newSrc *LicenseUpdate
 				if src != nil {
 					newSrc = src.OnSuccess
+				}
+				if dst.OnSuccess != nil {
+					newDst = dst.OnSuccess
+				} else {
+					newDst = &LicenseUpdate{}
+					dst.OnSuccess = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -316,75 +324,102 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 			for oneofName, oneofSubs := range subPathMap {
 				switch oneofName {
 				case "aws":
-					if _, ok := dst.Metering.(*MeteringConfiguration_AWS_); !ok {
-						dst.Metering = &MeteringConfiguration_AWS_{}
+					_, srcOk := src.Metering.(*MeteringConfiguration_AWS_)
+					if !srcOk && src.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'aws', while different oneof is set in source")
+					}
+					_, dstOk := dst.Metering.(*MeteringConfiguration_AWS_)
+					if !dstOk && dst.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'aws', while different oneof is set in destination")
 					}
 					if len(oneofSubs) > 0 {
-						newDst := dst.Metering.(*MeteringConfiguration_AWS_).AWS
-						if newDst == nil {
-							newDst = &MeteringConfiguration_AWS{}
-							dst.Metering.(*MeteringConfiguration_AWS_).AWS = newDst
+						var newDst, newSrc *MeteringConfiguration_AWS
+						if !srcOk && !dstOk {
+							continue
 						}
-						var newSrc *MeteringConfiguration_AWS
-						if src != nil {
-							newSrc = src.GetAWS()
+						if srcOk {
+							newSrc = src.Metering.(*MeteringConfiguration_AWS_).AWS
+						}
+						if dstOk {
+							newDst = dst.Metering.(*MeteringConfiguration_AWS_).AWS
+						} else {
+							newDst = &MeteringConfiguration_AWS{}
+							dst.Metering = &MeteringConfiguration_AWS_{AWS: newDst}
 						}
 						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
 							return err
 						}
 					} else {
 						if src != nil {
-							dst.Metering.(*MeteringConfiguration_AWS_).AWS = src.GetAWS()
+							dst.Metering = src.Metering
 						} else {
-							dst.Metering.(*MeteringConfiguration_AWS_).AWS = nil
+							dst.Metering = nil
 						}
 					}
 				case "prometheus":
-					if _, ok := dst.Metering.(*MeteringConfiguration_Prometheus_); !ok {
-						dst.Metering = &MeteringConfiguration_Prometheus_{}
+					_, srcOk := src.Metering.(*MeteringConfiguration_Prometheus_)
+					if !srcOk && src.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'prometheus', while different oneof is set in source")
+					}
+					_, dstOk := dst.Metering.(*MeteringConfiguration_Prometheus_)
+					if !dstOk && dst.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'prometheus', while different oneof is set in destination")
 					}
 					if len(oneofSubs) > 0 {
-						newDst := dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus
-						if newDst == nil {
-							newDst = &MeteringConfiguration_Prometheus{}
-							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = newDst
+						var newDst, newSrc *MeteringConfiguration_Prometheus
+						if !srcOk && !dstOk {
+							continue
 						}
-						var newSrc *MeteringConfiguration_Prometheus
-						if src != nil {
-							newSrc = src.GetPrometheus()
+						if srcOk {
+							newSrc = src.Metering.(*MeteringConfiguration_Prometheus_).Prometheus
+						}
+						if dstOk {
+							newDst = dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus
+						} else {
+							newDst = &MeteringConfiguration_Prometheus{}
+							dst.Metering = &MeteringConfiguration_Prometheus_{Prometheus: newDst}
 						}
 						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
 							return err
 						}
 					} else {
 						if src != nil {
-							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = src.GetPrometheus()
+							dst.Metering = src.Metering
 						} else {
-							dst.Metering.(*MeteringConfiguration_Prometheus_).Prometheus = nil
+							dst.Metering = nil
 						}
 					}
 				case "tenant_billing_server":
-					if _, ok := dst.Metering.(*MeteringConfiguration_TenantBillingServer_); !ok {
-						dst.Metering = &MeteringConfiguration_TenantBillingServer_{}
+					_, srcOk := src.Metering.(*MeteringConfiguration_TenantBillingServer_)
+					if !srcOk && src.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'tenant_billing_server', while different oneof is set in source")
+					}
+					_, dstOk := dst.Metering.(*MeteringConfiguration_TenantBillingServer_)
+					if !dstOk && dst.Metering != nil {
+						return fmt.Errorf("attempt to set oneof 'tenant_billing_server', while different oneof is set in destination")
 					}
 					if len(oneofSubs) > 0 {
-						newDst := dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
-						if newDst == nil {
-							newDst = &MeteringConfiguration_TenantBillingServer{}
-							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = newDst
+						var newDst, newSrc *MeteringConfiguration_TenantBillingServer
+						if !srcOk && !dstOk {
+							continue
 						}
-						var newSrc *MeteringConfiguration_TenantBillingServer
-						if src != nil {
-							newSrc = src.GetTenantBillingServer()
+						if srcOk {
+							newSrc = src.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
+						}
+						if dstOk {
+							newDst = dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
+						} else {
+							newDst = &MeteringConfiguration_TenantBillingServer{}
+							dst.Metering = &MeteringConfiguration_TenantBillingServer_{TenantBillingServer: newDst}
 						}
 						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
 							return err
 						}
 					} else {
 						if src != nil {
-							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = src.GetTenantBillingServer()
+							dst.Metering = src.Metering
 						} else {
-							dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer = nil
+							dst.Metering = nil
 						}
 					}
 
@@ -525,11 +560,11 @@ func (dst *MeteringData_TenantMeteringData) SetFields(src *MeteringData_TenantMe
 		switch name {
 		case "tenant_id":
 			if len(subs) > 0 {
-				newDst := &dst.TenantIdentifiers
-				var newSrc *TenantIdentifiers
+				var newDst, newSrc *TenantIdentifiers
 				if src != nil {
 					newSrc = &src.TenantIdentifiers
 				}
+				newDst = &dst.TenantIdentifiers
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -543,14 +578,18 @@ func (dst *MeteringData_TenantMeteringData) SetFields(src *MeteringData_TenantMe
 			}
 		case "totals":
 			if len(subs) > 0 {
-				newDst := dst.Totals
-				if newDst == nil {
-					newDst = &TenantRegistryTotals{}
-					dst.Totals = newDst
+				var newDst, newSrc *TenantRegistryTotals
+				if (src == nil || src.Totals == nil) && dst.Totals == nil {
+					continue
 				}
-				var newSrc *TenantRegistryTotals
 				if src != nil {
 					newSrc = src.Totals
+				}
+				if dst.Totals != nil {
+					newDst = dst.Totals
+				} else {
+					newDst = &TenantRegistryTotals{}
+					dst.Totals = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err

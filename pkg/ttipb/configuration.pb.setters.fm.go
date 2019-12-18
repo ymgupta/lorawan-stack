@@ -9,14 +9,18 @@ func (dst *Configuration) SetFields(src *Configuration, paths ...string) error {
 		switch name {
 		case "default_cluster":
 			if len(subs) > 0 {
-				newDst := dst.DefaultCluster
-				if newDst == nil {
-					newDst = &Configuration_Cluster{}
-					dst.DefaultCluster = newDst
+				var newDst, newSrc *Configuration_Cluster
+				if (src == nil || src.DefaultCluster == nil) && dst.DefaultCluster == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster
 				if src != nil {
 					newSrc = src.DefaultCluster
+				}
+				if dst.DefaultCluster != nil {
+					newDst = dst.DefaultCluster
+				} else {
+					newDst = &Configuration_Cluster{}
+					dst.DefaultCluster = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -62,14 +66,18 @@ func (dst *Configuration_Cluster) SetFields(src *Configuration_Cluster, paths ..
 		switch name {
 		case "ui":
 			if len(subs) > 0 {
-				newDst := dst.UI
-				if newDst == nil {
-					newDst = &Configuration_UI{}
-					dst.UI = newDst
+				var newDst, newSrc *Configuration_UI
+				if (src == nil || src.UI == nil) && dst.UI == nil {
+					continue
 				}
-				var newSrc *Configuration_UI
 				if src != nil {
 					newSrc = src.UI
+				}
+				if dst.UI != nil {
+					newDst = dst.UI
+				} else {
+					newDst = &Configuration_UI{}
+					dst.UI = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -83,14 +91,18 @@ func (dst *Configuration_Cluster) SetFields(src *Configuration_Cluster, paths ..
 			}
 		case "is":
 			if len(subs) > 0 {
-				newDst := dst.IS
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer{}
-					dst.IS = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer
+				if (src == nil || src.IS == nil) && dst.IS == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer
 				if src != nil {
 					newSrc = src.IS
+				}
+				if dst.IS != nil {
+					newDst = dst.IS
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer{}
+					dst.IS = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -115,14 +127,18 @@ func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cl
 		switch name {
 		case "user_registration":
 			if len(subs) > 0 {
-				newDst := dst.UserRegistration
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer_UserRegistration{}
-					dst.UserRegistration = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRegistration
+				if (src == nil || src.UserRegistration == nil) && dst.UserRegistration == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer_UserRegistration
 				if src != nil {
 					newSrc = src.UserRegistration
+				}
+				if dst.UserRegistration != nil {
+					newDst = dst.UserRegistration
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRegistration{}
+					dst.UserRegistration = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -147,14 +163,18 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 		switch name {
 		case "invitation":
 			if len(subs) > 0 {
-				newDst := dst.Invitation
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_Invitation{}
-					dst.Invitation = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRegistration_Invitation
+				if (src == nil || src.Invitation == nil) && dst.Invitation == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer_UserRegistration_Invitation
 				if src != nil {
 					newSrc = src.Invitation
+				}
+				if dst.Invitation != nil {
+					newDst = dst.Invitation
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_Invitation{}
+					dst.Invitation = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -168,14 +188,18 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 			}
 		case "contact_info_validation":
 			if len(subs) > 0 {
-				newDst := dst.ContactInfoValidation
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{}
-					dst.ContactInfoValidation = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation
+				if (src == nil || src.ContactInfoValidation == nil) && dst.ContactInfoValidation == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation
 				if src != nil {
 					newSrc = src.ContactInfoValidation
+				}
+				if dst.ContactInfoValidation != nil {
+					newDst = dst.ContactInfoValidation
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation{}
+					dst.ContactInfoValidation = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -189,14 +213,18 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 			}
 		case "admin_approval":
 			if len(subs) > 0 {
-				newDst := dst.AdminApproval
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{}
-					dst.AdminApproval = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval
+				if (src == nil || src.AdminApproval == nil) && dst.AdminApproval == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval
 				if src != nil {
 					newSrc = src.AdminApproval
+				}
+				if dst.AdminApproval != nil {
+					newDst = dst.AdminApproval
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval{}
+					dst.AdminApproval = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -210,14 +238,18 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 			}
 		case "password_requirements":
 			if len(subs) > 0 {
-				newDst := dst.PasswordRequirements
-				if newDst == nil {
-					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{}
-					dst.PasswordRequirements = newDst
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements
+				if (src == nil || src.PasswordRequirements == nil) && dst.PasswordRequirements == nil {
+					continue
 				}
-				var newSrc *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements
 				if src != nil {
 					newSrc = src.PasswordRequirements
+				}
+				if dst.PasswordRequirements != nil {
+					newDst = dst.PasswordRequirements
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements{}
+					dst.PasswordRequirements = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err

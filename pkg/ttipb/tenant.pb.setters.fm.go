@@ -16,11 +16,11 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 		switch name {
 		case "ids":
 			if len(subs) > 0 {
-				newDst := &dst.TenantIdentifiers
-				var newSrc *TenantIdentifiers
+				var newDst, newSrc *TenantIdentifiers
 				if src != nil {
 					newSrc = &src.TenantIdentifiers
 				}
+				newDst = &dst.TenantIdentifiers
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -166,14 +166,18 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 			}
 		case "configuration":
 			if len(subs) > 0 {
-				newDst := dst.Configuration
-				if newDst == nil {
-					newDst = &Configuration{}
-					dst.Configuration = newDst
+				var newDst, newSrc *Configuration
+				if (src == nil || src.Configuration == nil) && dst.Configuration == nil {
+					continue
 				}
-				var newSrc *Configuration
 				if src != nil {
 					newSrc = src.Configuration
+				}
+				if dst.Configuration != nil {
+					newDst = dst.Configuration
+				} else {
+					newDst = &Configuration{}
+					dst.Configuration = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
@@ -218,11 +222,11 @@ func (dst *GetTenantRequest) SetFields(src *GetTenantRequest, paths ...string) e
 		switch name {
 		case "tenant_ids":
 			if len(subs) > 0 {
-				newDst := &dst.TenantIdentifiers
-				var newSrc *TenantIdentifiers
+				var newDst, newSrc *TenantIdentifiers
 				if src != nil {
 					newSrc = &src.TenantIdentifiers
 				}
+				newDst = &dst.TenantIdentifiers
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -308,11 +312,11 @@ func (dst *CreateTenantRequest) SetFields(src *CreateTenantRequest, paths ...str
 		switch name {
 		case "tenant":
 			if len(subs) > 0 {
-				newDst := &dst.Tenant
-				var newSrc *Tenant
+				var newDst, newSrc *Tenant
 				if src != nil {
 					newSrc = &src.Tenant
 				}
+				newDst = &dst.Tenant
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -346,11 +350,11 @@ func (dst *UpdateTenantRequest) SetFields(src *UpdateTenantRequest, paths ...str
 		switch name {
 		case "tenant":
 			if len(subs) > 0 {
-				newDst := &dst.Tenant
-				var newSrc *Tenant
+				var newDst, newSrc *Tenant
 				if src != nil {
 					newSrc = &src.Tenant
 				}
+				newDst = &dst.Tenant
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
 				}
@@ -437,14 +441,18 @@ func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotal
 		switch name {
 		case "tenant_ids":
 			if len(subs) > 0 {
-				newDst := dst.TenantIdentifiers
-				if newDst == nil {
-					newDst = &TenantIdentifiers{}
-					dst.TenantIdentifiers = newDst
+				var newDst, newSrc *TenantIdentifiers
+				if (src == nil || src.TenantIdentifiers == nil) && dst.TenantIdentifiers == nil {
+					continue
 				}
-				var newSrc *TenantIdentifiers
 				if src != nil {
 					newSrc = src.TenantIdentifiers
+				}
+				if dst.TenantIdentifiers != nil {
+					newDst = dst.TenantIdentifiers
+				} else {
+					newDst = &TenantIdentifiers{}
+					dst.TenantIdentifiers = newDst
 				}
 				if err := newDst.SetFields(newSrc, subs...); err != nil {
 					return err
