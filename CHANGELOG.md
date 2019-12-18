@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Downlink queue operation topics in the PubSub integrations can now be configured using the Console.
+- User management for admins in the Console.
 
 ### Changed
 
@@ -21,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix the PubSub integration edit page in the Console.
 - Fix logout action in device claiming frontend.
+- Fix updating and setting of webhook headers in the Console.
 
 ### Security
 
