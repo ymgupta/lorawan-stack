@@ -107,6 +107,10 @@ class Marshaler {
     return this.payloadSingleResponse(result, transform)
   }
 
+  static unwrapUser(result, transform) {
+    return this.payloadSingleResponse(result, transform)
+  }
+
   static fieldMaskFromPatch(patch, whitelist, remaps) {
     let paths = []
 
@@ -134,7 +138,18 @@ class Marshaler {
       })
     }
 
-    return whitelist ? paths.filter(path => whitelist.includes(path)) : paths
+    // If we have a whitelist provided, add paths only in the depth that the
+    // whitelist allows and strip all other paths.
+    if (whitelist) {
+      paths = whitelist.reduce((acc, e) => {
+        if (paths.some(path => path.startsWith(e))) {
+          acc.push(e)
+        }
+        return acc
+      }, [])
+    }
+
+    return paths
   }
 
   /** This function will convert a paths object to a proper field mask.
