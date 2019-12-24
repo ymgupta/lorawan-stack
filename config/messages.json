@@ -2915,6 +2915,15 @@
       "file": "devicetemplateconverter.go"
     }
   },
+  "error:pkg/devicetemplates:microchip_certificate_san": {
+    "translations": {
+      "en": "invalid Microchip certificate Subject Alternate Name"
+    },
+    "description": {
+      "package": "pkg/devicetemplates",
+      "file": "microchip.go"
+    }
+  },
   "error:pkg/devicetemplates:microchip_data": {
     "translations": {
       "en": "invalid Microchip data"
@@ -2924,9 +2933,27 @@
       "file": "microchip.go"
     }
   },
+  "error:pkg/devicetemplates:microchip_no_certificate": {
+    "translations": {
+      "en": "no Microchip certificate found"
+    },
+    "description": {
+      "package": "pkg/devicetemplates",
+      "file": "microchip.go"
+    }
+  },
   "error:pkg/devicetemplates:microchip_public_key": {
     "translations": {
       "en": "unknown Microchip public key ID `{id}`"
+    },
+    "description": {
+      "package": "pkg/devicetemplates",
+      "file": "microchip.go"
+    }
+  },
+  "error:pkg/devicetemplates:microchip_unknown_dev_eui": {
+    "translations": {
+      "en": "unknown Microchip DevEUI"
     },
     "description": {
       "package": "pkg/devicetemplates",
@@ -3736,7 +3763,7 @@
   },
   "error:pkg/gatewayserver:invalid_upstream_name": {
     "translations": {
-      "en": "upstream `{name}`is invalid"
+      "en": "upstream `{name}` is invalid"
     },
     "description": {
       "package": "pkg/gatewayserver",
@@ -3950,6 +3977,15 @@
       "file": "registry.go"
     }
   },
+  "error:pkg/identityserver/store:database_table_column": {
+    "translations": {
+      "en": "column `{column}` does not exist in database table `{table}`"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/identityserver/store:end_device_euis_not_found": {
     "translations": {
       "en": "end device JoinEUI `{join_eui}` and DevEUI `{dev_eui}` not found"
@@ -4137,6 +4173,15 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "client_registry.go"
+    }
+  },
+  "error:pkg/identityserver:db_needs_migration": {
+    "translations": {
+      "en": "the database needs to be migrated"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "identityserver.go"
     }
   },
   "error:pkg/identityserver:insufficient_tenant_rights": {
@@ -5991,6 +6036,24 @@
     "description": {
       "package": "pkg/oauth",
       "file": "server.go"
+    }
+  },
+  "error:pkg/pfconfig/shared:empty_gateway_server_address": {
+    "translations": {
+      "en": "gateway server address is empty"
+    },
+    "description": {
+      "package": "pkg/pfconfig/shared",
+      "file": "shared.go"
+    }
+  },
+  "error:pkg/pfconfig/shared:invalid_gateway_server_address": {
+    "translations": {
+      "en": "gateway server address is invalid"
+    },
+    "description": {
+      "package": "pkg/pfconfig/shared",
+      "file": "shared.go"
     }
   },
   "error:pkg/pfconfig/shared:invalid_key": {
