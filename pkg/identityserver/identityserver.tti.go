@@ -88,10 +88,5 @@ func (is *IdentityServer) withReadDatabase(ctx context.Context, f func(*gorm.DB)
 	if is.readDB != nil {
 		db = is.readDB
 	}
-	return store.Transact(ctx, db, func(db *gorm.DB) error {
-		if err := db.Exec("SET TRANSACTION READ ONLY").Error; err != nil {
-			return err
-		}
-		return f(db)
-	})
+	return store.ReadOnly(ctx, db, f)
 }

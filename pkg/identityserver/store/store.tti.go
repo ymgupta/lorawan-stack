@@ -4,9 +4,13 @@ package store
 
 import (
 	"context"
+	"database/sql"
+	"runtime/trace"
 
 	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -40,4 +44,30 @@ func (s *store) findEntityWithoutTenant(ctx context.Context, entityID ttnpb.Iden
 		return nil, convertError(err)
 	}
 	return model, nil
+}
+
+// ReadOnly is Transact, but then for read-only databases.
+func ReadOnly(ctx context.Context, db *gorm.DB, f func(db *gorm.DB) error) (err error) {
+	defer trace.StartRegion(ctx, "database transaction").End()
+	tx := db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	defer func() {
+		if p := recover(); p != nil {
+			switch p := p.(type) {
+			case error:
+				err = p
+			case string:
+				err = errors.New(p)
+			default:
+				panic(p)
+			}
+		}
+		if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit().Error
+		}
+		err = convertError(err)
+	}()
+	SetLogger(tx, log.FromContext(ctx).WithField("namespace", "db"))
+	return f(tx)
 }
