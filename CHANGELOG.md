@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix documentation for connecting and subscribing to the builtin Application Server MQTT server of The Things Enterprise Stack.
+
 ### Security
 
 ## [3.4.1] (2019-12-30)
