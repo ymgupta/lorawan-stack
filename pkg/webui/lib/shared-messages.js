@@ -85,6 +85,7 @@ export default defineMessages({
   devices: 'Devices',
   devID: 'Device ID',
   devName: 'Device Name',
+  disabled: 'Disabled',
   disconnected: 'Disconnected',
   downlink: 'Downlink',
   downlinkAck: 'Downlink Ack',
