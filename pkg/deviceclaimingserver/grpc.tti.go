@@ -130,6 +130,8 @@ func sameHost(address1, address2 string) bool {
 	return strings.EqualFold(getHost(address1), getHost(address2))
 }
 
+var dialTimeout = 5 * time.Second
+
 func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
 	targetCtx := ctx
 	if err := rights.RequireApplication(targetCtx, req.TargetApplicationIDs,
@@ -324,7 +326,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if sourceDev.NetworkServerAddress != "" {
 		logger := logger.WithField("network_server_address", sourceDev.NetworkServerAddress)
 		logger.Debug("Get source end device from Network Server")
-		sourceNSConn, err := discover.DialContext(sourceCtx, sourceDev.NetworkServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
+		dialCtx, cancelDial := context.WithTimeout(sourceCtx, dialTimeout)
+		defer cancelDial()
+		sourceNSConn, err := discover.DialContext(dialCtx, sourceDev.NetworkServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Network Server")
 			return nil, err
@@ -355,7 +359,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if sourceDev.ApplicationServerAddress != "" {
 		logger := logger.WithField("application_server_address", sourceDev.ApplicationServerAddress)
 		logger.Debug("Get source end device from Application Server")
-		sourceASConn, err := discover.DialContext(sourceCtx, sourceDev.ApplicationServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
+		dialCtx, cancelDial := context.WithTimeout(sourceCtx, dialTimeout)
+		defer cancelDial()
+		sourceASConn, err := discover.DialContext(dialCtx, sourceDev.ApplicationServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Application Server")
 			return nil, err
@@ -393,7 +399,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 	var targetNSConn *grpc.ClientConn
 	if req.TargetNetworkServerAddress != "" {
-		targetNSConn, err = discover.DialContext(targetCtx, req.TargetNetworkServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
+		dialCtx, cancelDial := context.WithTimeout(targetCtx, dialTimeout)
+		defer cancelDial()
+		targetNSConn, err = discover.DialContext(dialCtx, req.TargetNetworkServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Network Server")
 			return nil, err
@@ -402,7 +410,9 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	}
 	var targetASConn *grpc.ClientConn
 	if req.TargetApplicationServerAddress != "" {
-		targetASConn, err = discover.DialContext(targetCtx, req.TargetApplicationServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
+		dialCtx, cancelDial := context.WithTimeout(targetCtx, dialTimeout)
+		defer cancelDial()
+		targetASConn, err = discover.DialContext(dialCtx, req.TargetApplicationServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Application Server")
 			return nil, err
