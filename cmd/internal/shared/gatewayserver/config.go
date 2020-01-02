@@ -16,6 +16,7 @@ package shared
 
 import (
 	"fmt"
+	"time"
 
 	"go.thethings.network/lorawan-stack/cmd/internal/shared"
 	"go.thethings.network/lorawan-stack/pkg/config"
@@ -51,4 +52,5 @@ var DefaultGatewayServerConfig = gatewayserver.Config{
 		Listen:    ":1887",
 		ListenTLS: ":8887",
 	},
+	UpdateConnectionStatsDebounceTime: 3 * time.Second,
 }
