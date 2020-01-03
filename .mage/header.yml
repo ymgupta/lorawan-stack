@@ -23,4 +23,4 @@ rules:
   exclude: [.json,.md]
   header:
     |
-    Copyright © 2019 The Things Industries B.V.
+    Copyright © 20\d\d The Things Industries B\.V\.
