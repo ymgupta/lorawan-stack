@@ -28,6 +28,7 @@ import Footer from '../../../components/footer'
 import Login from '../login'
 import FullViewError from '../error'
 import Landing from '../landing'
+import { ToastContainer } from '../../../components/toast'
 
 import style from './app.styl'
 
@@ -57,6 +58,7 @@ class ClaimApp extends React.Component {
             />
             <div id="modal-container" />
             <Header className={style.header} />
+            <ToastContainer />
             <main className={style.main}>
               <div className={style.content}>
                 <Switch>
