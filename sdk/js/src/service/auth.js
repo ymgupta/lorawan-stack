@@ -12,26 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { merge } from 'lodash'
-import { GET_DEV_SUCCESS, UPDATE_DEV_SUCCESS } from '../actions/device'
+import Marshaler from '../util/marshaler'
 
-const defaultState = {
-  device: undefined,
-}
+class Auth {
+  constructor(service) {
+    this._api = service
+  }
 
-const device = function(state = defaultState, { type, payload }) {
-  switch (type) {
-    case UPDATE_DEV_SUCCESS:
-      const mergedDevice = merge({}, state.device, payload)
-      return { device: mergedDevice }
-    case GET_DEV_SUCCESS:
-      return {
-        ...state,
-        device: payload,
-      }
-    default:
-      return state
+  async getAuthInfo() {
+    const result = await this._api.AuthInfo()
+
+    return Marshaler.payloadSingleResponse(result)
   }
 }
 
-export default device
+export default Auth

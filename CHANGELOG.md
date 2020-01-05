@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Forwarding of backend warnings to the Console.
+- Auth Info service to the JavaScript SDK.
+- Subscribable events to the JavaScript SDK.
+
 ### Changed
 
 ### Deprecated
@@ -18,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fix documentation for connecting and subscribing to the builtin Application Server MQTT server of The Things Enterprise Stack.
+- Fix selection of pseudo wildcard rights being possible (leading to crash) in the Console even when such right cannot be granted.
+- Fix loading spinner being stuck infinitely in gateway / application / organization overview when some rights aren't granted to the collaborator.
 
 ### Security
 
