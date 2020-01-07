@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix documentation for connecting and subscribing to the builtin Application Server MQTT server of The Things Enterprise Stack.
 - Fix selection of pseudo wildcard rights being possible (leading to crash) in the Console even when such right cannot be granted.
 - Fix loading spinner being stuck infinitely in gateway / application / organization overview when some rights aren't granted to the collaborator.
+- Fix data uplink deduplication when a message is received by several tenants.
 
 ### Security
 
