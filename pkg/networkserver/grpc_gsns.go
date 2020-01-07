@@ -34,6 +34,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -59,7 +60,7 @@ func (ns *NetworkServer) deduplicateUplink(ctx context.Context, up *ttnpb.Uplink
 	h := ns.hashPool.Get().(hash.Hash64)
 	_, _ = h.Write(up.RawPayload)
 
-	k := h.Sum64()
+	k := fmt.Sprintf("%s:%d", tenant.FromContext(ctx).TenantID, h.Sum64())
 
 	h.Reset()
 	ns.hashPool.Put(h)
