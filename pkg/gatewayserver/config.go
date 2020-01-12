@@ -15,6 +15,8 @@
 package gatewayserver
 
 import (
+	"time"
+
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/udp"
 	"go.thethings.network/lorawan-stack/pkg/types"
@@ -37,6 +39,9 @@ type BasicStationConfig struct {
 // Config represents the Gateway Server configuration.
 type Config struct {
 	RequireRegisteredGateways bool `name:"require-registered-gateways" description:"Require the gateways to be registered in the Identity Server"`
+
+	Stats                             GatewayConnectionStatsRegistry `name:"-"`
+	UpdateConnectionStatsDebounceTime time.Duration                  `name:"update-connection-stats-debounce-time" description:"Time before repeated refresh of the gateway connection stats"`
 
 	Forward map[string][]string `name:"forward" description:"Forward the DevAddr prefixes to the specified hosts"`
 

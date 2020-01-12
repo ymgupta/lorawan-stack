@@ -74,6 +74,9 @@ type GatewayServer struct {
 	upstreamHandlers map[string]upstream.Handler
 
 	connections sync.Map
+
+	statsRegistry                     GatewayConnectionStatsRegistry
+	updateConnectionStatsDebounceTime time.Duration
 }
 
 func (gs *GatewayServer) getRegistry(ctx context.Context, ids *ttnpb.GatewayIdentifiers) (ttnpb.GatewayRegistryClient, error) {
@@ -128,12 +131,14 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 	}
 
 	gs = &GatewayServer{
-		Component:                 c,
-		ctx:                       log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
-		config:                    conf,
-		requireRegisteredGateways: conf.RequireRegisteredGateways,
-		forward:                   forward,
-		upstreamHandlers:          make(map[string]upstream.Handler),
+		Component:                         c,
+		ctx:                               log.NewContextWithField(c.Context(), "namespace", "gatewayserver"),
+		config:                            conf,
+		requireRegisteredGateways:         conf.RequireRegisteredGateways,
+		forward:                           forward,
+		upstreamHandlers:                  make(map[string]upstream.Handler),
+		statsRegistry:                     conf.Stats,
+		updateConnectionStatsDebounceTime: conf.UpdateConnectionStatsDebounceTime,
 	}
 	for _, opt := range opts {
 		opt(gs)
@@ -420,6 +425,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 	registerGatewayConnect(ctx, ids)
 	logger.Info("Connected")
 	go gs.handleUpstream(conn)
+	go gs.connStatsUpdater(conn)
 
 	for _, handler := range gs.upstreamHandlers {
 		go func(handler upstream.Handler) {
@@ -611,6 +617,76 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 						registerFailStatus(ctx, conn.Gateway(), msg, host.name)
 					}
 				}
+			}
+		}
+	}
+}
+
+// UpdateConnectionStats updates the stats for a single gateway connection
+func (gs *GatewayServer) UpdateConnectionStats(ctx context.Context, conn *io.Connection) error {
+	uid := unique.ID(ctx, conn.Gateway())
+
+	stats := &ttnpb.GatewayConnectionStats{}
+	ct := conn.ConnectTime()
+	stats.ConnectedAt = &ct
+	stats.Protocol = conn.Frontend().Protocol()
+	if s, t, ok := conn.StatusStats(); ok {
+		stats.LastStatusReceivedAt = &t
+		stats.LastStatus = s
+	}
+	if c, t, ok := conn.UpStats(); ok {
+		stats.LastUplinkReceivedAt = &t
+		stats.UplinkCount = c
+	}
+	if c, t, ok := conn.DownStats(); ok {
+		stats.LastDownlinkReceivedAt = &t
+		stats.DownlinkCount = c
+	}
+	if min, max, median, count := conn.RTTStats(); count > 0 {
+		stats.RoundTripTimes = &ttnpb.GatewayConnectionStats_RoundTripTimes{
+			Min:    min,
+			Max:    max,
+			Median: median,
+			Count:  uint32(count),
+		}
+	}
+
+	return gs.statsRegistry.Set(ctx, uid, stats)
+}
+
+func (gs *GatewayServer) connStatsUpdater(conn *io.Connection) {
+	ctx := conn.Context()
+	uid := unique.ID(ctx, conn.Gateway())
+
+	logger := log.FromContext(ctx).WithFields(log.Fields(
+		"protocol", conn.Frontend().Protocol(),
+		"gateway_uid", uid,
+	))
+
+	defer func() {
+		logger.Debug("Delete connection stats")
+		err := gs.statsRegistry.Set(ctx, uid, nil)
+		if err != nil {
+			logger.WithError(err).Error("Failed to delete connection stats")
+		}
+	}()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-conn.StatsChanged():
+			logger.Debug("Update connection stats")
+			err := gs.UpdateConnectionStats(ctx, conn)
+			if err != nil {
+				logger.WithError(err).Error("Failed to update connection stats")
+			}
+
+			timeout := time.After(gs.updateConnectionStatsDebounceTime)
+			select {
+			case <-ctx.Done():
+				return
+			case <-timeout:
 			}
 		}
 	}
