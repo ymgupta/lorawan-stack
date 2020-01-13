@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Respect stack components on different hosts when connected to event sources in the Console.
+
 ### Security
 
 ## [3.4.2] (2020-01-08)
@@ -29,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Auth Info service to the JavaScript SDK.
 - Subscribable events to the JavaScript SDK.
 - Include `gateway_ID` field in Semtech UDP configuration response from Gateway Configuration Server.
+- Sorting feature to entity tables in the Console.
 
 ### Changed
 

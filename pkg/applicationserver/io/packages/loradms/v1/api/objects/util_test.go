@@ -12,9 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import Steps from './steps'
-import Step from './step'
+package objects_test
 
-Steps.Step = Step
+import (
+	"go.thethings.network/lorawan-stack/pkg/applicationserver/io/packages/loradms/v1/api/objects"
+)
 
-export default Steps
+func Uint8(i uint8) *uint8 {
+	return &i
+}
+
+func Uint32(i uint32) *uint32 {
+	return &i
+}
+
+func ResetRequestParam(i uint8) *objects.ResetRequestParam {
+	v := objects.ResetRequestParam(i)
+	return &v
+}

@@ -12,18 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.button
-  reset-button()
-  one-liner()
-  width: 100%
-  padding: 1px
-  text-align: inherit
-  transition: color $ad.s ease-in
+.stepper
+  list-style: none
+  padding: 0
+  display: flex
+  justify-content: space-between
 
-  &:active,
-  &-active
-    color: $tc-deep-gray
+  &.vertical
+    display: block
 
-.icon
-  transition: transform $ad.m ease-in-out
-  padding-left: $cs.xxs
+  li
+    flex: 1
