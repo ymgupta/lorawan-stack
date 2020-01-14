@@ -12,14 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.steps
-  list-style: none
-  padding: 0
-  display: flex
-  justify-content: space-between
+import Stepper from './stepper'
+import Step from './step'
 
-  &.vertical
-    display: block
+Stepper.Step = Step
 
-  li
-    flex: 1
+export default Stepper

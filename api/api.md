@@ -853,7 +853,7 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Validations |
 | ----- | ----------- |
 | `ids` | <p>`message.required`: `true`</p> |
-| `package_name` | <p>`string.max_len`: `20`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
+| `package_name` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationPackageAssociationIdentifiers">Message `ApplicationPackageAssociationIdentifiers`</a>
 
@@ -1142,6 +1142,7 @@ The NATS provider settings.
 | `format` | [`string`](#string) |  | The format to use for the body. Supported values depend on the Application Server configuration. |
 | `template_ids` | [`ApplicationWebhookTemplateIdentifiers`](#ttn.lorawan.v3.ApplicationWebhookTemplateIdentifiers) |  | The ID of the template that was used to create the Webhook. |
 | `template_fields` | [`ApplicationWebhook.TemplateFieldsEntry`](#ttn.lorawan.v3.ApplicationWebhook.TemplateFieldsEntry) | repeated | The value of the fields used by the template. Maps field.id to the value. |
+| `downlink_api_key` | [`string`](#string) |  | The API key to be used for downlink queue operations. The field is provided for convenience reasons, and can contain API keys with additional rights (albeit this is discouraged). |
 | `uplink_message` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
 | `join_accept` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
 | `downlink_ack` | [`ApplicationWebhook.Message`](#ttn.lorawan.v3.ApplicationWebhook.Message) |  |  |
@@ -1220,6 +1221,7 @@ The NATS provider settings.
 | `headers` | [`ApplicationWebhookTemplate.HeadersEntry`](#ttn.lorawan.v3.ApplicationWebhookTemplate.HeadersEntry) | repeated | The HTTP headers used by the template. Both the key and the value can contain template fields. |
 | `format` | [`string`](#string) |  |  |
 | `fields` | [`ApplicationWebhookTemplateField`](#ttn.lorawan.v3.ApplicationWebhookTemplateField) | repeated |  |
+| `create_downlink_api_key` | [`bool`](#bool) |  | Control the creation of the downlink queue operations API key. |
 | `uplink_message` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
 | `join_accept` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
 | `downlink_ack` | [`ApplicationWebhookTemplate.Message`](#ttn.lorawan.v3.ApplicationWebhookTemplate.Message) |  |  |
