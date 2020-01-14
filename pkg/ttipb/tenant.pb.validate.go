@@ -545,7 +545,14 @@ func (m *ListTenantsRequest) ValidateFields(paths ...string) error {
 			}
 
 		case "order":
-			// no validation rules for Order
+
+			if _, ok := _ListTenantsRequest_Order_InLookup[m.GetOrder()]; !ok {
+				return ListTenantsRequestValidationError{
+					field:  "order",
+					reason: "value must be in list [ tenant_id -tenant_id name -name created_at -created_at]",
+				}
+			}
+
 		case "limit":
 
 			if m.GetLimit() > 1000 {
@@ -622,6 +629,16 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = ListTenantsRequestValidationError{}
+
+var _ListTenantsRequest_Order_InLookup = map[string]struct{}{
+	"":            {},
+	"tenant_id":   {},
+	"-tenant_id":  {},
+	"name":        {},
+	"-name":       {},
+	"created_at":  {},
+	"-created_at": {},
+}
 
 // ValidateFields checks the field values on CreateTenantRequest with the rules
 // defined in the proto definition for this message. If any rules are

@@ -1154,7 +1154,23 @@
               "longType": "string",
               "fullType": "string",
               "ismap": false,
-              "defaultValue": ""
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.in",
+                    "value": [
+                      "",
+                      "tenant_id",
+                      "-tenant_id",
+                      "name",
+                      "-name",
+                      "created_at",
+                      "-created_at"
+                    ]
+                  }
+                ]
+              }
             },
             {
               "name": "limit",
