@@ -193,6 +193,7 @@ func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenant
 		return nil, errNoTenantRights
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, getPaths, nil)
+	ctx = store.WithOrder(ctx, req.Order)
 	var total uint64
 	ctx = store.WithPagination(ctx, req.Limit, req.Page, &total)
 	defer func() {

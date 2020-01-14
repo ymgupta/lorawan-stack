@@ -80,6 +80,7 @@ func (s *tenantStore) FindTenants(ctx context.Context, ids []*ttipb.TenantIdenti
 	}
 	query := s.query(ctx, Tenant{}, withTenantID(idStrings...))
 	query = selectTenantFields(ctx, query, fieldMask)
+	query = query.Order(orderFromContext(ctx, "tenants", "tenant_id", "ASC"))
 	if limit, offset := limitAndOffsetFromContext(ctx); limit != 0 {
 		countTotal(ctx, query.Model(&Tenant{}))
 		query = query.Limit(limit).Offset(offset)

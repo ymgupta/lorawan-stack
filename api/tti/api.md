@@ -317,6 +317,7 @@
 
 | Field | Validations |
 | ----- | ----------- |
+| `order` | <p>`string.in`: `[ tenant_id -tenant_id name -name created_at -created_at]`</p> |
 | `limit` | <p>`uint32.lte`: `1000`</p> |
 
 ### <a name="tti.lorawan.v3.Tenant">Message `Tenant`</a>
