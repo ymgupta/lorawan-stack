@@ -78,6 +78,7 @@ var (
 				FieldMask: types.FieldMask{Paths: paths},
 				Limit:     limit,
 				Page:      page,
+				Order:     getOrder(cmd.Flags()),
 			}, opt, getTenantAdminCreds(cmd))
 			if err != nil {
 				return err
@@ -272,6 +273,7 @@ var (
 func init() {
 	tenantsListCommand.Flags().AddFlagSet(selectTenantFlags)
 	tenantsListCommand.Flags().AddFlagSet(paginationFlags())
+	tenantsListCommand.Flags().AddFlagSet(orderFlags())
 	tenantsCommand.AddCommand(tenantsListCommand)
 	tenantsGetCommand.Flags().AddFlagSet(tenantIDFlags())
 	tenantsGetCommand.Flags().AddFlagSet(selectTenantFlags)
