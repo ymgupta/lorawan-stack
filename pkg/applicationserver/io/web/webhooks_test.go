@@ -316,9 +316,9 @@ func TestWebhooks(t *testing.T) {
 						a.So(req.Header.Get("Content-Type"), should.Equal, "application/json")
 						a.So(req.Header.Get("X-Downlink-Apikey"), should.Equal, "foo.secret")
 						a.So(req.Header.Get("X-Downlink-Push"), should.Equal,
-							"https://example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/push")
+							"https://foo-tenant.example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/push")
 						a.So(req.Header.Get("X-Downlink-Replace"), should.Equal,
-							"https://example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/replace")
+							"https://foo-tenant.example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/replace")
 						actualBody, err := ioutil.ReadAll(req.Body)
 						if !a.So(err, should.BeNil) {
 							t.FailNow()
