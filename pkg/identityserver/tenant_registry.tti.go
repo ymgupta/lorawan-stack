@@ -51,10 +51,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		for _, contactInfo := range req.InitialUser.ContactInfo {
 			if contactInfo.ContactMethod == ttnpb.CONTACT_METHOD_EMAIL && contactInfo.Value == req.InitialUser.PrimaryEmailAddress {
 				primaryEmailAddressFound = true
-				if contactInfo.ValidatedAt != nil {
-					req.InitialUser.PrimaryEmailAddressValidatedAt = contactInfo.ValidatedAt
-					break
-				}
+				contactInfo.ValidatedAt = req.InitialUser.PrimaryEmailAddressValidatedAt
 			}
 		}
 		if !primaryEmailAddressFound {
@@ -63,6 +60,11 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 				Value:         req.InitialUser.PrimaryEmailAddress,
 				ValidatedAt:   req.InitialUser.PrimaryEmailAddressValidatedAt,
 			})
+		}
+		for _, contactInfo := range req.ContactInfo {
+			if contactInfo.ContactMethod == ttnpb.CONTACT_METHOD_EMAIL && contactInfo.Value == req.InitialUser.PrimaryEmailAddress {
+				contactInfo.ValidatedAt = req.InitialUser.PrimaryEmailAddressValidatedAt
+			}
 		}
 
 		if req.InitialUser.Password == "" {
@@ -89,7 +91,6 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 			return err
 		}
 		if len(req.ContactInfo) > 0 {
-			cleanContactInfo(req.ContactInfo)
 			tnt.ContactInfo, err = store.GetContactInfoStore(db).SetContactInfo(ctx, tnt.TenantIdentifiers, req.ContactInfo)
 			if err != nil {
 				return err
@@ -104,7 +105,6 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 			}
 
 			if len(req.InitialUser.ContactInfo) > 0 {
-				cleanContactInfo(req.InitialUser.ContactInfo)
 				usr.ContactInfo, err = store.GetContactInfoStore(db).SetContactInfo(ctx, usr.UserIdentifiers, req.InitialUser.ContactInfo)
 				if err != nil {
 					return err
