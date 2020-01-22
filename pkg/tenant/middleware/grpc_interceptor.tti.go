@@ -53,6 +53,8 @@ func StreamClientInterceptor(ctx context.Context, desc *grpc.StreamDesc, cc *grp
 	return streamer(ctx, desc, cc, method, opts...)
 }
 
+var tenantAgnosticServices = []string{"/tti.lorawan.v3.TenantRegistry", "/tti.lorawan.v3.Tbs"}
+
 // UnaryServerInterceptor is a gRPC interceptor that extracts the tenant ID from the context.
 func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -75,8 +77,10 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
 			return handler(ctx, req)
 		}
-		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
-			return handler(ctx, req)
+		for _, service := range tenantAgnosticServices {
+			if strings.HasPrefix(info.FullMethod, service) {
+				return handler(ctx, req)
+			}
 		}
 		return nil, errMissingTenantID
 	}
@@ -109,8 +113,10 @@ func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor 
 			wrapped.WrappedContext = ctx
 			return handler(srv, wrapped)
 		}
-		if strings.HasPrefix(info.FullMethod, "/tti.lorawan.v3.TenantRegistry") {
-			return handler(srv, stream)
+		for _, service := range tenantAgnosticServices {
+			if strings.HasPrefix(info.FullMethod, service) {
+				return handler(srv, stream)
+			}
 		}
 		return errMissingTenantID
 	}
