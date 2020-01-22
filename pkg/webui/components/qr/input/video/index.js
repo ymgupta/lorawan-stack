@@ -19,7 +19,7 @@ import PropTypes from 'prop-types'
 
 import style from './video.styl'
 
-class VideoStream extends Component {
+class Video extends Component {
   stream = null
   streamWidth = 0
   streamHeight = 0
@@ -134,7 +134,7 @@ class VideoStream extends Component {
   }
 
   tick = () => {
-    const { location } = this.props
+    const { location, onFrame } = this.props
 
     if (!this.canvasContext) return
 
@@ -154,7 +154,7 @@ class VideoStream extends Component {
       this.drawLine(location.bottomLeftCorner, location.bottomRightCorner, '#0030b5')
     }
 
-    this.props.onFrame({
+    onFrame({
       data,
       width: this.streamWidth,
       height: this.streamHeight,
@@ -166,7 +166,7 @@ class VideoStream extends Component {
   }
 }
 
-VideoStream.propTypes = {
+Video.propTypes = {
   location: PropTypes.shape({
     bottomLeftCorner: PropTypes.objectOf(PropTypes.number),
     bottomLeftFinderPattern: PropTypes.objectOf(PropTypes.number),
@@ -181,8 +181,8 @@ VideoStream.propTypes = {
   onInit: PropTypes.func.isRequired,
 }
 
-VideoStream.defaultProps = {
+Video.defaultProps = {
   location: null,
 }
 
-export default VideoStream
+export default Video
