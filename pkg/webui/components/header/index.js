@@ -61,7 +61,7 @@ const Header = function({
     <header {...rest} className={classNames}>
       <div className={style.bar}>
         <div className={style.left}>
-          <Logo anchored href="/" />
+          <Logo href="/" />
           {!isGuest && <NavigationBar className={style.navList}>{navigationEntries}</NavigationBar>}
         </div>
         {!isGuest && (
