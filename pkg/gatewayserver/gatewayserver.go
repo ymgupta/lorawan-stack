@@ -387,10 +387,13 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 		GatewayIdentifiers: ids,
 		FieldMask: pbtypes.FieldMask{
 			Paths: []string{
-				"frequency_plan_id",
-				"schedule_downlink_late",
-				"enforce_duty_cycle",
+				"antennas",
 				"downlink_path_constraint",
+				"enforce_duty_cycle",
+				"frequency_plan_id",
+				"location_public",
+				"schedule_anytime_delay",
+				"schedule_downlink_late",
 			},
 		},
 	}, callOpt)
@@ -408,6 +411,8 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 			FrequencyPlanID:        fpID,
 			EnforceDutyCycle:       true,
 			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
+			Antennas:               []ttnpb.GatewayAntenna{},
+			LocationPublic:         false,
 		}
 	} else if err != nil {
 		return nil, err
@@ -417,7 +422,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 		return nil, err
 	}
 
-	conn, err := io.NewConnection(ctx, frontend, gtw, fp, gtw.EnforceDutyCycle)
+	conn, err := io.NewConnection(ctx, frontend, gtw, fp, gtw.EnforceDutyCycle, gtw.ScheduleAnytimeDelay)
 	if err != nil {
 		return nil, err
 	}
@@ -502,7 +507,7 @@ func (gs *GatewayServer) handleUpstream(conn *io.Connection) {
 					registerReceiveUplink(ctx, conn.Gateway(), msg, host.name)
 					drop := func(ids ttnpb.EndDeviceIdentifiers, err error) {
 						logger := logger.WithError(err)
-						if ids.JoinEUI != nil && !ids.JoinEUI.IsZero() {
+						if ids.JoinEUI != nil {
 							logger = logger.WithField("join_eui", *ids.JoinEUI)
 						}
 						if ids.DevEUI != nil && !ids.DevEUI.IsZero() {

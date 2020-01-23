@@ -267,9 +267,6 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 	if pld.DevEUI.IsZero() {
 		return nil, errNoDevEUI
 	}
-	if pld.JoinEUI.IsZero() {
-		return nil, errNoJoinEUI
-	}
 	logger = logger.WithFields(log.Fields(
 		"join_eui", pld.JoinEUI,
 		"dev_eui", pld.DevEUI,
@@ -334,13 +331,14 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 				paths = append(paths, "last_dev_nonce")
 			} else {
 				i := sort.Search(len(dev.UsedDevNonces), func(i int) bool { return dev.UsedDevNonces[i] >= dn })
-				if i < len(dev.UsedDevNonces) && dev.UsedDevNonces[i] == dn {
+				if i >= len(dev.UsedDevNonces) || dev.UsedDevNonces[i] != dn {
+					dev.UsedDevNonces = append(dev.UsedDevNonces, 0)
+					copy(dev.UsedDevNonces[i+1:], dev.UsedDevNonces[i:])
+					dev.UsedDevNonces[i] = dn
+					paths = append(paths, "used_dev_nonces")
+				} else if !dev.ResetsJoinNonces {
 					return nil, nil, errReuseDevNonce
 				}
-				dev.UsedDevNonces = append(dev.UsedDevNonces, 0)
-				copy(dev.UsedDevNonces[i+1:], dev.UsedDevNonces[i:])
-				dev.UsedDevNonces[i] = dn
-				paths = append(paths, "used_dev_nonces")
 			}
 
 			var b []byte
@@ -476,7 +474,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			if err != nil {
 				return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", asKEKLabel)
 			}
-			if req.SelectedMACVersion >= ttnpb.MAC_V1_1 {
+			if req.SelectedMACVersion.Compare(ttnpb.MAC_V1_1) >= 0 {
 				sessionKeys.SNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.SNwkSIntKey, nsKEKLabel)
 				if err != nil {
 					return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)

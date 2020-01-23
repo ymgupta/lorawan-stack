@@ -89,7 +89,7 @@ before_script:
 - |
   if [[ "$RUNTYPE" == "go.test" ]]; then
     set -e
-    make dev.databases.start
+    $MAGE dev:dbStart
   fi
 script:
 - if [[ "$RUNTYPE" == "js" ]]; then $MAGE proto:swaggerClean proto:swagger; fi
@@ -122,7 +122,7 @@ script:
   fi
 - if [[ "$RUNTYPE" == "go.test" ]]; then $MAGE go:testBinaries; fi
 - if [[ "$RUNTYPE" == "release" ]]; then $MAGE version:files; fi
-- make git.diff
+- $MAGE git:diff
 after_success:
 - |
   if [[ "$RUNTYPE" == "release" ]]; then

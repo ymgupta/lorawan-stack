@@ -160,7 +160,10 @@ func generateDevAddr(netID types.NetID) (types.DevAddr, error) {
 	return devAddr, nil
 }
 
-var errGatewayServerDisabled = errors.DefineFailedPrecondition("gateway_server_disabled", "Gateway Server is disabled")
+var (
+	errJoinServerDisabled    = errors.DefineFailedPrecondition("join_server_disabled", "Join Server is disabled")
+	errNetworkServerDisabled = errors.DefineFailedPrecondition("network_server_disabled", "Network Server is disabled")
+)
 
 var (
 	endDevicesCommand = &cobra.Command{
@@ -173,8 +176,8 @@ var (
 		Short:             "List available frequency plans for end devices",
 		PersistentPreRunE: preRun(),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if !config.GatewayServerEnabled {
-				return errGatewayServerDisabled
+			if !config.NetworkServerEnabled {
+				return errNetworkServerDisabled
 			}
 
 			baseFrequency, _ := cmd.Flags().GetUint32("base-frequency")
@@ -658,7 +661,9 @@ var (
 				}
 			}
 			if inputDecoder != nil {
-				list := &ttnpb.ProvisionEndDevicesRequest_IdentifiersList{}
+				list := &ttnpb.ProvisionEndDevicesRequest_IdentifiersList{
+					JoinEUI: &joinEUI,
+				}
 				for {
 					var ids ttnpb.EndDeviceIdentifiers
 					_, err := inputDecoder.Decode(&ids)
@@ -669,9 +674,6 @@ var (
 						return err
 					}
 					ids.ApplicationIdentifiers = *appID
-					if !joinEUI.IsZero() {
-						list.JoinEUI = &joinEUI
-					}
 					list.EndDeviceIDs = append(list.EndDeviceIDs, ids)
 				}
 				req.EndDevices = &ttnpb.ProvisionEndDevicesRequest_List{
@@ -683,22 +685,17 @@ var (
 					if err := startDevEUI.UnmarshalText([]byte(startDevEUIHex)); err != nil {
 						return err
 					}
-					r := &ttnpb.ProvisionEndDevicesRequest_IdentifiersRange{
-						StartDevEUI: startDevEUI,
-					}
-					if !joinEUI.IsZero() {
-						r.JoinEUI = &joinEUI
-					}
 					req.EndDevices = &ttnpb.ProvisionEndDevicesRequest_Range{
-						Range: r,
+						Range: &ttnpb.ProvisionEndDevicesRequest_IdentifiersRange{
+							StartDevEUI: startDevEUI,
+							JoinEUI:     &joinEUI,
+						},
 					}
 				} else {
-					fromData := &ttnpb.ProvisionEndDevicesRequest_IdentifiersFromData{}
-					if !joinEUI.IsZero() {
-						fromData.JoinEUI = &joinEUI
-					}
 					req.EndDevices = &ttnpb.ProvisionEndDevicesRequest_FromData{
-						FromData: fromData,
+						FromData: &ttnpb.ProvisionEndDevicesRequest_IdentifiersFromData{
+							JoinEUI: &joinEUI,
+						},
 					}
 				}
 			}
@@ -1025,6 +1022,57 @@ To generate a QR code for multiple end devices:
 			return nil
 		}),
 	}
+	endDevicesExternalJSCommand = &cobra.Command{
+		Use:     "use-external-join-server [application-id] [device-id]",
+		Aliases: []string{"use-external-js", "use-ext-js"},
+		Short:   "Disassociate and delete the device from Join Server",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			devID, err := getEndDeviceID(cmd.Flags(), args, true)
+			if err != nil {
+				return err
+			}
+			if !config.JoinServerEnabled {
+				return errJoinServerDisabled
+			}
+
+			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
+			if err != nil {
+				return err
+			}
+			dev, err := ttnpb.NewEndDeviceRegistryClient(is).Get(ctx, &ttnpb.GetEndDeviceRequest{
+				EndDeviceIdentifiers: *devID,
+				FieldMask: pbtypes.FieldMask{
+					Paths: []string{
+						"join_server_address",
+					},
+				},
+			})
+			if _, _, nok := compareServerAddressesEndDevice(dev, config); nok {
+				return errAddressMismatchEndDevice
+			}
+
+			js, err := api.Dial(ctx, config.JoinServerGRPCAddress)
+			if err != nil {
+				return err
+			}
+			_, err = ttnpb.NewJsEndDeviceRegistryClient(js).Delete(ctx, devID)
+			if err != nil {
+				return err
+			}
+
+			_, err = ttnpb.NewEndDeviceRegistryClient(is).Update(ctx, &ttnpb.UpdateEndDeviceRequest{
+				EndDevice: ttnpb.EndDevice{
+					EndDeviceIdentifiers: *devID,
+				},
+				FieldMask: pbtypes.FieldMask{
+					Paths: []string{
+						"join_server_address",
+					},
+				},
+			})
+			return err
+		},
+	}
 )
 
 func init() {
@@ -1055,7 +1103,7 @@ func init() {
 
 	endDevicePictureFlags.String("picture", "", "upload the end device picture from this file")
 
-	endDevicesListFrequencyPlans.Flags().Uint32("base-frequency", 0, "Base frequency in MHz for hardware support (433, 470, 868 or 915)")
+	endDevicesListFrequencyPlans.Flags().Uint32("base-frequency", 0, "base frequency in MHz for hardware support (433, 470, 868 or 915)")
 	endDevicesCommand.AddCommand(endDevicesListFrequencyPlans)
 	endDevicesListCommand.Flags().AddFlagSet(applicationIDFlags())
 	endDevicesListCommand.Flags().AddFlagSet(selectEndDeviceListFlags)
@@ -1110,6 +1158,8 @@ func init() {
 	endDevicesGenerateQRCommand.Flags().Uint32("size", 300, "size of the image in pixels")
 	endDevicesGenerateQRCommand.Flags().String("folder", "", "folder to write the QR code image to")
 	endDevicesCommand.AddCommand(endDevicesGenerateQRCommand)
+	endDevicesExternalJSCommand.Flags().AddFlagSet(endDeviceIDFlags())
+	endDevicesCommand.AddCommand(endDevicesExternalJSCommand)
 
 	endDevicesCommand.AddCommand(applicationsDownlinkCommand)
 

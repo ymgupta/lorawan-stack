@@ -58,7 +58,7 @@ const headerCheck = headers =>
 
 const validationSchema = Yup.object().shape({
   webhook_id: Yup.string()
-    .matches(webhookIdRegexp, sharedMessages.validateAlphanum)
+    .matches(webhookIdRegexp, sharedMessages.validateIdFormat)
     .min(2, sharedMessages.validateTooShort)
     .max(25, sharedMessages.validateTooLong)
     .required(sharedMessages.validateRequired),
@@ -72,6 +72,31 @@ const validationSchema = Yup.object().shape({
 
 @bind
 export default class WebhookForm extends Component {
+  static propTypes = {
+    appId: PropTypes.string,
+    initialWebhookValue: PropTypes.shape({
+      ids: PropTypes.shape({
+        webhook_id: PropTypes.string,
+      }),
+    }),
+    onDelete: PropTypes.func,
+    onDeleteFailure: PropTypes.func,
+    onDeleteSuccess: PropTypes.func,
+    onSubmit: PropTypes.func.isRequired,
+    onSubmitFailure: PropTypes.func,
+    onSubmitSuccess: PropTypes.func.isRequired,
+    update: PropTypes.bool.isRequired,
+  }
+
+  static defaultProps = {
+    appId: undefined,
+    initialWebhookValue: undefined,
+    onSubmitFailure: () => null,
+    onDeleteFailure: () => null,
+    onDeleteSuccess: () => null,
+    onDelete: () => null,
+  }
+
   constructor(props) {
     super(props)
 
@@ -245,23 +270,4 @@ export default class WebhookForm extends Component {
       </Form>
     )
   }
-}
-
-WebhookForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onSubmitSuccess: PropTypes.func,
-  onSubmitFailure: PropTypes.func,
-  onDelete: PropTypes.func,
-  onDeleteSuccess: PropTypes.func,
-  onDeleteFailure: PropTypes.func,
-  update: PropTypes.bool.isRequired,
-  initialWebhookValue: PropTypes.object,
-}
-
-WebhookForm.defaultProps = {
-  onSubmitSuccess: () => null,
-  onSubmitFailure: () => null,
-  onDeleteSuccess: () => null,
-  onDeleteFailure: () => null,
-  onDelete: () => null,
 }

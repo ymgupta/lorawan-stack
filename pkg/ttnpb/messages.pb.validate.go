@@ -78,13 +78,6 @@ func (m *UplinkMessage) ValidateFields(paths ...string) error {
 
 		case "rx_metadata":
 
-			if len(m.GetRxMetadata()) < 1 {
-				return UplinkMessageValidationError{
-					field:  "rx_metadata",
-					reason: "value must contain at least 1 item(s)",
-				}
-			}
-
 			for idx, item := range m.GetRxMetadata() {
 				_, _ = idx, item
 
@@ -573,6 +566,20 @@ func (m *ApplicationUplink) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "app_s_key":
+
+			if v, ok := interface{}(m.GetAppSKey()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return ApplicationUplinkValidationError{
+						field:  "app_s_key",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "last_a_f_cnt_down":
+			// no validation rules for LastAFCntDown
 		default:
 			return ApplicationUplinkValidationError{
 				field:  name,

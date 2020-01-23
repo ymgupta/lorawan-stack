@@ -12,17 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import classnames from 'classnames'
 
 import Logo from '../../containers/logo'
 
 import NavigationBar from '../navigation/bar'
 import ProfileDropdown from '../profile-dropdown'
+import MobileMenu from '../mobile-menu'
 import Input from '../input'
 import PropTypes from '../../lib/prop-types'
+import Icon from '../../components/icon'
 
-import styles from './header.styl'
+import hamburgerMenuNormal from '../../assets/misc/hamburger-menu-normal.svg'
+import hamburgerMenuClose from '../../assets/misc/hamburger-menu-close.svg'
+import style from './header.styl'
 
 const Header = function({
   className,
@@ -30,56 +34,75 @@ const Header = function({
   navigationEntries,
   user,
   searchable,
-  handleSearchRequest = () => null,
-  anchored = false,
+  logo,
+  mobileDropdownItems,
+  onLogout,
+  onSearchRequest,
   ...rest
 }) {
   const isGuest = !Boolean(user)
 
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const handleMobileMenuClick = useCallback(() => {
+    setMobileMenuOpen(!mobileMenuOpen)
+  }, [mobileMenuOpen])
+
+  const handleMobileMenuItemsClick = useCallback(() => {
+    setMobileMenuOpen(false)
+  }, [])
+
+  const classNames = classnames(className, style.container, {
+    [style.mobileMenuOpen]: mobileMenuOpen,
+  })
+
+  const hamburgerGraphic = mobileMenuOpen ? hamburgerMenuClose : hamburgerMenuNormal
+
   return (
-    <header {...rest} className={classnames(className, styles.bar)}>
-      <div className={styles.left}>
-        <Logo anchored href="/" />
+    <header {...rest} className={classNames}>
+      <div className={style.bar}>
+        <div className={style.left}>
+          <Logo anchored href="/" />
+          {!isGuest && <NavigationBar className={style.navList}>{navigationEntries}</NavigationBar>}
+        </div>
         {!isGuest && (
-          <NavigationBar
-            className={styles.navList}
-            entries={navigationEntries}
-            anchored={anchored}
-          />
+          <div className={style.right}>
+            {searchable && <Input icon="search" onEnter={onSearchRequest} />}
+            <ProfileDropdown className={style.profileDropdown} userId={user.ids.user_id}>
+              {dropdownItems}
+            </ProfileDropdown>
+            <button onClick={handleMobileMenuClick} className={style.mobileMenu}>
+              <Icon className={style.preloadIcons} icon="." />
+              <div className={style.hamburger}>
+                <img src={hamburgerGraphic} alt="Open Mobile Menu" />
+              </div>
+            </button>
+          </div>
         )}
       </div>
-      {!isGuest && (
-        <div className={styles.right}>
-          {searchable && <Input icon="search" onEnter={handleSearchRequest} />}
-          <ProfileDropdown
-            dropdownItems={dropdownItems}
-            userId={user.ids.user_id}
-            anchored={anchored}
-          />
-        </div>
+      {mobileMenuOpen && (
+        <MobileMenu onItemsClick={handleMobileMenuItemsClick} onLogout={onLogout} user={user}>
+          {mobileDropdownItems}
+        </MobileMenu>
       )}
     </header>
   )
 }
 
 Header.propTypes = {
-  /** Flag identifying whether links should be rendered as plain anchor link */
-  anchored: PropTypes.bool,
   /** The classname applied to the component */
   className: PropTypes.string,
-  /**
-   * A list of items for the dropdown
-   * See `<ProfileDropdown/>`'s `items` proptypes for details
-   */
-  dropdownItems: ProfileDropdown.propTypes.dropdownItems,
+  /** The child node of the dropdown component */
+  dropdownItems: ProfileDropdown.propTypes.children,
+  logo: PropTypes.node,
+  /** The child node of the mobile dropdown */
+  mobileDropdownItems: PropTypes.node.isRequired,
+  /** The Child node of the navigation bar */
+  navigationEntries: NavigationBar.propTypes.children,
   /** A handler for when the user used the search input */
-  handleSearchRequest: PropTypes.func,
-  /** A flag identifying whether the header should display the search input */
-  /**
-   * A list of navigation bar entries
-   * See `<NavigationBar/>`'s `entries` proptypes for details
-   */
-  navigationEntries: NavigationBar.propTypes.entries,
+  onLogout: PropTypes.func.isRequired,
+  /** Handler of the search function */
+  onSearchRequest: PropTypes.func,
+  /* A flag indicating whether the header has a search input */
   searchable: PropTypes.bool,
   /**
    * The User object, retrieved from the API. If it is `undefined`, then the
@@ -89,11 +112,11 @@ Header.propTypes = {
 }
 
 Header.defaultProps = {
-  anchored: false,
   className: undefined,
   dropdownItems: undefined,
   navigationEntries: undefined,
-  handleSearchRequest: () => null,
+  onSearchRequest: () => null,
+  logo: <Logo />,
   searchable: false,
   user: undefined,
 }
