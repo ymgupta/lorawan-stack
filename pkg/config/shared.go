@@ -61,6 +61,7 @@ type Cluster struct {
 	ApplicationServer string   `name:"application-server" description:"Address for the Application Server"`
 	JoinServer        string   `name:"join-server" description:"Address for the Join Server"`
 	CryptoServer      string   `name:"crypto-server" description:"Address for the Crypto Server"`
+	PacketBrokerAgent string   `name:"packet-broker-agent" description:"Address of the Packet Broker Agent"`
 	TLS               bool     `name:"tls" description:"Do cluster gRPC over TLS"`
 	Keys              []string `name:"keys" description:"Keys used to communicate between components of the cluster. The first one will be used by the cluster to identify itself"`
 }
