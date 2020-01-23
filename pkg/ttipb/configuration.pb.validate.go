@@ -246,6 +246,18 @@ func (m *Configuration_Cluster) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "ns":
+
+			if v, ok := interface{}(m.GetNS()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_ClusterValidationError{
+						field:  "ns",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return Configuration_ClusterValidationError{
 				field:  name,
@@ -405,6 +417,114 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = Configuration_Cluster_IdentityServerValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_NetworkServer with the rules defined in the proto
+// definition for this message. If any rules are violated, an error is returned.
+func (m *Configuration_Cluster_NetworkServer) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_NetworkServerFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "dev_addr_prefixes":
+
+		case "deduplication_window":
+
+			if v, ok := interface{}(m.GetDeduplicationWindow()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_NetworkServerValidationError{
+						field:  "deduplication_window",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "cooldown_window":
+
+			if v, ok := interface{}(m.GetCooldownWindow()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_NetworkServerValidationError{
+						field:  "cooldown_window",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_NetworkServerValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_NetworkServerValidationError is the validation error
+// returned by Configuration_Cluster_NetworkServer.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_NetworkServerValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_NetworkServerValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_NetworkServerValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_NetworkServerValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Configuration_Cluster_NetworkServerValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_NetworkServerValidationError) ErrorName() string {
+	return "Configuration_Cluster_NetworkServerValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_NetworkServerValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_NetworkServer.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_NetworkServerValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_NetworkServerValidationError{}
 
 // ValidateFields checks the field values on
 // Configuration_Cluster_IdentityServer_UserRegistration with the rules
