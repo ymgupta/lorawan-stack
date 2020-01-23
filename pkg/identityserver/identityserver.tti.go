@@ -12,46 +12,53 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 )
+
+func tenantConfigFromContext(ctx context.Context) (*ttipb.Configuration_Cluster_IdentityServer, bool) {
+	conf, err := tenant.ConfigFromContext(ctx)
+	if err != nil {
+		return nil, false
+	}
+	isConf := conf.GetDefaultCluster().GetIS()
+	return isConf, isConf != nil
+}
 
 func (conf Config) Apply(ctx context.Context) Config {
 	deriv := conf
 	deriv.Email.Config = conf.Email.Config.Apply(ctx)
-	tenantID := tenant.FromContext(ctx)
-	if tenantID.TenantID == "" {
+
+	tenantConf, ok := tenantConfigFromContext(ctx)
+	if !ok {
 		return deriv
 	}
-	if tenantFetcher, ok := tenant.FetcherFromContext(ctx); ok {
-		if tenant, err := tenantFetcher.FetchTenant(ctx, &tenantID, "name", "configuration"); err == nil {
-			userRegistration := tenant.GetConfiguration().GetDefaultCluster().GetIS().GetUserRegistration()
-			if required := userRegistration.GetInvitation().GetRequired(); required != nil {
-				deriv.UserRegistration.Invitation.Required = required.Value
-			}
-			if tokenTTL := userRegistration.GetInvitation().GetTokenTTL(); tokenTTL != nil {
-				deriv.UserRegistration.Invitation.TokenTTL = *tokenTTL
-			}
-			if required := userRegistration.GetContactInfoValidation().GetRequired(); required != nil {
-				deriv.UserRegistration.ContactInfoValidation.Required = required.Value
-			}
-			if required := userRegistration.GetAdminApproval().GetRequired(); required != nil {
-				deriv.UserRegistration.AdminApproval.Required = required.Value
-			}
-			if w := userRegistration.GetPasswordRequirements().GetMinLength(); w != nil {
-				deriv.UserRegistration.PasswordRequirements.MinLength = int(w.Value)
-			}
-			if w := userRegistration.GetPasswordRequirements().GetMaxLength(); w != nil {
-				deriv.UserRegistration.PasswordRequirements.MaxLength = int(w.Value)
-			}
-			if w := userRegistration.GetPasswordRequirements().GetMinUppercase(); w != nil {
-				deriv.UserRegistration.PasswordRequirements.MinUppercase = int(w.Value)
-			}
-			if w := userRegistration.GetPasswordRequirements().GetMinDigits(); w != nil {
-				deriv.UserRegistration.PasswordRequirements.MinDigits = int(w.Value)
-			}
-			if w := userRegistration.GetPasswordRequirements().GetMinSpecial(); w != nil {
-				deriv.UserRegistration.PasswordRequirements.MinSpecial = int(w.Value)
-			}
-		}
+	userRegistration := tenantConf.GetUserRegistration()
+	if required := userRegistration.GetInvitation().GetRequired(); required != nil {
+		deriv.UserRegistration.Invitation.Required = required.Value
+	}
+	if tokenTTL := userRegistration.GetInvitation().GetTokenTTL(); tokenTTL != nil {
+		deriv.UserRegistration.Invitation.TokenTTL = *tokenTTL
+	}
+	if required := userRegistration.GetContactInfoValidation().GetRequired(); required != nil {
+		deriv.UserRegistration.ContactInfoValidation.Required = required.Value
+	}
+	if required := userRegistration.GetAdminApproval().GetRequired(); required != nil {
+		deriv.UserRegistration.AdminApproval.Required = required.Value
+	}
+	if w := userRegistration.GetPasswordRequirements().GetMinLength(); w != nil {
+		deriv.UserRegistration.PasswordRequirements.MinLength = int(w.Value)
+	}
+	if w := userRegistration.GetPasswordRequirements().GetMaxLength(); w != nil {
+		deriv.UserRegistration.PasswordRequirements.MaxLength = int(w.Value)
+	}
+	if w := userRegistration.GetPasswordRequirements().GetMinUppercase(); w != nil {
+		deriv.UserRegistration.PasswordRequirements.MinUppercase = int(w.Value)
+	}
+	if w := userRegistration.GetPasswordRequirements().GetMinDigits(); w != nil {
+		deriv.UserRegistration.PasswordRequirements.MinDigits = int(w.Value)
+	}
+	if w := userRegistration.GetPasswordRequirements().GetMinSpecial(); w != nil {
+		deriv.UserRegistration.PasswordRequirements.MinSpecial = int(w.Value)
 	}
 	return deriv
 }
