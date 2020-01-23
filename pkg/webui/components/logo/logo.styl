@@ -20,9 +20,6 @@
     display: block
     line-height: 0
 
-  .link
-    height: 100%
-
   &:not(.vertical)
     &:not(.custom-branding)
       img
@@ -36,20 +33,30 @@
 
     &.custom-branding .logo
       border-dark('right')
+      display: flex
+      align-items: center
       padding-right: $ls.xs
+      +media-query($bp.s)
+        padding-right: $ls.xxs
 
       img
         height: auto
         width: 10rem
+        +media-query($bp.s)
+          width: 7rem
 
     .secondary-logo
       display: flex
       flex-direction: column
       align-items: center
       padding-left: $ls.xs
+      +media-query($bp.s)
+        padding-left: $ls.xxs
 
       img
         height: 1.6rem
+        +media-query($bp.s)
+          height: 1.1rem
 
   &.vertical
     max-width: 15rem

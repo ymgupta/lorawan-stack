@@ -16,7 +16,6 @@
 
 import traverse from 'traverse'
 import Marshaler from '../../util/marshaler'
-import { getComponentsWithDistinctBaseUrls } from '../../util/stack-components'
 import combineStreams from '../../util/combine-streams'
 import Device from '../../entity/device'
 import { notify, EVENTS } from '../../api/stream/shared'
@@ -120,13 +119,20 @@ class Devices {
       ? requestTreeOverwrite
       : splitSetPaths(paths, mergeBase)
 
-    // Retrieve join information if not present
-    if (!create) {
-      const paths = [['application_server_address'], ['network_server_address']]
+    if (create) {
+      if (device.join_server_address !== this._stackConfig.jsHost) {
+        delete requestTree.js
+      }
+    } else {
+      // Retrieve join information if not present for update
+      const paths = [
+        ['application_server_address'],
+        ['network_server_address'],
+        ['join_server_address'],
+      ]
 
       if (!('supports_join' in device)) {
         paths.push(['supports_join'])
-        paths.push(['join_server_address'])
       }
 
       const res = await this._getDevice(appId, devId, paths, true)
@@ -141,24 +147,16 @@ class Devices {
         requestTree.ns.push(['supports_join'])
       }
 
-      try {
-        const nsHost = new URL(this._stackConfig.ns).hostname
+      if (res.network_server_address !== this._stackConfig.nsHost) {
+        delete requestTree.ns
+      }
 
-        if (res.network_server_address !== nsHost) {
-          delete requestTree.as
-        }
-      } catch (e) {
+      if (res.application_server_address !== this._stackConfig.asHost) {
         delete requestTree.as
       }
 
-      try {
-        const asHost = new URL(this._stackConfig.as).hostname
-
-        if (res.application_server_address !== asHost) {
-          delete requestTree.as
-        }
-      } catch (e) {
-        delete requestTree.as
+      if (res.join_server_address !== this._stackConfig.jsHost) {
+        delete requestTree.js
       }
     }
 
@@ -316,10 +314,10 @@ class Devices {
     return this._responseTransform(response)
   }
 
-  async create(applicationId, device, { abp = false } = {}) {
+  async create(applicationId, device, { otaa = false }) {
     const dev = device
 
-    if (abp) {
+    if (!otaa) {
       dev.supports_join = false
     } else {
       if ('provisioner_id' in dev && dev.provisioner_id !== '') {
@@ -433,7 +431,7 @@ class Devices {
     // Event streams can come from multiple stack components. It is necessary to
     // check for stack components on different hosts and open distinct stream
     // connections for any distinct host if need be.
-    const distinctComponents = getComponentsWithDistinctBaseUrls(this._stackConfig, [
+    const distinctComponents = this._stackConfig.getComponentsWithDistinctBaseUrls([
       'is',
       'js',
       'ns',

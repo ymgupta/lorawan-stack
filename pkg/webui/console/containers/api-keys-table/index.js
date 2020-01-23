@@ -17,7 +17,6 @@ import { defineMessages } from 'react-intl'
 
 import Tag from '../../../components/tag'
 import TagGroup from '../../../components/tag/group'
-import SafeInspector from '../../../components/safe-inspector'
 import FetchTable from '../fetch-table'
 import PropTypes from '../../../lib/prop-types'
 import Message from '../../../lib/components/message'
@@ -44,22 +43,20 @@ const headers = [
   {
     name: 'id',
     displayName: m.keyId,
-    width: 35,
-    render(entityId) {
-      return (
-        <SafeInspector noCopyPopup disableResize data={entityId} hideable={false} isBytes={false} />
-      )
+    width: 30,
+    render(id) {
+      return <span className={style.keyId}>{id}</span>
     },
   },
   {
     name: 'name',
     displayName: sharedMessages.name,
-    width: 20,
+    width: 30,
   },
   {
     name: 'rights',
     displayName: m.grantedRights,
-    width: 45,
+    width: 40,
     render(rights) {
       const tags = rights.map(r => (
         <Tag className={style.rightTag} content={formatRight(r)} key={r} />
@@ -73,8 +70,14 @@ const headers = [
 ]
 
 export default class ApiKeysTable extends Component {
+  static propTypes = {
+    baseDataSelector: PropTypes.func.isRequired,
+    getItemsAction: PropTypes.func.isRequired,
+    pageSize: PropTypes.number.isRequired,
+  }
+
   render() {
-    const { pageSize, baseDataSelector, getItemsAction, entityId } = this.props
+    const { pageSize, baseDataSelector, getItemsAction } = this.props
 
     return (
       <FetchTable
@@ -84,16 +87,8 @@ export default class ApiKeysTable extends Component {
         pageSize={pageSize}
         baseDataSelector={baseDataSelector}
         getItemsAction={getItemsAction}
-        id={entityId}
         tableTitle={<Message content={sharedMessages.apiKeys} />}
       />
     )
   }
-}
-
-ApiKeysTable.propTypes = {
-  baseDataSelector: PropTypes.func.isRequired,
-  entityId: PropTypes.string,
-  getItemsAction: PropTypes.func.isRequired,
-  pageSize: PropTypes.number.isRequired,
 }

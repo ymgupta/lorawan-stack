@@ -92,7 +92,8 @@ message MACParameters {
   // Frequency of the class B ping slot (Hz).
   uint64 ping_slot_frequency = 16 [(validate.rules).uint64 = {lte: 0, gte: 100000}];
   // Data rate index of the class B ping slot.
-  DataRateIndex ping_slot_data_rate_index = 17 [(validate.rules).enum.defined_only = true];
+  // This field is deprecated, use ping_slot_data_rate_index_value instead.
+  DataRateIndex ping_slot_data_rate_index = 17 [deprecated = true];
   // Frequency of the class B beacon (Hz).
   uint64 beacon_frequency = 18 [(validate.rules).uint64 = {lte: 0, gte: 100000}];
 
@@ -124,6 +125,8 @@ message MACParameters {
   ADRAckLimitExponentValue adr_ack_limit_exponent = 22 [(gogoproto.customname) = "ADRAckLimitExponent"];
   // ADR: number of messages to wait after setting ADRAckReq and before changing TxPower or DataRate.
   ADRAckDelayExponentValue adr_ack_delay_exponent = 23 [(gogoproto.customname) = "ADRAckDelayExponent"];
+  // Data rate index of the class B ping slot.
+  DataRateIndexValue ping_slot_data_rate_index_value = 24;
 }
 
 message EndDeviceBrand {
@@ -177,7 +180,7 @@ message EndDeviceVersion {
   uint64 max_frequency = 10;
   // The device supports join (it's OTAA).
   bool supports_join = 11;
-  // Whether the device resets the join and dev nonces (not LoRaWAN 1.1 compliant).
+  // Whether the device resets the join and dev nonces (not LoRaWAN compliant).
   bool resets_join_nonces = 12;
 
   // Default formatters defining the payload formats for this end device.
@@ -197,6 +200,9 @@ message MACSettings {
   // Frequency of the class B ping slot (Hz).
   // If unset, the default value from Network Server configuration will be used.
   google.protobuf.UInt64Value ping_slot_frequency = 4 [(validate.rules).uint64.gte = 100000];
+  // Frequency of the class B beacon (Hz).
+  // If unset, the default value from Network Server configuration will be used.
+  google.protobuf.UInt64Value beacon_frequency = 25 [(validate.rules).uint64.gte = 100000];
 
   // Maximum delay for the device to answer a MAC request or a confirmed downlink frame.
   // If unset, the default value from Network Server configuration will be used.
@@ -265,6 +271,16 @@ message MACSettings {
   // The ADR ACK delay Network Server should configure device to use via MAC commands.
   // If unset, the default value from Network Server configuration or regional parameters specification will be used.
   ADRAckDelayExponentValue desired_adr_ack_delay_exponent = 24 [(gogoproto.customname) = "DesiredADRAckDelayExponent"];
+
+  // The data rate index of the class B ping slot Network Server should configure device to use via MAC commands.
+  // If unset, the default value from Network Server configuration will be used.
+  DataRateIndexValue desired_ping_slot_data_rate_index = 27;
+  // The frequency of the class B ping slot (Hz) Network Server should configure device to use via MAC commands.
+  // If unset, the default value from Network Server configuration or regional parameters specification will be used.
+  google.protobuf.UInt64Value desired_ping_slot_frequency = 28 [(validate.rules).uint64.gte = 100000];
+  // The frequency of the class B beacon (Hz) Network Server should configure device to use via MAC commands.
+  // If unset, the default value from Network Server configuration will be used.
+  google.protobuf.UInt64Value desired_beacon_frequency = 29 [(validate.rules).uint64.gte = 100000];
 }
 
 // MACState represents the state of MAC layer of the device.
@@ -290,7 +306,7 @@ message MACState {
   // Frame counter value of last uplink containing DevStatusAns.
   uint32 last_dev_status_f_cnt_up = 6;
   // Periodicity of the class B ping slot.
-  PingSlotPeriod ping_slot_periodicity = 7 [(validate.rules).enum.defined_only = true];
+  PingSlotPeriodValue ping_slot_periodicity = 7;
   // A confirmed application downlink, for which an acknowledgment is expected to arrive.
   ApplicationDownlink pending_application_downlink = 8;
   // Queued MAC responses.
@@ -427,7 +443,7 @@ message EndDevice {
   // The device supports join (it's OTAA).
   // Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any.
   bool supports_join = 20;
-  // Whether the device resets the join and dev nonces (not LoRaWAN 1.1 compliant). Stored in Join Server.
+  // Whether the device resets the join and dev nonces (not LoRaWAN compliant). Stored in Join Server.
   // Copied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any.
   bool resets_join_nonces = 21;
 
@@ -509,6 +525,11 @@ message EndDevice {
 
   // Authentication code to claim ownership of the end device. Stored in Join Server.
   EndDeviceAuthenticationCode claim_authentication_code = 46;
+
+  // Skip decryption of uplink payloads and encryption of downlink payloads.
+  bool skip_payload_crypto = 51;
+
+  // next: 52;
 }
 
 message EndDevices {

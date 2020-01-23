@@ -10,12 +10,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for releasing gateway EUI after deletion.
-- Added support in the Application Server for the `X-Downlink-Apikey`, `X-Downlink-Push` and `X-Downlink-Replace` webhook headers. They allow webhook integrations to determine which endpoints to use for downlink queue operations.
-- Added the `as.webhooks.downlinks.public-address` and `as.webhooks.downlinks.public-tls-address` configuration options to the Application Server. 
+- Support in the Application Server for the `X-Downlink-Apikey`, `X-Downlink-Push` and `X-Downlink-Replace` webhook headers. They allow webhook integrations to determine which endpoints to use for downlink queue operations.
+- `as.webhooks.downlinks.public-address` and `as.webhooks.downlinks.public-tls-address` configuration options to the Application Server.
+- Support for adjusting the time that the Gateway Server schedules class C messages in advance per gateway.
+  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
+- `end-devices use-external-join-server` CLI subcommand, which disassociates and deletes the device from Join Server.
+- `mac_settings.beacon_frequency` end device field, which defines the default frequency of class B beacon in Hz.
+- `mac_settings.desired_beacon_frequency` end device field, which defines the desired frequency of class B beacon in Hz that will be configured via MAC commands.
+- `mac_settings.desired_ping_slot_data_rate_index` end device field, which defines the desired data rate index of the class B ping slot that will be configured via MAC commands.
+- `mac_settings.desired_ping_slot_frequency` end device field, which defines the desired frequency of the class B ping slot that will be configured via MAC commands.
+- Mobile navigation menu to the Console.
+- View and edit all Gateway settings from the Console.
+- `skip_payload_crypto` end device field, which makes the Application Server skip decryption of uplink payloads and encryption of downlink payloads.
+- `app_s_key` and `last_a_f_cnt_down` uplink message fields, which are set if the `skip_payload_crypto` end device field is true.
 
 ### Changed
 
 - Gateway connection stats are stored in Redis (see `--gs.update-connection-stats-debounce-time` option)
+- `resets_join_nonces` now applies to pre-1.1 devices as well as 1.1+ devices.
+- Empty (`0x0000000000000000`) JoinEUIs are now allowed.
 
 ### Deprecated
 
@@ -24,6 +37,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Respect stack components on different hosts when connected to event sources in the Console.
+- Pagination of search results.
+- Handling OTAA devices registered on an external Join Server in the Console.
+- RxMetadata Location field from Gateway Server.
+- Channel mask encoding in LinkADR MAC command.
+- Device location and payload formatter form submits in the Console.
+- Events processing in the JS SDK.
 
 ### Security
 

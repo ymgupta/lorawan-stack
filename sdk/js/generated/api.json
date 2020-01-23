@@ -6486,7 +6486,7 @@
             },
             {
               "name": "resets_join_nonces",
-              "description": "Whether the device resets the join and dev nonces (not LoRaWAN 1.1 compliant). Stored in Join Server.\nCopied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any.",
+              "description": "Whether the device resets the join and dev nonces (not LoRaWAN compliant). Stored in Join Server.\nCopied on creation from template identified by version_ids, if any or from the home Network Server device profile, if any.",
               "label": "",
               "type": "bool",
               "longType": "bool",
@@ -6773,6 +6773,16 @@
               "type": "EndDeviceAuthenticationCode",
               "longType": "EndDeviceAuthenticationCode",
               "fullType": "ttn.lorawan.v3.EndDeviceAuthenticationCode",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "skip_payload_crypto",
+              "description": "Skip decryption of uplink payloads and encryption of downlink payloads.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }
@@ -7352,7 +7362,7 @@
             },
             {
               "name": "resets_join_nonces",
-              "description": "Whether the device resets the join and dev nonces (not LoRaWAN 1.1 compliant).",
+              "description": "Whether the device resets the join and dev nonces (not LoRaWAN compliant).",
               "label": "",
               "type": "bool",
               "longType": "bool",
@@ -7894,7 +7904,7 @@
             },
             {
               "name": "ping_slot_data_rate_index",
-              "description": "Data rate index of the class B ping slot.",
+              "description": "Data rate index of the class B ping slot.\nThis field is deprecated, use ping_slot_data_rate_index_value instead.",
               "label": "",
               "type": "DataRateIndex",
               "longType": "DataRateIndex",
@@ -7902,12 +7912,7 @@
               "ismap": false,
               "defaultValue": "",
               "options": {
-                "validate.rules": [
-                  {
-                    "name": "enum.defined_only",
-                    "value": true
-                  }
-                ]
+                "deprecated": true
               }
             },
             {
@@ -7987,6 +7992,16 @@
               "type": "ADRAckDelayExponentValue",
               "longType": "ADRAckDelayExponentValue",
               "fullType": "ttn.lorawan.v3.ADRAckDelayExponentValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "ping_slot_data_rate_index_value",
+              "description": "Data rate index of the class B ping slot.",
+              "label": "",
+              "type": "DataRateIndexValue",
+              "longType": "DataRateIndexValue",
+              "fullType": "ttn.lorawan.v3.DataRateIndexValue",
               "ismap": false,
               "defaultValue": ""
             }
@@ -8127,6 +8142,24 @@
             {
               "name": "ping_slot_frequency",
               "description": "Frequency of the class B ping slot (Hz).\nIf unset, the default value from Network Server configuration will be used.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "uint64.gte",
+                    "value": 100000
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beacon_frequency",
+              "description": "Frequency of the class B beacon (Hz).\nIf unset, the default value from Network Server configuration will be used.",
               "label": "",
               "type": "UInt64Value",
               "longType": "google.protobuf.UInt64Value",
@@ -8365,6 +8398,52 @@
               "fullType": "ttn.lorawan.v3.ADRAckDelayExponentValue",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "desired_ping_slot_data_rate_index",
+              "description": "The data rate index of the class B ping slot Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used.",
+              "label": "",
+              "type": "DataRateIndexValue",
+              "longType": "DataRateIndexValue",
+              "fullType": "ttn.lorawan.v3.DataRateIndexValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "desired_ping_slot_frequency",
+              "description": "The frequency of the class B ping slot (Hz) Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration or regional parameters specification will be used.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "uint64.gte",
+                    "value": 100000
+                  }
+                ]
+              }
+            },
+            {
+              "name": "desired_beacon_frequency",
+              "description": "The frequency of the class B beacon (Hz) Network Server should configure device to use via MAC commands.\nIf unset, the default value from Network Server configuration will be used.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "uint64.gte",
+                    "value": 100000
+                  }
+                ]
+              }
             }
           ]
         },
@@ -8473,19 +8552,11 @@
               "name": "ping_slot_periodicity",
               "description": "Periodicity of the class B ping slot.",
               "label": "",
-              "type": "PingSlotPeriod",
-              "longType": "PingSlotPeriod",
-              "fullType": "ttn.lorawan.v3.PingSlotPeriod",
+              "type": "PingSlotPeriodValue",
+              "longType": "PingSlotPeriodValue",
+              "fullType": "ttn.lorawan.v3.PingSlotPeriodValue",
               "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "enum.defined_only",
-                    "value": true
-                  }
-                ]
-              }
+              "defaultValue": ""
             },
             {
               "name": "pending_application_downlink",
@@ -9859,6 +9930,16 @@
                   }
                 ]
               }
+            },
+            {
+              "name": "schedule_anytime_delay",
+              "description": "Adjust the time that GS schedules class C messages in advance. This is useful for gateways that have a known high latency backhaul, like 3G and satellite.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -18372,7 +18453,7 @@
             },
             {
               "name": "frm_payload",
-              "description": "",
+              "description": "The frame payload of the downlink message.\nThe payload is encrypted if the skip_payload_crypto field of the EndDevice\nis true.",
               "label": "",
               "type": "bytes",
               "longType": "bytes",
@@ -18961,7 +19042,7 @@
             },
             {
               "name": "frm_payload",
-              "description": "",
+              "description": "The frame payload of the uplink message.\nThe payload is still encrypted if the skip_payload_crypto field of the EndDevice\nis true, which is indicated by the presence of the app_s_key field.",
               "label": "",
               "type": "bytes",
               "longType": "bytes",
@@ -18981,7 +19062,7 @@
             },
             {
               "name": "rx_metadata",
-              "description": "",
+              "description": "A list of metadata for each antenna of each gateway that received this message.",
               "label": "repeated",
               "type": "RxMetadata",
               "longType": "RxMetadata",
@@ -18999,7 +19080,7 @@
             },
             {
               "name": "settings",
-              "description": "",
+              "description": "Settings for the transmission.",
               "label": "",
               "type": "TxSettings",
               "longType": "TxSettings",
@@ -19022,6 +19103,26 @@
               "type": "Timestamp",
               "longType": "google.protobuf.Timestamp",
               "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "app_s_key",
+              "description": "The AppSKey of the current session.\nThis field is only present if the skip_payload_crypto field of the EndDevice\nis true.\nCan be used to decrypt uplink payloads and encrypt downlink payloads.",
+              "label": "",
+              "type": "KeyEnvelope",
+              "longType": "KeyEnvelope",
+              "fullType": "ttn.lorawan.v3.KeyEnvelope",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "last_a_f_cnt_down",
+              "description": "The last AFCntDown of the current session.\nThis field is only present if the skip_payload_crypto field of the EndDevice\nis true.\nCan be used with app_s_key to encrypt downlink payloads.",
+              "label": "",
+              "type": "uint32",
+              "longType": "uint32",
+              "fullType": "uint32",
               "ismap": false,
               "defaultValue": ""
             }
@@ -19306,15 +19407,7 @@
               "longType": "RxMetadata",
               "fullType": "ttn.lorawan.v3.RxMetadata",
               "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "repeated.min_items",
-                    "value": 1
-                  }
-                ]
-              }
+              "defaultValue": ""
             },
             {
               "name": "received_at",

@@ -319,6 +319,7 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 			"formatters",
 			"pending_session",
 			"session",
+			"skip_payload_crypto",
 			"version_ids",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
@@ -343,9 +344,11 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 				encryptedItem := *item
 				encryptedItem.SessionKeyID = session.SessionKeyID
 				encryptedItem.FCnt = session.LastAFCntDown + 1
-				if err := as.encodeAndEncrypt(ctx, dev, session, &encryptedItem, link.DefaultFormatters); err != nil {
-					logger.WithError(err).Warn("Drop downlink message; encoding and encryption failed")
-					return nil, nil, err
+				if !dev.SkipPayloadCrypto {
+					if err := as.encodeAndEncrypt(ctx, dev, session, &encryptedItem, link.DefaultFormatters); err != nil {
+						logger.WithError(err).Warn("Drop downlink message; encoding and encryption failed")
+						return nil, nil, err
+					}
 				}
 				encryptedItem.DecodedPayload = nil
 				encryptedItem.CorrelationIDs = item.CorrelationIDs
@@ -421,7 +424,7 @@ var errNoAppSKey = errors.DefineCorruption("no_app_s_key", "no AppSKey")
 
 // DownlinkQueueList lists the application downlink queue of the given end device.
 func (as *ApplicationServer) DownlinkQueueList(ctx context.Context, ids ttnpb.EndDeviceIdentifiers) ([]*ttnpb.ApplicationDownlink, error) {
-	dev, err := as.deviceRegistry.Get(ctx, ids, []string{"session", "pending_session"})
+	dev, err := as.deviceRegistry.Get(ctx, ids, []string{"session", "skip_payload_crypto", "pending_session"})
 	if err != nil {
 		return nil, err
 	}
@@ -451,14 +454,16 @@ func (as *ApplicationServer) DownlinkQueueList(ctx context.Context, ids ttnpb.En
 		if session.AppSKey == nil {
 			return nil, errNoAppSKey
 		}
-		// TODO: Cache unwrapped keys (https://github.com/TheThingsNetwork/lorawan-stack/issues/36)
-		appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *session.AppSKey, as.KeyVault)
-		if err != nil {
-			return nil, err
-		}
-		item.FRMPayload, err = crypto.DecryptDownlink(appSKey, session.DevAddr, item.FCnt, item.FRMPayload)
-		if err != nil {
-			return nil, err
+		if !dev.SkipPayloadCrypto {
+			// TODO: Cache unwrapped keys (https://github.com/TheThingsNetwork/lorawan-stack/issues/36)
+			appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *session.AppSKey, as.KeyVault)
+			if err != nil {
+				return nil, err
+			}
+			item.FRMPayload, err = crypto.DecryptDownlink(appSKey, session.DevAddr, item.FCnt, item.FRMPayload)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return res.Downlinks, nil
@@ -532,6 +537,7 @@ func (as *ApplicationServer) handleJoinAccept(ctx context.Context, ids ttnpb.End
 		[]string{
 			"pending_session",
 			"session",
+			"skip_payload_crypto",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			var mask []string
@@ -590,6 +596,7 @@ func (as *ApplicationServer) handleUplink(ctx context.Context, ids ttnpb.EndDevi
 			"formatters",
 			"pending_session",
 			"session",
+			"skip_payload_crypto",
 			"version_ids",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
@@ -653,8 +660,13 @@ func (as *ApplicationServer) handleUplink(ctx context.Context, ids ttnpb.EndDevi
 	if err != nil {
 		return err
 	}
-	if err := as.decryptAndDecode(ctx, dev, uplink, link.DefaultFormatters); err != nil {
-		return err
+	if !dev.SkipPayloadCrypto {
+		if err := as.decryptAndDecode(ctx, dev, uplink, link.DefaultFormatters); err != nil {
+			return err
+		}
+	} else if dev.Session != nil && dev.Session.AppSKey != nil {
+		uplink.AppSKey = dev.Session.AppSKey
+		uplink.LastAFCntDown = dev.Session.LastAFCntDown
 	}
 	// TODO: Run uplink messages through location solvers async (https://github.com/TheThingsNetwork/lorawan-stack/issues/37)
 	return nil
@@ -664,6 +676,7 @@ func (as *ApplicationServer) handleDownlinkQueueInvalidated(ctx context.Context,
 	_, err := as.deviceRegistry.Set(ctx, ids,
 		[]string{
 			"session",
+			"skip_payload_crypto",
 		},
 		func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			if dev == nil {
@@ -692,6 +705,7 @@ func (as *ApplicationServer) handleDownlinkNack(ctx context.Context, ids ttnpb.E
 		_, err := as.deviceRegistry.Set(ctx, ids,
 			[]string{
 				"session",
+				"skip_payload_crypto",
 			},
 			func(dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 				if err := as.recalculateDownlinkQueue(ctx, dev, nil, queue, msg.FCnt+1, link); err != nil {
@@ -713,9 +727,12 @@ func (as *ApplicationServer) handleDownlinkNack(ctx context.Context, ids ttnpb.E
 }
 
 func (as *ApplicationServer) decryptDownlinkMessage(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, msg *ttnpb.ApplicationDownlink) error {
-	dev, err := as.deviceRegistry.Get(ctx, ids, []string{"session"})
+	dev, err := as.deviceRegistry.Get(ctx, ids, []string{"session", "skip_payload_crypto"})
 	if err != nil {
 		return err
+	}
+	if dev.SkipPayloadCrypto {
+		return nil
 	}
 	if dev.Session == nil || !bytes.Equal(dev.Session.SessionKeyID, msg.SessionKeyID) || dev.Session.AppSKey == nil {
 		return errNoAppSKey
@@ -730,6 +747,8 @@ func (as *ApplicationServer) decryptDownlinkMessage(ctx context.Context, ids ttn
 	}
 	return nil
 }
+
+var errPayloadCryptoDisabled = errors.DefineAborted("payload_crypto_disabled", "payload crypto is disabled")
 
 // recalculateDownlinkQueue decrypts items in the given invalid downlink queue, encrypts the items with frame counters
 // starting from the given frame counter, and replaces the downlink queue in the Network Server.
@@ -756,7 +775,6 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 	if previousSession != nil {
 		logger = logger.WithField("previous_session_key_id", previousSession.SessionKeyID)
 	}
-	logger.Debug("Recalculate downlink queue")
 	defer func() {
 		// If something fails, clear the downlink queue as an empty downlink queue is better than a downlink queue
 		// with items that are encrypted with the wrong AppSKey.
@@ -775,6 +793,10 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 			}
 		}
 	}()
+	if dev.SkipPayloadCrypto {
+		return errPayloadCryptoDisabled
+	}
+	logger.Debug("Recalculate downlink queue")
 	newAppSKey, err := cryptoutil.UnwrapAES128Key(ctx, *newSession.AppSKey, as.KeyVault)
 	if err != nil {
 		return err
