@@ -16,8 +16,9 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
-import jsQR from 'jsqr'
-import VideoStream from './video-stream'
+import * as jsQR from 'jsqr'
+import Video from './input/video'
+import Capture from './input/capture'
 
 import style from './qr.styl'
 
@@ -27,6 +28,7 @@ export default class QR extends React.Component {
       data: 'No Result',
       location: null,
     },
+    camera: !!navigator.mediaDevices,
   }
 
   onVideoStreamInit = (state, drawFrame) => {
@@ -47,7 +49,7 @@ export default class QR extends React.Component {
 
   onFrameDecoded = code => {
     const { onChange } = this.props
-    const { result } = this.state
+    const { result, camera } = this.state
 
     if (code !== null) {
       const { data } = code
@@ -64,18 +66,22 @@ export default class QR extends React.Component {
       })
     }
 
-    this.drawVideoFrame()
+    return camera ? this.drawVideoFrame() : true
+  }
+
+  QRInput = function(result, camera) {
+    return camera ? (
+      <Video onFrame={this.onFrame} onInit={this.onVideoStreamInit} location={result.location} />
+    ) : (
+      <Capture onFrame={this.onFrame} />
+    )
   }
 
   render() {
-    const { result } = this.state
+    const { result, camera } = this.state
     return (
       <div className={style.container}>
-        <VideoStream
-          onFrame={this.onFrame}
-          onInit={this.onVideoStreamInit}
-          location={result.location}
-        />
+        {this.QRInput(result, camera)}
         <p className={style.result}>{result.data}</p>
       </div>
     )
