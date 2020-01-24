@@ -29,6 +29,7 @@ import (
 	"github.com/TheThingsIndustries/mystique/pkg/topic"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
+	"go.thethings.network/lorawan-stack/pkg/errorcontext"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/mqtt"
@@ -92,6 +93,7 @@ type connection struct {
 
 func (c *connection) setup(ctx context.Context) error {
 	ctx = auth.NewContextWithInterface(ctx, c)
+	ctx, cancel := errorcontext.New(ctx)
 	c.session = session.New(ctx, c.mqtt, c.deliver)
 	if err := c.session.ReadConnect(); err != nil {
 		return err
@@ -99,7 +101,6 @@ func (c *connection) setup(ctx context.Context) error {
 	ctx = c.io.Context()
 
 	logger := log.FromContext(ctx)
-	errCh := make(chan error)
 	controlCh := make(chan packet.ControlPacket)
 
 	// Read control packets
@@ -110,7 +111,7 @@ func (c *connection) setup(ctx context.Context) error {
 				if err != stdio.EOF {
 					logger.WithError(err).Warn("Error when reading packet")
 				}
-				errCh <- err
+				cancel(err)
 				return
 			}
 			if pkt != nil {
@@ -124,8 +125,12 @@ func (c *connection) setup(ctx context.Context) error {
 	go func() {
 		for {
 			select {
+			case <-ctx.Done():
+				return
 			case <-c.io.Context().Done():
-				logger.WithError(c.io.Context().Err()).Debug("Done sending upstream messages")
+				err := c.io.Context().Err()
+				cancel(err)
+				logger.WithError(err).Debug("Subscription canceled")
 				return
 			case up := <-c.io.Up():
 				logger := logger.WithField("device_uid", unique.ID(up.Context, up.EndDeviceIdentifiers))
@@ -172,7 +177,8 @@ func (c *connection) setup(ctx context.Context) error {
 		for {
 			var err error
 			select {
-			case err = <-errCh:
+			case <-ctx.Done():
+				return
 			case pkt, ok := <-controlCh:
 				if !ok {
 					controlCh = nil
@@ -192,10 +198,18 @@ func (c *connection) setup(ctx context.Context) error {
 				} else {
 					logger.Info("Disconnected")
 				}
-				c.session.Close()
-				c.io.Disconnect(err)
+				cancel(err)
 				return
 			}
+		}
+	}()
+
+	// Close connection on context closure
+	go func() {
+		select {
+		case <-ctx.Done():
+			c.session.Close()
+			c.mqtt.Close()
 		}
 	}()
 

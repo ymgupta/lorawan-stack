@@ -2060,6 +2060,15 @@
       "file": "linking.go"
     }
   },
+  "error:pkg/applicationserver:link_deleted": {
+    "translations": {
+      "en": "link deleted"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc.go"
+    }
+  },
   "error:pkg/applicationserver:link_mode": {
     "translations": {
       "en": "invalid link mode `{value}`"
@@ -2067,6 +2076,15 @@
     "description": {
       "package": "pkg/applicationserver",
       "file": "config.go"
+    }
+  },
+  "error:pkg/applicationserver:link_reset": {
+    "translations": {
+      "en": "link reset"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "grpc.go"
     }
   },
   "error:pkg/applicationserver:listen_frontend": {
@@ -3419,15 +3437,6 @@
       "file": "downstream.go"
     }
   },
-  "error:pkg/gatewayserver/io/basicstationlns/messages:frequency_plan": {
-    "translations": {
-      "en": "invalid frequency plan"
-    },
-    "description": {
-      "package": "pkg/gatewayserver/io/basicstationlns/messages",
-      "file": "messages.go"
-    }
-  },
   "error:pkg/gatewayserver/io/basicstationlns/messages:join_request_message": {
     "translations": {
       "en": "invalid join-request message received"
@@ -3662,9 +3671,36 @@
       "file": "io.go"
     }
   },
+  "error:pkg/gatewayserver/io:frequency_plan_not_configured": {
+    "translations": {
+      "en": "frequency plan `{id}` is not configured for this gateway"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io",
+      "file": "io.go"
+    }
+  },
   "error:pkg/gatewayserver/io:no_absolute_time": {
     "translations": {
       "en": "no absolute time provided for class B downlink"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io",
+      "file": "io.go"
+    }
+  },
+  "error:pkg/gatewayserver/io:no_frequency_plan_id_in_tx_request": {
+    "translations": {
+      "en": "no frequency plan ID in tx request"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io",
+      "file": "io.go"
+    }
+  },
+  "error:pkg/gatewayserver/io:no_gps_sync": {
+    "translations": {
+      "en": "gateway time is not GPS synchronized"
     },
     "description": {
       "package": "pkg/gatewayserver/io",
@@ -3770,6 +3806,24 @@
       "file": "scheduler.go"
     }
   },
+  "error:pkg/gatewayserver/scheduling:frequency_plans_overlap_sub_band": {
+    "translations": {
+      "en": "frequency plans must not have overlapping sub bands"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/scheduling",
+      "file": "scheduler.go"
+    }
+  },
+  "error:pkg/gatewayserver/scheduling:frequency_plans_time_off_air": {
+    "translations": {
+      "en": "frequency plans must have the same time off air value"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/scheduling",
+      "file": "scheduler.go"
+    }
+  },
   "error:pkg/gatewayserver/scheduling:no_absolute_gateway_time": {
     "translations": {
       "en": "no absolute gateway time"
@@ -3827,6 +3881,15 @@
   "error:pkg/gatewayserver:empty_identifiers": {
     "translations": {
       "en": "empty identifiers"
+    },
+    "description": {
+      "package": "pkg/gatewayserver",
+      "file": "gatewayserver.go"
+    }
+  },
+  "error:pkg/gatewayserver:frequency_plans_not_from_same_band": {
+    "translations": {
+      "en": "frequency plans must be from the same band"
     },
     "description": {
       "package": "pkg/gatewayserver",
@@ -6135,6 +6198,15 @@
     "description": {
       "package": "pkg/oauth",
       "file": "server.go"
+    }
+  },
+  "error:pkg/pfconfig/basicstationlns:frequency_plan": {
+    "translations": {
+      "en": "invalid frequency plan `{name}`"
+    },
+    "description": {
+      "package": "pkg/pfconfig/basicstationlns",
+      "file": "basicstationlns.go"
     }
   },
   "error:pkg/pfconfig/shared:empty_gateway_server_address": {
