@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Responsive side navigation (inside entity views) to the Console.
+- Packet Broker Agent to subscribe to uplink traffic from Packet Broker. See `pba` configuration section.
 
 ### Changed
 
