@@ -61,7 +61,7 @@ const Header = function({
     <header {...rest} className={classNames}>
       <div className={style.bar}>
         <div className={style.left}>
-          <Logo href="/" />
+          {logo}
           {!isGuest && <NavigationBar className={style.navList}>{navigationEntries}</NavigationBar>}
         </div>
         {!isGuest && (
@@ -116,7 +116,7 @@ Header.defaultProps = {
   dropdownItems: undefined,
   navigationEntries: undefined,
   onSearchRequest: () => null,
-  logo: <Logo />,
+  logo: <Logo href="/" />,
   searchable: false,
   user: undefined,
 }
