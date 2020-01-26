@@ -130,7 +130,7 @@ require (
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/goldmark v1.1.20 // indirect
 	go.opencensus.io v0.22.2
-	go.packetbroker.org/api/v1beta2 v0.0.0-20200124114050-f93a0b83fc58
+	go.packetbroker.org/api/v1beta3 v0.0.0-20200126144936-253cfcf1fb9c
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.18.0
 	gocloud.dev/pubsub/natspubsub v0.18.0
