@@ -6,6 +6,4 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 )
 
-var (
-	errNoTenant = errors.DefineNotFound("no_tenant", "no tenant present in context")
-)
+var errNoTenant = errors.DefineNotFound("no_tenant", "no tenant present in context")

@@ -760,7 +760,7 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 	))
 	ctx = log.NewContext(ctx, logger)
 
-	if tenant.FromContext(ctx) == cluster.PacketBrokerTenantID {
+	if !ns.enterpriseConfig.SwitchPeeringTenantContext && tenant.FromContext(ctx) == cluster.PacketBrokerTenantID {
 		logger.Debug("Drop data uplink with Packet Broker tenant")
 		return errNoTenant
 	}
