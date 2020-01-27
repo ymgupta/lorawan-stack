@@ -16,7 +16,6 @@ import React, { useState, useCallback } from 'react'
 import classnames from 'classnames'
 
 import Logo from '../../containers/logo'
-
 import NavigationBar from '../navigation/bar'
 import ProfileDropdown from '../profile-dropdown'
 import MobileMenu from '../mobile-menu'
