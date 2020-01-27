@@ -5948,6 +5948,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:no_tenant": {
+    "translations": {
+      "en": "no tenant present in context"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.tti.go"
+    }
+  },
   "error:pkg/networkserver:outdated_data": {
     "translations": {
       "en": "data is outdated"
