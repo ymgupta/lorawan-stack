@@ -130,19 +130,19 @@ require (
 	github.com/valyala/fasttemplate v1.1.0 // indirect
 	github.com/yuin/goldmark v1.1.20 // indirect
 	go.opencensus.io v0.22.2
+	go.packetbroker.org/api v1.0.1
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.18.0
 	gocloud.dev/pubsub/natspubsub v0.18.0
 	golang.org/x/crypto v0.0.0-20200109152110-61a87790db17
 	golang.org/x/image v0.0.0-20191214001246-9130b4cfad52 // indirect
-	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
+	golang.org/x/net v0.0.0-20200114155413-6afb5195e5aa
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20200107162124-548cf772de50 // indirect
 	golang.org/x/tools v0.0.0-20200110042803-e2f26524b78c
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.15.0
-	google.golang.org/genproto v0.0.0-20200108215221-bd8f9a0ef82f
+	google.golang.org/genproto v0.0.0-20200127141224-2548664c049f
 	google.golang.org/grpc v1.26.0
 	// Do not upgrade go-sqlmock beyond v1.3.0 until https://github.com/heptiolabs/healthcheck/issues/23 is resolved
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.3.0 // indirect

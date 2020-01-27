@@ -1,4 +1,4 @@
-// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
+// Copyright © 2020 The Things Network Foundation, The Things Industries B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package applicationserver
+package shared
 
-import (
-	"time"
+import "go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
 
-	"go.thethings.network/lorawan-stack/pkg/component"
-	"go.thethings.network/lorawan-stack/pkg/util/test"
-)
-
-func init() {
-	component.TaskBackoffDial = []time.Duration{(1 << 5) * test.Delay}
-}
+// DefaultPacketBrokerAgentConfig is the default configuration for the Packet Broker Agent.
+var DefaultPacketBrokerAgentConfig = packetbrokeragent.Config{}

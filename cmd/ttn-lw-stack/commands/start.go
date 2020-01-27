@@ -44,6 +44,7 @@ import (
 	jsredis "go.thethings.network/lorawan-stack/pkg/joinserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/networkserver"
 	nsredis "go.thethings.network/lorawan-stack/pkg/networkserver/redis"
+	"go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
 	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
 	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
@@ -53,7 +54,7 @@ import (
 var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
 
 var startCommand = &cobra.Command{
-	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|dcs|cs|tbs|all]... [flags]",
+	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|pba|dcs|cs|tbs|all]... [flags]",
 	Short: "Start The Things Enterprise Stack",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var start struct {
@@ -66,6 +67,7 @@ var startCommand = &cobra.Command{
 			GatewayConfigurationServer bool
 			DeviceTemplateConverter    bool
 			QRCodeGenerator            bool
+			PacketBrokerAgent          bool
 
 			DeviceClaimingServer bool
 			CryptoServer         bool
@@ -100,6 +102,8 @@ var startCommand = &cobra.Command{
 				start.DeviceTemplateConverter = true
 			case "qrg":
 				start.QRCodeGenerator = true
+			case "pba":
+				start.PacketBrokerAgent = true
 
 			case "cs", "cryptoserver":
 				start.CryptoServer = true
@@ -118,6 +122,7 @@ var startCommand = &cobra.Command{
 				start.GatewayConfigurationServer = true
 				start.DeviceTemplateConverter = true
 				start.QRCodeGenerator = true
+				start.PacketBrokerAgent = true
 
 				start.DeviceClaimingServer = true
 				start.CryptoServer = true
@@ -293,6 +298,15 @@ var startCommand = &cobra.Command{
 				return shared.ErrInitializeQRCodeGenerator.WithCause(err)
 			}
 			_ = qrg
+		}
+
+		if start.PacketBrokerAgent {
+			logger.Info("Setting up Packet Broker Agent")
+			pba, err := packetbrokeragent.New(c, &config.PBA)
+			if err != nil {
+				return shared.ErrInitializePacketBrokerAgent.WithCause(err)
+			}
+			_ = pba
 		}
 
 		if start.CryptoServer {

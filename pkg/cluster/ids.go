@@ -12,15 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package applicationserver
+package cluster
 
-import (
-	"time"
+import "go.thethings.network/lorawan-stack/pkg/ttnpb"
 
-	"go.thethings.network/lorawan-stack/pkg/component"
-	"go.thethings.network/lorawan-stack/pkg/util/test"
-)
-
-func init() {
-	component.TaskBackoffDial = []time.Duration{(1 << 5) * test.Delay}
-}
+// PacketBrokerGatewayID is the proxy gateway identifier of gateways connected through Packet Broker.
+var PacketBrokerGatewayID = ttnpb.GatewayIdentifiers{GatewayID: "packetbroker"}

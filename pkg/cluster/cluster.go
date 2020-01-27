@@ -176,6 +176,7 @@ func New(ctx context.Context, config *config.Cluster, options ...Option) (Cluste
 	tryAddPeer("as", config.ApplicationServer, ttnpb.ClusterRole_APPLICATION_SERVER)
 	tryAddPeer("js", config.JoinServer, ttnpb.ClusterRole_JOIN_SERVER)
 	tryAddPeer("cs", config.CryptoServer, ttnpb.ClusterRole_CRYPTO_SERVER)
+	tryAddPeer("pba", config.PacketBrokerAgent, ttnpb.ClusterRole_PACKET_BROKER_AGENT)
 
 	for _, join := range config.Join {
 		c.peers[join] = &peer{
@@ -273,9 +274,22 @@ func (c *cluster) GetPeers(ctx context.Context, role ttnpb.ClusterRole) ([]Peer,
 	return matches, nil
 }
 
+// overridePeerRole may change the peer role depending on the identifiers.
+func overridePeerRole(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) ttnpb.ClusterRole {
+	switch role {
+	case ttnpb.ClusterRole_GATEWAY_SERVER:
+		if ids != nil && ids.EntityType() == "gateway" && ids.IDString() == PacketBrokerGatewayID.GatewayID {
+			return ttnpb.ClusterRole_PACKET_BROKER_AGENT
+		}
+	default:
+	}
+	return role
+}
+
 var errPeerUnavailable = errors.DefineUnavailable("peer_unavailable", "{cluster_role} cluster peer unavailable")
 
 func (c *cluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) (Peer, error) {
+	role = overridePeerRole(ctx, role, ids)
 	matches, err := c.GetPeers(ctx, role)
 	if err != nil {
 		return nil, err
