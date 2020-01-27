@@ -19,6 +19,10 @@ var ConfigurationFieldPathsNested = []string{
 	"default_cluster.is.user_registration.password_requirements.min_length",
 	"default_cluster.is.user_registration.password_requirements.min_special",
 	"default_cluster.is.user_registration.password_requirements.min_uppercase",
+	"default_cluster.ns",
+	"default_cluster.ns.cooldown_window",
+	"default_cluster.ns.deduplication_window",
+	"default_cluster.ns.dev_addr_prefixes",
 	"default_cluster.ui",
 	"default_cluster.ui.branding_base_url",
 }
@@ -49,12 +53,17 @@ var Configuration_ClusterFieldPathsNested = []string{
 	"is.user_registration.password_requirements.min_length",
 	"is.user_registration.password_requirements.min_special",
 	"is.user_registration.password_requirements.min_uppercase",
+	"ns",
+	"ns.cooldown_window",
+	"ns.deduplication_window",
+	"ns.dev_addr_prefixes",
 	"ui",
 	"ui.branding_base_url",
 }
 
 var Configuration_ClusterFieldPathsTopLevel = []string{
 	"is",
+	"ns",
 	"ui",
 }
 var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
@@ -76,6 +85,17 @@ var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
 
 var Configuration_Cluster_IdentityServerFieldPathsTopLevel = []string{
 	"user_registration",
+}
+var Configuration_Cluster_NetworkServerFieldPathsNested = []string{
+	"cooldown_window",
+	"deduplication_window",
+	"dev_addr_prefixes",
+}
+
+var Configuration_Cluster_NetworkServerFieldPathsTopLevel = []string{
+	"cooldown_window",
+	"deduplication_window",
+	"dev_addr_prefixes",
 }
 var Configuration_Cluster_IdentityServer_UserRegistrationFieldPathsNested = []string{
 	"admin_approval",

@@ -52,7 +52,15 @@ message Configuration {
     IdentityServer is = 2 [(gogoproto.customname) = "IS"];
 
     reserved 3; // GatewayServer
-    reserved 4; // NetworkServer
+
+    message NetworkServer {
+      repeated bytes dev_addr_prefixes = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
+      google.protobuf.Duration deduplication_window = 2 [(gogoproto.stdduration) = true];
+      google.protobuf.Duration cooldown_window = 3 [(gogoproto.stdduration) = true];
+    }
+
+    NetworkServer ns = 4 [(gogoproto.customname) = "NS"];
+
     reserved 5; // ApplicationServer
     reserved 6; // JoinServer
     reserved 7; // Console

@@ -6425,6 +6425,33 @@
       "file": "middleware.tti.go"
     }
   },
+  "error:pkg/tenant:no_config": {
+    "translations": {
+      "en": "no configuration"
+    },
+    "description": {
+      "package": "pkg/tenant",
+      "file": "config.tti.go"
+    }
+  },
+  "error:pkg/tenant:no_fetcher": {
+    "translations": {
+      "en": "no fetcher"
+    },
+    "description": {
+      "package": "pkg/tenant",
+      "file": "config.tti.go"
+    }
+  },
+  "error:pkg/tenant:no_tenant_id": {
+    "translations": {
+      "en": "no tenant ID"
+    },
+    "description": {
+      "package": "pkg/tenant",
+      "file": "config.tti.go"
+    }
+  },
   "error:pkg/tenant:tenant_not_found": {
     "translations": {
       "en": "tenant `{tenant_id}` not found"

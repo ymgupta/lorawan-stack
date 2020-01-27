@@ -239,6 +239,24 @@
         }
       }
     },
+    "ClusterNetworkServer": {
+      "type": "object",
+      "properties": {
+        "dev_addr_prefixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "deduplication_window": {
+          "type": "string"
+        },
+        "cooldown_window": {
+          "type": "string"
+        }
+      }
+    },
     "ConfigurationCluster": {
       "type": "object",
       "properties": {
@@ -248,6 +266,9 @@
         "is": {
           "$ref": "#/definitions/ClusterIdentityServer",
           "description": "Identity Server configuration."
+        },
+        "ns": {
+          "$ref": "#/definitions/ClusterNetworkServer"
         }
       }
     },

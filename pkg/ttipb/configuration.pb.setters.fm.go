@@ -114,6 +114,31 @@ func (dst *Configuration_Cluster) SetFields(src *Configuration_Cluster, paths ..
 					dst.IS = nil
 				}
 			}
+		case "ns":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_NetworkServer
+				if (src == nil || src.NS == nil) && dst.NS == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.NS
+				}
+				if dst.NS != nil {
+					newDst = dst.NS
+				} else {
+					newDst = &Configuration_Cluster_NetworkServer{}
+					dst.NS = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.NS = src.NS
+				} else {
+					dst.NS = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -149,6 +174,44 @@ func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cl
 				} else {
 					dst.UserRegistration = nil
 				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_NetworkServer) SetFields(src *Configuration_Cluster_NetworkServer, paths ...string) error {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		switch name {
+		case "dev_addr_prefixes":
+			if len(subs) > 0 {
+				return fmt.Errorf("'dev_addr_prefixes' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DevAddrPrefixes = src.DevAddrPrefixes
+			} else {
+				dst.DevAddrPrefixes = nil
+			}
+		case "deduplication_window":
+			if len(subs) > 0 {
+				return fmt.Errorf("'deduplication_window' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DeduplicationWindow = src.DeduplicationWindow
+			} else {
+				dst.DeduplicationWindow = nil
+			}
+		case "cooldown_window":
+			if len(subs) > 0 {
+				return fmt.Errorf("'cooldown_window' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.CooldownWindow = src.CooldownWindow
+			} else {
+				dst.CooldownWindow = nil
 			}
 
 		default:

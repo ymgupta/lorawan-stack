@@ -15,6 +15,7 @@
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.Invitation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements)
+  - [Message `Configuration.Cluster.NetworkServer`](#tti.lorawan.v3.Configuration.Cluster.NetworkServer)
   - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
@@ -79,6 +80,7 @@
 | ----- | ---- | ----- | ----------- |
 | `ui` | [`Configuration.UI`](#tti.lorawan.v3.Configuration.UI) |  |  |
 | `is` | [`Configuration.Cluster.IdentityServer`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer) |  | Identity Server configuration. |
+| `ns` | [`Configuration.Cluster.NetworkServer`](#tti.lorawan.v3.Configuration.Cluster.NetworkServer) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer">Message `Configuration.Cluster.IdentityServer`</a>
 
@@ -123,6 +125,14 @@
 | `min_uppercase` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
 | `min_digits` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
 | `min_special` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.NetworkServer">Message `Configuration.Cluster.NetworkServer`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `dev_addr_prefixes` | [`bytes`](#bytes) | repeated |  |
+| `deduplication_window` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
+| `cooldown_window` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.UI">Message `Configuration.UI`</a>
 

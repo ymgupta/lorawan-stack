@@ -121,6 +121,16 @@
               "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "ns",
+              "description": "",
+              "label": "",
+              "type": "NetworkServer",
+              "longType": "Configuration.Cluster.NetworkServer",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.NetworkServer",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -325,6 +335,47 @@
               "type": "UInt32Value",
               "longType": "google.protobuf.UInt32Value",
               "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "NetworkServer",
+          "longName": "Configuration.Cluster.NetworkServer",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.NetworkServer",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "dev_addr_prefixes",
+              "description": "",
+              "label": "repeated",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "deduplication_window",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "cooldown_window",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
               "ismap": false,
               "defaultValue": ""
             }
