@@ -16,47 +16,60 @@
   display: flex
   align-items: center
 
-  .logo a
-    display: block
+  img
+    height: 100%
+    width: 100%
+    object-fit: contain
+    object-position: left
+
+  .logo-container
+    display: flex
+    align-items: center
     line-height: 0
+    width: 11rem
+    height: 2.3rem
+    +media-query($bp.s)
+      width: 9rem
+      height: 2.1rem
 
-  &:not(.vertical)
-    &:not(.custom-branding)
-      img
-        height: 100%
+  .logo
+    display: flex
+    align-items: center
 
-    .logo
-      height: 2.2rem
-      width: 100%
+  .secondary-logo
+    display: flex
+    align-items: center
+    flex-direction: column
+
+    &-container
       display: flex
       align-items: center
 
+  &:not(.vertical)
     &.custom-branding .logo
-      border-dark('right')
       display: flex
       align-items: center
       padding-right: $ls.xs
       +media-query($bp.s)
         padding-right: $ls.xxs
 
-      img
-        height: auto
-        width: 10rem
+      .logo-container
         +media-query($bp.s)
-          width: 7rem
+          max-width: 7rem
 
     .secondary-logo
-      display: flex
-      flex-direction: column
+      border-dark('left')
       align-items: center
       padding-left: $ls.xs
       +media-query($bp.s)
         padding-left: $ls.xxs
 
-      img
-        height: 1.6rem
+      &-container
+        width: 9rem
+        height: 1.9rem
         +media-query($bp.s)
-          height: 1.1rem
+          width: 6rem
+          height: 1.5rem
 
   &.vertical
     max-width: 15rem
@@ -69,18 +82,16 @@
       margin-bottom: $ls.xs
       height: auto
 
-      img
+      &-container
         width: 100%
         height: auto
 
     .secondary-logo
-      display: flex
-      align-items: center
       margin-left: auto
       margin-right: auto
-      flex-direction: column
 
-      img
+      &-container
+        display: block
         height: 2.2rem
 
 .text
@@ -89,6 +100,8 @@
   text-decoration: none
   margin-top: $cs.xs
   font-size: $fs.s
+  +media-query($bp.s)
+    margin-top: $cs.xxs
 
   .cluster-tag
     font-family: $font-family-mono
