@@ -21,6 +21,7 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/gogo/protobuf/proto"
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -81,13 +82,18 @@ func (r *DeviceRegistry) GetByID(ctx context.Context, appID ttnpb.ApplicationIde
 func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI64, paths []string) (*ttnpb.EndDevice, context.Context, error) {
 	defer trace.StartRegion(ctx, "get end device by eui").End()
 
+	ctxTntID := tenant.FromContext(ctx)
 	pb := &ttnpb.EndDevice{}
 	if err := ttnredis.FindProto(r.Redis, r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
 		tntID, err := unique.ToTenantID(uid)
 		if err != nil {
 			return "", err
 		}
-		if tntID != tenant.FromContext(ctx) {
+		switch ctxTntID {
+		case tntID:
+		case cluster.PacketBrokerTenantID:
+			ctx = tenant.NewContext(ctx, tntID)
+		default:
 			return "", errNotFound
 		}
 		return r.uidKey(uid), nil
@@ -111,10 +117,13 @@ func (r *DeviceRegistry) RangeByAddr(ctx context.Context, addr types.DevAddr, pa
 		if err != nil {
 			return nil, nil
 		}
-		if tntID != ctxTntID {
+		switch ctxTntID {
+		case tntID:
+		case cluster.PacketBrokerTenantID:
+			ctx = tenant.NewContext(ctx, tntID)
+		default:
 			return nil, nil
 		}
-
 		pb := &ttnpb.EndDevice{}
 		return pb, func() (bool, error) {
 			pb, err := ttnpb.FilterGetEndDevice(pb, paths...)
