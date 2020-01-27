@@ -25,11 +25,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
-var (
-	errLinkDeleted = errors.DefineAborted("link_deleted", "link deleted")
-	errLinkReset   = errors.DefineUnavailable("link_reset", "link reset")
-)
-
 // GetLink implements ttnpb.AsServer.
 func (as *ApplicationServer) GetLink(ctx context.Context, req *ttnpb.GetApplicationLinkRequest) (*ttnpb.ApplicationLink, error) {
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_LINK); err != nil {
@@ -52,7 +47,7 @@ func (as *ApplicationServer) SetLink(ctx context.Context, req *ttnpb.SetApplicat
 	if err != nil {
 		return nil, err
 	}
-	if err := as.cancelLink(ctx, req.ApplicationIdentifiers, errLinkReset); err != nil && !errors.IsNotFound(err) {
+	if err := as.cancelLink(ctx, req.ApplicationIdentifiers); err != nil && !errors.IsNotFound(err) {
 		log.FromContext(ctx).WithError(err).Warn("Failed to cancel link")
 	}
 	as.startLinkTask(tenant.NewContext(as.Context(), tenant.FromContext(ctx)), req.ApplicationIdentifiers)
@@ -69,7 +64,7 @@ func (as *ApplicationServer) DeleteLink(ctx context.Context, ids *ttnpb.Applicat
 	if err := rights.RequireApplication(ctx, *ids, ttnpb.RIGHT_APPLICATION_LINK); err != nil {
 		return nil, err
 	}
-	if err := as.cancelLink(ctx, *ids, errLinkDeleted); err != nil && !errors.IsNotFound(err) {
+	if err := as.cancelLink(ctx, *ids); err != nil && !errors.IsNotFound(err) {
 		log.FromContext(ctx).WithError(err).Warn("Failed to cancel link")
 	}
 	_, err := as.linkRegistry.Set(ctx, *ids, nil, func(link *ttnpb.ApplicationLink) (*ttnpb.ApplicationLink, []string, error) { return nil, nil, nil })
