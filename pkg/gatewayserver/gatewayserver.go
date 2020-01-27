@@ -42,6 +42,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/udp"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream/ns"
+	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream/packetbroker"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
@@ -241,6 +242,8 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 		switch name {
 		case "", "cluster":
 			handler = ns.NewHandler(ctx, c, prefix)
+		case "packetbroker":
+			handler = packetbroker.NewHandler(ctx, c, prefix)
 		default:
 			return nil, errInvalidUpstreamName.WithAttributes("name", name)
 		}
