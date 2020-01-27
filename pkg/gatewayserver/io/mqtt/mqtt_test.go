@@ -28,6 +28,7 @@ import (
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mock"
 	. "go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
@@ -71,6 +72,7 @@ func TestAuthentication(t *testing.T) {
 			},
 		},
 	})
+	c.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
 	componenttest.StartComponent(t, c)
 	defer c.Close()
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
@@ -149,6 +151,7 @@ func TestTraffic(t *testing.T) {
 			},
 		},
 	})
+	c.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
 	componenttest.StartComponent(t, c)
 	defer c.Close()
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
@@ -254,7 +257,7 @@ func TestTraffic(t *testing.T) {
 					if tc.OK {
 						a.So(time.Since(up.ReceivedAt), should.BeLessThan, timeout)
 						up.ReceivedAt = time.Time{}
-						a.So(up, should.Resemble, tc.Message)
+						a.So(up.UplinkMessage, should.Resemble, tc.Message)
 					} else {
 						t.Fatalf("Did not expect uplink message, but have %v", up)
 					}
