@@ -34,6 +34,8 @@ var (
 	setApplicationPubSubFlags          = util.FieldFlags(&ttnpb.ApplicationPubSub{})
 	natsProviderApplicationPubSubFlags = util.FieldFlags(&ttnpb.ApplicationPubSub_NATSProvider{}, "nats")
 	mqttProviderApplicationPubSubFlags = util.FieldFlags(&ttnpb.ApplicationPubSub_MQTTProvider{}, "mqtt")
+
+	awsiotProviderApplicationPubSubFlags = util.FieldFlags(&ttnpb.ApplicationPubSub_AWSIoTProvider{}, "aws_iot")
 )
 
 func applicationPubSubIDFlags() *pflag.FlagSet {
@@ -52,6 +54,8 @@ func applicationPubSubProviderFlags() *pflag.FlagSet {
 	flagSet.AddFlagSet(dataFlags("mqtt.tls-ca", ""))
 	flagSet.AddFlagSet(dataFlags("mqtt.tls-client-cert", ""))
 	flagSet.AddFlagSet(dataFlags("mqtt.tls-client-key", ""))
+	flagSet.Bool("aws-iot", false, "use the AWS IoT provider")
+	flagSet.AddFlagSet(awsiotProviderApplicationPubSubFlags)
 	addDeprecatedProviderFlags(flagSet)
 	return flagSet
 }
@@ -258,6 +262,22 @@ var (
 					}
 				}
 				if err = util.SetFields(pubsub.GetMQTT(), mqttProviderApplicationPubSubFlags, "mqtt"); err != nil {
+					return err
+				}
+			}
+
+			if awsiot, _ := cmd.Flags().GetBool("aws-iot"); awsiot {
+				if pubsub.GetAWSIoT() == nil {
+					paths = append(paths, "provider")
+					pubsub.Provider = &ttnpb.ApplicationPubSub_AWSIoT{
+						AWSIoT: &ttnpb.ApplicationPubSub_AWSIoTProvider{},
+					}
+				} else {
+					providerPaths := util.UpdateFieldMask(cmd.Flags(), awsiotProviderApplicationPubSubFlags)
+					providerPaths = ttnpb.FieldsWithPrefix("provider", providerPaths...)
+					paths = append(paths, providerPaths...)
+				}
+				if err = util.SetFields(pubsub.GetAWSIoT(), awsiotProviderApplicationPubSubFlags, "aws_iot"); err != nil {
 					return err
 				}
 			}
