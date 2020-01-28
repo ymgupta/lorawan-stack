@@ -26,6 +26,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	clusterauth "go.thethings.network/lorawan-stack/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/pkg/band"
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
@@ -758,6 +759,11 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 		"uplink_f_cnt", pld.FCnt,
 	))
 	ctx = log.NewContext(ctx, logger)
+
+	if !ns.enterpriseConfig.SwitchPeeringTenantContext && tenant.FromContext(ctx) == cluster.PacketBrokerTenantID {
+		logger.Debug("Drop data uplink with Packet Broker tenant")
+		return errNoTenant
+	}
 
 	logger.Debug("Match device")
 

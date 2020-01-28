@@ -111,6 +111,8 @@ type NetworkServer struct {
 	*component.Component
 	ctx context.Context
 
+	enterpriseConfig EnterpriseConfig
+
 	devices DeviceRegistry
 
 	netID      types.NetID
@@ -201,6 +203,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	ns := &NetworkServer{
 		Component:            c,
 		ctx:                  ctx,
+		enterpriseConfig:     conf.EnterpriseConfig,
 		netID:                conf.NetID,
 		newDevAddr:           makeNewDevAddrFunc(devAddrPrefixes...),
 		applicationServers:   &sync.Map{},
