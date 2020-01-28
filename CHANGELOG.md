@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Responsive side navigation (inside entity views) to the Console.
 - Packet Broker Agent to subscribe to uplink traffic from and publish uplink traffic to Packet Broker. See `pba` configuration section.
+- Overall responsiveness of the Console.
 
 ### Changed
 
@@ -19,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
+- Crashes on Gateway Server start when traffic flow started while The Things Stack was still starting.
+- Not detecting session change in Application Server when interop Join Server did not provide a `SessionKeyID`.
 
 ### Security
 
