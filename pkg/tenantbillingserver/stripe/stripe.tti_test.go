@@ -65,12 +65,13 @@ func TestRecurringPlan(t *testing.T) {
 		}
 
 		url := fmt.Sprintf("http://127.0.0.1:8099/api/v3/tbs/stripe")
+		client := createHTTPClient()
 
 		// Create the subscription, without the tenant ID.
 		req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(recurringSubscriptionCreatedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 
@@ -80,7 +81,7 @@ func TestRecurringPlan(t *testing.T) {
 		req, err = http.NewRequest(http.MethodPost, url, bytes.NewReader(recurringSubscriptionUpdatedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err = http.DefaultClient.Do(req)
+		resp, err = client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 
@@ -104,7 +105,7 @@ func TestRecurringPlan(t *testing.T) {
 		req, err = http.NewRequest(http.MethodPost, url, bytes.NewReader(recurringSubscriptionDeletedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err = http.DefaultClient.Do(req)
+		resp, err = client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 
@@ -148,12 +149,13 @@ func TestMeteredPlan(t *testing.T) {
 		}
 
 		url := fmt.Sprintf("http://127.0.0.1:8099/api/v3/tbs/stripe")
+		client := createHTTPClient()
 
 		// Create the subscription, without the tenant ID.
 		req, err := http.NewRequest(http.MethodPost, url, bytes.NewReader(meteredSubscriptionCreatedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 
@@ -163,7 +165,7 @@ func TestMeteredPlan(t *testing.T) {
 		req, err = http.NewRequest(http.MethodPost, url, bytes.NewReader(meteredSubscriptionUpdatedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err = http.DefaultClient.Do(req)
+		resp, err = client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 
@@ -188,7 +190,7 @@ func TestMeteredPlan(t *testing.T) {
 		req, err = http.NewRequest(http.MethodPost, url, bytes.NewReader(meteredSubscriptionDeletedEventData))
 		a.So(err, should.BeNil)
 
-		resp, err = http.DefaultClient.Do(req)
+		resp, err = client.Do(req)
 		a.So(err, should.BeNil)
 		a.So(resp, should.NotBeNil)
 

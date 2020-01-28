@@ -4,6 +4,9 @@ package stripe_test
 
 import (
 	"context"
+	"net"
+	"net/http"
+	"time"
 
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
@@ -102,4 +105,22 @@ func createStripeMock(ctx context.Context, apiKey string, mock *mockStripeBacken
 	backends := stripe.NewBackends(nil)
 	backends.API = mock
 	return client.New(apiKey, backends)
+}
+
+func createHTTPClient() *http.Client {
+	return &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   30 * time.Second,
+				KeepAlive: 30 * time.Second,
+				DualStack: true,
+			}).DialContext,
+			ForceAttemptHTTP2:     true,
+			MaxIdleConns:          100,
+			IdleConnTimeout:       90 * time.Second,
+			TLSHandshakeTimeout:   10 * time.Second,
+			ExpectContinueTimeout: 1 * time.Second,
+		},
+	}
 }
