@@ -14,7 +14,26 @@
 
 package shared
 
-import "go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
+import (
+	"time"
+
+	"go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
+)
 
 // DefaultPacketBrokerAgentConfig is the default configuration for the Packet Broker Agent.
-var DefaultPacketBrokerAgentConfig = packetbrokeragent.Config{}
+var DefaultPacketBrokerAgentConfig = packetbrokeragent.Config{
+	HomeNetwork: packetbrokeragent.HomeNetworkConfig{
+		WorkerPool: packetbrokeragent.WorkerPoolConfig{
+			MaximumWorkerCount: (1 << 12),
+			IdleTimeout:        (1 << 7) * time.Millisecond,
+			BusyTimeout:        (1 << 6) * time.Millisecond,
+		},
+	},
+	Forwarder: packetbrokeragent.ForwarderConfig{
+		WorkerPool: packetbrokeragent.WorkerPoolConfig{
+			MaximumWorkerCount: (1 << 10),
+			IdleTimeout:        (1 << 7) * time.Millisecond,
+			BusyTimeout:        (1 << 6) * time.Millisecond,
+		},
+	},
+}
