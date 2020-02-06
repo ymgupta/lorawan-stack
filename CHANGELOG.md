@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Channel mask encoding in LinkADR MAC command.
+- Frequency plan validation in Network Server on device update.
+- Authentication of Basic Station gateways.
+
 ### Security
 
 ## [3.5.1] (2020-01-29)
