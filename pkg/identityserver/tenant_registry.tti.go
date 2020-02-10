@@ -119,7 +119,8 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 
 	if usr != nil {
 		ctx := tenant.NewContext(ctx, tnt.TenantIdentifiers)
-		err = is.SendUserEmail(ctx, &usr.UserIdentifiers, func(data emails.Data) email.MessageData {
+		err = is.SendEmail(ctx, func(data emails.Data) email.MessageData {
+			data.SetUser(usr)
 			data.Entity.Type, data.Entity.ID = "tenant", tnt.TenantID
 			return &emails.TenantCreated{
 				Data:              data,
