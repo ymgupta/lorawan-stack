@@ -174,11 +174,11 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	if err := is.config.Tenancy.decodeAdminKeys(is.ctx); err != nil {
 		return nil, err
 	}
+	var fetcher tenant.Fetcher = tenant.FetcherFunc(is.getTenantForFetcher)
+	if ttl := c.GetBaseConfig(is.Context()).Tenancy.CacheTTL; ttl > 0 {
+		fetcher = tenant.NewCachedFetcher(fetcher, ttl, ttl)
+	}
 	c.AddContextFiller(func(ctx context.Context) context.Context {
-		var fetcher tenant.Fetcher = tenant.FetcherFunc(is.getTenantForFetcher)
-		if ttl := c.GetBaseConfig(is.Context()).Tenancy.CacheTTL; ttl > 0 {
-			fetcher = tenant.NewCachedFetcher(fetcher, ttl, ttl)
-		}
 		ctx = tenant.NewContextWithFetcher(ctx, fetcher)
 		return ctx
 	})
