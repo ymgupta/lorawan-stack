@@ -19,6 +19,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [3.5.3] (2020-02-14)
+
+### Added
+
+- Display of error payloads in console event log.
+- Zero coordinate handling in location form in the Console.
+
+### Fixed
+
+- Updating `supports_class_c` field in the Device General Settings Page in the Console.
+- Updating MQTT pubsub configuration in the Console
+- Handling multiple consequent updates of MQTT pubsub/webhook integrations in the Console.
+- Displaying total device count in application overview section when using device search in the Console
+- FQDN used for Backend Interfaces interoperability requests.
+- Exposing device sensitive fields to unrelated stack components in the Console.
+- CLI trying to read input while none available.
+- Reconnections of gateways whose previous connection was not cleaned up properly. New connections from the same gateway now actively disconnects existing connections.
+
 ## [3.5.2] (2020-02-06)
 
 ### Fixed
@@ -40,6 +58,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Crashes on Gateway Server start when traffic flow started while The Things Stack was still starting.
 - Not detecting session change in Application Server when interop Join Server did not provide a `SessionKeyID`.
+- `ttn-lw-stack` and `ttn-lw-cli` file permission errors when installed using snap.
+  - You may need to run `sudo snap connect ttn-lw-stack:personal-files`
 
 ## [3.5.0] (2020-01-24)
 
@@ -596,7 +616,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.2...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.3...HEAD
+[3.5.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.2...v3.5.3
 [3.5.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.1...v3.5.2
 [3.5.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.4.2...v3.5.0
