@@ -31,6 +31,7 @@ import (
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
+	"go.thethings.network/lorawan-stack/pkg/errorcontext"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
@@ -142,12 +143,15 @@ func TestGatewayServer(t *testing.T) {
 			Protocol               string
 			SupportsStatus         bool
 			DetectsInvalidMessages bool
+			DetectsDisconnect      bool
+			TimeoutOnInvalidAuth   bool
 			ValidAuth              func(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string) bool
 			Link                   func(ctx context.Context, t *testing.T, ids ttnpb.GatewayIdentifiers, key string, upCh <-chan *ttnpb.GatewayUp, downCh chan<- *ttnpb.GatewayDown) error
 		}{
 			{
-				Protocol:       "grpc",
-				SupportsStatus: true,
+				Protocol:          "grpc",
+				SupportsStatus:    true,
+				DetectsDisconnect: true,
 				ValidAuth: func(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string) bool {
 					return ids.GatewayID == registeredGatewayID && key == registeredGatewayKey
 				},
@@ -172,7 +176,7 @@ func TestGatewayServer(t *testing.T) {
 					if err != nil {
 						return err
 					}
-					errCh := make(chan error, 2)
+					ctx, cancel := errorcontext.New(ctx)
 					// Write upstream.
 					go func() {
 						for {
@@ -181,7 +185,7 @@ func TestGatewayServer(t *testing.T) {
 								return
 							case msg := <-upCh:
 								if err := link.Send(msg); err != nil {
-									errCh <- err
+									cancel(err)
 									return
 								}
 							}
@@ -192,23 +196,21 @@ func TestGatewayServer(t *testing.T) {
 						for {
 							msg, err := link.Recv()
 							if err != nil {
-								errCh <- err
+								cancel(err)
 								return
 							}
 							downCh <- msg
 						}
 					}()
-					select {
-					case err := <-errCh:
-						return err
-					case <-ctx.Done():
-						return ctx.Err()
-					}
+					<-ctx.Done()
+					return ctx.Err()
 				},
 			},
 			{
-				Protocol:       "mqtt",
-				SupportsStatus: true,
+				Protocol:             "mqtt",
+				SupportsStatus:       true,
+				DetectsDisconnect:    true,
+				TimeoutOnInvalidAuth: true, // The MQTT client keeps reconnecting on invalid auth.
 				ValidAuth: func(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string) bool {
 					return ids.GatewayID == registeredGatewayID && key == registeredGatewayKey
 				},
@@ -216,18 +218,22 @@ func TestGatewayServer(t *testing.T) {
 					if ids.GatewayID == "" {
 						t.SkipNow()
 					}
+					ctx, cancel := errorcontext.New(ctx)
 					clientOpts := mqtt.NewClientOptions()
 					clientOpts.AddBroker("tcp://0.0.0.0:1882")
 					clientOpts.SetUsername(unique.ID(ctx, ids))
 					clientOpts.SetPassword(key)
+					clientOpts.SetAutoReconnect(false)
+					clientOpts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
+						cancel(err)
+					})
 					client := mqtt.NewClient(clientOpts)
 					if token := client.Connect(); !token.WaitTimeout(timeout) {
-						return errors.New("connect timeout")
-					} else if token.Error() != nil {
-						return token.Error()
+						return context.DeadlineExceeded
+					} else if err := token.Error(); err != nil {
+						return err
 					}
 					defer client.Disconnect(uint(timeout / time.Millisecond))
-					errCh := make(chan error, 2)
 					// Write upstream.
 					go func() {
 						for {
@@ -238,33 +244,33 @@ func TestGatewayServer(t *testing.T) {
 								for _, msg := range up.UplinkMessages {
 									buf, err := msg.Marshal()
 									if err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 									if token := client.Publish(fmt.Sprintf("v3/%v/up", unique.ID(ctx, ids)), 1, false, buf); token.Wait() && token.Error() != nil {
-										errCh <- token.Error()
+										cancel(token.Error())
 										return
 									}
 								}
 								if up.GatewayStatus != nil {
 									buf, err := up.GatewayStatus.Marshal()
 									if err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 									if token := client.Publish(fmt.Sprintf("v3/%v/status", unique.ID(ctx, ids)), 1, false, buf); token.Wait() && token.Error() != nil {
-										errCh <- token.Error()
+										cancel(token.Error())
 										return
 									}
 								}
 								if up.TxAcknowledgment != nil {
 									buf, err := up.TxAcknowledgment.Marshal()
 									if err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 									if token := client.Publish(fmt.Sprintf("v3/%v/down/ack", unique.ID(ctx, ids)), 1, false, buf); token.Wait() && token.Error() != nil {
-										errCh <- token.Error()
+										cancel(token.Error())
 										return
 									}
 								}
@@ -275,7 +281,7 @@ func TestGatewayServer(t *testing.T) {
 					token := client.Subscribe(fmt.Sprintf("v3/%v/down", unique.ID(ctx, ids)), 1, func(_ mqtt.Client, raw mqtt.Message) {
 						var msg ttnpb.GatewayDown
 						if err := msg.Unmarshal(raw.Payload()); err != nil {
-							errCh <- err
+							cancel(err)
 							return
 						}
 						downCh <- &msg
@@ -283,12 +289,8 @@ func TestGatewayServer(t *testing.T) {
 					if token.Wait() && token.Error() != nil {
 						return token.Error()
 					}
-					select {
-					case err := <-errCh:
-						return err
-					case <-ctx.Done():
-						return ctx.Err()
-					}
+					<-ctx.Done()
+					return ctx.Err()
 				},
 			},
 			{
@@ -309,7 +311,7 @@ func TestGatewayServer(t *testing.T) {
 					if err != nil {
 						return err
 					}
-					errCh := make(chan error, 3)
+					ctx, cancel := errorcontext.New(ctx)
 					// Write upstream.
 					go func() {
 						var token byte
@@ -333,22 +335,22 @@ func TestGatewayServer(t *testing.T) {
 								}
 								writeBuf, err := packet.MarshalBinary()
 								if err != nil {
-									errCh <- err
+									cancel(err)
 									return
 								}
 								switch packet.PacketType {
 								case encoding.PushData:
 									if _, err := upConn.Write(writeBuf); err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 									if _, err := upConn.Read(readBuf[:]); err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 								case encoding.TxAck:
 									if _, err := downConn.Write(writeBuf); err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
 								}
@@ -374,11 +376,11 @@ func TestGatewayServer(t *testing.T) {
 								}
 								buf, err := pull.MarshalBinary()
 								if err != nil {
-									errCh <- err
+									cancel(err)
 									return
 								}
 								if _, err := downConn.Write(buf); err != nil {
-									errCh <- err
+									cancel(err)
 									return
 								}
 							}
@@ -390,21 +392,21 @@ func TestGatewayServer(t *testing.T) {
 						for {
 							n, err := downConn.Read(buf[:])
 							if err != nil {
-								errCh <- err
+								cancel(err)
 								return
 							}
 							packetBuf := make([]byte, n)
 							copy(packetBuf, buf[:])
 							var packet encoding.Packet
 							if err := packet.UnmarshalBinary(packetBuf); err != nil {
-								errCh <- err
+								cancel(err)
 								return
 							}
 							switch packet.PacketType {
 							case encoding.PullResp:
 								msg, err := encoding.ToDownlinkMessage(packet.Data.TxPacket)
 								if err != nil {
-									errCh <- err
+									cancel(err)
 									return
 								}
 								downCh <- &ttnpb.GatewayDown{
@@ -413,18 +415,15 @@ func TestGatewayServer(t *testing.T) {
 							}
 						}
 					}()
-					select {
-					case err := <-errCh:
-						return err
-					case <-ctx.Done():
-						time.Sleep(config.UDP.ConnectionExpires * 150 / 100) // Ensure that connection expires.
-						return ctx.Err()
-					}
+					<-ctx.Done()
+					time.Sleep(config.UDP.ConnectionExpires * 150 / 100) // Ensure that connection expires.
+					return ctx.Err()
 				},
 			},
 			{
 				Protocol:               "basicstation",
 				SupportsStatus:         false,
+				DetectsDisconnect:      true,
 				DetectsInvalidMessages: true,
 				ValidAuth: func(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string) bool {
 					return ids.EUI != nil
@@ -438,8 +437,7 @@ func TestGatewayServer(t *testing.T) {
 						return err
 					}
 					defer wsConn.Close()
-
-					errCh := make(chan error, 2)
+					ctx, cancel := errorcontext.New(ctx)
 					// Write upstream.
 					go func() {
 						for {
@@ -458,12 +456,12 @@ func TestGatewayServer(t *testing.T) {
 										var jreq messages.JoinRequest
 										err := jreq.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
-											errCh <- err
+											cancel(err)
 											return
 										}
 										bsUpstream, err = jreq.MarshalJSON()
 										if err != nil {
-											errCh <- err
+											cancel(err)
 											return
 										}
 									}
@@ -471,21 +469,18 @@ func TestGatewayServer(t *testing.T) {
 										var updf messages.UplinkDataFrame
 										err := updf.FromUplinkMessage(uplink, test.EUFrequencyPlanID)
 										if err != nil {
-											errCh <- err
+											cancel(err)
 											return
 										}
 										bsUpstream, err = updf.MarshalJSON()
 										if err != nil {
-											errCh <- err
+											cancel(err)
 											return
 										}
 									}
-
 									if err := wsConn.WriteMessage(websocket.TextMessage, bsUpstream); err != nil {
-										if err != nil {
-											errCh <- err
-											return
-										}
+										cancel(err)
+										return
 									}
 								}
 								if msg.TxAcknowledgment != nil {
@@ -493,37 +488,30 @@ func TestGatewayServer(t *testing.T) {
 										Diid:  0,
 										XTime: time.Now().Unix(),
 									}
-
 									bsUpstream, err := txConf.MarshalJSON()
 									if err != nil {
-										errCh <- err
+										cancel(err)
 										return
 									}
-
 									if err := wsConn.WriteMessage(websocket.TextMessage, bsUpstream); err != nil {
-										if err != nil {
-											errCh <- err
-											return
-										}
+										cancel(err)
+										return
 									}
 								}
 							}
 						}
 					}()
-
 					// Read downstream.
 					go func() {
 						for {
 							_, data, err := wsConn.ReadMessage()
 							if err != nil {
-								if !websocket.IsUnexpectedCloseError(err) {
-									errCh <- err
-								}
+								cancel(err)
 								return
 							}
 							var msg messages.DownlinkMessage
 							if err := json.Unmarshal(data, &msg); err != nil {
-								errCh <- err
+								cancel(err)
 								return
 							}
 							dlmesg := msg.ToDownlinkMessage()
@@ -532,13 +520,8 @@ func TestGatewayServer(t *testing.T) {
 							}
 						}
 					}()
-
-					select {
-					case err := <-errCh:
-						return err
-					case <-ctx.Done():
-						return ctx.Err()
-					}
+					<-ctx.Done()
+					return ctx.Err()
 				},
 			},
 		} {
@@ -579,13 +562,56 @@ func TestGatewayServer(t *testing.T) {
 						err := ptc.Link(ctx, t, ctc.ID, ctc.Key, upCh, downCh)
 						cancel()
 						if errors.IsDeadlineExceeded(err) {
-							if !ptc.ValidAuth(ctx, ctc.ID, ctc.Key) {
+							if !ptc.TimeoutOnInvalidAuth && !ptc.ValidAuth(ctx, ctc.ID, ctc.Key) {
 								t.Fatal("Expected link error due to invalid auth")
 							}
 						} else if ptc.ValidAuth(ctx, ctc.ID, ctc.Key) {
 							t.Fatalf("Expected deadline exceeded with valid auth, but have %v", err)
 						}
 					})
+				}
+			})
+
+			// Wait for gateway disconnection to be processed.
+			time.Sleep(timeout)
+
+			t.Run(fmt.Sprintf("DetectDisconnect/%v", ptc.Protocol), func(t *testing.T) {
+				if !ptc.DetectsDisconnect {
+					t.SkipNow()
+				}
+
+				id := ttnpb.GatewayIdentifiers{
+					GatewayID: registeredGatewayID,
+					EUI:       &registeredGatewayEUI,
+				}
+
+				ctx1, fail1 := errorcontext.New(ctx)
+				defer fail1(context.Canceled)
+				go func() {
+					upCh := make(chan *ttnpb.GatewayUp)
+					downCh := make(chan *ttnpb.GatewayDown)
+					err := ptc.Link(ctx1, t, id, registeredGatewayKey, upCh, downCh)
+					fail1(err)
+				}()
+				select {
+				case <-ctx1.Done():
+					t.Fatalf("Expected no link error on first connection but have %v", ctx1.Err())
+				case <-time.After(timeout):
+				}
+
+				ctx2, cancel2 := context.WithDeadline(ctx, time.Now().Add(timeout))
+				upCh := make(chan *ttnpb.GatewayUp)
+				downCh := make(chan *ttnpb.GatewayDown)
+				err := ptc.Link(ctx2, t, id, registeredGatewayKey, upCh, downCh)
+				cancel2()
+				if !errors.IsDeadlineExceeded(err) {
+					t.Fatalf("Expected deadline exceeded on second connection but have %v", err)
+				}
+				select {
+				case <-ctx1.Done():
+					t.Logf("First connection failed when second connected with %v", ctx1.Err())
+				case <-time.After(timeout):
+					t.Fatalf("Expected link failure on first connection when second connected")
 				}
 			})
 
