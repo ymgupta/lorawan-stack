@@ -464,7 +464,7 @@ This will compile binaries for all supported platforms, `deb`, `rpm` and Snapcra
 
 Releasing a new version consists of the following steps:
 
-1. Creating a `release/<version>` branch(further, called "release branch") (e.g. `release/3.2.1`).
+1. Creating a `release/<version>` branch(further, called "release branch") (e.g. `release/v3.2.1`).
 2. Updating the `CHANGELOG.md` file:
   - Change the **Unreleased** section to the new version and add date obtained via `date +%Y-%m-%d` (e.g. `## [3.2.1] - 2019-10-11`)
   - Check if we didn't forget anything important
