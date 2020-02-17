@@ -26,6 +26,8 @@ import m from './messages'
 
 import { deviceClaimValidationSchema } from './validation-schema'
 
+import style from './device-claim-form.styl'
+
 export default class DeviceClaimForm extends Component {
   constructor(props) {
     super(props)
@@ -66,6 +68,7 @@ export default class DeviceClaimForm extends Component {
             name="qrCode"
             description={m.ClaimAuthMessage}
             component={QR}
+            className={style.qrField}
           />
           <SubmitBar>
             <Form.Submit component={SubmitButton} message={sharedMessages.saveChanges} />

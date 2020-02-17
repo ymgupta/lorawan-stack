@@ -20,7 +20,8 @@
 .main
   display: flex
   flex: 1 1 auto
-  height: 'calc(%s - 100vh)' % $header-height
+  +media-query($bp.s)
+    flex-direction: column
 
 .content
   overflow: auto

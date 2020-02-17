@@ -75,7 +75,12 @@ class Video extends Component {
 
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: false,
-      video: videoMode,
+      video: {
+        ...videoMode,
+        frameRate: { ideal: 10, max: 15 },
+        width: { ideal: 1280 },
+        height: { ideal: 720 },
+      },
     })
 
     if (this.video.srcObject !== undefined) {
