@@ -20,10 +20,11 @@ import PropTypes from '../../../lib/prop-types'
 import api from '../../api'
 
 import sharedMessages from '../../../lib/shared-messages'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import Message from '../../../lib/components/message'
+import PageTitle from '../../../components/page-title'
 
 import DeviceClaimForm from '../../containers/device-claim-form'
+
+import style from './device-claim.styl'
 
 @connect(
   function(state, props) {
@@ -59,12 +60,9 @@ export default class DeviceClaim extends Component {
   render() {
     return (
       <Container>
-        <IntlHelmet title={sharedMessages.claimDevice} />
+        <PageTitle title={sharedMessages.claimDevice} className={style.title} />
         <Row>
-          <Col sm={12}>
-            <Message component="h2" content={sharedMessages.claimDevice} />
-          </Col>
-          <Col sm={12}>
+          <Col>
             <DeviceClaimForm
               onSubmit={this.handleSubmit}
               onSubmitSuccess={this.handleSubmitSuccess}

@@ -58,7 +58,6 @@ class ClaimApp extends React.Component {
             />
             <div id="modal-container" />
             <Header className={style.header} />
-            <ToastContainer />
             <main className={style.main}>
               <div className={style.content}>
                 <Switch>
@@ -68,6 +67,7 @@ class ClaimApp extends React.Component {
                 </Switch>
               </div>
             </main>
+            <ToastContainer />
             <Footer className={style.footer} />
           </div>
         </ErrorView>

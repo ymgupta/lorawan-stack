@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.container
-  overflow-y: hidden
+.title
+  h1
+    +media-query($bp.s)
+      font-size: 1rem
+      margin-top: .6rem
+      margin-bottom: .6rem
 
-.result
-  width: 100%
-  word-wrap: break-word
