@@ -24,6 +24,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/events"
+	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -105,7 +106,7 @@ func (ns *NetworkServer) LinkApplication(link ttnpb.AsNs_LinkApplicationServer) 
 	return err
 }
 
-func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACState, multicast bool, queue []*ttnpb.ApplicationDownlink, downs ...*ttnpb.ApplicationDownlink) (unmatchedQueue, unmatchedDowns []*ttnpb.ApplicationDownlink, err error) {
+func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACState, multicast bool, maxDownLen uint16, queue []*ttnpb.ApplicationDownlink, downs ...*ttnpb.ApplicationDownlink) (unmatchedQueue, unmatchedDowns []*ttnpb.ApplicationDownlink, err error) {
 	queue, unmatchedQueue = partitionDownlinksBySessionKeyIDEquality(session.SessionKeyID, queue...)
 	downs, unmatchedDowns = partitionDownlinksBySessionKeyIDEquality(session.SessionKeyID, downs...)
 	switch {
@@ -139,10 +140,11 @@ func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACStat
 			minFCnt = fCnt + 1
 		}
 	}
+
 	for _, down := range downs {
 		switch {
-		case len(down.FRMPayload) > 250:
-			return unmatchedQueue, unmatchedDowns, errApplicationDownlinkTooLong
+		case len(down.FRMPayload) > int(maxDownLen):
+			return unmatchedQueue, unmatchedDowns, errApplicationDownlinkTooLong.WithAttributes("length", len(down.FRMPayload), "max", maxDownLen)
 
 		case down.FCnt < minFCnt:
 			return unmatchedQueue, unmatchedDowns, errFCntTooLow
@@ -156,7 +158,7 @@ func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACStat
 		case multicast && len(down.GetClassBC().GetGateways()) == 0:
 			return unmatchedQueue, unmatchedDowns, errNoPath
 
-		case down.GetClassBC().GetAbsoluteTime() != nil && down.GetClassBC().GetAbsoluteTime().Before(timeNow()):
+		case down.GetClassBC().GetAbsoluteTime() != nil && down.GetClassBC().GetAbsoluteTime().Before(timeNow().Add(macState.CurrentParameters.Rx1Delay.Duration()/2)):
 			return unmatchedQueue, unmatchedDowns, errExpiredDownlink
 		}
 		minFCnt = down.FCnt + 1
@@ -171,22 +173,38 @@ func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACStat
 // - An item's session is neither the device's active session, nor device's pending session;
 // - An item's session matches device's session, but corresponding MACState is missing;
 // - The LoRaWAN version is 1.0.x and an item's FCnt is not higher than the session's NFCntDown.
-func validateQueuedApplicationDownlinks(dev *ttnpb.EndDevice, downs ...*ttnpb.ApplicationDownlink) error {
+func validateQueuedApplicationDownlinks(ctx context.Context, dev *ttnpb.EndDevice, fps *frequencyplans.Store, downs ...*ttnpb.ApplicationDownlink) error {
 	if len(downs) == 0 {
 		return nil
 	}
 
-	var err error
+	fp, phy, err := getDeviceBandVersion(dev, fps)
+	if err != nil {
+		return err
+	}
+	var maxDownLen uint16 = 0
+	for _, dr := range phy.DataRates {
+		if n := dr.MaxMACPayloadSize(fp.DwellTime.GetDownlinks()); n > maxDownLen {
+			maxDownLen = n
+		}
+	}
+	if maxDownLen < 8 {
+		log.FromContext(ctx).Error("Data rate MAC payload size limits too low for application downlink to be scheduled")
+		maxDownLen = 0
+	} else {
+		maxDownLen -= 8
+	}
+
 	unmatchedDowns := downs
 	unmatchedQueue := dev.QueuedApplicationDownlinks
 	if dev.Session != nil {
-		unmatchedDowns, unmatchedQueue, err = validateApplicationDownlinks(*dev.Session, dev.MACState, dev.Multicast, unmatchedQueue, unmatchedDowns...)
+		unmatchedDowns, unmatchedQueue, err = validateApplicationDownlinks(*dev.Session, dev.MACState, dev.Multicast, maxDownLen, unmatchedQueue, unmatchedDowns...)
 		if err != nil {
 			return err
 		}
 	}
 	if dev.PendingSession != nil {
-		unmatchedDowns, unmatchedQueue, err = validateApplicationDownlinks(*dev.PendingSession, dev.PendingMACState, dev.Multicast, unmatchedQueue, unmatchedDowns...)
+		unmatchedDowns, unmatchedQueue, err = validateApplicationDownlinks(*dev.PendingSession, dev.PendingMACState, dev.Multicast, maxDownLen, unmatchedQueue, unmatchedDowns...)
 		if err != nil {
 			return err
 		}
@@ -229,7 +247,7 @@ func (ns *NetworkServer) DownlinkQueueReplace(ctx context.Context, req *ttnpb.Do
 				return nil, nil, errDeviceNotFound
 			}
 			dev.QueuedApplicationDownlinks = nil
-			if err := validateQueuedApplicationDownlinks(dev, req.Downlinks...); err != nil {
+			if err := validateQueuedApplicationDownlinks(ctx, dev, ns.FrequencyPlans, req.Downlinks...); err != nil {
 				return nil, nil, err
 			}
 			dev.QueuedApplicationDownlinks = req.Downlinks
@@ -248,22 +266,8 @@ func (ns *NetworkServer) DownlinkQueueReplace(ctx context.Context, req *ttnpb.Do
 		return ttnpb.Empty, nil
 	}
 
-	var downAt time.Time
-	_, phy, err := getDeviceBandVersion(dev, ns.FrequencyPlans)
-	if err != nil {
-		log.FromContext(ctx).WithError(err).Warn("Failed to determine device band")
-		downAt = timeNow().UTC()
-	} else {
-		var ok bool
-		downAt, ok = nextDataDownlinkAt(ctx, dev, phy, ns.defaultMACSettings)
-		if !ok {
-			return ttnpb.Empty, nil
-		}
-	}
-	downAt = downAt.Add(-nsScheduleWindow)
-	log.FromContext(ctx).WithField("start_at", downAt).Debug("Add downlink task after downlink queue replace")
-	if err := ns.downlinkTasks.Add(ctx, dev.EndDeviceIdentifiers, downAt, true); err != nil {
-		log.FromContext(ctx).WithError(err).Error("Failed to add downlink task after downlink queue replace")
+	if err := ns.updateDataDownlinkTask(ctx, dev, time.Time{}); err != nil {
+		logger.WithError(err).Error("Failed to update downlink task queue after downlink queue replace")
 	}
 	return ttnpb.Empty, nil
 }
@@ -298,7 +302,7 @@ func (ns *NetworkServer) DownlinkQueuePush(ctx context.Context, req *ttnpb.Downl
 			if dev == nil {
 				return nil, nil, errDeviceNotFound
 			}
-			if err := validateQueuedApplicationDownlinks(dev, req.Downlinks...); err != nil {
+			if err := validateQueuedApplicationDownlinks(ctx, dev, ns.FrequencyPlans, req.Downlinks...); err != nil {
 				return nil, nil, err
 			}
 			dev.QueuedApplicationDownlinks = append(dev.QueuedApplicationDownlinks, req.Downlinks...)
@@ -317,22 +321,8 @@ func (ns *NetworkServer) DownlinkQueuePush(ctx context.Context, req *ttnpb.Downl
 		return ttnpb.Empty, nil
 	}
 
-	var downAt time.Time
-	_, phy, err := getDeviceBandVersion(dev, ns.FrequencyPlans)
-	if err != nil {
-		log.FromContext(ctx).WithError(err).Warn("Failed to determine device band")
-		downAt = timeNow().UTC()
-	} else {
-		var ok bool
-		downAt, ok = nextDataDownlinkAt(ctx, dev, phy, ns.defaultMACSettings)
-		if !ok {
-			return ttnpb.Empty, nil
-		}
-	}
-	downAt = downAt.Add(-nsScheduleWindow)
-	log.FromContext(ctx).WithField("start_at", downAt).Debug("Add downlink task after downlink queue push")
-	if err := ns.downlinkTasks.Add(ctx, dev.EndDeviceIdentifiers, downAt, true); err != nil {
-		log.FromContext(ctx).WithError(err).Error("Failed to add downlink task after downlink queue push")
+	if err := ns.updateDataDownlinkTask(ctx, dev, time.Time{}); err != nil {
+		logger.WithError(err).Error("Failed to update downlink task queue after downlink queue push")
 	}
 	return ttnpb.Empty, nil
 }

@@ -1223,6 +1223,15 @@
       "file": "contact_info.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:data_rate_index": {
+    "translations": {
+      "en": "Data rate index is invalid"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_devices.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:end_device_eui_update": {
     "translations": {
       "en": "end device EUIs can not be updated"
@@ -2798,6 +2807,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/crypto:ping_period": {
+    "translations": {
+      "en": "ping period must be a power of 2 between 32 and 4096, got '{value}'"
+    },
+    "description": {
+      "package": "pkg/crypto",
+      "file": "ping_slot.go"
+    }
+  },
   "error:pkg/crypto:rejoin_request_0_2_size": {
     "translations": {
       "en": "invalid rejoin-request type 0 or 2 size of {size} bytes, expected 15 bytes"
@@ -3347,6 +3365,15 @@
       "file": "frequencyplans.go"
     }
   },
+  "error:pkg/frequencyplans:data_rate_index": {
+    "translations": {
+      "en": "Data rate index is invalid"
+    },
+    "description": {
+      "package": "pkg/frequencyplans",
+      "file": "frequencyplans.go"
+    }
+  },
   "error:pkg/frequencyplans:fetch": {
     "translations": {
       "en": "fetching failed"
@@ -3629,6 +3656,15 @@
   "error:pkg/gatewayserver/io/udp:connection_expired": {
     "translations": {
       "en": "connection expired"
+    },
+    "description": {
+      "package": "pkg/gatewayserver/io/udp",
+      "file": "udp.go"
+    }
+  },
+  "error:pkg/gatewayserver/io/udp:connection_not_ready": {
+    "translations": {
+      "en": "connection is not ready"
     },
     "description": {
       "package": "pkg/gatewayserver/io/udp",
@@ -5698,11 +5734,11 @@
   },
   "error:pkg/networkserver:application_downlink_too_long": {
     "translations": {
-      "en": "application downlink payload is too long"
+      "en": "application downlink payload length '{length}' exceeds maximum '{max}'"
     },
     "description": {
       "package": "pkg/networkserver",
-      "file": "downlink.go"
+      "file": "errors.go"
     }
   },
   "error:pkg/networkserver:channel_index": {
@@ -7841,6 +7877,33 @@
   "event:ns.application.end_link": {
     "translations": {
       "en": "end application link"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.class.switch.a": {
+    "translations": {
+      "en": "switched to class A"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.class.switch.b": {
+    "translations": {
+      "en": "switched to class B"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.class.switch.c": {
+    "translations": {
+      "en": "switched to class C"
     },
     "description": {
       "package": "pkg/networkserver",

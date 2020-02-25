@@ -8848,6 +8848,16 @@
               "fullType": "ttn.lorawan.v3.DownlinkMessage",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "last_network_initiated_downlink_at",
+              "description": "Time when the last network-initiated downlink message was scheduled.",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -14770,6 +14780,11 @@
             {
               "name": "MAC_V1_0_3",
               "number": "5",
+              "description": ""
+            },
+            {
+              "name": "MAC_V1_0_4",
+              "number": "6",
               "description": ""
             }
           ]

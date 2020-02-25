@@ -24,7 +24,6 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/getsentry/raven-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -42,7 +41,7 @@ import (
 	rpcfillcontext "go.thethings.network/lorawan-stack/pkg/rpcmiddleware/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
-	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
+	sentrymiddleware "go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/validator"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
@@ -66,7 +65,6 @@ type options struct {
 	streamInterceptors []grpc.StreamServerInterceptor
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
-	sentry             *raven.Client
 
 	tenant tenant.Config
 }
@@ -109,13 +107,6 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 	}
 }
 
-// WithSentry sets a sentry server
-func WithSentry(sentry *raven.Client) Option {
-	return func(o *options) {
-		o.sentry = sentry
-	}
-}
-
 // ErrRPCRecovered is returned when a panic is caught from an RPC.
 var ErrRPCRecovered = errors.DefineInternal("rpc_recovered", "Internal Server Error")
 
@@ -151,7 +142,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		events.StreamServerInterceptor,
 		rpclog.StreamServerInterceptor(ctx),
 		metrics.StreamServerInterceptor,
-		sentry.StreamServerInterceptor(options.sentry),
+		sentrymiddleware.StreamServerInterceptor(),
 		errors.StreamServerInterceptor(),
 		validator.StreamServerInterceptor(),
 		hooks.StreamServerInterceptor(),
@@ -167,7 +158,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		events.UnaryServerInterceptor,
 		rpclog.UnaryServerInterceptor(ctx),
 		metrics.UnaryServerInterceptor,
-		sentry.UnaryServerInterceptor(options.sentry),
+		sentrymiddleware.UnaryServerInterceptor(),
 		errors.UnaryServerInterceptor(),
 		validator.UnaryServerInterceptor(),
 		hooks.UnaryServerInterceptor(),

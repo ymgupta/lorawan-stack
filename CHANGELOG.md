@@ -9,13 +9,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Class B support.
+- WebSocket Ping-Pong support for Basic Station frontend in the Gateway Server.
+- LoRaWAN 1.0.4 support.
+
 ### Changed
+
+- Do not use `personal-files` plugin for snap package.
+- Network Server will never attempt RX1 for devices with `Rx1Delay` of `1` second.
+- Improved efficiency of ADR MAC commands.
+- Gateway Configuration Server will use the default WebSocket TLS port if none is set.
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- End device events subscription release in the Console. 
+- Blocking UDP packet handling while the gateway was still connecting. Traffic is now dropped while the connection is in progress, so that traffic from already connected gateways keep flowing.
+- Join-request transmission parameters.
+- ADR in 72-channel regions.
+- Payload length limits used by Network Server being too low.
+- CLI ignores default config files that cannot be read.
+- Fix device creation rollback potentially deleting existing device with same ID.
 
 ### Security
 
@@ -36,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exposing device sensitive fields to unrelated stack components in the Console.
 - CLI trying to read input while none available.
 - Reconnections of gateways whose previous connection was not cleaned up properly. New connections from the same gateway now actively disconnects existing connections.
+- `ttn-lw-stack` and `ttn-lw-cli` file permission errors when installed using snap.
+  - You may need to run `sudo snap connect ttn-lw-stack:personal-files`
 
 ## [3.5.2] (2020-02-06)
 
@@ -58,8 +77,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Crashes on Gateway Server start when traffic flow started while The Things Stack was still starting.
 - Not detecting session change in Application Server when interop Join Server did not provide a `SessionKeyID`.
-- `ttn-lw-stack` and `ttn-lw-cli` file permission errors when installed using snap.
-  - You may need to run `sudo snap connect ttn-lw-stack:personal-files`
 
 ## [3.5.0] (2020-01-24)
 

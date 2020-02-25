@@ -240,7 +240,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 	if conf.BasicStation.FallbackFrequencyPlanID != "" {
 		bsCtx = frequencyplans.WithFallbackID(bsCtx, conf.BasicStation.FallbackFrequencyPlanID)
 	}
-	bsWebServer := basicstationlns.New(bsCtx, gs, conf.BasicStation.UseTrafficTLSAddress)
+	bsWebServer := basicstationlns.New(bsCtx, gs, conf.BasicStation.UseTrafficTLSAddress, conf.BasicStation.WSPingInterval)
 	for _, endpoint := range []component.Endpoint{
 		component.NewTCPEndpoint(conf.BasicStation.Listen, "Basic Station"),
 		component.NewTLSEndpoint(conf.BasicStation.ListenTLS, "Basic Station", component.WithNextProtos("h2", "http/1.1")),
@@ -392,6 +392,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 		"protocol", frontend.Protocol(),
 		"gateway_uid", uid,
 	))
+	ctx = log.NewContext(ctx, logger)
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:conn:%s", events.NewCorrelationID()))
 
 	var err error
@@ -461,18 +462,19 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 		case <-existingConnEntry.upstreamDone:
 		}
 	}
-	registerGatewayConnect(ctx, ids)
+	registerGatewayConnect(ctx, ids, frontend.Protocol())
 	logger.Info("Connected")
 	go gs.handleUpstream(connEntry)
 	go gs.connStatsUpdater(conn)
 
 	for name, handler := range gs.upstreamHandlers {
-		go func(name string, handler upstream.Handler) {
-			logger := log.FromContext(ctx).WithField("handler", name)
-			if err := handler.ConnectGateway(conn.Context(), ids, conn); err != nil {
-				logger.WithError(err).Warn("Failed to connect gateway on upstream")
-			}
-		}(name, handler)
+		handler := handler
+		gs.StartTask(conn.Context(), fmt.Sprintf("%s_connect_gateway_%s", name, ids.GatewayID),
+			func(ctx context.Context) error {
+				return handler.ConnectGateway(ctx, ids, conn)
+			},
+			component.TaskRestartOnFailure, 0.1, component.TaskBackoffDial...,
+		)
 	}
 	return conn, nil
 }
@@ -521,7 +523,7 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 	defer func() {
 		ids := conn.Gateway().GatewayIdentifiers
 		gs.connections.Delete(unique.ID(ctx, ids))
-		registerGatewayDisconnect(ctx, ids)
+		registerGatewayDisconnect(ctx, ids, conn.Frontend().Protocol())
 		logger.Info("Disconnected")
 		close(conn.upstreamDone)
 	}()

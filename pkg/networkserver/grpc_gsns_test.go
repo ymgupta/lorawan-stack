@@ -1342,10 +1342,9 @@ func TestHandleUplink(t *testing.T) {
 					}
 					a.So(sets, should.HaveSameElementsDeep, joinSetByEUISetPaths[:])
 
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1, ttnpb.PHY_V1_1_REV_B)
+					macState.CurrentParameters.Rx1Delay = ttnpb.RX_DELAY_3
 					macState.DesiredParameters.Rx1Delay = ttnpb.RX_DELAY_3
-					macState.CurrentParameters.Rx1Delay = macState.DesiredParameters.Rx1Delay
-					macState.CurrentParameters.Channels = macState.DesiredParameters.Channels
 					macState.RxWindowsAvailable = true
 					macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
 						Keys:    *makeSessionKeys(ttnpb.MAC_V1_1),
@@ -1383,7 +1382,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(nil)) &&
-						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(5*time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(-InfrastructureDelay/2+5*time.Second-joinReq.RxDelay.Duration()/2-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -1563,10 +1562,8 @@ func TestHandleUplink(t *testing.T) {
 					}
 					a.So(sets, should.HaveSameElementsDeep, joinSetByEUISetPaths[:])
 
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
 					macState.DesiredParameters.Rx1Delay = ttnpb.RX_DELAY_3
-					macState.CurrentParameters.Rx1Delay = macState.DesiredParameters.Rx1Delay
-					macState.CurrentParameters.Channels = macState.DesiredParameters.Channels
 					macState.RxWindowsAvailable = true
 					macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
 						Keys:    *makeSessionKeys(ttnpb.MAC_V1_0_2),
@@ -1757,10 +1754,8 @@ func TestHandleUplink(t *testing.T) {
 					}
 					a.So(sets, should.HaveSameElementsDeep, joinSetByEUISetPaths[:])
 
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1, ttnpb.PHY_V1_1_REV_B)
 					macState.DesiredParameters.Rx1Delay = ttnpb.RX_DELAY_3
-					macState.CurrentParameters.Rx1Delay = macState.DesiredParameters.Rx1Delay
-					macState.CurrentParameters.Channels = macState.DesiredParameters.Channels
 					macState.RxWindowsAvailable = true
 					macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
 						Keys:    *makeSessionKeys(ttnpb.MAC_V1_1),
@@ -1798,7 +1793,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(nil)) &&
-						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(5*time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(-InfrastructureDelay/2+5*time.Second-joinReq.RxDelay.Duration()/2-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					errTest,
@@ -1984,10 +1979,8 @@ func TestHandleUplink(t *testing.T) {
 					}
 					a.So(sets, should.HaveSameElementsDeep, joinSetByEUISetPaths[:])
 
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
 					macState.DesiredParameters.Rx1Delay = ttnpb.RX_DELAY_3
-					macState.CurrentParameters.Rx1Delay = macState.DesiredParameters.Rx1Delay
-					macState.CurrentParameters.Channels = macState.DesiredParameters.Channels
 					macState.RxWindowsAvailable = true
 					macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
 						Keys:    *makeSessionKeys(ttnpb.MAC_V1_0_2),
@@ -2025,7 +2018,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(nil)) &&
-						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(5*time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(-InfrastructureDelay/2+5*time.Second-joinReq.RxDelay.Duration()/2-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -2214,10 +2207,8 @@ func TestHandleUplink(t *testing.T) {
 					}
 					a.So(sets, should.HaveSameElementsDeep, joinSetByEUISetPaths[:])
 
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1, ttnpb.PHY_V1_1_REV_B)
 					macState.DesiredParameters.Rx1Delay = ttnpb.RX_DELAY_3
-					macState.CurrentParameters.Rx1Delay = macState.DesiredParameters.Rx1Delay
-					macState.CurrentParameters.Channels = macState.DesiredParameters.Channels
 					macState.RxWindowsAvailable = true
 					macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
 						Keys:    *makeSessionKeys(ttnpb.MAC_V1_1),
@@ -2255,7 +2246,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(nil)) &&
-						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(5*time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, recentUp.ReceivedAt.Add(-InfrastructureDelay/2+5*time.Second-joinReq.RxDelay.Duration()/2-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -2346,7 +2337,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 
 				makeMACState := func() *ttnpb.MACState {
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
 					macState.RecentUplinks = makeRecentUplinks()
 					return macState
 				}
@@ -2471,7 +2462,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(&devAddr)) &&
-						a.So(startAt, should.Resemble, start.Add(time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, start.Add(-InfrastructureDelay/2+rangeDevice.MACState.DesiredParameters.Rx1Delay.Duration()/2+time.Second-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -2578,7 +2569,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 
 				makeMACState := func() *ttnpb.MACState {
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_1, ttnpb.PHY_V1_1_REV_B)
 					macState.RecentUplinks = makeRecentUplinks()
 					return macState
 				}
@@ -2703,7 +2694,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(&devAddr)) &&
-						a.So(startAt, should.Resemble, start.Add(time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, start.Add(-InfrastructureDelay/2+rangeDevice.MACState.DesiredParameters.Rx1Delay.Duration()/2+time.Second-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -2810,7 +2801,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 
 				makeMACState := func() *ttnpb.MACState {
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
 					macState.RecentUplinks = makeRecentUplinks()
 					return macState
 				}
@@ -2937,7 +2928,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(&devAddr)) &&
-						a.So(startAt, should.Resemble, start.Add(time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, start.Add(-InfrastructureDelay/2+rangeDevice.MACState.DesiredParameters.Rx1Delay.Duration()/2+time.Second-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,
@@ -3023,6 +3014,111 @@ func TestHandleUplink(t *testing.T) {
 		},
 
 		{
+			Name: "Data uplink/Matching device/Concurrent update/1.0.2/First transmission/Rematch fail",
+			Handler: func(ctx context.Context, env TestEnvironment, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
+				t := test.MustTFromContext(ctx)
+				a := assertions.New(t)
+
+				start := time.Now().UTC()
+				clock := MockClock(start)
+				defer SetTimeNow(clock.Now)()
+
+				msg := makeLegacyDataUplink(34, false)
+
+				handleUplinkErrCh := handle(ctx, msg)
+
+				makeRecentUplinks := func() []*ttnpb.UplinkMessage {
+					return []*ttnpb.UplinkMessage{
+						makeLegacyDataUplink(31, true),
+						makeLegacyDataUplink(32, true),
+					}
+				}
+
+				makeMACState := func() *ttnpb.MACState {
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
+					macState.RecentUplinks = makeRecentUplinks()
+					return macState
+				}
+
+				rangeDevice := &ttnpb.EndDevice{
+					EndDeviceIdentifiers: *makeOTAAIdentifiers(&devAddr),
+					FrequencyPlanID:      test.EUFrequencyPlanID,
+					LoRaWANPHYVersion:    ttnpb.PHY_V1_0_2_REV_B,
+					LoRaWANVersion:       ttnpb.MAC_V1_0_2,
+					MACState:             makeMACState(),
+					RecentUplinks:        makeRecentUplinks(),
+					Session:              makeSession(ttnpb.MAC_V1_0_2, devAddr, 32),
+					CreatedAt:            start,
+					UpdatedAt:            start,
+				}
+
+				var rangeCtx context.Context
+				var upCorrelationIDs []string
+				select {
+				case <-ctx.Done():
+					t.Error("Timed out while waiting for DeviceRegistry.RangeByAddr to be called")
+					return false
+
+				case req := <-env.DeviceRegistry.RangeByAddr:
+					upCorrelationIDs = events.CorrelationIDsFromContext(req.Context)
+					for _, id := range correlationIDs {
+						a.So(upCorrelationIDs, should.Contain, id)
+					}
+					a.So(upCorrelationIDs, should.HaveLength, len(correlationIDs)+2)
+					a.So(req.DevAddr, should.Resemble, devAddr)
+					a.So(req.Paths, should.HaveSameElementsDeep, dataGetPaths[:])
+					rangeCtx = context.WithValue(req.Context, struct{}{}, "range")
+					a.So(req.Func(rangeCtx, CopyEndDevice(rangeDevice)), should.BeTrue)
+					req.Response <- nil
+				}
+
+				now := clock.Add(time.Nanosecond)
+
+				mds := sendUplinkDuplicates(ctx, handle, env.DeduplicationDone, bindMakeLegacyDataUplinkFCnt(34), now.Add(-time.Nanosecond), duplicateCount)
+				mds = append(mds, msg.RxMetadata...)
+
+				now = clock.Add(time.Nanosecond)
+
+				var setCtx context.Context
+				select {
+				case <-ctx.Done():
+					t.Error("Timed out while waiting for DeviceRegistry.SetByID to be called")
+					return false
+
+				case req := <-env.DeviceRegistry.SetByID:
+					a.So(req.Context, should.HaveParentContextOrEqual, rangeCtx)
+					a.So(req.ApplicationIdentifiers, should.Resemble, appID)
+					a.So(req.DeviceID, should.Resemble, devID)
+					a.So(req.Paths, should.HaveSameElementsDeep, dataGetPaths[:])
+					updatedDevice := CopyEndDevice(rangeDevice)
+					updatedDevice.UpdatedAt = now
+					updatedDevice.Session.LastFCntUp = 34
+					dev, sets, err := req.Func(ctx, updatedDevice)
+					if !a.So(err, should.EqualErrorOrDefinition, ErrOutdatedData.WithCause(ErrDeviceNotFound)) || !a.So(dev, should.BeNil) || !a.So(sets, should.BeNil) {
+						return false
+					}
+					setCtx = context.WithValue(req.Context, struct{}{}, "set")
+					req.Response <- DeviceRegistrySetByIDResponse{
+						Context: setCtx,
+						Error:   err,
+					}
+				}
+
+				if !a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
+					return a.So(ev, should.ResembleEvent, EvtDropDataUplink(setCtx, rangeDevice.EndDeviceIdentifiers, ErrOutdatedData.WithCause(ErrDeviceNotFound)))
+				}), should.BeTrue) {
+					return false
+				}
+
+				_ = sendUplinkDuplicates(ctx, handle, env.CollectionDone, bindMakeLegacyDataUplinkFCnt(34), now.Add(-2*time.Nanosecond), duplicateCount)
+
+				return assertHandleUplinkResponse(ctx, handleUplinkErrCh, func(err error) bool {
+					return a.So(err, should.HaveSameErrorDefinitionAs, ErrOutdatedData.WithCause(ErrDeviceNotFound))
+				})
+			},
+		},
+
+		{
 			Name: "Data uplink/Matching device/No concurrent update/1.0.2/Second transmission/No ADR/Set success/Downlink add success",
 			Handler: func(ctx context.Context, env TestEnvironment, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
 				t := test.MustTFromContext(ctx)
@@ -3045,7 +3141,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 
 				makeMACState := func() *ttnpb.MACState {
-					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2)
+					macState := MakeDefaultEU868MACState(ttnpb.CLASS_A, ttnpb.MAC_V1_0_2, ttnpb.PHY_V1_0_2_REV_B)
 					macState.CurrentParameters.ADRNbTrans = 2
 					macState.DesiredParameters.ADRNbTrans = 2
 					macState.RecentUplinks = makeRecentUplinks()
@@ -3171,7 +3267,7 @@ func TestHandleUplink(t *testing.T) {
 				if !a.So(AssertDownlinkTaskAddRequest(ctx, env.DownlinkTasks.Add, func(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, startAt time.Time, replace bool) bool {
 					return a.So(ctx, should.HaveParentContextOrEqual, setCtx) &&
 						a.So(ids, should.Resemble, *makeOTAAIdentifiers(&devAddr)) &&
-						a.So(startAt, should.Resemble, start.Add(time.Second-NSScheduleWindow()-GSScheduleWindow())) &&
+						a.So(startAt, should.Resemble, start.Add(-InfrastructureDelay/2+rangeDevice.MACState.DesiredParameters.Rx1Delay.Duration()/2+time.Second-NSScheduleWindow())) &&
 						a.So(replace, should.BeTrue)
 				},
 					nil,

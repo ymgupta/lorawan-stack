@@ -53,7 +53,7 @@ func deviceNeedsLinkADRReq(dev *ttnpb.EndDevice) bool {
 	return false
 }
 
-func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, phy band.Band) (macCommandEnqueueState, error) {
+func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, defaults ttnpb.MACSettings, phy band.Band) (macCommandEnqueueState, error) {
 	if !deviceNeedsLinkADRReq(dev) {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
@@ -69,11 +69,15 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 		}, errCorruptedMACState
 	}
 
+	currentChs := make([]bool, phy.MaxUplinkChannels)
+	for i, ch := range dev.MACState.CurrentParameters.Channels {
+		currentChs[i] = ch.GetEnableUplink()
+	}
 	desiredChs := make([]bool, phy.MaxUplinkChannels)
 	for i, ch := range dev.MACState.DesiredParameters.Channels {
 		desiredChs[i] = ch.GetEnableUplink()
 	}
-	desiredMasks, err := phy.GenerateChMasks(desiredChs)
+	desiredMasks, err := phy.GenerateChMasks(currentChs, desiredChs)
 	if err != nil {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
@@ -86,6 +90,15 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 			MaxDownLen: maxDownLen,
 			MaxUpLen:   maxUpLen,
 		}, errCorruptedMACState
+	}
+
+	drIdx := dev.MACState.DesiredParameters.ADRDataRateIndex
+	if dev.MACState.LoRaWANVersion.HasNoChangeDataRateIndex() && (!deviceUseADR(dev, defaults) || dev.MACState.CurrentParameters.ADRDataRateIndex == dev.MACState.DesiredParameters.ADRDataRateIndex) {
+		drIdx = ttnpb.DATA_RATE_15
+	}
+	txPowerIdx := dev.MACState.DesiredParameters.ADRTxPowerIndex
+	if dev.MACState.LoRaWANVersion.HasNoChangeTXPowerIndex() && (!deviceUseADR(dev, defaults) || dev.MACState.CurrentParameters.ADRTxPowerIndex == dev.MACState.DesiredParameters.ADRTxPowerIndex) {
+		txPowerIdx = 15
 	}
 
 	var st macCommandEnqueueState
@@ -105,9 +118,9 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 		cmds := make([]*ttnpb.MACCommand, 0, len(desiredMasks))
 		for i, m := range desiredMasks {
 			req := &ttnpb.MACCommand_LinkADRReq{
-				DataRateIndex:      dev.MACState.DesiredParameters.ADRDataRateIndex,
+				DataRateIndex:      drIdx,
 				NbTrans:            dev.MACState.DesiredParameters.ADRNbTrans,
-				TxPowerIndex:       dev.MACState.DesiredParameters.ADRTxPowerIndex,
+				TxPowerIndex:       txPowerIdx,
 				ChannelMaskControl: uint32(m.Cntl),
 				ChannelMask:        desiredMasks[i].Mask[:],
 			}
