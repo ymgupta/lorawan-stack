@@ -36,9 +36,15 @@ func ID(ctx context.Context, id ttnpb.Identifiers) (res string) {
 		}
 		res = eids[0].IDString()
 	}
-	if res == "" || strings.HasPrefix(res, ".") || strings.HasSuffix(res, ".") {
-		panic(fmt.Errorf("failed to determine unique ID: the primary identifier is invalid"))
+	switch {
+	case res == "":
+		panic(fmt.Errorf("failed to determine unique ID: the primary identifier is empty"))
+	case strings.HasPrefix(res, "."):
+		panic(fmt.Errorf("failed to determine unique ID: the primary identifier starts with a dot"))
+	case strings.HasSuffix(res, "."):
+		panic(fmt.Errorf("failed to determine unique ID: the primary identifier ends with a dot"))
 	}
+
 	if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
 		return fmt.Sprintf("%s@%s", res, tenantID)
 	}
