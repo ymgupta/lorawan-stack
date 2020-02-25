@@ -1289,7 +1289,6 @@ func TestRTT(t *testing.T) {
 func TestPingPong(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
