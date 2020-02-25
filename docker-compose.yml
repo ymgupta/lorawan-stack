@@ -74,9 +74,6 @@ services:
       - cert.pem
       - key.pem
 
-      # Multi-Tenancy:
-      - TTN_LW_TENANCY_DEFAULT_ID
-
 # If using (self) signed certificates:
 secrets:
   cert.pem:
