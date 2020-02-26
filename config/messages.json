@@ -2573,6 +2573,15 @@
       "file": "cluster.go"
     }
   },
+  "error:pkg/cluster:discovery_mode": {
+    "translations": {
+      "en": "invalid discovery mode"
+    },
+    "description": {
+      "package": "pkg/cluster",
+      "file": "cluster.tti.go"
+    }
+  },
   "error:pkg/cluster:key_length": {
     "translations": {
       "en": "invalid key length %d, must be 16, 24 or 32 bytes"

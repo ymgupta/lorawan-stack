@@ -63,6 +63,7 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/gohugoio/hugo v0.62.2
 	github.com/golang/gddo v0.0.0-20191216155521-fbfc0f5e7810
+	github.com/golang/groupcache v0.0.0-20191227052852-215e87163ea7
 	github.com/golang/protobuf v1.3.3
 	github.com/google/rpmpack v0.0.0-20191226140753-aa36bfddb3a0 // indirect
 	github.com/google/wire v0.4.0 // indirect
