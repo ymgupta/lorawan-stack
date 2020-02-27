@@ -52,6 +52,7 @@ type Sentry struct {
 
 // Cluster represents clustering configuration.
 type Cluster struct {
+	DiscoveryMode     string   `name:"discovery-mode" description:"Peer discovery mode (DNS)"`
 	Join              []string `name:"join" description:"Addresses of cluster peers to join"`
 	Name              string   `name:"name" description:"Name of the current cluster peer (default: $HOSTNAME)"`
 	Address           string   `name:"address" description:"Address to use for cluster communication"`
