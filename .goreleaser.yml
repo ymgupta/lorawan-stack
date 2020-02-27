@@ -32,6 +32,9 @@ builds:
     goarm:
       - 6
       - 7
+    ignore:
+      - goos: darwin
+        goarch: 386
 
   - id: cli
     main: ./cmd/tti-lw-cli
@@ -58,6 +61,9 @@ builds:
     goarm:
       - 6
       - 7
+    ignore:
+      - goos: darwin
+        goarch: 386
 
 archives:
   - id: stack
@@ -68,8 +74,6 @@ archives:
     files:
       - LICENSE
       - README.md
-      - doc/**/*
-      - docker-compose.yml
       - public/**/*
     wrap_in_directory: true
     format_overrides:
@@ -83,7 +87,6 @@ archives:
     files:
       - LICENSE
       - README.md
-      - doc/**/*
     wrap_in_directory: true
     format_overrides:
       - goos: windows

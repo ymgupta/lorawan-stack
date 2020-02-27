@@ -18,8 +18,10 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"runtime/trace"
 	"strings"
 	"time"
@@ -163,19 +165,21 @@ func Initialize(db *gorm.DB) error {
 	return nil
 }
 
+// ErrTransactionRecovered is returned when a panic is caught from a SQL transaction.
+var ErrTransactionRecovered = errors.DefineInternal("transaction_recovered", "Internal Server Error")
+
 // Transact executes f in a db transaction.
 func Transact(ctx context.Context, db *gorm.DB, f func(db *gorm.DB) error) (err error) {
 	defer trace.StartRegion(ctx, "database transaction").End()
 	tx := db.Begin()
 	defer func() {
 		if p := recover(); p != nil {
-			switch p := p.(type) {
-			case error:
-				err = p
-			case string:
-				err = errors.New(p)
-			default:
-				panic(p)
+			fmt.Fprintln(os.Stderr, p)
+			os.Stderr.Write(debug.Stack())
+			if pErr, ok := p.(error); ok {
+				err = ErrTransactionRecovered.WithCause(pErr)
+			} else {
+				err = ErrTransactionRecovered.WithAttributes("panic", p)
 			}
 		}
 		if err != nil {
@@ -268,34 +272,37 @@ type logger struct {
 
 // Print implements the gorm.logger interface.
 func (l logger) Print(v ...interface{}) {
-	if len(v) <= 2 {
+	if len(v) < 3 {
 		l.Error(fmt.Sprint(v...))
 		return
 	}
-	path := filepath.Base(v[1].(string))
-	logger := l.WithField("source", path)
+	logger := l.Interface
+	if source, ok := v[1].(string); ok {
+		logger = logger.WithField("source", filepath.Base(source))
+	} else {
+		l.Error(fmt.Sprint(v...))
+		return
+	}
 	switch v[0] {
-	case "log": // log, typically errors.
-		if len(v) < 3 {
-			return
-		}
+	case "log", "error":
 		if err, ok := v[2].(error); ok {
 			err = convertError(err)
 			if errors.IsAlreadyExists(err) {
 				return // no problem.
 			}
-			logger.WithError(err).Warn("Database error")
-		} else {
-			logger.Warn(fmt.Sprint(v[2:]...))
+			logger.WithError(err).Error("Database error")
+			return
 		}
-	case "sql": // slog, sql debug.
+		logger.Error(fmt.Sprint(v[2:]...))
+		return
+	case "sql":
 		if len(v) != 6 {
 			return
 		}
 		duration, _ := v[2].(time.Duration)
-		query := v[3].(string)
-		values := v[4].([]interface{})
-		rows := v[5].(int64)
+		query, _ := v[3].(string)
+		values, _ := v[4].([]interface{})
+		rows, _ := v[5].(int64)
 		logger.WithFields(log.Fields(
 			"duration", duration,
 			"query", query,

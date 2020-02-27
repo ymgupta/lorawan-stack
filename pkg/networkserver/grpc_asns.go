@@ -23,6 +23,7 @@ import (
 
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
+	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
@@ -120,10 +121,16 @@ func validateApplicationDownlinks(session ttnpb.Session, macState *ttnpb.MACStat
 	if macState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) >= 0 {
 	outer:
 		for i := len(macState.RecentDownlinks) - 1; i >= 0; i-- {
-			pld := macState.RecentDownlinks[i].Payload
+			var pld ttnpb.Message
+			if err := lorawan.UnmarshalMessage(macState.RecentDownlinks[i].RawPayload, &pld); err != nil {
+				return unmatchedQueue, unmatchedDowns, errDecodePayload.WithCause(err)
+			}
 			switch pld.MType {
 			case ttnpb.MType_UNCONFIRMED_DOWN, ttnpb.MType_CONFIRMED_DOWN:
 				macPayload := pld.GetMACPayload()
+				if macPayload == nil {
+					return unmatchedQueue, unmatchedDowns, errInvalidPayload
+				}
 				if macPayload.FPort > 0 && macPayload.FCnt >= minFCnt {
 					// NOTE: In an unlikely case all len(recentDowns) downlinks are FPort==0 or something unmatched in the switch (e.g. a proprietary downlink) minFCnt will
 					// not reflect the correct AFCntDown - that is fine, because this is AS's responsibility and FCnt checking here is essentially just a sanity check.
@@ -221,7 +228,7 @@ func (ns *NetworkServer) DownlinkQueueReplace(ctx context.Context, req *ttnpb.Do
 		return nil, err
 	}
 
-	logger := log.FromContext(ctx).WithField("device_uid", unique.ID(ctx, req.EndDeviceIdentifiers))
+	ctx = log.NewContextWithField(ctx, "device_uid", unique.ID(ctx, req.EndDeviceIdentifiers))
 
 	gets := []string{
 		"mac_state",
@@ -255,19 +262,19 @@ func (ns *NetworkServer) DownlinkQueueReplace(ctx context.Context, req *ttnpb.Do
 		},
 	)
 	if err != nil {
-		logger.WithError(err).Warn("Failed to replace application downlink queue")
+		logRegistryRPCError(ctx, err, "Failed to replace application downlink queue")
 		return nil, err
 	}
 
-	logger = logger.WithField("queue_length", len(dev.QueuedApplicationDownlinks))
-	logger.Debug("Replaced application downlink queue")
+	ctx = log.NewContextWithField(ctx, "queue_length", len(dev.QueuedApplicationDownlinks))
+	log.FromContext(ctx).Debug("Replaced application downlink queue")
 
 	if len(dev.QueuedApplicationDownlinks) == 0 || dev.MACState == nil {
 		return ttnpb.Empty, nil
 	}
 
 	if err := ns.updateDataDownlinkTask(ctx, dev, time.Time{}); err != nil {
-		logger.WithError(err).Error("Failed to update downlink task queue after downlink queue replace")
+		log.FromContext(ctx).WithError(err).Error("Failed to update downlink task queue after downlink queue replace")
 	}
 	return ttnpb.Empty, nil
 }
@@ -277,12 +284,11 @@ func (ns *NetworkServer) DownlinkQueuePush(ctx context.Context, req *ttnpb.Downl
 	if len(req.Downlinks) == 0 {
 		return ttnpb.Empty, nil
 	}
-
 	if err := rights.RequireApplication(ctx, req.ApplicationIdentifiers, ttnpb.RIGHT_APPLICATION_LINK); err != nil {
 		return nil, err
 	}
 
-	logger := log.FromContext(ctx).WithField("device_uid", unique.ID(ctx, req.EndDeviceIdentifiers))
+	ctx = log.NewContextWithField(ctx, "device_uid", unique.ID(ctx, req.EndDeviceIdentifiers))
 
 	dev, ctx, err := ns.devices.SetByID(ctx, req.EndDeviceIdentifiers.ApplicationIdentifiers, req.EndDeviceIdentifiers.DeviceID,
 		[]string{
@@ -310,19 +316,19 @@ func (ns *NetworkServer) DownlinkQueuePush(ctx context.Context, req *ttnpb.Downl
 		},
 	)
 	if err != nil {
-		logger.WithError(err).Warn("Failed to push application downlink to queue")
+		logRegistryRPCError(ctx, err, "Failed to push application downlink to queue")
 		return nil, err
 	}
 
-	logger = logger.WithField("queue_length", len(dev.QueuedApplicationDownlinks))
-	logger.Debug("Pushed application downlink to queue")
+	ctx = log.NewContextWithField(ctx, "queue_length", len(dev.QueuedApplicationDownlinks))
+	log.FromContext(ctx).Debug("Pushed application downlink to queue")
 
 	if dev.MACState == nil {
 		return ttnpb.Empty, nil
 	}
 
 	if err := ns.updateDataDownlinkTask(ctx, dev, time.Time{}); err != nil {
-		logger.WithError(err).Error("Failed to update downlink task queue after downlink queue push")
+		log.FromContext(ctx).WithError(err).Error("Failed to update downlink task queue after downlink queue push")
 	}
 	return ttnpb.Empty, nil
 }
@@ -334,6 +340,7 @@ func (ns *NetworkServer) DownlinkQueueList(ctx context.Context, ids *ttnpb.EndDe
 	}
 	dev, ctx, err := ns.devices.GetByID(ctx, ids.ApplicationIdentifiers, ids.DeviceID, []string{"queued_application_downlinks"})
 	if err != nil {
+		logRegistryRPCError(ctx, err, "Failed to list application downlink queue")
 		return nil, err
 	}
 	return &ttnpb.ApplicationDownlinks{Downlinks: dev.QueuedApplicationDownlinks}, nil

@@ -299,7 +299,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 					}
 					i, err := tx.Exists(ek).Result()
 					if err != nil {
-						return ttnredis.ConvertError(err)
+						return err
 					}
 					if i != 0 {
 						return errDuplicateIdentifiers
@@ -342,7 +342,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 		return nil
 	}, uk)
 	if err != nil {
-		return nil, ctx, err
+		return nil, ctx, ttnredis.ConvertError(err)
 	}
 	return pb, ctx, nil
 }
