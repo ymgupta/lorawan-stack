@@ -5,7 +5,7 @@ package ttipb
 import fmt "fmt"
 
 func (dst *TenantIdentifiers) SetFields(src *TenantIdentifiers, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant_id":
 			if len(subs) > 0 {
@@ -26,7 +26,7 @@ func (dst *TenantIdentifiers) SetFields(src *TenantIdentifiers, paths ...string)
 }
 
 func (dst *LicenseIssuerIdentifiers) SetFields(src *LicenseIssuerIdentifiers, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "license_issuer_id":
 			if len(subs) > 0 {
@@ -47,7 +47,7 @@ func (dst *LicenseIssuerIdentifiers) SetFields(src *LicenseIssuerIdentifiers, pa
 }
 
 func (dst *LicenseIdentifiers) SetFields(src *LicenseIdentifiers, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "license_id":
 			if len(subs) > 0 {

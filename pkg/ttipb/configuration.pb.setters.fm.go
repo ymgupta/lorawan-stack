@@ -5,7 +5,7 @@ package ttipb
 import fmt "fmt"
 
 func (dst *Configuration) SetFields(src *Configuration, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "default_cluster":
 			if len(subs) > 0 {
@@ -41,7 +41,7 @@ func (dst *Configuration) SetFields(src *Configuration, paths ...string) error {
 }
 
 func (dst *Configuration_UI) SetFields(src *Configuration_UI, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "branding_base_url":
 			if len(subs) > 0 {
@@ -62,7 +62,7 @@ func (dst *Configuration_UI) SetFields(src *Configuration_UI, paths ...string) e
 }
 
 func (dst *Configuration_Cluster) SetFields(src *Configuration_Cluster, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "ui":
 			if len(subs) > 0 {
@@ -148,7 +148,7 @@ func (dst *Configuration_Cluster) SetFields(src *Configuration_Cluster, paths ..
 }
 
 func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cluster_IdentityServer, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "user_registration":
 			if len(subs) > 0 {
@@ -184,7 +184,7 @@ func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cl
 }
 
 func (dst *Configuration_Cluster_NetworkServer) SetFields(src *Configuration_Cluster_NetworkServer, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "dev_addr_prefixes":
 			if len(subs) > 0 {
@@ -222,7 +222,7 @@ func (dst *Configuration_Cluster_NetworkServer) SetFields(src *Configuration_Clu
 }
 
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "invitation":
 			if len(subs) > 0 {
@@ -333,7 +333,7 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 }
 
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration_Invitation, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "required":
 			if len(subs) > 0 {
@@ -362,7 +362,7 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Set
 }
 
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoValidation, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "required":
 			if len(subs) > 0 {
@@ -382,7 +382,7 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration_ContactInfoVali
 }
 
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "required":
 			if len(subs) > 0 {
@@ -402,7 +402,7 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval) 
 }
 
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "min_length":
 			if len(subs) > 0 {

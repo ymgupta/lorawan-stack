@@ -8,7 +8,7 @@ import (
 )
 
 func (dst *License) SetFields(src *License, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "id":
 			if len(subs) > 0 {
@@ -250,7 +250,7 @@ func (dst *License) SetFields(src *License, paths ...string) error {
 }
 
 func (dst *LicenseUpdate) SetFields(src *LicenseUpdate, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "extend_valid_until":
 			if len(subs) > 0 {
@@ -270,7 +270,7 @@ func (dst *LicenseUpdate) SetFields(src *LicenseUpdate, paths ...string) error {
 }
 
 func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "interval":
 			if len(subs) > 0 {
@@ -436,7 +436,7 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 }
 
 func (dst *LicenseKey) SetFields(src *LicenseKey, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "license":
 			if len(subs) > 0 {
@@ -465,7 +465,7 @@ func (dst *LicenseKey) SetFields(src *LicenseKey, paths ...string) error {
 }
 
 func (dst *MeteringData) SetFields(src *MeteringData, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenants":
 			if len(subs) > 0 {
@@ -485,7 +485,7 @@ func (dst *MeteringData) SetFields(src *MeteringData, paths ...string) error {
 }
 
 func (dst *MeteringConfiguration_AWS) SetFields(src *MeteringConfiguration_AWS, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "sku":
 			if len(subs) > 0 {
@@ -526,7 +526,7 @@ func (dst *MeteringConfiguration_TenantBillingServer) SetFields(src *MeteringCon
 }
 
 func (dst *LicenseKey_Signature) SetFields(src *LicenseKey_Signature, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "key_id":
 			if len(subs) > 0 {
@@ -556,7 +556,7 @@ func (dst *LicenseKey_Signature) SetFields(src *LicenseKey_Signature, paths ...s
 }
 
 func (dst *MeteringData_TenantMeteringData) SetFields(src *MeteringData_TenantMeteringData, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant_id":
 			if len(subs) > 0 {

@@ -783,7 +783,7 @@ func (dst *ApplicationPubSub_MQTTProvider) SetFields(src *ApplicationPubSub_MQTT
 }
 
 func (dst *ApplicationPubSub_AWSIoTProvider) SetFields(src *ApplicationPubSub_AWSIoTProvider, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "region":
 			if len(subs) > 0 {
@@ -885,7 +885,7 @@ func (dst *ApplicationPubSub_Message) SetFields(src *ApplicationPubSub_Message, 
 }
 
 func (dst *ApplicationPubSub_AWSIoTProvider_AccessKey) SetFields(src *ApplicationPubSub_AWSIoTProvider_AccessKey, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "access_key_id":
 			if len(subs) > 0 {
@@ -926,7 +926,7 @@ func (dst *ApplicationPubSub_AWSIoTProvider_AccessKey) SetFields(src *Applicatio
 }
 
 func (dst *ApplicationPubSub_AWSIoTProvider_AssumeRole) SetFields(src *ApplicationPubSub_AWSIoTProvider_AssumeRole, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "arn":
 			if len(subs) > 0 {

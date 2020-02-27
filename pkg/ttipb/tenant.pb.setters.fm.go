@@ -12,7 +12,7 @@ import (
 )
 
 func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "ids":
 			if len(subs) > 0 {
@@ -198,7 +198,7 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 }
 
 func (dst *Tenants) SetFields(src *Tenants, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenants":
 			if len(subs) > 0 {
@@ -218,7 +218,7 @@ func (dst *Tenants) SetFields(src *Tenants, paths ...string) error {
 }
 
 func (dst *GetTenantRequest) SetFields(src *GetTenantRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant_ids":
 			if len(subs) > 0 {
@@ -257,7 +257,7 @@ func (dst *GetTenantRequest) SetFields(src *GetTenantRequest, paths ...string) e
 }
 
 func (dst *ListTenantsRequest) SetFields(src *ListTenantsRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "field_mask":
 			if len(subs) > 0 {
@@ -308,7 +308,7 @@ func (dst *ListTenantsRequest) SetFields(src *ListTenantsRequest, paths ...strin
 }
 
 func (dst *CreateTenantRequest) SetFields(src *CreateTenantRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant":
 			if len(subs) > 0 {
@@ -346,7 +346,7 @@ func (dst *CreateTenantRequest) SetFields(src *CreateTenantRequest, paths ...str
 }
 
 func (dst *UpdateTenantRequest) SetFields(src *UpdateTenantRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant":
 			if len(subs) > 0 {
@@ -385,7 +385,7 @@ func (dst *UpdateTenantRequest) SetFields(src *UpdateTenantRequest, paths ...str
 }
 
 func (dst *GetTenantIdentifiersForEndDeviceEUIsRequest) SetFields(src *GetTenantIdentifiersForEndDeviceEUIsRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "join_eui":
 			if len(subs) > 0 {
@@ -416,7 +416,7 @@ func (dst *GetTenantIdentifiersForEndDeviceEUIsRequest) SetFields(src *GetTenant
 }
 
 func (dst *GetTenantIdentifiersForGatewayEUIRequest) SetFields(src *GetTenantIdentifiersForGatewayEUIRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "eui":
 			if len(subs) > 0 {
@@ -437,7 +437,7 @@ func (dst *GetTenantIdentifiersForGatewayEUIRequest) SetFields(src *GetTenantIde
 }
 
 func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotalsRequest, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "tenant_ids":
 			if len(subs) > 0 {
@@ -483,7 +483,7 @@ func (dst *GetTenantRegistryTotalsRequest) SetFields(src *GetTenantRegistryTotal
 }
 
 func (dst *TenantRegistryTotals) SetFields(src *TenantRegistryTotals, paths ...string) error {
-	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+	for name, subs := range _processPaths(paths) {
 		switch name {
 		case "applications":
 			if len(subs) > 0 {
