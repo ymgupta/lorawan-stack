@@ -167,7 +167,11 @@ class Video extends Component {
   }
 
   render() {
-    return <canvas ref={this.canvas} className={style.video} />
+    return (
+      <div className={style.container}>
+        <canvas ref={this.canvas} className={style.video} />
+      </div>
+    )
   }
 }
 
