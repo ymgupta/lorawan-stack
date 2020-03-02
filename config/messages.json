@@ -7028,6 +7028,24 @@
       "file": "types.go"
     }
   },
+  "error:pkg/unique:empty": {
+    "translations": {
+      "en": "empty"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/unique:ends_with_a_dot": {
+    "translations": {
+      "en": "ends with a dot"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
+    }
+  },
   "error:pkg/unique:format": {
     "translations": {
       "en": "invalid format in value `{value}`"
@@ -7040,6 +7058,15 @@
   "error:pkg/unique:missing_tenant_id": {
     "translations": {
       "en": "missing tenant ID"
+    },
+    "description": {
+      "package": "pkg/unique",
+      "file": "unique.tti.go"
+    }
+  },
+  "error:pkg/unique:starts_with_a_dot": {
+    "translations": {
+      "en": "starts with a dot"
     },
     "description": {
       "package": "pkg/unique",
