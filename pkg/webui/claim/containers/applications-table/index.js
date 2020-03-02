@@ -36,11 +36,6 @@ const headers = [
   {
     name: 'name',
     displayName: sharedMessages.name,
-    width: 25,
-  },
-  {
-    name: 'description',
-    displayName: sharedMessages.description,
     width: 50,
   },
 ]
@@ -49,7 +44,7 @@ const headers = [
 export default class ApplicationsTable extends Component {
   constructor(props) {
     super(props)
-    this.getApplicationsList = params => getApplicationsList(params, ['name', 'description'])
+    this.getApplicationsList = params => getApplicationsList(params, ['name'])
   }
 
   baseDataSelector(state) {
