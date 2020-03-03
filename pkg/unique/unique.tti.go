@@ -20,6 +20,9 @@ var (
 	errUniqueIdentifier = errors.DefineInvalidArgument("unique_identifier", "invalid unique identifier `{uid}`")
 	errFormat           = errors.DefineInvalidArgument("format", "invalid format in value `{value}`")
 	errMissingTenantID  = errors.DefineInvalidArgument("missing_tenant_id", "missing tenant ID")
+	errStartsWithADot   = errors.DefineInvalidArgument("starts_with_a_dot", "starts with a dot")
+	errEndsWithADot     = errors.DefineInvalidArgument("ends_with_a_dot", "ends with a dot")
+	errEmpty            = errors.DefineInvalidArgument("empty", "empty")
 )
 
 // ID returns the unique identifier of the specified identifiers.
@@ -38,11 +41,11 @@ func ID(ctx context.Context, id ttnpb.Identifiers) (res string) {
 	}
 	switch {
 	case res == "":
-		panic(fmt.Errorf("failed to determine unique ID: the primary identifier is empty"))
+		panic(errUniqueIdentifier.WithAttributes("uid", res).WithCause(errEmpty))
 	case strings.HasPrefix(res, "."):
-		panic(fmt.Errorf("failed to determine unique ID: the primary identifier starts with a dot"))
+		panic(errUniqueIdentifier.WithAttributes("uid", res).WithCause(errStartsWithADot))
 	case strings.HasSuffix(res, "."):
-		panic(fmt.Errorf("failed to determine unique ID: the primary identifier ends with a dot"))
+		panic(errUniqueIdentifier.WithAttributes("uid", res).WithCause(errEndsWithADot))
 	}
 
 	if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {

@@ -117,6 +117,7 @@ func (r *DeviceRegistry) RangeByAddr(ctx context.Context, addr types.DevAddr, pa
 		if err != nil {
 			return nil, nil
 		}
+		ctx := ctx
 		switch ctxTntID {
 		case tntID:
 		case cluster.PacketBrokerTenantID:
