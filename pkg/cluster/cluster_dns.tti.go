@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/golang/groupcache/consistenthash"
-	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -23,7 +22,7 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-func newDNS(ctx context.Context, config *config.Cluster, options ...Option) (Cluster, error) {
+func newDNS(ctx context.Context, config *Config, options ...Option) (Cluster, error) {
 	c := &dnsCluster{
 		cluster: &cluster{
 			ctx:   ctx,

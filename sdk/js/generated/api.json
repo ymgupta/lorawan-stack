@@ -6917,7 +6917,7 @@
             },
             {
               "name": "queued_application_downlinks",
-              "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.",
+              "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.\nThis field is deprecated and is always set equal to session.queued_application_downlinks.",
               "label": "repeated",
               "type": "ApplicationDownlink",
               "longType": "ApplicationDownlink",
@@ -9016,6 +9016,16 @@
               "fullType": "google.protobuf.Timestamp",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "queued_application_downlinks",
+              "description": "Queued Application downlink messages. Stored in Application Server and Network Server.",
+              "label": "repeated",
+              "type": "ApplicationDownlink",
+              "longType": "ApplicationDownlink",
+              "fullType": "ttn.lorawan.v3.ApplicationDownlink",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -10182,6 +10192,16 @@
               "type": "Duration",
               "longType": "google.protobuf.Duration",
               "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "update_location_from_status",
+              "description": "update the location of this gateway from status messages",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }

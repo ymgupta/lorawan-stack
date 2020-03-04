@@ -9,13 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- New `list` and `request-validation` subcommands for the CLI's `contact-info` commands.
+- Device Claim Authentication Code page in the Console.
+- Update gateway antenna location from incoming status message (see `update_location_from_status` gateway field and `--gs.update-gateway-location-debounce-time` option).
+  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
+
 ### Changed
+
+- Network and Application Servers now maintain application downlink queue per-session.
+- Gateway Server skips setting up an upstream if the DevAddr prefixes to forward are empty.
+- Gateway connection stats are stored in Redis (see `--gs.update-connections-stats-debounce-time` option).
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Telemetry and events for gateway statuses.
 
 ### Security
 

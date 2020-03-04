@@ -147,6 +147,9 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 
 	// Setup forwarding table.
 	for name, prefix := range gs.forward {
+		if len(prefix) == 0 {
+			continue
+		}
 		if name == "" {
 			name = "cluster"
 		}
@@ -419,6 +422,7 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 				"location_public",
 				"schedule_anytime_delay",
 				"schedule_downlink_late",
+				"update_location_from_status",
 			},
 		},
 	}, callOpt)
@@ -432,13 +436,14 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 		}
 		logger.Warn("Connect unregistered gateway")
 		gtw = &ttnpb.Gateway{
-			GatewayIdentifiers:     ids,
-			FrequencyPlanID:        fpID,
-			FrequencyPlanIDs:       []string{fpID},
-			EnforceDutyCycle:       true,
-			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
-			Antennas:               []ttnpb.GatewayAntenna{},
-			LocationPublic:         false,
+			GatewayIdentifiers:       ids,
+			FrequencyPlanID:          fpID,
+			FrequencyPlanIDs:         []string{fpID},
+			EnforceDutyCycle:         true,
+			DownlinkPathConstraint:   ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
+			Antennas:                 []ttnpb.GatewayAntenna{},
+			LocationPublic:           false,
+			UpdateLocationFromStatus: false,
 		}
 	} else if err != nil {
 		return nil, err
@@ -465,7 +470,11 @@ func (gs *GatewayServer) Connect(ctx context.Context, frontend io.Frontend, ids 
 	registerGatewayConnect(ctx, ids, frontend.Protocol())
 	logger.Info("Connected")
 	go gs.handleUpstream(connEntry)
-	go gs.connStatsUpdater(conn)
+	go gs.updateConnStats(connEntry)
+
+	if gtw.UpdateLocationFromStatus {
+		go gs.handleLocationUpdates(connEntry)
+	}
 
 	for name, handler := range gs.upstreamHandlers {
 		handler := handler
@@ -577,9 +586,9 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 						break
 					}
 					if err := handler.HandleStatus(ctx, conn.Gateway().GatewayIdentifiers, msg); err != nil {
-						registerForwardStatus(ctx, conn.Gateway(), msg, item.host.name)
-					} else {
 						registerDropStatus(ctx, conn.Gateway(), msg, item.host.name, err)
+					} else {
+						registerForwardStatus(ctx, conn.Gateway(), msg, item.host.name)
 					}
 				}
 			}
@@ -667,50 +676,18 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 	}
 }
 
-// UpdateConnectionStats updates the stats for a single gateway connection
+// UpdateConnectionStats updates the stats for a single gateway connection.
 func (gs *GatewayServer) UpdateConnectionStats(ctx context.Context, conn *io.Connection) error {
-	uid := unique.ID(ctx, conn.Gateway())
-
-	stats := &ttnpb.GatewayConnectionStats{}
-	ct := conn.ConnectTime()
-	stats.ConnectedAt = &ct
-	stats.Protocol = conn.Frontend().Protocol()
-	if s, t, ok := conn.StatusStats(); ok {
-		stats.LastStatusReceivedAt = &t
-		stats.LastStatus = s
-	}
-	if c, t, ok := conn.UpStats(); ok {
-		stats.LastUplinkReceivedAt = &t
-		stats.UplinkCount = c
-	}
-	if c, t, ok := conn.DownStats(); ok {
-		stats.LastDownlinkReceivedAt = &t
-		stats.DownlinkCount = c
-	}
-	if min, max, median, count := conn.RTTStats(); count > 0 {
-		stats.RoundTripTimes = &ttnpb.GatewayConnectionStats_RoundTripTimes{
-			Min:    min,
-			Max:    max,
-			Median: median,
-			Count:  uint32(count),
-		}
-	}
-
-	return gs.statsRegistry.Set(ctx, uid, stats)
+	return gs.statsRegistry.Set(ctx, conn.Gateway().GatewayIdentifiers, conn.Stats())
 }
 
-func (gs *GatewayServer) connStatsUpdater(conn *io.Connection) {
+func (gs *GatewayServer) updateConnStats(conn connectionEntry) {
 	ctx := conn.Context()
-	uid := unique.ID(ctx, conn.Gateway())
-
-	logger := log.FromContext(ctx).WithFields(log.Fields(
-		"protocol", conn.Frontend().Protocol(),
-		"gateway_uid", uid,
-	))
+	logger := log.FromContext(ctx)
 
 	defer func() {
 		logger.Debug("Delete connection stats")
-		err := gs.statsRegistry.Set(ctx, uid, nil)
+		err := gs.statsRegistry.Set(ctx, conn.Gateway().GatewayIdentifiers, nil)
 		if err != nil {
 			logger.WithError(err).Error("Failed to delete connection stats")
 		}
@@ -721,13 +698,68 @@ func (gs *GatewayServer) connStatsUpdater(conn *io.Connection) {
 		case <-ctx.Done():
 			return
 		case <-conn.StatsChanged():
-			logger.Debug("Update connection stats")
-			err := gs.UpdateConnectionStats(ctx, conn)
+			err := gs.UpdateConnectionStats(ctx, conn.Connection)
 			if err != nil {
 				logger.WithError(err).Error("Failed to update connection stats")
 			}
 
 			timeout := time.After(gs.updateConnectionStatsDebounceTime)
+			select {
+			case <-ctx.Done():
+				return
+			case <-timeout:
+			}
+		}
+	}
+}
+
+func (gs *GatewayServer) handleLocationUpdates(conn connectionEntry) {
+	ctx := conn.Context()
+
+	var err error
+	var callOpt grpc.CallOption
+	callOpt, err = rpcmetadata.WithForwardedAuth(ctx, gs.AllowInsecureForCredentials())
+	if errors.IsUnauthenticated(err) {
+		callOpt = gs.WithClusterAuth()
+	} else if err != nil {
+		return
+	}
+	registry, err := gs.getRegistry(ctx, &conn.Gateway().GatewayIdentifiers)
+	if err != nil {
+		return
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-conn.LocationChanged():
+			status, _, ok := conn.StatusStats()
+			locations := status.AntennaLocations
+			antennas := conn.Gateway().Antennas
+			if ok && len(locations) > 0 && len(antennas) > 0 {
+				// TODO: Handle multiple antenna locations (https://github.com/TheThingsNetwork/lorawan-stack/issues/2006).
+				locations[0].Source = ttnpb.SOURCE_GPS
+				antennas[0].Location = *locations[0]
+
+				_, err := registry.Update(ctx, &ttnpb.UpdateGatewayRequest{
+					Gateway: ttnpb.Gateway{
+						GatewayIdentifiers: conn.Gateway().GatewayIdentifiers,
+						Antennas:           conn.Gateway().Antennas,
+					},
+					FieldMask: pbtypes.FieldMask{
+						Paths: []string{
+							"antennas",
+						},
+					},
+				}, callOpt)
+
+				if err != nil {
+					log.FromContext(ctx).WithError(err).Warn("Failed to update antenna location")
+				}
+			}
+
+			timeout := time.After(gs.config.UpdateGatewayLocationDebounceTime)
 			select {
 			case <-ctx.Done():
 				return

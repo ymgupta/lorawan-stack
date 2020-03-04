@@ -6,14 +6,13 @@ import (
 	"context"
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 )
 
 var errInvalidDiscoveryMode = errors.DefineInvalidArgument("discovery_mode", "invalid discovery mode")
 
 func init() {
-	CustomNew = func(ctx context.Context, config *config.Cluster, options ...Option) (Cluster, error) {
+	CustomNew = func(ctx context.Context, config *Config, options ...Option) (Cluster, error) {
 		switch strings.ToLower(config.DiscoveryMode) {
 		case "dns":
 			return newDNS(ctx, config, options...)

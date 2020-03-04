@@ -13,7 +13,6 @@ import (
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
-	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -94,7 +93,7 @@ func TestDNSCluster(t *testing.T) {
 	ctx := test.Context()
 	ctx = log.NewContext(ctx, test.GetLogger(t))
 
-	c, err := cluster.New(ctx, &config.Cluster{
+	c, err := cluster.New(ctx, &cluster.Config{
 		DiscoveryMode:     "DNS",
 		IdentityServer:    "is.cluster.local:1885",
 		GatewayServer:     "gs.cluster.local",

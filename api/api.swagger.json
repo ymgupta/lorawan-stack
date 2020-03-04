@@ -9934,7 +9934,7 @@
           "items": {
             "$ref": "#/definitions/v3ApplicationDownlink"
           },
-          "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server."
+          "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.\nThis field is deprecated and is always set equal to session.queued_application_downlinks."
         },
         "formatters": {
           "$ref": "#/definitions/v3MessagePayloadFormatters",
@@ -10350,6 +10350,11 @@
         "schedule_anytime_delay": {
           "type": "string",
           "description": "Adjust the time that GS schedules class C messages in advance. This is useful for gateways that have a known high latency backhaul, like 3G and satellite."
+        },
+        "update_location_from_status": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "update the location of this gateway from status messages"
         }
       },
       "description": "Gateway is the message that defines a gateway on the network."
@@ -12094,6 +12099,13 @@
           "type": "string",
           "format": "date-time",
           "description": "Time when the session started. Network Server only."
+        },
+        "queued_application_downlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ApplicationDownlink"
+          },
+          "description": "Queued Application downlink messages. Stored in Application Server and Network Server."
         }
       }
     },

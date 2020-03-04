@@ -4517,6 +4517,15 @@
       "file": "organization_registry.go"
     }
   },
+  "error:pkg/identityserver:no_contact_info": {
+    "translations": {
+      "en": "no contact info for this entity type"
+    },
+    "description": {
+      "package": "pkg/identityserver",
+      "file": "contact_info_registry.go"
+    }
+  },
   "error:pkg/identityserver:no_invite_rights": {
     "translations": {
       "en": "no rights for inviting users"
@@ -5770,7 +5779,7 @@
   },
   "error:pkg/networkserver:application_downlink_too_long": {
     "translations": {
-      "en": "application downlink payload length '{length}' exceeds maximum '{max}'"
+      "en": "application downlink payload length `{length}` exceeds maximum '{max}'"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -5941,7 +5950,7 @@
   },
   "error:pkg/networkserver:f_cnt_too_low": {
     "translations": {
-      "en": "FCnt is too low"
+      "en": "FCnt `{f_cnt}` is lower than minimum of `{min_f_cnt}`"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -6130,7 +6139,7 @@
   },
   "error:pkg/networkserver:unsupported_lorawan_version": {
     "translations": {
-      "en": "unsupported LoRaWAN version: {version}"
+      "en": "unsupported LoRaWAN version: `{version}`"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -6545,6 +6554,15 @@
   "error:pkg/redis:store": {
     "translations": {
       "en": "store error"
+    },
+    "description": {
+      "package": "pkg/redis",
+      "file": "errors.go"
+    }
+  },
+  "error:pkg/redis:transaction_failed": {
+    "translations": {
+      "en": "transaction failed"
     },
     "description": {
       "package": "pkg/redis",
