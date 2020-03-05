@@ -169,8 +169,8 @@ func TestDNSCluster(t *testing.T) {
 		peers, err := c.GetPeers(ctx, ttnpb.ClusterRole_GATEWAY_SERVER)
 		a.So(err, should.BeNil)
 		if a.So(peers, should.HaveLength, 2) {
-			a.So(peers[0].Name(), should.Equal, "10.0.1.1:1885")
-			a.So(peers[1].Name(), should.Equal, "10.0.1.2:1885")
+			a.So(peers[0].Name(), should.Equal, "gs1")
+			a.So(peers[1].Name(), should.Equal, "gs2")
 		}
 	})
 
