@@ -12,18 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gatewayserver
+package ttnpb_test
 
 import (
-	"context"
-
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	// These imports are needed to make the populators work.
+	_ "go.thethings.network/lorawan-stack/pkg/crypto"
+	_ "go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 )
-
-// GatewayConnectionStatsRegistry stores, updates and cleans up gateway connection stats.
-type GatewayConnectionStatsRegistry interface {
-	// Get returns connection stats for a gateway.
-	Get(ctx context.Context, ids ttnpb.GatewayIdentifiers) (*ttnpb.GatewayConnectionStats, error)
-	// Set updates the connection stats for a gateway.
-	Set(ctx context.Context, ids ttnpb.GatewayIdentifiers, stats *ttnpb.GatewayConnectionStats) error
-}

@@ -89,6 +89,7 @@ type Connection struct {
 	txAckCh  chan *ttnpb.TxAcknowledgment
 
 	statsChangedCh chan struct{}
+	locCh          chan struct{}
 }
 
 var (
@@ -149,6 +150,7 @@ func NewConnection(ctx context.Context, frontend Frontend, gateway *ttnpb.Gatewa
 		downCh:      make(chan *ttnpb.DownlinkMessage, bufferSize),
 		statusCh:    make(chan *ttnpb.GatewayStatus, bufferSize),
 		txAckCh:     make(chan *ttnpb.TxAcknowledgment, bufferSize),
+		locCh:       make(chan struct{}, 1),
 		connectTime: time.Now().UnixNano(),
 
 		statsChangedCh: make(chan struct{}, 1),
@@ -239,6 +241,13 @@ func (c *Connection) HandleStatus(status *ttnpb.GatewayStatus) error {
 		c.lastStatus.Store(status)
 		atomic.StoreInt64(&c.lastStatusTime, time.Now().UnixNano())
 		c.notifyStatsChanged()
+
+		if len(status.AntennaLocations) > 0 && c.gateway.UpdateLocationFromStatus {
+			select {
+			case c.locCh <- struct{}{}:
+			default:
+			}
+		}
 	default:
 		return errBufferFull
 	}
@@ -524,6 +533,11 @@ func (c *Connection) StatsChanged() <-chan struct{} {
 	return c.statsChangedCh
 }
 
+// LocationChanged returns the location updates channel.
+func (c *Connection) LocationChanged() <-chan struct{} {
+	return c.locCh
+}
+
 // ConnectTime returns the time the gateway connected.
 func (c *Connection) ConnectTime() time.Time { return time.Unix(0, c.connectTime) }
 
@@ -556,6 +570,36 @@ func (c *Connection) DownStats() (total uint64, t time.Time, ok bool) {
 // RTTStats returns the recorded round-trip time statistics.
 func (c *Connection) RTTStats() (min, max, median time.Duration, count int) {
 	return c.rtts.Stats()
+}
+
+// Stats collects and returns the gateway connection statistics.
+func (c *Connection) Stats() *ttnpb.GatewayConnectionStats {
+	stats := &ttnpb.GatewayConnectionStats{}
+	ct := c.ConnectTime()
+	stats.ConnectedAt = &ct
+	stats.Protocol = c.Frontend().Protocol()
+	if s, t, ok := c.StatusStats(); ok {
+		stats.LastStatusReceivedAt = &t
+		stats.LastStatus = s
+	}
+	if c, t, ok := c.UpStats(); ok {
+		stats.LastUplinkReceivedAt = &t
+		stats.UplinkCount = c
+	}
+	if c, t, ok := c.DownStats(); ok {
+		stats.LastDownlinkReceivedAt = &t
+		stats.DownlinkCount = c
+	}
+	if min, max, median, count := c.RTTStats(); count > 0 {
+		stats.RoundTripTimes = &ttnpb.GatewayConnectionStats_RoundTripTimes{
+			Min:    min,
+			Max:    max,
+			Median: median,
+			Count:  uint32(count),
+		}
+	}
+
+	return stats
 }
 
 // FrequencyPlans returns the frequency plans for the gateway.

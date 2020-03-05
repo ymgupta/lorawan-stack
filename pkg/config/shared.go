@@ -23,6 +23,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	ttnblob "go.thethings.network/lorawan-stack/pkg/blob"
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	awscrypto "go.thethings.network/lorawan-stack/pkg/crypto/aws"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
@@ -30,6 +31,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/fetch"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"gocloud.dev/blob"
 )
@@ -48,23 +50,6 @@ type Log struct {
 // Sentry represents configuration for error tracking using Sentry.
 type Sentry struct {
 	DSN string `name:"dsn" description:"Sentry Data Source Name"`
-}
-
-// Cluster represents clustering configuration.
-type Cluster struct {
-	DiscoveryMode     string   `name:"discovery-mode" description:"Peer discovery mode (DNS)"`
-	Join              []string `name:"join" description:"Addresses of cluster peers to join"`
-	Name              string   `name:"name" description:"Name of the current cluster peer (default: $HOSTNAME)"`
-	Address           string   `name:"address" description:"Address to use for cluster communication"`
-	IdentityServer    string   `name:"identity-server" description:"Address for the Identity Server"`
-	GatewayServer     string   `name:"gateway-server" description:"Address for the Gateway Server"`
-	NetworkServer     string   `name:"network-server" description:"Address for the Network Server"`
-	ApplicationServer string   `name:"application-server" description:"Address for the Application Server"`
-	JoinServer        string   `name:"join-server" description:"Address for the Join Server"`
-	CryptoServer      string   `name:"crypto-server" description:"Address for the Crypto Server"`
-	PacketBrokerAgent string   `name:"packet-broker-agent" description:"Address of the Packet Broker Agent"`
-	TLS               bool     `name:"tls" description:"Do cluster gRPC over TLS"`
-	Keys              []string `name:"keys" description:"Keys used to communicate between components of the cluster. The first one will be used by the cluster to identify itself"`
 }
 
 // GRPC represents gRPC listener configuration.
@@ -121,30 +106,6 @@ type HTTP struct {
 	Health          Health           `name:"health"`
 }
 
-// RedisFailover represents Redis failover configuration.
-type RedisFailover struct {
-	Enable     bool     `name:"enable" description:"Enable failover using Redis Sentinel"`
-	Addresses  []string `name:"addresses" description:"Redis Sentinel server addresses"`
-	MasterName string   `name:"master-name" description:"Redis Sentinel master name"`
-}
-
-// Redis represents Redis configuration.
-type Redis struct {
-	Address   string        `name:"address" description:"Address of the Redis server"`
-	Password  string        `name:"password" description:"Password of the Redis server"`
-	Database  int           `name:"database" description:"Redis database to use"`
-	Namespace []string      `name:"namespace" description:"Namespace for Redis keys"`
-	PoolSize  int           `name:"pool-size" description:"The maximum number of database connections"`
-	Failover  RedisFailover `name:"failover" description:"Redis failover configuration"`
-}
-
-// IsZero returns whether the Redis configuration is empty.
-func (r Redis) IsZero() bool {
-	return r.Database == 0 && len(r.Namespace) == 0 &&
-		(r.Failover.Enable && r.Failover.MasterName == "" && len(r.Failover.Addresses) == 0 ||
-			!r.Failover.Enable && r.Address == "")
-}
-
 // CloudEvents represents configuration for the cloud events backend.
 type CloudEvents struct {
 	PublishURL   string `name:"publish-url" description:"URL for the topic to send events"`
@@ -153,15 +114,15 @@ type CloudEvents struct {
 
 // Cache represents configuration for a caching system.
 type Cache struct {
-	Service string `name:"service" description:"Service used for caching (redis)"`
-	Redis   Redis  `name:"redis"`
+	Service string       `name:"service" description:"Service used for caching (redis)"`
+	Redis   redis.Config `name:"redis"`
 }
 
 // Events represents configuration for the events system.
 type Events struct {
-	Backend string      `name:"backend" description:"Backend to use for events (internal, redis, cloud)"`
-	Redis   Redis       `name:"redis"`
-	Cloud   CloudEvents `name:"cloud"`
+	Backend string       `name:"backend" description:"Backend to use for events (internal, redis, cloud)"`
+	Redis   redis.Config `name:"redis"`
+	Cloud   CloudEvents  `name:"cloud"`
 }
 
 // Rights represents the configuration to apply when fetching entity rights.
@@ -453,9 +414,9 @@ type InteropServer struct {
 // ServiceBase represents base service configuration.
 type ServiceBase struct {
 	Base             `name:",squash"`
-	Cluster          Cluster                `name:"cluster"`
+	Cluster          cluster.Config         `name:"cluster"`
 	Cache            Cache                  `name:"cache"`
-	Redis            Redis                  `name:"redis"`
+	Redis            redis.Config           `name:"redis"`
 	Events           Events                 `name:"events"`
 	GRPC             GRPC                   `name:"grpc"`
 	HTTP             HTTP                   `name:"http"`

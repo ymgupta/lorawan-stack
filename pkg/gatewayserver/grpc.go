@@ -29,8 +29,7 @@ func (gs *GatewayServer) GetGatewayConnectionStats(ctx context.Context, ids *ttn
 	}
 
 	if gs.statsRegistry != nil {
-		uid := unique.ID(ctx, ids)
-		stats, err := gs.statsRegistry.Get(ctx, uid)
+		stats, err := gs.statsRegistry.Get(ctx, *ids)
 		if err != nil || stats == nil {
 			return nil, err
 		}
@@ -43,31 +42,5 @@ func (gs *GatewayServer) GetGatewayConnectionStats(ctx context.Context, ids *ttn
 	if !ok {
 		return nil, errNotConnected.WithAttributes("gateway_uid", uid)
 	}
-	conn := val.(connectionEntry)
-
-	stats := &ttnpb.GatewayConnectionStats{}
-	ct := conn.ConnectTime()
-	stats.ConnectedAt = &ct
-	stats.Protocol = conn.Frontend().Protocol()
-	if s, t, ok := conn.StatusStats(); ok {
-		stats.LastStatusReceivedAt = &t
-		stats.LastStatus = s
-	}
-	if c, t, ok := conn.UpStats(); ok {
-		stats.LastUplinkReceivedAt = &t
-		stats.UplinkCount = c
-	}
-	if c, t, ok := conn.DownStats(); ok {
-		stats.LastDownlinkReceivedAt = &t
-		stats.DownlinkCount = c
-	}
-	if min, max, median, count := conn.RTTStats(); count > 0 {
-		stats.RoundTripTimes = &ttnpb.GatewayConnectionStats_RoundTripTimes{
-			Min:    min,
-			Max:    max,
-			Median: median,
-			Count:  uint32(count),
-		}
-	}
-	return stats, nil
+	return val.(connectionEntry).Stats(), nil
 }

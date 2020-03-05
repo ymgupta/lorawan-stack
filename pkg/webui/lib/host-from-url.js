@@ -12,18 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gatewayserver
-
-import (
-	"context"
-
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-)
-
-// GatewayConnectionStatsRegistry stores, updates and cleans up gateway connection stats.
-type GatewayConnectionStatsRegistry interface {
-	// Get returns connection stats for a gateway.
-	Get(ctx context.Context, ids ttnpb.GatewayIdentifiers) (*ttnpb.GatewayConnectionStats, error)
-	// Set updates the connection stats for a gateway.
-	Set(ctx context.Context, ids ttnpb.GatewayIdentifiers, stats *ttnpb.GatewayConnectionStats) error
+/**
+ * Extracts hostname from the `url`.
+ * @param {string} url - The URL string.
+ * @returns {string?} - The hostname of the `url` or undefined.
+ */
+export default url => {
+  try {
+    return new URL(url).hostname
+  } catch (error) {
+    return undefined
+  }
 }
