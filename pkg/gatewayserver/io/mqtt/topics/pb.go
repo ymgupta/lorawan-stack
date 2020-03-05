@@ -14,10 +14,6 @@
 
 package topics
 
-import (
-	"context"
-)
-
 const topicV3 = "v3"
 
 type v3 struct{}
@@ -71,7 +67,7 @@ func (v3 *v3) createTopic(uid string, path []string) []string {
 	return append([]string{topicV3, inTopicIdentifier}, path...)
 }
 
-// New returns the default layout.
-func New(ctx context.Context) Layout {
-	return &v3{}
-}
+func (v3) SetSingleTenant() {}
+
+// Default is the default layout.
+var Default Layout = &v3{}

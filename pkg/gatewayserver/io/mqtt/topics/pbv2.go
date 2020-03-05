@@ -14,11 +14,11 @@
 
 package topics
 
-import (
-	"context"
-)
+import "go.thethings.network/lorawan-stack/pkg/unique"
 
-type v2 struct{}
+type v2 struct {
+	isSingleTenant bool
+}
 
 func (v2 *v2) BirthTopic(uid string) []string {
 	return []string{"connect"}
@@ -37,7 +37,11 @@ func (v2 *v2) IsLastWillTopic(path []string) bool {
 }
 
 func (v2 *v2) UplinkTopic(uid string) []string {
-	return v2.createTopic(uid, []string{"up"})
+	if v2.isSingleTenant {
+		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
+		return []string{ids.GatewayID, "up"}
+	}
+	return []string{uid, "up"}
 }
 
 func (v2 *v2) IsUplinkTopic(path []string) bool {
@@ -45,7 +49,11 @@ func (v2 *v2) IsUplinkTopic(path []string) bool {
 }
 
 func (v2 *v2) StatusTopic(uid string) []string {
-	return v2.createTopic(uid, []string{"status"})
+	if v2.isSingleTenant {
+		ids, _ := unique.ToGatewayID(uid)
+		return []string{ids.GatewayID, "status"}
+	}
+	return []string{uid, "status"}
 }
 
 func (v2 *v2) IsStatusTopic(path []string) bool {
@@ -61,15 +69,16 @@ func (v2 *v2) IsTxAckTopic(path []string) bool {
 }
 
 func (v2 *v2) DownlinkTopic(uid string) []string {
-	return v2.createTopic(uid, []string{"down"})
+	if v2.isSingleTenant {
+		ids, _ := unique.ToGatewayID(uid)
+		return []string{ids.GatewayID, "down"}
+	}
+	return []string{uid, "down"}
 }
 
-func (v2 *v2) createTopic(uid string, path []string) []string {
-	inTopicIdentifier := uid
-	return append([]string{inTopicIdentifier}, path...)
+func (v2 *v2) SetSingleTenant() {
+	v2.isSingleTenant = true
 }
 
-// NewV2 returns a topic layout that uses the legacy The Things Stack V2 topic structure.
-func NewV2(ctx context.Context) Layout {
-	return &v2{}
-}
+// V2 is a topic layout that uses the legacy The Things Stack V2 topic structure.
+var V2 Layout = &v2{}
