@@ -100,25 +100,7 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		if err != nil {
 			host, port = address, ""
 		}
-		var addresses []string
-		if port != "" { // Port is already known.
-			addresses = []string{address}
-		} else { // Port is unknown, discover hostnames and ports.
-			_, records, err := c.resolver.LookupSRV(ctx, "", "", host)
-			if err != nil {
-				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
-				continue
-			}
-			for _, record := range records {
-				addresses = append(addresses, fmt.Sprintf("%s:%d", record.Target, record.Port))
-			}
-		}
-		for _, address := range addresses {
-			host, port, err := net.SplitHostPort(address)
-			if err != nil {
-				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
-				continue
-			}
+		if port != "" { // Port is already known, use A records.
 			records, err := c.resolver.LookupIPAddr(ctx, host)
 			if err != nil {
 				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
@@ -128,6 +110,21 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 				address := net.JoinHostPort(record.String(), port)
 				peers[address] = &peer{
 					name:   address,
+					roles:  roles,
+					target: address,
+				}
+			}
+		} else { // Port is not known, use SRV records.
+			_, records, err := c.resolver.LookupSRV(ctx, "", "", host)
+			if err != nil {
+				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
+				continue
+			}
+			for _, record := range records {
+				name := record.Target[:strings.Index(record.Target, ".")]
+				address := fmt.Sprintf("%s:%d", strings.TrimSuffix(record.Target, "."), record.Port)
+				peers[address] = &peer{
+					name:   name,
 					roles:  roles,
 					target: address,
 				}
