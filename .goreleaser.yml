@@ -146,7 +146,7 @@ brews:
     skip_upload: auto
     install: |
       bin.install "tti-lw-cli"
-      libexec.install %w[tti-lw-stack public doc]
+      libexec.install %w[tti-lw-stack public]
       env = {
           :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
       }
@@ -168,7 +168,6 @@ brews:
     skip_upload: auto
     install: |
       bin.install "tti-lw-cli"
-      libexec.install doc
 
 blobs:
   - provider: s3
