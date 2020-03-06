@@ -62,7 +62,7 @@ type Gateway struct {
 	ScheduleAnytimeDelay   int64 `gorm:"default:0 not null"`
 	DownlinkPathConstraint int
 
-	UpdateLocationFromStatus bool `gorm:"not null"`
+	UpdateLocationFromStatus bool `gorm:"default:false not null"`
 
 	Antennas []GatewayAntenna
 }
