@@ -28,7 +28,6 @@ import (
 	"github.com/TheThingsIndustries/mystique/pkg/topic"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io"
-	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -52,10 +51,6 @@ func Serve(ctx context.Context, server io.Server, listener net.Listener, format 
 	ctx = log.NewContextWithField(ctx, "namespace", "gatewayserver/io/mqtt")
 	ctx = mqttlog.NewContext(ctx, mqtt.Logger(log.FromContext(ctx)))
 	s := &srv{ctx, server, format, mqttnet.NewListener(listener, protocol)}
-
-	if license.RequireMultiTenancy(ctx) != nil {
-		format.SetSingleTenant()
-	}
 
 	go func() {
 		<-ctx.Done()

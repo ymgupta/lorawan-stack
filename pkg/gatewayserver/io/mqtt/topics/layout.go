@@ -29,6 +29,4 @@ type Layout interface {
 	IsTxAckTopic(path []string) bool
 
 	DownlinkTopic(uid string) []string
-
-	SetSingleTenant()
 }

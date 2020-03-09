@@ -14,10 +14,15 @@
 
 package topics
 
-import "go.thethings.network/lorawan-stack/pkg/unique"
+import (
+	"context"
+
+	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/unique"
+)
 
 type v2 struct {
-	isSingleTenant bool
+	multitenancy bool
 }
 
 func (v2 *v2) BirthTopic(uid string) []string {
@@ -37,7 +42,7 @@ func (v2 *v2) IsLastWillTopic(path []string) bool {
 }
 
 func (v2 *v2) UplinkTopic(uid string) []string {
-	if v2.isSingleTenant {
+	if !v2.multitenancy {
 		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
 		return []string{ids.GatewayID, "up"}
 	}
@@ -49,7 +54,7 @@ func (v2 *v2) IsUplinkTopic(path []string) bool {
 }
 
 func (v2 *v2) StatusTopic(uid string) []string {
-	if v2.isSingleTenant {
+	if !v2.multitenancy {
 		ids, _ := unique.ToGatewayID(uid)
 		return []string{ids.GatewayID, "status"}
 	}
@@ -69,16 +74,19 @@ func (v2 *v2) IsTxAckTopic(path []string) bool {
 }
 
 func (v2 *v2) DownlinkTopic(uid string) []string {
-	if v2.isSingleTenant {
+	if !v2.multitenancy {
 		ids, _ := unique.ToGatewayID(uid)
 		return []string{ids.GatewayID, "down"}
 	}
 	return []string{uid, "down"}
 }
 
-func (v2 *v2) SetSingleTenant() {
-	v2.isSingleTenant = true
+// NewV2 returns a topic layout that uses the legacy The Things Stack V2 topic structure.
+func NewV2(ctx context.Context) Layout {
+	if license.RequireMultiTenancy(ctx) == nil {
+		return &v2{
+			multitenancy: true,
+		}
+	}
+	return &v2{}
 }
-
-// V2 is a topic layout that uses the legacy The Things Stack V2 topic structure.
-var V2 Layout = &v2{}
