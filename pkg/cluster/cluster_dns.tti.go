@@ -87,7 +87,11 @@ func (c *dnsCluster) addPeerDiscovery(target string, roles ...ttnpb.ClusterRole)
 	if target == "" {
 		return
 	}
-	c.peerDiscovery[target] = roles
+	for _, spaceSeparated := range strings.Split(target, " ") {
+		for _, target := range strings.Split(spaceSeparated, ",") {
+			c.peerDiscovery[target] = roles
+		}
+	}
 }
 
 func (c *dnsCluster) updatePeers(ctx context.Context) {
