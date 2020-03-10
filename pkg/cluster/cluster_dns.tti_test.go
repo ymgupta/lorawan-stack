@@ -96,7 +96,7 @@ func TestDNSCluster(t *testing.T) {
 	c, err := cluster.New(ctx, &cluster.Config{
 		DiscoveryMode:     "DNS",
 		IdentityServer:    "is.cluster.local:1885",
-		GatewayServer:     "gs.cluster.local",
+		GatewayServer:     "gs.cluster.local,udp-gs.cluster.local",
 		PacketBrokerAgent: "pba.cluster.local",
 	})
 	a.So(err, should.BeNil)
@@ -162,15 +162,18 @@ func TestDNSCluster(t *testing.T) {
 
 		r.setIP("gs1.cluster.local", "10.0.1.1")
 		r.setIP("gs2.cluster.local", "10.0.1.2")
+		r.setIP("udp-gs1.cluster.local", "10.0.1.3")
 		r.setSRV("gs.cluster.local", "gs1.cluster.local:1885", "gs2.cluster.local:1885")
+		r.setSRV("udp-gs.cluster.local", "udp-gs1.cluster.local:12345")
 
 		cluster.UpdatePeers(ctx, c)
 
 		peers, err := c.GetPeers(ctx, ttnpb.ClusterRole_GATEWAY_SERVER)
 		a.So(err, should.BeNil)
-		if a.So(peers, should.HaveLength, 2) {
+		if a.So(peers, should.HaveLength, 3) {
 			a.So(peers[0].Name(), should.Equal, "gs1")
 			a.So(peers[1].Name(), should.Equal, "gs2")
+			a.So(peers[2].Name(), should.Equal, "udp-gs1")
 		}
 	})
 
