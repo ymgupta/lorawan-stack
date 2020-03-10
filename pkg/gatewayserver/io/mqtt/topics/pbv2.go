@@ -22,7 +22,7 @@ import (
 )
 
 type v2 struct {
-	multitenancy bool
+	multiTenancy bool
 }
 
 func (v2 *v2) BirthTopic(uid string) []string {
@@ -42,11 +42,7 @@ func (v2 *v2) IsLastWillTopic(path []string) bool {
 }
 
 func (v2 *v2) UplinkTopic(uid string) []string {
-	if !v2.multitenancy {
-		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
-		return []string{ids.GatewayID, "up"}
-	}
-	return []string{uid, "up"}
+	return v2.createTopic(uid, []string{"up"})
 }
 
 func (v2 *v2) IsUplinkTopic(path []string) bool {
@@ -54,11 +50,7 @@ func (v2 *v2) IsUplinkTopic(path []string) bool {
 }
 
 func (v2 *v2) StatusTopic(uid string) []string {
-	if !v2.multitenancy {
-		ids, _ := unique.ToGatewayID(uid)
-		return []string{ids.GatewayID, "status"}
-	}
-	return []string{uid, "status"}
+	return v2.createTopic(uid, []string{"status"})
 }
 
 func (v2 *v2) IsStatusTopic(path []string) bool {
@@ -74,19 +66,21 @@ func (v2 *v2) IsTxAckTopic(path []string) bool {
 }
 
 func (v2 *v2) DownlinkTopic(uid string) []string {
-	if !v2.multitenancy {
-		ids, _ := unique.ToGatewayID(uid)
-		return []string{ids.GatewayID, "down"}
+	return v2.createTopic(uid, []string{"down"})
+}
+
+func (v2 *v2) createTopic(uid string, path []string) []string {
+	inTopicIdentifier := uid
+	if !v2.multiTenancy {
+		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
+		inTopicIdentifier = ids.GatewayID
 	}
-	return []string{uid, "down"}
+	return append([]string{inTopicIdentifier}, path...)
 }
 
 // NewV2 returns a topic layout that uses the legacy The Things Stack V2 topic structure.
 func NewV2(ctx context.Context) Layout {
-	if license.RequireMultiTenancy(ctx) == nil {
-		return &v2{
-			multitenancy: true,
-		}
+	return &v2{
+		multiTenancy: license.RequireMultiTenancy(ctx) == nil,
 	}
-	return &v2{}
 }

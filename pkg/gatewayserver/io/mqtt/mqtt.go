@@ -51,7 +51,6 @@ func Serve(ctx context.Context, server io.Server, listener net.Listener, format 
 	ctx = log.NewContextWithField(ctx, "namespace", "gatewayserver/io/mqtt")
 	ctx = mqttlog.NewContext(ctx, mqtt.Logger(log.FromContext(ctx)))
 	s := &srv{ctx, server, format, mqttnet.NewListener(listener, protocol)}
-
 	go func() {
 		<-ctx.Done()
 		s.lis.Close()

@@ -24,7 +24,7 @@ import (
 const topicV3 = "v3"
 
 type v3 struct {
-	multitenancy bool
+	multiTenancy bool
 }
 
 func (v3 *v3) BirthTopic(uid string) []string {
@@ -44,11 +44,7 @@ func (v3 *v3) IsLastWillTopic(path []string) bool {
 }
 
 func (v3 *v3) UplinkTopic(uid string) []string {
-	if !v3.multitenancy {
-		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
-		return []string{topicV3, ids.GatewayID, "up"}
-	}
-	return []string{topicV3, uid, "up"}
+	return v3.createTopic(uid, []string{"up"})
 }
 
 func (v3 *v3) IsUplinkTopic(path []string) bool {
@@ -56,11 +52,7 @@ func (v3 *v3) IsUplinkTopic(path []string) bool {
 }
 
 func (v3 *v3) StatusTopic(uid string) []string {
-	if !v3.multitenancy {
-		ids, _ := unique.ToGatewayID(uid)
-		return []string{topicV3, ids.GatewayID, "status"}
-	}
-	return []string{topicV3, uid, "status"}
+	return v3.createTopic(uid, []string{"status"})
 }
 
 func (v3 *v3) IsStatusTopic(path []string) bool {
@@ -68,11 +60,7 @@ func (v3 *v3) IsStatusTopic(path []string) bool {
 }
 
 func (v3 *v3) TxAckTopic(uid string) []string {
-	if !v3.multitenancy {
-		ids, _ := unique.ToGatewayID(uid)
-		return []string{topicV3, ids.GatewayID, "down", "ack"}
-	}
-	return []string{topicV3, uid, "down", "ack"}
+	return v3.createTopic(uid, []string{"down", "ack"})
 }
 
 func (v3 *v3) IsTxAckTopic(path []string) bool {
@@ -80,19 +68,21 @@ func (v3 *v3) IsTxAckTopic(path []string) bool {
 }
 
 func (v3 *v3) DownlinkTopic(uid string) []string {
-	if !v3.multitenancy {
-		ids, _ := unique.ToGatewayID(uid)
-		return []string{topicV3, ids.GatewayID, "down"}
+	return v3.createTopic(uid, []string{"down"})
+}
+
+func (v3 *v3) createTopic(uid string, path []string) []string {
+	inTopicIdentifier := uid
+	if !v3.multiTenancy {
+		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
+		inTopicIdentifier = ids.GatewayID
 	}
-	return []string{topicV3, uid, "down"}
+	return append([]string{topicV3, inTopicIdentifier}, path...)
 }
 
 // New returns the default layout.
 func New(ctx context.Context) Layout {
-	if license.RequireMultiTenancy(ctx) == nil {
-		return &v3{
-			multitenancy: true,
-		}
+	return &v3{
+		multiTenancy: license.RequireMultiTenancy(ctx) == nil,
 	}
-	return &v3{}
 }
