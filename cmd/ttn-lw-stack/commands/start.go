@@ -37,6 +37,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
 	events_grpc "go.thethings.network/lorawan-stack/v3/pkg/events/grpc"
 	"go.thethings.network/lorawan-stack/v3/pkg/eventserver"
+	esredis "go.thethings.network/lorawan-stack/v3/pkg/eventserver/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	gsredis "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/redis"
@@ -351,6 +352,16 @@ var startCommand = &cobra.Command{
 		if start.EventServer || startDefault {
 			logger.Info("Setting up Event Server")
 			config.ES.Subscriber = eventPubSub
+			config.ES.Consumers.StreamGroup = "stream"
+			esIngestQueue := &esredis.EventQueue{
+				Redis:  redis.New(config.Redis.WithNamespace("es", "events", "ingest")),
+				MaxLen: 1000,
+				ID:     redisConsumerID,
+			}
+			if err := esIngestQueue.Init(config.ES.Consumers.GroupNames()...); err != nil {
+				return shared.ErrInitializeEventServer.WithCause(err)
+			}
+			config.ES.IngestQueue = esIngestQueue
 			es, err := eventserver.New(c, &config.ES)
 			if err != nil {
 				return shared.ErrInitializeEventServer.WithCause(err)

@@ -36,6 +36,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/cryptoserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/devicetemplateconverter"
+	"go.thethings.network/lorawan-stack/v3/pkg/eventserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver"
