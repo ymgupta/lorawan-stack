@@ -54,6 +54,7 @@ type Config struct {
 	NS               networkserver.Config              `name:"ns"`
 	AS               applicationserver.Config          `name:"as"`
 	JS               joinserver.Config                 `name:"js"`
+	ES               eventserver.Config                `name:"es"`
 	Console          console.Config                    `name:"console"`
 	GCS              gatewayconfigurationserver.Config `name:"gcs"`
 	DTC              devicetemplateconverter.Config    `name:"dtc"`
