@@ -81,6 +81,8 @@ type dnsCluster struct {
 	peerMu           sync.RWMutex
 	byRole           map[ttnpb.ClusterRole][]*peer
 	consistentHashes map[ttnpb.ClusterRole]*consistenthash.Map
+
+	notifyUpdate []func()
 }
 
 func (c *dnsCluster) addPeerDiscovery(target string, roles ...ttnpb.ClusterRole) {
@@ -143,6 +145,8 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		options = append(options, grpc.WithInsecure())
 	}
 
+	var newPeers []*peer
+
 	// Re-use existing peers, connect to new peers.
 	for name, peer := range peers {
 		if existing, ok := c.peers[name]; ok && existing.target == peer.target {
@@ -162,6 +166,7 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		} else {
 			logger.Debug("Connected to peer")
 		}
+		newPeers = append(newPeers, peer)
 	}
 
 	// Construct lookup maps.
@@ -214,6 +219,12 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 	c.byRole = byRole
 	c.consistentHashes = consistentHashes
 	c.peerMu.Unlock()
+
+	if len(oldPeers) > 0 || len(newPeers) > 0 {
+		for _, notify := range c.notifyUpdate {
+			notify()
+		}
+	}
 }
 
 func (c *dnsCluster) Join() (err error) {
