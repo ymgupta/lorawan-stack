@@ -93,9 +93,13 @@ func TestDNSCluster(t *testing.T) {
 	ctx := test.Context()
 	ctx = log.NewContext(ctx, test.GetLogger(t))
 
+	redisClient, redisCleanup := test.NewRedis(t)
+	defer redisCleanup()
+	defer redisClient.Close()
+
 	c, err := cluster.New(ctx, &cluster.Config{
 		DiscoveryMode:     "DNS",
-		IdentityServer:    "is.cluster.local:1885",
+		IdentityServer:    "is.cluster.local:1884",
 		GatewayServer:     "gs.cluster.local,udp-gs.cluster.local",
 		PacketBrokerAgent: "pba.cluster.local",
 		Claim: cluster.ClaimRegistryConfig{
@@ -124,7 +128,7 @@ func TestDNSCluster(t *testing.T) {
 		peers, err := c.GetPeers(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY)
 		a.So(err, should.BeNil)
 		if a.So(peers, should.HaveLength, 1) {
-			a.So(peers[0].Name(), should.Equal, "10.0.0.1:1885")
+			a.So(peers[0].Name(), should.Equal, "10.0.0.1")
 		}
 
 		peer, err := c.GetPeer(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
@@ -151,8 +155,8 @@ func TestDNSCluster(t *testing.T) {
 		peers, err := c.GetPeers(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY)
 		a.So(err, should.BeNil)
 		if a.So(peers, should.HaveLength, 2) {
-			a.So(peers[0].Name(), should.Equal, "10.0.0.1:1885")
-			a.So(peers[1].Name(), should.Equal, "10.0.0.2:1885")
+			a.So(peers[0].Name(), should.Equal, "10.0.0.1")
+			a.So(peers[1].Name(), should.Equal, "10.0.0.2")
 		}
 
 		peers, err = c.GetPeers(ctx, ttnpb.ClusterRole_GATEWAY_SERVER)
@@ -167,7 +171,7 @@ func TestDNSCluster(t *testing.T) {
 		r.setIP("gs1.cluster.local", "10.0.1.1")
 		r.setIP("gs2.cluster.local", "10.0.1.2")
 		r.setIP("udp-gs1.cluster.local", "10.0.1.3")
-		r.setSRV("gs.cluster.local", "gs1.cluster.local:1885", "gs2.cluster.local:1885")
+		r.setSRV("gs.cluster.local", "gs1.cluster.local:1884", "gs2.cluster.local:1884")
 		r.setSRV("udp-gs.cluster.local", "udp-gs1.cluster.local:12345")
 
 		cluster.UpdatePeers(ctx, c)
@@ -192,7 +196,7 @@ func TestDNSCluster(t *testing.T) {
 		peers, err := c.GetPeers(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY)
 		a.So(err, should.BeNil)
 		if a.So(peers, should.HaveLength, 1) {
-			a.So(peers[0].Name(), should.Equal, "10.0.0.1:1885")
+			a.So(peers[0].Name(), should.Equal, "10.0.0.1")
 		}
 	})
 }

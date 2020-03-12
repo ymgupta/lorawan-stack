@@ -119,6 +119,8 @@ type Config struct {
 	PacketBrokerAgent string   `name:"packet-broker-agent" description:"Address of the Packet Broker Agent"`
 	TLS               bool     `name:"tls" description:"Do cluster gRPC over TLS"`
 	Keys              []string `name:"keys" description:"Keys used to communicate between components of the cluster. The first one will be used by the cluster to identify itself"`
+
+	Claim ClaimRegistryConfig `name:"claim"`
 }
 
 // CustomNew allows you to replace the clustering implementation. New will call CustomNew if not nil.
