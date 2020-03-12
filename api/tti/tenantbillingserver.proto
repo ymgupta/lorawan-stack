@@ -4,8 +4,6 @@ syntax = "proto3";
 
 package tti.lorawan.v3;
 
-import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
-import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "lorawan-stack/api/tti/license.proto";
