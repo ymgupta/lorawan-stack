@@ -2564,6 +2564,15 @@
       "file": "bucket.go"
     }
   },
+  "error:pkg/cluster:claiming_backend": {
+    "translations": {
+      "en": "invalid ID claiming backend"
+    },
+    "description": {
+      "package": "pkg/cluster",
+      "file": "claims.tti.go"
+    }
+  },
   "error:pkg/cluster:cluster_key": {
     "translations": {
       "en": "invalid cluster key"

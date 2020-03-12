@@ -98,6 +98,10 @@ func TestDNSCluster(t *testing.T) {
 		IdentityServer:    "is.cluster.local:1885",
 		GatewayServer:     "gs.cluster.local,udp-gs.cluster.local",
 		PacketBrokerAgent: "pba.cluster.local",
+		Claim: cluster.ClaimRegistryConfig{
+			Backend: "redis",
+			Redis:   redisClient,
+		},
 	})
 	a.So(err, should.BeNil)
 
