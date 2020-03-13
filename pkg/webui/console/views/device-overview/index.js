@@ -57,6 +57,7 @@ class DeviceOverview extends React.Component {
       root_keys = {},
       session = {},
       created_at,
+      supports_join,
     } = this.props.device
 
     // Get session keys
@@ -125,12 +126,14 @@ class DeviceOverview extends React.Component {
           ]
         } else {
           infoEntry.subItems = [
-            {
-              key: sharedMessages.appKey,
-              value: root_keys.app_key.key,
-              type: 'byte',
-              sensitive: true,
-            },
+            ...(root_keys.app_key
+              ? {
+                  key: sharedMessages.appKey,
+                  value: root_keys.app_key.key,
+                  type: 'byte',
+                  sensitive: true,
+                }
+              : { key: sharedMessages.appKey, value: undefined }),
             ...(root_keys.nwk_key
               ? {
                   key: sharedMessages.nwkKey,
@@ -142,7 +145,7 @@ class DeviceOverview extends React.Component {
           ]
         }
         activationInfoData.items.push(infoEntry)
-      } else {
+      } else if (supports_join) {
         activationInfoData.items.push({
           key: m.rootKeys,
           value: <Message content={sharedMessages.provisionedOnExternalJoinServer} />,

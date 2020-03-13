@@ -38,22 +38,22 @@ func WithTenantOverrides() Option {
 			return makeNewDevAddrFunc(conf.DevAddrPrefixes...)(ctx, dev)
 		}
 
-		origDeduplicationDone := ns.deduplicationDone
-		ns.deduplicationDone = func(ctx context.Context, up *ttnpb.UplinkMessage) <-chan time.Time {
+		origDeduplicationWindow := ns.deduplicationWindow
+		ns.deduplicationWindow = func(ctx context.Context) time.Duration {
 			conf, ok := tenantConfigFromContext(ctx)
 			if !ok || conf.DeduplicationWindow == nil {
-				return origDeduplicationDone(ctx, up)
+				return origDeduplicationWindow(ctx)
 			}
-			return makeWindowEndAfterFunc(*conf.DeduplicationWindow)(ctx, up)
+			return makeWindowDurationFunc(*conf.DeduplicationWindow)(ctx)
 		}
 
-		origCollectionDone := ns.collectionDone
-		ns.collectionDone = func(ctx context.Context, up *ttnpb.UplinkMessage) <-chan time.Time {
+		origCollectionWindow := ns.collectionWindow
+		ns.collectionWindow = func(ctx context.Context) time.Duration {
 			conf, ok := tenantConfigFromContext(ctx)
 			if !ok || conf.DeduplicationWindow == nil || conf.CooldownWindow == nil {
-				return origCollectionDone(ctx, up)
+				return origCollectionWindow(ctx)
 			}
-			return makeWindowEndAfterFunc(*conf.DeduplicationWindow+*conf.CooldownWindow)(ctx, up)
+			return makeWindowDurationFunc(*conf.DeduplicationWindow + *conf.CooldownWindow)(ctx)
 		}
 	}
 }

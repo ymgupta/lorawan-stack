@@ -12,27 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package shared
+package redis
 
-import (
-	"context"
-
-	"go.thethings.network/lorawan-stack/pkg/config"
+var (
+	Encoding       = encoding
+	ErrNoArguments = errNoArguments
 )
-
-// Initialize global packages.
-func Initialize(ctx context.Context, config config.ServiceBase) error {
-	// Fallback to the default Redis configuration for the cache system
-	if config.Cache.Redis.IsZero() {
-		config.Cache.Redis = config.Redis
-	}
-	// Fallback to the default Redis configuration for the events system
-	if config.Events.Redis.IsZero() {
-		config.Events.Redis = config.Redis
-	}
-
-	if err := InitializeEvents(ctx, config); err != nil {
-		return err
-	}
-	return nil
-}
