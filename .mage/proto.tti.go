@@ -40,7 +40,7 @@ func (p TTIProto) Go(context.Context) error {
 		return err
 	}
 
-	if err := sh.RunV(filepath.Join(".mage", "scripts", "fix-grpc-gateway-names.sh"), "api/tti"); err != nil {
+	if err := sh.RunV(filepath.Join(".mage", "scripts", "fix-grpc-gateway-names.sh"), "api", "api/tti"); err != nil {
 		return xerrors.Errorf("failed to fix gRPC-gateway names: %w", err)
 	}
 
