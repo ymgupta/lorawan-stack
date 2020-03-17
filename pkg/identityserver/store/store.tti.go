@@ -5,10 +5,12 @@ package store
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"os"
+	"runtime/debug"
 	"runtime/trace"
 
 	"github.com/jinzhu/gorm"
-	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -50,15 +52,22 @@ func (s *store) findEntityWithoutTenant(ctx context.Context, entityID ttnpb.Iden
 func ReadOnly(ctx context.Context, db *gorm.DB, f func(db *gorm.DB) error) (err error) {
 	defer trace.StartRegion(ctx, "database transaction").End()
 	tx := db.BeginTx(ctx, &sql.TxOptions{ReadOnly: true})
+	if tx.Error != nil {
+		return convertError(tx.Error)
+	}
 	defer func() {
 		if p := recover(); p != nil {
-			switch p := p.(type) {
-			case error:
-				err = p
-			case string:
-				err = errors.New(p)
-			default:
-				panic(p)
+			fmt.Fprintln(os.Stderr, p)
+			os.Stderr.Write(debug.Stack())
+			if pErr, ok := p.(error); ok {
+				switch pErr {
+				case context.Canceled, context.DeadlineExceeded:
+					err = pErr
+				default:
+					err = ErrTransactionRecovered.WithCause(pErr)
+				}
+			} else {
+				err = ErrTransactionRecovered.WithAttributes("panic", p)
 			}
 		}
 		if err != nil {
