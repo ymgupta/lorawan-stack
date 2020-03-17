@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Marshaler from '../util/marshaler'
+
 class DeviceClaim {
   constructor(api, { stackConfig, proxy = true }) {
     if (!api) {
@@ -33,7 +35,7 @@ class DeviceClaim {
 
     const response = await this._api.EndDeviceClaimingServer.Claim(undefined, payload)
 
-    return response
+    return Marshaler.payloadSingleResponse(response)
   }
 }
 
