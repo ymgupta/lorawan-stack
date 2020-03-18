@@ -389,39 +389,6 @@ func (dst *MeteringConfiguration) SetFields(src *MeteringConfiguration, paths ..
 							dst.Metering = nil
 						}
 					}
-				case "tenant_billing_server":
-					_, srcOk := src.Metering.(*MeteringConfiguration_TenantBillingServer_)
-					if !srcOk && src.Metering != nil {
-						return fmt.Errorf("attempt to set oneof 'tenant_billing_server', while different oneof is set in source")
-					}
-					_, dstOk := dst.Metering.(*MeteringConfiguration_TenantBillingServer_)
-					if !dstOk && dst.Metering != nil {
-						return fmt.Errorf("attempt to set oneof 'tenant_billing_server', while different oneof is set in destination")
-					}
-					if len(oneofSubs) > 0 {
-						var newDst, newSrc *MeteringConfiguration_TenantBillingServer
-						if !srcOk && !dstOk {
-							continue
-						}
-						if srcOk {
-							newSrc = src.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
-						}
-						if dstOk {
-							newDst = dst.Metering.(*MeteringConfiguration_TenantBillingServer_).TenantBillingServer
-						} else {
-							newDst = &MeteringConfiguration_TenantBillingServer{}
-							dst.Metering = &MeteringConfiguration_TenantBillingServer_{TenantBillingServer: newDst}
-						}
-						if err := newDst.SetFields(newSrc, oneofSubs...); err != nil {
-							return err
-						}
-					} else {
-						if src != nil {
-							dst.Metering = src.Metering
-						} else {
-							dst.Metering = nil
-						}
-					}
 
 				default:
 					return fmt.Errorf("invalid oneof field: '%s.%s'", name, oneofName)
@@ -508,16 +475,6 @@ func (dst *MeteringConfiguration_AWS) SetFields(src *MeteringConfiguration_AWS, 
 func (dst *MeteringConfiguration_Prometheus) SetFields(src *MeteringConfiguration_Prometheus, paths ...string) error {
 	if len(paths) != 0 {
 		return fmt.Errorf("message MeteringConfiguration_Prometheus has no fields, but paths %s were specified", paths)
-	}
-	if src != nil {
-		*dst = *src
-	}
-	return nil
-}
-
-func (dst *MeteringConfiguration_TenantBillingServer) SetFields(src *MeteringConfiguration_TenantBillingServer, paths ...string) error {
-	if len(paths) != 0 {
-		return fmt.Errorf("message MeteringConfiguration_TenantBillingServer has no fields, but paths %s were specified", paths)
 	}
 	if src != nil {
 		*dst = *src

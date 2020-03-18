@@ -897,16 +897,6 @@
               "fullType": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
               "ismap": false,
               "defaultValue": ""
-            },
-            {
-              "name": "tenant_billing_server",
-              "description": "",
-              "label": "",
-              "type": "TenantBillingServer",
-              "longType": "MeteringConfiguration.TenantBillingServer",
-              "fullType": "tti.lorawan.v3.MeteringConfiguration.TenantBillingServer",
-              "ismap": false,
-              "defaultValue": ""
             }
           ]
         },
@@ -935,16 +925,6 @@
           "name": "Prometheus",
           "longName": "MeteringConfiguration.Prometheus",
           "fullName": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
-          "description": "",
-          "hasExtensions": false,
-          "hasFields": false,
-          "extensions": [],
-          "fields": []
-        },
-        {
-          "name": "TenantBillingServer",
-          "longName": "MeteringConfiguration.TenantBillingServer",
-          "fullName": "tti.lorawan.v3.MeteringConfiguration.TenantBillingServer",
           "description": "",
           "hasExtensions": false,
           "hasFields": false,
