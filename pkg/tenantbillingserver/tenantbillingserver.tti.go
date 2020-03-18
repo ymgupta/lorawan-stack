@@ -1,4 +1,4 @@
-// Copyright © 2019 The Things Industries B.V.
+// Copyright © 2020 The Things Industries B.V.
 
 package tenantbillingserver
 
@@ -47,8 +47,12 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		opt(tbs)
 	}
 
-	if err := conf.compileRegex(tbs.ctx); err != nil {
+	if err := tbs.config.compileRegex(tbs.ctx); err != nil {
 		return nil, err
+	}
+
+	if tbs.config.PullInterval != 0 {
+		c.RegisterTask(tbs.ctx, "collect_metering_data", tbs.run, component.TaskRestartOnFailure)
 	}
 
 	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
