@@ -35,13 +35,15 @@ const (
 var (
 	errTenantNotManaged   = errors.DefineFailedPrecondition("tenant_not_managed", "tenant is not managed by Stripe")
 	errCustomerIDMismatch = errors.DefineFailedPrecondition("customer_id_mismatch", "tenant is owned by another customer")
+	errNoManagedPlan      = errors.DefineFailedPrecondition("no_managed_plan", "no managed plan in the subscription")
 )
 
 func (s *Stripe) addTenantLimits(tnt *ttipb.Tenant, sub *stripe.Subscription) error {
-	plan, err := s.getPlan(sub.Plan.ID, nil)
-	if err != nil {
-		return err
+	subscriptionItem := s.findSubscriptionItem(sub.Items)
+	if subscriptionItem == nil {
+		return errNoManagedPlan
 	}
+	plan := subscriptionItem.Plan
 
 	for _, field := range []struct {
 		attribute string
@@ -94,6 +96,11 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		return err
 	}
 
+	subscriptionItem := s.findSubscriptionItem(sub.Items)
+	if subscriptionItem == nil {
+		return errNoManagedPlan
+	}
+
 	ids, err := toTenantIDs(sub)
 	if err != nil {
 		return err
@@ -105,9 +112,9 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		Attributes: map[string]string{
 			backend.ManagedByTenantAttribute: managerAttributeValue,
 			customerIDAttribute:              customer.ID,
-			planIDAttribute:                  sub.Plan.ID,
+			planIDAttribute:                  subscriptionItem.Plan.ID,
 			subscriptionIDAttribute:          sub.ID,
-			subscriptionItemIDAttribute:      sub.Items.Data[0].ID,
+			subscriptionItemIDAttribute:      subscriptionItem.ID,
 		},
 		ContactInfo: []*ttnpb.ContactInfo{
 			{

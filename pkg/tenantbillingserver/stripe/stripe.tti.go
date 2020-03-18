@@ -145,37 +145,32 @@ func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb
 		return errNoTenantAttribute.WithAttributes("attribute", subscriptionItemIDAttribute)
 	}
 
+	quantity := int64(totals.GetEndDevices())
 	logger := log.FromContext(ctx).WithFields(log.Fields(
 		"tenant_id", tenant.TenantID, // The context does not contain a tenant.
 		"plan_id", planID,
 		"customer_id", customerID,
 		"subscription_id", subscriptionID,
 		"subscription_item_id", subscriptionItemID,
+		"quantity", quantity,
 	))
 
-	var quantity int64
 	if _, ok := s.recurringPlanIDs[planID]; ok {
 		// Recurring plans do not need usage records.
-		return nil
-	}
-	if _, ok := s.meteredPlanIDs[planID]; ok {
-		quantity = int64(totals.GetEndDevices())
+	} else if _, ok := s.meteredPlanIDs[planID]; ok {
+		params := &stripe.UsageRecordParams{
+			Quantity:         stripe.Int64(quantity),
+			Timestamp:        stripe.Int64(time.Now().UTC().Unix()),
+			SubscriptionItem: stripe.String(subscriptionItemID),
+			Action:           stripe.String(stripe.UsageRecordActionSet),
+		}
+		if _, err := s.newUsageRecord(params); err != nil {
+			return err
+		}
+		logger.Debug("Usage recorded")
 	} else {
 		logger.Error("Unrecognized plan ID")
-		return nil
 	}
-
-	params := &stripe.UsageRecordParams{
-		Quantity:         stripe.Int64(quantity),
-		Timestamp:        stripe.Int64(time.Now().Unix()),
-		SubscriptionItem: stripe.String(subscriptionItemID),
-		Action:           stripe.String(stripe.UsageRecordActionSet),
-	}
-	if _, err := s.newUsageRecord(params); err != nil {
-		return err
-	}
-	logger.WithField("quantity", quantity).Debug("Usage recorded")
-
 	return nil
 }
 
@@ -202,14 +197,6 @@ func (s *Stripe) getCustomer(id string, params *stripe.CustomerParams) (*stripe.
 		return nil, err
 	}
 	return client.Customers.Get(id, params)
-}
-
-func (s *Stripe) getPlan(id string, params *stripe.PlanParams) (*stripe.Plan, error) {
-	client, err := s.getAPIClient()
-	if err != nil {
-		return nil, err
-	}
-	return client.Plans.Get(id, params)
 }
 
 func (s *Stripe) newUsageRecord(params *stripe.UsageRecordParams) (*stripe.UsageRecord, error) {

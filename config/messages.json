@@ -6992,6 +6992,15 @@
       "file": "stripe.tti.go"
     }
   },
+  "error:pkg/tenantbillingserver/stripe:no_managed_plan": {
+    "translations": {
+      "en": "no managed plan in the subscription"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver/stripe",
+      "file": "tenants.tti.go"
+    }
+  },
   "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
     "translations": {
       "en": "no plan IDs provided"

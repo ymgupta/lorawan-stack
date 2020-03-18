@@ -54,8 +54,6 @@ func TestRecurringPlan(t *testing.T) {
 				t.Fatalf("Unexpected method received %v", method)
 			}
 			switch {
-			case strings.HasPrefix(path, "/v1/plans/"+recurringPlanID):
-				return json.Unmarshal(recurringPlanData, v)
 			case strings.HasPrefix(path, "/v1/customers/"+customerID):
 				return json.Unmarshal(recurringCustomerData, v)
 			default:
@@ -128,8 +126,6 @@ func TestMeteredPlan(t *testing.T) {
 			switch method {
 			case http.MethodGet:
 				switch {
-				case strings.HasPrefix(path, "/v1/plans/"+meteredPlanID):
-					return json.Unmarshal(meteredPlanData, v)
 				case strings.HasPrefix(path, "/v1/customers/"+customerID):
 					return json.Unmarshal(meteredCustomerData, v)
 				default:
@@ -250,13 +246,11 @@ var (
 	recurringSubscriptionCreatedEventData []byte
 	recurringSubscriptionUpdatedEventData []byte
 	recurringSubscriptionDeletedEventData []byte
-	recurringPlanData                     []byte
 	recurringCustomerData                 []byte
 
 	meteredSubscriptionCreatedEventData []byte
 	meteredSubscriptionUpdatedEventData []byte
 	meteredSubscriptionDeletedEventData []byte
-	meteredPlanData                     []byte
 	meteredCustomerData                 []byte
 	meteredUsageRecordData              []byte
 )
@@ -269,10 +263,6 @@ func init() {
 		{
 			destination: &recurringCustomerData,
 			file:        "testdata/recurring/customer.json",
-		},
-		{
-			destination: &recurringPlanData,
-			file:        "testdata/recurring/plan.json",
 		},
 		{
 			destination: &recurringSubscriptionCreatedEventData,
@@ -289,10 +279,6 @@ func init() {
 		{
 			destination: &meteredCustomerData,
 			file:        "testdata/metered/customer.json",
-		},
-		{
-			destination: &meteredPlanData,
-			file:        "testdata/metered/plan.json",
 		},
 		{
 			destination: &meteredSubscriptionCreatedEventData,
