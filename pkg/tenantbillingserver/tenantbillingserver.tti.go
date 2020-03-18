@@ -7,6 +7,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
@@ -32,6 +33,10 @@ const (
 
 // New returns a new Tenant Billing component.
 func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_TENANT_BILLING_SERVER); err != nil {
+		return nil, err
+	}
+
 	tbs := &TenantBillingServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "tenantbillingserver"),
