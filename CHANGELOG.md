@@ -15,12 +15,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
 - Gateway Server rate limiting support for the UDP frontend, see (`--gs.udp.rate-limiting` options).
 - Uplink deduplication via Redis in Network Server.
+- Access Tokens are now linked to User Sessions.
+  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
+- Edit application attributes in Application General Settings in the Console
 
 ### Changed
 
 - Network and Application Servers now maintain application downlink queue per-session.
 - Gateway Server skips setting up an upstream if the DevAddr prefixes to forward are empty.
 - Gateway connection stats are now cached in Redis (see `--cache.service` and `--gs.update-connections-stats-debounce-time` options).
+- Change the date format in the Console to be unambiguous (`17 Mar, 2020`).
 
 ### Deprecated
 
@@ -34,8 +38,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ADR uplink handling.
 - Uplink retransmission handling.
 - Synchronizing Basic Station concentrator time after reconnect or initial connect after long inactivity.
+- Handling of uplink frame counters exceeding 65535.
+- Gateway events subscription release in the Console.
+- Entity events subscription release in the Console (Firefox).
+- RekeyInd handling for LoRaWAN 1.1 devices.
 
 ### Security
+
+- Admin users that are suspended can no longer create, view or delete other users.
 
 ## [3.6.0] (2020-02-27)
 
