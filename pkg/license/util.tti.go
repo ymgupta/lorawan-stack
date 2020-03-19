@@ -76,10 +76,10 @@ func getHash(pub crypto.PublicKey) (crypto.Hash, error) {
 		case 521:
 			return crypto.SHA512, nil
 		default:
-			return 0, errUnknownLicenseKeyType
+			return 0, errUnknownLicenseKeyType.New()
 		}
 	default:
-		return 0, errUnknownLicenseKeyType
+		return 0, errUnknownLicenseKeyType.New()
 	}
 }
 

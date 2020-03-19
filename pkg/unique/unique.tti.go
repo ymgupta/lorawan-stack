@@ -58,7 +58,7 @@ func parse(uid string) (tenantID, id string, err error) {
 	if sepIdx := strings.Index(uid, "@"); sepIdx != -1 {
 		return uid[sepIdx+1:], uid[:sepIdx], nil
 	}
-	return "", "", errMissingTenantID
+	return "", "", errMissingTenantID.New()
 }
 
 // ToTenantID returns the tenant identifier of the specified unique ID.

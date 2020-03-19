@@ -631,7 +631,7 @@ func (s *endDeviceClaimingServer) AuthorizeApplication(ctx context.Context, req 
 func (s *endDeviceClaimingServer) UnauthorizeApplication(ctx context.Context, ids *ttnpb.ApplicationIdentifiers) (*pbtypes.Empty, error) {
 	_, err := s.DCS.authorizedAppsRegistry.Set(ctx, *ids, nil, func(key *ttipb.ApplicationAPIKey) (*ttipb.ApplicationAPIKey, []string, error) {
 		if key == nil {
-			return nil, nil, errAuthorizationNotFound
+			return nil, nil, errAuthorizationNotFound.New()
 		}
 		return nil, nil, nil
 	})

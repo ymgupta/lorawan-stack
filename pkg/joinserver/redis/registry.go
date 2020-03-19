@@ -103,7 +103,7 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 			return "", err
 		}
 		if tntID != tenant.FromContext(ctx) {
-			return "", errNotFound
+			return "", errNotFound.New()
 		}
 		return r.uidKey(uid), nil
 	}).ScanProto(pb); err != nil {
@@ -364,7 +364,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 				return nil, nil, err
 			}
 			if stored == nil && updated != nil && (updated.ApplicationIdentifiers != appID || updated.DeviceID != devID) {
-				return nil, nil, errInvalidIdentifiers
+				return nil, nil, errInvalidIdentifiers.New()
 			}
 			return updated, sets, nil
 		})
