@@ -266,7 +266,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 					return err
 				}
 				if updated.ApplicationIdentifiers != appID || updated.DeviceID != devID {
-					return errInvalidIdentifiers
+					return errInvalidIdentifiers.New()
 				}
 			} else {
 				if ttnpb.HasAnyField(sets, "ids.application_ids.application_id") && pb.ApplicationID != stored.ApplicationID {
@@ -303,7 +303,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 						return err
 					}
 					if i != 0 {
-						return errDuplicateIdentifiers
+						return errDuplicateIdentifiers.New()
 					}
 					p.SetNX(ek, uid, 0)
 				}
