@@ -94,7 +94,7 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 		case cluster.PacketBrokerTenantID:
 			ctx = tenant.NewContext(ctx, tntID)
 		default:
-			return "", errNotFound
+			return "", errNotFound.New()
 		}
 		return r.uidKey(uid), nil
 	}).ScanProto(pb); err != nil {

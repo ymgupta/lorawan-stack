@@ -97,7 +97,7 @@ func computeLoRa(payloadSize int, frequency uint64, spreadingFactor uint8, bandw
 		case "4/8":
 			cr = 8
 		default:
-			return 0, errCodingRate
+			return 0, errCodingRate.New()
 		}
 		var nBitHeaderSpace float64
 		var denominator float64

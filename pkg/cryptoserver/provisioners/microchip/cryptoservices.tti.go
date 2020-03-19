@@ -77,10 +77,10 @@ func (m *impl) JoinRequestMIC(ctx context.Context, dev *ttnpb.EndDevice, version
 
 func (m *impl) JoinAcceptMIC(ctx context.Context, dev *ttnpb.EndDevice, version ttnpb.MACVersion, joinReqType byte, dn types.DevNonce, payload []byte) ([4]byte, error) {
 	if dev.JoinEUI == nil || dev.JoinEUI.IsZero() {
-		return [4]byte{}, errNoJoinEUI
+		return [4]byte{}, errNoJoinEUI.New()
 	}
 	if dev.DevEUI == nil || dev.DevEUI.IsZero() {
-		return [4]byte{}, errNoDevEUI
+		return [4]byte{}, errNoDevEUI.New()
 	}
 	key, err := m.getNwkKey(dev, version)
 	if err != nil {
@@ -122,7 +122,7 @@ func (m *impl) EncryptRejoinAccept(ctx context.Context, dev *ttnpb.EndDevice, ve
 
 func (m *impl) DeriveNwkSKeys(ctx context.Context, dev *ttnpb.EndDevice, version ttnpb.MACVersion, jn types.JoinNonce, dn types.DevNonce, nid types.NetID) (cryptoservices.NwkSKeys, error) {
 	if dev.JoinEUI == nil || dev.JoinEUI.IsZero() {
-		return cryptoservices.NwkSKeys{}, errNoJoinEUI
+		return cryptoservices.NwkSKeys{}, errNoJoinEUI.New()
 	}
 	key, err := m.getNwkKey(dev, version)
 	if err != nil {
@@ -152,7 +152,7 @@ func (m *impl) GetNwkKey(ctx context.Context, dev *ttnpb.EndDevice) (*types.AES1
 
 func (m *impl) DeriveAppSKey(ctx context.Context, dev *ttnpb.EndDevice, version ttnpb.MACVersion, jn types.JoinNonce, dn types.DevNonce, nid types.NetID) (types.AES128Key, error) {
 	if dev.JoinEUI == nil || dev.JoinEUI.IsZero() {
-		return types.AES128Key{}, errNoJoinEUI
+		return types.AES128Key{}, errNoJoinEUI.New()
 	}
 	appKey, err := m.getAppKey(dev, version)
 	if err != nil {

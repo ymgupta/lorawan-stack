@@ -44,7 +44,7 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 		return ttipb.License{}, errInvalidLicense.WithCause(err)
 	}
 	if license == nil {
-		return ttipb.License{}, errMissingLicense
+		return ttipb.License{}, errMissingLicense.New()
 	}
 	if err := CheckValidity(license); err != nil {
 		return ttipb.License{}, err
@@ -59,7 +59,7 @@ func VerifyKey(licenseKey *ttipb.LicenseKey) (ttipb.License, error) {
 		}
 	}
 	if !anyValid {
-		return ttipb.License{}, errNoValidSignature
+		return ttipb.License{}, errNoValidSignature.New()
 	}
 	return *license, nil
 }

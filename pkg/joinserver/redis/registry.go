@@ -103,7 +103,7 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 			return "", err
 		}
 		if tntID != tenant.FromContext(ctx) {
-			return "", errNotFound
+			return "", errNotFound.New()
 		}
 		return r.uidKey(uid), nil
 	}).ScanProto(pb); err != nil {
