@@ -16,11 +16,11 @@ var errNoConfig = errors.DefineNotFound("no_config", "no configuration")
 func ConfigFromContext(ctx context.Context) (*ttipb.Configuration, error) {
 	id := FromContext(ctx)
 	if id.TenantID == "" {
-		return nil, errNoTenantID
+		return nil, errNoTenantID.New()
 	}
 	fetcher, ok := FetcherFromContext(ctx)
 	if !ok {
-		return nil, errNoFetcher
+		return nil, errNoFetcher.New()
 	}
 	tenant, err := fetcher.FetchTenant(ctx, &id, "configuration")
 	if err != nil {
@@ -28,7 +28,7 @@ func ConfigFromContext(ctx context.Context) (*ttipb.Configuration, error) {
 	}
 	conf := tenant.GetConfiguration()
 	if conf == nil {
-		return nil, errNoConfig
+		return nil, errNoConfig.New()
 	}
 	return conf, nil
 }

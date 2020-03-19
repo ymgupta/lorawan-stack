@@ -72,7 +72,7 @@ func (is *IdentityServer) tenantRightsHook(h grpc.UnaryHandler) grpc.UnaryHandle
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		md := rpcmetadata.FromIncomingContext(ctx)
 		if md.AuthType == "" {
-			return nil, errUnauthenticated
+			return nil, errUnauthenticated.New()
 		}
 		rights := tenantRights{}
 		switch strings.ToLower(md.AuthType) {
@@ -88,7 +88,7 @@ func (is *IdentityServer) tenantRightsHook(h grpc.UnaryHandler) grpc.UnaryHandle
 				}
 			}
 			if !isValidKey {
-				return nil, errInvalidTenantAdminKey
+				return nil, errInvalidTenantAdminKey.New()
 			}
 			rights.admin, rights.read = true, true
 			rights.writeCurrent, rights.readCurrent = true, true
@@ -111,10 +111,10 @@ func (is *IdentityServer) tenantRightsHook(h grpc.UnaryHandler) grpc.UnaryHandle
 					rights.readCurrent, rights.writeCurrent = true, true
 				}
 			default:
-				return nil, errUnsupportedAuthorization
+				return nil, errUnsupportedAuthorization.New()
 			}
 		default:
-			return nil, errUnsupportedAuthorization
+			return nil, errUnsupportedAuthorization.New()
 		}
 		return h(newContextWithTenantRights(ctx, rights), req)
 	}

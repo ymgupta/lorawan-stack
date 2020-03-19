@@ -161,7 +161,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		}
 		authIDs, ok := data.(qrcode.AuthenticatedEndDeviceIdentifiers)
 		if !ok {
-			return nil, errQRCodeData
+			return nil, errQRCodeData.New()
 		}
 		joinEUI, devEUI, authCode = authIDs.AuthenticatedEndDeviceIdentifiers()
 	default:
@@ -253,7 +253,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	).Sub(sourceRights).GetRights()
 	if len(missingSourceRights) > 0 {
 		logger.WithError(err).WithField("missing", missingSourceRights).Warn("Insufficient rights for source application")
-		return nil, errPermissionDenied
+		return nil, errPermissionDenied.New()
 	}
 
 	sourceCtx = events.ContextWithCorrelationID(sourceCtx, fmt.Sprintf("dcs:claim:%s", events.NewCorrelationID()))

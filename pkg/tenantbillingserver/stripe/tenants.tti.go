@@ -152,14 +152,14 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	if tntExists {
 		manager, ok := existingTnt.Attributes[backend.ManagedByTenantAttribute]
 		if !ok || manager != managerAttributeValue {
-			return errTenantNotManaged
+			return errTenantNotManaged.New()
 		}
 		customerID, ok := existingTnt.Attributes[customerIDAttribute]
 		if !ok {
 			return errNoTenantAttribute.WithAttributes("attribute", customerIDAttribute)
 		}
 		if customerID != customer.ID {
-			return errCustomerIDMismatch
+			return errCustomerIDMismatch.New()
 		}
 
 		_, err := client.Update(ctx, &ttipb.UpdateTenantRequest{
@@ -241,5 +241,5 @@ func toTenantIDs(sub *stripe.Subscription) (*ttipb.TenantIdentifiers, error) {
 			TenantID: tenantID,
 		}, nil
 	}
-	return nil, errNoTenantID
+	return nil, errNoTenantID.New()
 }

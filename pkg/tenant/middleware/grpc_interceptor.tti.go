@@ -82,7 +82,7 @@ func UnaryServerInterceptor(config tenant.Config) grpc.UnaryServerInterceptor {
 				return handler(ctx, req)
 			}
 		}
-		return nil, errMissingTenantID
+		return nil, errMissingTenantID.New()
 	}
 }
 
@@ -118,6 +118,6 @@ func StreamServerInterceptor(config tenant.Config) grpc.StreamServerInterceptor 
 				return handler(srv, stream)
 			}
 		}
-		return errMissingTenantID
+		return errMissingTenantID.New()
 	}
 }

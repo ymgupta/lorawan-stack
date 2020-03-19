@@ -79,7 +79,7 @@ func RequireMultiTenancy(ctx context.Context) error {
 		return err
 	}
 	if !license.MultiTenancy {
-		return errMultiTenancyNotLicensed
+		return errMultiTenancyNotLicensed.New()
 	}
 	return nil
 }

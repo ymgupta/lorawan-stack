@@ -19,7 +19,7 @@ func init() {
 		case "":
 			return defaultNew(ctx, config, options...)
 		default:
-			return nil, errInvalidDiscoveryMode
+			return nil, errInvalidDiscoveryMode.New()
 		}
 	}
 }

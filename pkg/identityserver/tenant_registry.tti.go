@@ -29,7 +29,7 @@ func (is *IdentityServer) createTenant(ctx context.Context, req *ttipb.CreateTen
 		return nil, err
 	}
 	if !tenantRightsFromContext(ctx).admin {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	if err := validateContactInfo(req.Tenant.ContactInfo); err != nil {
 		return nil, err
@@ -145,7 +145,7 @@ func (is *IdentityServer) getTenant(ctx context.Context, req *ttipb.GetTenantReq
 		if ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths, ttipb.PublicTenantFields...) {
 			defer func() { tnt = tnt.PublicSafe() }()
 		} else {
-			return nil, errNoTenantRights
+			return nil, errNoTenantRights.New()
 		}
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, getPaths, nil)
@@ -191,7 +191,7 @@ func (is *IdentityServer) getTenantForFetcher(ctx context.Context, ids *ttipb.Te
 
 func (is *IdentityServer) listTenants(ctx context.Context, req *ttipb.ListTenantsRequest) (tnts *ttipb.Tenants, err error) {
 	if !tenantRightsFromContext(ctx).read {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, getPaths, nil)
 	ctx = store.WithOrder(ctx, req.Order)
@@ -220,10 +220,10 @@ func (is *IdentityServer) updateTenant(ctx context.Context, req *ttipb.UpdateTen
 	if rights := tenantRightsFromContext(ctx); !rights.admin {
 		if rights.canWrite(ctx, &req.TenantIdentifiers) {
 			if !ttnpb.HasOnlyAllowedFields(req.FieldMask.Paths, "configuration") {
-				return nil, errInsufficientTenantRights
+				return nil, errInsufficientTenantRights.New()
 			}
 		} else {
-			return nil, errNoTenantRights
+			return nil, errNoTenantRights.New()
 		}
 	}
 	req.FieldMask.Paths = cleanFieldMaskPaths(ttipb.TenantFieldPathsNested, req.FieldMask.Paths, nil, getPaths)
@@ -257,7 +257,7 @@ func (is *IdentityServer) updateTenant(ctx context.Context, req *ttipb.UpdateTen
 
 func (is *IdentityServer) deleteTenant(ctx context.Context, ids *ttipb.TenantIdentifiers) (*types.Empty, error) {
 	if !tenantRightsFromContext(ctx).admin {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	err := is.withDatabase(ctx, func(db *gorm.DB) error {
 		return store.GetTenantStore(db).DeleteTenant(ctx, ids)
@@ -270,7 +270,7 @@ func (is *IdentityServer) deleteTenant(ctx context.Context, ids *ttipb.TenantIde
 
 func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Context, req *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest) (ids *ttipb.TenantIdentifiers, err error) {
 	if rights := tenantRightsFromContext(ctx); !rights.read {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		ids, err = store.GetTenantStore(db).GetTenantIDForEndDeviceEUIs(ctx, req.JoinEUI, req.DevEUI)
@@ -284,7 +284,7 @@ func (is *IdentityServer) getTenantIdentifiersForEndDeviceEUIs(ctx context.Conte
 
 func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context, req *ttipb.GetTenantIdentifiersForGatewayEUIRequest) (ids *ttipb.TenantIdentifiers, err error) {
 	if rights := tenantRightsFromContext(ctx); !rights.read {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		ids, err = store.GetTenantStore(db).GetTenantIDForGatewayEUI(ctx, req.EUI)
@@ -298,7 +298,7 @@ func (is *IdentityServer) getTenantIdentifiersForGatewayEUI(ctx context.Context,
 
 func (is *IdentityServer) getTenantRegistryTotals(ctx context.Context, req *ttipb.GetTenantRegistryTotalsRequest) (*ttipb.TenantRegistryTotals, error) {
 	if rights := tenantRightsFromContext(ctx); !rights.canRead(ctx, req.TenantIdentifiers) {
-		return nil, errNoTenantRights
+		return nil, errNoTenantRights.New()
 	}
 	if len(req.FieldMask.Paths) == 0 {
 		req.FieldMask.Paths = ttipb.TenantRegistryTotalsFieldPathsTopLevel

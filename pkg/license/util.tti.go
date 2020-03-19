@@ -33,7 +33,7 @@ func CheckValidity(license *ttipb.License) error {
 	}
 	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && now.After(validUntil) {
 		if license.Metering != nil {
-			return errLicenseNotRenewed
+			return errLicenseNotRenewed.New()
 		}
 		return errLicenseExpired.WithAttributes("valid_until", validUntil.Format(time.RFC822))
 	}
@@ -56,7 +56,7 @@ var errLimitedFunctionality = errors.DefineFailedPrecondition("limited_functiona
 // CheckLimitedFunctionality checks if functionality needs to be limited.
 func CheckLimitedFunctionality(license *ttipb.License) error {
 	if validUntil := license.GetValidUntil(); !validUntil.IsZero() && time.Until(validUntil) < license.GetLimitFor() {
-		return errLimitedFunctionality
+		return errLimitedFunctionality.New()
 	}
 	return nil
 }

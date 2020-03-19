@@ -24,7 +24,7 @@ func newECDSAVerifier(hash crypto.Hash, pub *ecdsa.PublicKey) SignatureVerifier 
 		h := hash.New()
 		h.Write(license)
 		if !ecdsa.Verify(pub, h.Sum(nil), es.R, es.S) {
-			return errInvalidLicenseSignature
+			return errInvalidLicenseSignature.New()
 		}
 		return nil
 	}
@@ -78,7 +78,7 @@ func NewVerifier(public []byte) (SignatureVerifier, error) {
 		}
 		return newECDSAVerifier(hash, pub), nil
 	default:
-		return nil, errUnknownLicenseKeyType
+		return nil, errUnknownLicenseKeyType.New()
 	}
 }
 
