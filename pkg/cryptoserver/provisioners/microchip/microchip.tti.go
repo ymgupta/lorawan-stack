@@ -56,7 +56,7 @@ func New(ctx context.Context, conf *Config) (cryptoservices.NetworkApplication, 
 			}
 			loadKeysFunc = NewGCPKeyLoader(conf.GCP.ProjectID, partKind)
 		default:
-			return nil, errKeyLoader
+			return nil, errKeyLoader.New()
 		}
 	}
 	svc := &impl{

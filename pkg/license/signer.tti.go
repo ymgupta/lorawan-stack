@@ -61,6 +61,6 @@ func NewSigner(keyID, keyType string, private []byte) (KeySigner, error) {
 		}
 		return &keySigner{keyID: keyID, sign: newECDSASigner(hash, priv)}, nil
 	default:
-		return nil, errUnknownLicenseKeyType
+		return nil, errUnknownLicenseKeyType.New()
 	}
 }

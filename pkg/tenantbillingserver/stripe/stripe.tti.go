@@ -39,13 +39,13 @@ var (
 // New returns a new Stripe backend using the config.
 func (c Config) New(ctx context.Context, component *component.Component, opts ...Option) (*Stripe, error) {
 	if c.APIKey == "" {
-		return nil, errNoAPIKey
+		return nil, errNoAPIKey.New()
 	}
 	if c.EndpointSecretKey == "" && !c.SkipSignatureValidation {
-		return nil, errNoEndpointSecretKey
+		return nil, errNoEndpointSecretKey.New()
 	}
 	if len(c.RecurringPlanIDs)+len(c.MeteredPlanIDs) == 0 {
-		return nil, errNoPlanIDs
+		return nil, errNoPlanIDs.New()
 	}
 	return New(ctx, component, c, opts...)
 }

@@ -198,7 +198,7 @@ func TestClaim(t *testing.T) {
 				}},
 			},
 			GetIdentifiersForEndDeviceEUIsFunc: func(ctx context.Context, in *ttipb.GetTenantIdentifiersForEndDeviceEUIsRequest, opts ...grpc.CallOption) (*ttipb.TenantIdentifiers, error) {
-				return nil, errNotFound
+				return nil, errNotFound.New()
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsNotFound(err), should.BeTrue)
@@ -222,12 +222,12 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
 			GetEndDeviceIdentifiersForEUIsFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceIdentifiersForEUIsRequest, opts ...grpc.CallOption) (*ttnpb.EndDeviceIdentifiers, error) {
-				return nil, errNotFound
+				return nil, errNotFound.New()
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsNotFound(err), should.BeTrue)
@@ -251,7 +251,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -260,12 +260,12 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
 			GetAuthorizedApplicationFunc: func(context.Context, ttnpb.ApplicationIdentifiers, []string) (*ttipb.ApplicationAPIKey, error) {
-				return nil, errNotFound
+				return nil, errNotFound.New()
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				return assertions.New(t).So(errors.IsPermissionDenied(err), should.BeTrue)
@@ -289,7 +289,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -298,7 +298,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -306,7 +306,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -341,7 +341,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -350,7 +350,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -358,7 +358,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -369,7 +369,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -379,7 +379,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers:    sourceDevIDs,
@@ -415,7 +415,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -424,7 +424,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -432,7 +432,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -443,7 +443,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -453,7 +453,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				validFrom := time.Now().Add(1 * time.Hour)
 				return &ttnpb.EndDevice{
@@ -492,7 +492,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -501,7 +501,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -509,7 +509,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -520,7 +520,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -530,7 +530,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				validTo := time.Now().Add(-1 * time.Hour)
 				return &ttnpb.EndDevice{
@@ -569,7 +569,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -578,7 +578,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -586,7 +586,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -597,7 +597,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -607,7 +607,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -647,7 +647,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -656,7 +656,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -664,7 +664,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -675,7 +675,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers:     sourceDevIDs,
@@ -690,7 +690,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -709,7 +709,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -725,7 +725,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -765,7 +765,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -774,7 +774,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -782,7 +782,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -793,7 +793,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers:     sourceDevIDs,
@@ -808,7 +808,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -827,7 +827,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -843,7 +843,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -858,7 +858,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -867,7 +867,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -876,7 +876,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -895,7 +895,7 @@ func TestClaim(t *testing.T) {
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						JoinServerAddress:        "joinserver:1234",
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -917,7 +917,7 @@ func TestClaim(t *testing.T) {
 							},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -934,7 +934,7 @@ func TestClaim(t *testing.T) {
 							Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -949,7 +949,7 @@ func TestClaim(t *testing.T) {
 							DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -983,7 +983,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -992,7 +992,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -1000,7 +1000,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -1011,7 +1011,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers:     sourceDevIDs,
@@ -1026,7 +1026,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1045,7 +1045,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1061,7 +1061,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1078,11 +1078,11 @@ func TestClaim(t *testing.T) {
 				switch tenant.FromContext(ctx) {
 				case sourceTenantIDs:
 					if !a.So(*in, should.Resemble, sourceDevIDs) {
-						return nil, errNotFound
+						return nil, errNotFound.New()
 					}
 				case targetTenantIDs:
 					if !a.So(*in, should.Resemble, targetDevIDs) {
-						return nil, errNotFound
+						return nil, errNotFound.New()
 					}
 				default:
 					t.Fatal("Unknown tenant")
@@ -1096,11 +1096,11 @@ func TestClaim(t *testing.T) {
 				switch tenant.FromContext(ctx) {
 				case sourceTenantIDs:
 					if !a.So(*in, should.Resemble, sourceDevIDs) {
-						return nil, errNotFound
+						return nil, errNotFound.New()
 					}
 				case targetTenantIDs:
 					if !a.So(*in, should.Resemble, targetDevIDs) {
-						return nil, errNotFound
+						return nil, errNotFound.New()
 					}
 				default:
 					t.Fatal("Unknown tenant")
@@ -1112,7 +1112,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1121,7 +1121,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1137,7 +1137,7 @@ func TestClaim(t *testing.T) {
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						JoinServerAddress:        "joinserver:1234",
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1160,7 +1160,7 @@ func TestClaim(t *testing.T) {
 							},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1177,7 +1177,7 @@ func TestClaim(t *testing.T) {
 							Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1190,7 +1190,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(*in, should.Resemble, targetDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1199,7 +1199,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, targetTenantIDs) ||
 					!a.So(*in, should.Resemble, targetDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1266,7 +1266,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceTenantIDs, nil
 			},
@@ -1275,7 +1275,7 @@ func TestClaim(t *testing.T) {
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.JoinEUI, should.Resemble, types.EUI64{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) ||
 					!a.So(in.DevEUI, should.Resemble, types.EUI64{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &sourceDevIDs, nil
 			},
@@ -1283,7 +1283,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(ids, should.Resemble, sourceAppIDs) ||
 					!a.So(paths, should.Resemble, []string{"api_key"}) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttipb.ApplicationAPIKey{
 					ApplicationIDs: sourceAppIDs,
@@ -1294,7 +1294,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers:     sourceDevIDs,
@@ -1309,7 +1309,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1328,7 +1328,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1344,7 +1344,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(in.EndDeviceIdentifiers, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return &ttnpb.EndDevice{
 					EndDeviceIdentifiers: sourceDevIDs,
@@ -1359,7 +1359,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1368,7 +1368,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1377,7 +1377,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1386,7 +1386,7 @@ func TestClaim(t *testing.T) {
 				a := assertions.New(test.MustTFromContext(ctx))
 				if !a.So(tenant.FromContext(ctx), should.Resemble, sourceTenantIDs) ||
 					!a.So(*in, should.Resemble, sourceDevIDs) {
-					return nil, errNotFound
+					return nil, errNotFound.New()
 				}
 				return ttnpb.Empty, nil
 			},
@@ -1402,7 +1402,7 @@ func TestClaim(t *testing.T) {
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
 						JoinServerAddress:        "joinserver:1234",
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1425,7 +1425,7 @@ func TestClaim(t *testing.T) {
 							},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1442,7 +1442,7 @@ func TestClaim(t *testing.T) {
 							Supports32BitFCnt: &pbtypes.BoolValue{Value: true},
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},
@@ -1457,7 +1457,7 @@ func TestClaim(t *testing.T) {
 							DownFormatter: ttnpb.PayloadFormatter_FORMATTER_REPOSITORY,
 						},
 					}) {
-					return nil, errRequest
+					return nil, errRequest.New()
 				}
 				return &in.EndDevice, nil
 			},

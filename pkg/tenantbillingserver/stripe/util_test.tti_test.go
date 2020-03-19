@@ -57,7 +57,7 @@ func (m *mockTenantClient) Create(ctx context.Context, in *ttipb.CreateTenantReq
 		return m.res.Create, m.err.Create
 	}
 	if _, ok := m.tenants[in.TenantID]; ok {
-		return nil, errTenantAlreadyExists
+		return nil, errTenantAlreadyExists.New()
 	}
 	m.tenants[in.TenantID] = &in.Tenant
 	return &in.Tenant, nil
@@ -73,7 +73,7 @@ func (m *mockTenantClient) Get(ctx context.Context, in *ttipb.GetTenantRequest, 
 	if tnt, ok := m.tenants[in.TenantID]; ok {
 		return tnt, nil
 	}
-	return nil, errTenantNotFound
+	return nil, errTenantNotFound.New()
 }
 
 func (m *mockTenantClient) Update(ctx context.Context, in *ttipb.UpdateTenantRequest, opts ...grpc.CallOption) (*ttipb.Tenant, error) {
@@ -82,7 +82,7 @@ func (m *mockTenantClient) Update(ctx context.Context, in *ttipb.UpdateTenantReq
 		return m.res.Update, m.err.Update
 	}
 	if _, ok := m.tenants[in.TenantID]; !ok {
-		return nil, errTenantNotFound
+		return nil, errTenantNotFound.New()
 	}
 	m.tenants[in.TenantID] = &in.Tenant
 	return &in.Tenant, nil

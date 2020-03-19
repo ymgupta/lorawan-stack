@@ -105,7 +105,7 @@ func (r *AuthorizedApplicationRegistry) Set(ctx context.Context, ids ttnpb.Appli
 		}
 
 		if pb.ApplicationIDs != ids {
-			return errInvalidIdentifiers
+			return errInvalidIdentifiers.New()
 		}
 
 		updated := &ttipb.ApplicationAPIKey{}
@@ -118,7 +118,7 @@ func (r *AuthorizedApplicationRegistry) Set(ctx context.Context, ids ttnpb.Appli
 				return err
 			}
 			if updated.ApplicationIDs != ids {
-				return errInvalidIdentifiers
+				return errInvalidIdentifiers.New()
 			}
 		} else {
 			if err := ttnpb.ProhibitFields(sets, "application_ids"); err != nil {

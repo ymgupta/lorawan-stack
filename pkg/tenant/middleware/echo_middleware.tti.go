@@ -50,7 +50,7 @@ func Middleware(config tenant.Config) echo.MiddlewareFunc {
 				c.SetRequest(c.Request().WithContext(ctx))
 				return next(c)
 			}
-			return errMissingTenantID
+			return errMissingTenantID.New()
 		}
 	}
 }

@@ -62,7 +62,7 @@ func (s applicationCryptoServiceServer) GetAppKey(ctx context.Context, req *ttnp
 		return nil, errNoApplicationService.WithAttributes("id", req.ProvisionerID)
 	}
 	if !provisioner.ExposeRootKeys {
-		return nil, errAppKeyNotExposed
+		return nil, errAppKeyNotExposed.New()
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,

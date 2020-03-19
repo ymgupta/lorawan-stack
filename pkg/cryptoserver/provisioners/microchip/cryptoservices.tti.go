@@ -107,10 +107,10 @@ var errMACVersion = errors.DefineCorruption("mac_version", "invalid MAC version"
 
 func (m *impl) EncryptRejoinAccept(ctx context.Context, dev *ttnpb.EndDevice, version ttnpb.MACVersion, payload []byte) ([]byte, error) {
 	if dev.DevEUI == nil || dev.DevEUI.IsZero() {
-		return payload, errNoDevEUI
+		return payload, errNoDevEUI.New()
 	}
 	if version.Compare(ttnpb.MAC_V1_1) < 0 {
-		return nil, errMACVersion
+		return nil, errMACVersion.New()
 	}
 	nwkKey, err := m.getNwkKey(dev, version)
 	if err != nil {

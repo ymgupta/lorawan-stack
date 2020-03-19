@@ -170,7 +170,7 @@ func (s networkCryptoServiceServer) GetNwkKey(ctx context.Context, req *ttnpb.Ge
 		return nil, errNoNetworkService.WithAttributes("id", req.ProvisionerID)
 	}
 	if !provisioner.ExposeRootKeys {
-		return nil, errNwkKeyNotExposed
+		return nil, errNwkKeyNotExposed.New()
 	}
 	dev := &ttnpb.EndDevice{
 		EndDeviceIdentifiers: req.EndDeviceIdentifiers,
