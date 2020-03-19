@@ -5,7 +5,7 @@ os: linux
 git:
   depth: false
 language: go
-go: 1.13.x
+go: 1.14.x
 go_import_path: go.thethings.network/lorawan-stack
 env:
   global:
@@ -61,8 +61,8 @@ before_install:
     sudo mv docker-compose /usr/local/bin
   fi
 - |
-  if [[ "$RUNTYPE" == "release" && ! -z "$encrypted_82ec1379e985_key" ]]; then
-    openssl aes-256-cbc -K $encrypted_82ec1379e985_key -iv $encrypted_82ec1379e985_iv -in snapcraft.login.enc -out snapcraft.login -d
+  if [[ "$RUNTYPE" == "release" ]]; then
+    openssl aes-256-cbc -K $encrypted_fe6eb417a432_key -iv $encrypted_fe6eb417a432_iv -in snapcraft.login.enc -out snapcraft.login -d
     nvm install 10.16.0
   fi
 - |

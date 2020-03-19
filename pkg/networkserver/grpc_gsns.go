@@ -70,10 +70,9 @@ func (ns *NetworkServer) deduplicateUplink(ctx context.Context, up *ttnpb.Uplink
 	}
 	if !ok {
 		log.FromContext(ctx).Debug("Dropped duplicate uplink")
-		registerReceiveUplinkDuplicate(ctx, up)
 		return false, nil
 	}
-	registerReceiveUplink(ctx, up)
+	registerReceiveUniqueUplink(ctx, up)
 	return true, nil
 }
 
@@ -89,12 +88,19 @@ func resetsFCnt(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings) bool {
 
 // transmissionNumber returns the number of the transmission up would represent if appended to ups
 // and the time of the last transmission of phyPayload in ups, if such is found.
-func transmissionNumber(phyPayload []byte, ups ...*ttnpb.UplinkMessage) (uint32, time.Time) {
+func transmissionNumber(phyPayload []byte, ups ...*ttnpb.UplinkMessage) (uint32, time.Time, error) {
+	if len(phyPayload) < 4 {
+		return 0, time.Time{}, errRawPayloadTooShort
+	}
+
 	nb := uint32(1)
 	var lastTrans time.Time
 	for i := len(ups) - 1; i >= 0; i-- {
 		up := ups[i]
-		if !bytes.Equal(phyPayload, up.RawPayload) {
+		if len(up.RawPayload) < 4 {
+			return 0, time.Time{}, errRawPayloadTooShort
+		}
+		if !bytes.Equal(phyPayload[:len(phyPayload)-4], up.RawPayload[:len(up.RawPayload)-4]) {
 			break
 		}
 		nb++
@@ -102,7 +108,7 @@ func transmissionNumber(phyPayload []byte, ups ...*ttnpb.UplinkMessage) (uint32,
 			lastTrans = up.ReceivedAt
 		}
 	}
-	return nb, lastTrans
+	return nb, lastTrans, nil
 }
 
 func maxTransmissionNumber(ver ttnpb.MACVersion, confirmed bool, nbTrans uint32) uint32 {
@@ -134,7 +140,7 @@ func makeDeferredMACHandler(dev *ttnpb.EndDevice, f macHandler) macHandler {
 	return func(ctx context.Context, dev *ttnpb.EndDevice, up *ttnpb.UplinkMessage) ([]events.DefinitionDataClosure, error) {
 		switch n := len(dev.MACState.QueuedResponses); {
 		case n < queuedLength:
-			return nil, errCorruptedMACState
+			return nil, errCorruptedMACState.New()
 		case n == queuedLength:
 			return f(ctx, dev, up)
 		default:
@@ -176,7 +182,7 @@ type contextualEndDevice struct {
 // matchAndHandleDataUplink tries to match the data uplink message with a device and returns the matched device.
 func (ns *NetworkServer) matchAndHandleDataUplink(up *ttnpb.UplinkMessage, deduplicated bool, devs ...contextualEndDevice) (*matchedDevice, error) {
 	if len(up.RawPayload) < 4 {
-		return nil, errRawPayloadTooShort
+		return nil, errRawPayloadTooShort.New()
 	}
 	pld := up.Payload.GetMACPayload()
 
@@ -190,7 +196,7 @@ func (ns *NetworkServer) matchAndHandleDataUplink(up *ttnpb.UplinkMessage, dedup
 		if dev.Multicast {
 			continue
 		}
-
+		dev := dev
 		ctx := dev.Context
 
 		logger := log.FromContext(ctx).WithField("device_uid", unique.ID(ctx, dev.EndDeviceIdentifiers))
@@ -276,7 +282,7 @@ func (ns *NetworkServer) matchAndHandleDataUplink(up *ttnpb.UplinkMessage, dedup
 
 		fCnt := pld.FCnt
 		switch {
-		case !supports32BitFCnt, fCnt >= dev.Session.LastFCntUp, fCnt == 0:
+		case !supports32BitFCnt, fCnt >= dev.Session.LastFCntUp, fCnt == 0 && dev.Session.LastFCntUp == 0:
 		case fCnt > dev.Session.LastFCntUp&0xffff:
 			fCnt |= dev.Session.LastFCntUp &^ 0xffff
 		case dev.Session.LastFCntUp < 0xffff0000:
@@ -294,7 +300,11 @@ func (ns *NetworkServer) matchAndHandleDataUplink(up *ttnpb.UplinkMessage, dedup
 		ctx = log.NewContext(ctx, logger)
 
 		if fCnt == dev.Session.LastFCntUp && len(dev.MACState.RecentUplinks) > 0 {
-			nbTrans, lastAt := transmissionNumber(up.RawPayload, dev.MACState.RecentUplinks...)
+			nbTrans, lastAt, err := transmissionNumber(up.RawPayload, dev.MACState.RecentUplinks...)
+			if err != nil {
+				logger.WithError(err).Error("Failed to determine transmission number")
+				continue
+			}
 			logger = logger.WithFields(log.Fields(
 				"f_cnt_gap", 0,
 				"f_cnt_reset", false,
@@ -459,6 +469,10 @@ matchLoop:
 		if match.Pending {
 			session = match.Device.PendingSession
 
+			if match.Device.MACState.PendingJoinRequest == nil {
+				logger.Error("Pending join-request missing")
+				continue
+			}
 			match.Device.MACState.CurrentParameters.Rx1Delay = match.Device.MACState.PendingJoinRequest.RxDelay
 			match.Device.MACState.CurrentParameters.Rx1DataRateOffset = match.Device.MACState.PendingJoinRequest.DownlinkSettings.Rx1DROffset
 			match.Device.MACState.CurrentParameters.Rx2DataRateIndex = match.Device.MACState.PendingJoinRequest.DownlinkSettings.Rx2DR
@@ -523,7 +537,7 @@ matchLoop:
 				logger.WithField("kek_label", session.NwkSEncKey.KEKLabel).WithError(err).Warn("Failed to unwrap NwkSEncKey, skip")
 				continue
 			}
-			macBuf, err = crypto.DecryptUplink(key, pld.DevAddr, pld.FCnt, macBuf)
+			macBuf, err = crypto.DecryptUplink(key, pld.DevAddr, match.FCnt, macBuf)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to decrypt uplink, skip")
 				continue
@@ -796,7 +810,7 @@ matchLoop:
 		)
 		return &match.matchedDevice, nil
 	}
-	return nil, errDeviceNotFound
+	return nil, errDeviceNotFound.New()
 }
 
 // MACHandler defines the behavior of a MAC command on a device.
@@ -825,9 +839,15 @@ var handleDataUplinkGetPaths = [...]string{
 	"session",
 	"supports_class_b",
 	"supports_class_c",
+	"supports_join",
 }
 
 func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkMessage) (err error) {
+	defer func() {
+		if err != nil {
+			registerDropDataUplink(ctx, up, err)
+		}
+	}()
 	pld := up.Payload.GetMACPayload()
 
 	logger := log.FromContext(ctx).WithFields(log.Fields(
@@ -863,7 +883,6 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 
 	matched, err := ns.matchAndHandleDataUplink(up, false, addrMatches...)
 	if err != nil {
-		registerDropDataUplink(ctx, up, err)
 		logger.WithError(err).Debug("Failed to match device")
 		return err
 	}
@@ -873,7 +892,6 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 	defer func() {
 		if err != nil {
 			events.Publish(evtDropDataUplink(ctx, matched.Device.EndDeviceIdentifiers, err))
-			registerDropDataUplink(ctx, up, err)
 		}
 	}()
 
@@ -1038,7 +1056,7 @@ func (ns *NetworkServer) sendJoinRequest(ctx context.Context, ids ttnpb.EndDevic
 			return nil, err
 		}
 	}
-	return nil, errJoinServerNotFound
+	return nil, errJoinServerNotFound.New()
 }
 
 func (ns *NetworkServer) deduplicationDone(ctx context.Context, up *ttnpb.UplinkMessage) <-chan time.Time {
@@ -1046,6 +1064,11 @@ func (ns *NetworkServer) deduplicationDone(ctx context.Context, up *ttnpb.Uplink
 }
 
 func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.UplinkMessage) (err error) {
+	defer func() {
+		if err != nil {
+			registerDropJoinRequest(ctx, up, err)
+		}
+	}()
 	pld := up.Payload.GetJoinRequestPayload()
 
 	logger := log.FromContext(ctx).WithFields(log.Fields(
@@ -1068,7 +1091,6 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 	)
 	if err != nil {
 		logRegistryRPCError(ctx, err, "Failed to load device from registry by EUIs")
-		registerDropJoinRequest(ctx, up, err)
 		return err
 	}
 	ctx = matchedCtx
@@ -1076,7 +1098,6 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 	defer func() {
 		if err != nil {
 			events.Publish(evtDropJoinRequest(ctx, matched.EndDeviceIdentifiers, err))
-			registerDropJoinRequest(ctx, up, err)
 		}
 	}()
 
@@ -1092,7 +1113,7 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 
 	if !matched.SupportsJoin {
 		logger.Warn("ABP device sent a join-request, drop")
-		return errABPJoinRequest
+		return errABPJoinRequest.New()
 	}
 
 	ctx = log.NewContext(ctx, logger)
@@ -1160,7 +1181,7 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 
 	drIdx, _, ok := phy.FindUplinkDataRate(up.Settings.DataRate)
 	if !ok {
-		return errDataRateNotFound
+		return errDataRateNotFound.New()
 	}
 	up.Settings.DataRateIndex = drIdx
 
@@ -1201,7 +1222,11 @@ func (ns *NetworkServer) handleJoinRequest(ctx context.Context, up *ttnpb.Uplink
 				logger.Warn("Device deleted during join-request handling, drop")
 				return nil, nil, errOutdatedData
 			}
-			invalidatedQueue = append(stored.GetSession().GetQueuedApplicationDownlinks(), stored.GetPendingSession().GetQueuedApplicationDownlinks()...)
+			if stored.Session != nil {
+				invalidatedQueue = stored.Session.QueuedApplicationDownlinks
+			} else {
+				invalidatedQueue = stored.GetPendingSession().GetQueuedApplicationDownlinks()
+			}
 			stored.PendingMACState = macState
 			stored.RecentUplinks = appendRecentUplink(stored.RecentUplinks, up, recentUplinkCount)
 			return stored, []string{
@@ -1261,7 +1286,7 @@ func (ns *NetworkServer) handleRejoinRequest(ctx context.Context, up *ttnpb.Upli
 		}
 	}()
 	// TODO: Implement https://github.com/TheThingsNetwork/lorawan-stack/issues/8
-	return errRejoinRequest
+	return errRejoinRequest.New()
 }
 
 // HandleUplink is called by the Gateway Server when an uplink message arrives.
@@ -1295,6 +1320,7 @@ func (ns *NetworkServer) HandleUplink(ctx context.Context, up *ttnpb.UplinkMessa
 	))
 	ctx = log.NewContext(ctx, logger)
 
+	registerReceiveUplink(ctx, up)
 	switch up.Payload.MType {
 	case ttnpb.MType_CONFIRMED_UP, ttnpb.MType_UNCONFIRMED_UP:
 		return ttnpb.Empty, ns.handleDataUplink(ctx, up)

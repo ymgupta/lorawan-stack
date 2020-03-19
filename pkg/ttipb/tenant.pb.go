@@ -696,7 +696,9 @@ func init() {
 	golang_proto.RegisterType((*TenantRegistryTotals)(nil), "tti.lorawan.v3.TenantRegistryTotals")
 }
 
-func init() { proto.RegisterFile("lorawan-stack/api/tti/tenant.proto", fileDescriptor_0b2ae00655d4b280) }
+func init() {
+	proto.RegisterFile("lorawan-stack/api/tti/tenant.proto", fileDescriptor_0b2ae00655d4b280)
+}
 func init() {
 	golang_proto.RegisterFile("lorawan-stack/api/tti/tenant.proto", fileDescriptor_0b2ae00655d4b280)
 }

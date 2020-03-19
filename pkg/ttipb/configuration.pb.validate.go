@@ -627,7 +627,9 @@ func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Ca
 }
 
 // Key function returns key value.
-func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Key() bool { return e.key }
+func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) Key() bool {
+	return e.key
+}
 
 // ErrorName returns error name.
 func (e Configuration_Cluster_IdentityServer_UserRegistrationValidationError) ErrorName() string {

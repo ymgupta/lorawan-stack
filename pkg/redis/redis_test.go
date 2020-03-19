@@ -384,9 +384,9 @@ func TestPopTask(t *testing.T) {
 		a.So(payload, should.Equal, "testPayload")
 		a.So(startAt, should.Equal, time.Unix(0, 41).UTC())
 		fCalls++
-		return errTest
+		return errTest.New()
 	}, cl.Key("testKey"))
-	a.So(err, should.Resemble, errTest)
+	a.So(err, should.HaveSameErrorDefinitionAs, errTest)
 
 	err = PopTask(cl, cl.Key("testGroup"), "testID", -1, func(k string, payload string, startAt time.Time) error {
 		a.So(fCalls, should.Equal, 3)
@@ -756,7 +756,7 @@ func TestProtoDeduplicator(t *testing.T) {
 		Encoding.EncodeToString([]byte("proto3")),
 	})
 	a.So(lockTTL, should.BeLessThanOrEqualTo, ttl)
-	a.So(listTTL, should.BeLessThanOrEqualTo, lockTTL)
+	a.So(listTTL, should.BeLessThanOrEqualTo, ttl)
 
 	ss, err = cl.LRange(DeduplicationListKey(key2), 0, -1).Result()
 	if !a.So(err, should.BeNil) {
@@ -775,5 +775,5 @@ func TestProtoDeduplicator(t *testing.T) {
 		Encoding.EncodeToString([]byte("proto2")),
 	})
 	a.So(lockTTL, should.BeLessThanOrEqualTo, ttl)
-	a.So(listTTL, should.BeLessThanOrEqualTo, lockTTL)
+	a.So(listTTL, should.BeLessThanOrEqualTo, ttl)
 }
