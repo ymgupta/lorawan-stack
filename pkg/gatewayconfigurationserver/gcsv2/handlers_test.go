@@ -155,9 +155,9 @@ func TestGetGateway(t *testing.T) {
 		}
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
-		c.SetPath("/api/v2/gateways/:gateway_id")
-		c.SetParamNames("gateway_id")
-		c.SetParamValues("foo-gtw")
+		c.SetPath("/api/v2/gateways/:gateway_id_or_uid")
+		c.SetParamNames("gateway_id_or_uid")
+		c.SetParamValues("foo-gtw@default")
 		err := s.normalizeAuthorization(s.handleGetGateway)(c)
 		if tt.AssertError != nil {
 			a.So(err, tt.AssertError)
@@ -318,10 +318,11 @@ func TestRequestsWithTenancy(t *testing.T) {
 		{
 			Name:               "WithoutAuth",
 			GatewayIDOrUID:     "test-gateway@default",
-			ExpectedStatusCode: http.StatusForbidden,
+			ExpectedStatusCode: http.StatusOK,
 			RequestSetup: func(req *http.Request) {
 				req.Header.Del(echo.HeaderAuthorization)
 			},
+			BodyShouldNotContain: []string{`"router":{"mqtt_address":"mqtts://gatewayserver:8881"}`},
 		},
 		{
 			Name:               "ValidSingleTenant",
