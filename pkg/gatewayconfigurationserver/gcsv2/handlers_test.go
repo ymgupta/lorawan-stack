@@ -16,18 +16,24 @@ package gcsv2
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
+	"go.thethings.network/lorawan-stack/pkg/config"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
@@ -221,5 +227,200 @@ func TestGetFrequencyPlan(t *testing.T) {
 		if tt.AssertResponse != nil {
 			tt.AssertResponse(a, rec)
 		}
+	}
+}
+
+func TestRequestsWithTenancy(t *testing.T) {
+	a := assertions.New(t)
+	reg := &mockGatewayRegistryClient{
+		out: &ttnpb.Gateway{
+			GatewayIdentifiers: ttnpb.GatewayIdentifiers{
+				GatewayID: "test-gateway",
+			},
+			Description: "Gateway Description",
+			Attributes: map[string]string{
+				"key": "some-key",
+			},
+			FrequencyPlanID:      "EU_863_870",
+			GatewayServerAddress: "gatewayserver",
+			Antennas: []ttnpb.GatewayAntenna{
+				{Location: ttnpb.Location{Latitude: 12.34, Longitude: 56.78, Altitude: 90}},
+			},
+		},
+	}
+	auth := func(ctx context.Context) grpc.CallOption {
+		return grpc.PerRPCCredentials(nil)
+	}
+
+	serverAddress := "0.0.0.0:8098"
+
+	c := componenttest.NewComponent(t, &component.Config{
+		ServiceBase: config.ServiceBase{
+			HTTP: config.HTTP{
+				Listen: serverAddress,
+			},
+			Tenancy: tenant.Config{DefaultID: "foo-tenant"},
+		},
+	})
+
+	s := New(c, WithRegistry(reg), WithAuth(auth))
+	test.Must(s, nil)
+
+	componenttest.StartComponent(t, c)
+	defer c.Close()
+
+	for _, tc := range []struct {
+		Name                 string
+		GatewayIDOrUID       string
+		RequestSetup         func(*http.Request)
+		SetTenancy           func(c *component.Component)
+		ExpectedStatusCode   int
+		AssertResponse       func(*assertions.Assertion, *httptest.ResponseRecorder)
+		BodyShouldContain    []string
+		BodyShouldNotContain []string
+	}{
+		{
+			Name:               "ValidMultiTenant",
+			GatewayIDOrUID:     "test-gateway@default",
+			ExpectedStatusCode: http.StatusOK,
+			BodyShouldContain: []string{
+				`"attributes":{"description":"Gateway Description"}`,
+				`"frequency_plan":"EU_863_870"`,
+				`"frequency_plan_url":"http://example.com/api/v2/frequency-plans/EU_863_870"`,
+				`"router":{"id":"gatewayserver","mqtt_address":"mqtts://gatewayserver:8881"}`,
+				`"antenna_location":{"latitude":12.34,"longitude":56.78,"altitude":90}`,
+			},
+		},
+		{
+			Name:           "ValidMultiTenantTTKG",
+			GatewayIDOrUID: "test-gateway@default",
+			RequestSetup: func(req *http.Request) {
+				req.Header.Set("User-Agent", "TTNGateway")
+			},
+			ExpectedStatusCode:   http.StatusOK,
+			BodyShouldContain:    []string{`"router":{"mqtt_address":"mqtts://gatewayserver:8881"}`},
+			BodyShouldNotContain: []string{`"attributes"`},
+		},
+		{
+			Name:               "InValidMultiTenant",
+			GatewayIDOrUID:     "test-gateway",
+			ExpectedStatusCode: http.StatusNotFound,
+		},
+		{
+			Name:               "GatewayNotFound",
+			GatewayIDOrUID:     "unregistered-gateway",
+			ExpectedStatusCode: http.StatusNotFound,
+			AssertResponse: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) {
+				res := rec.Result()
+				a.So(res.StatusCode, should.Equal, http.StatusNotFound)
+			},
+		},
+		{
+			Name:               "WithoutAuth",
+			GatewayIDOrUID:     "test-gateway@default",
+			ExpectedStatusCode: http.StatusForbidden,
+			RequestSetup: func(req *http.Request) {
+				req.Header.Del(echo.HeaderAuthorization)
+			},
+		},
+		{
+			Name:               "ValidSingleTenant",
+			GatewayIDOrUID:     "test-gateway",
+			ExpectedStatusCode: http.StatusOK,
+			SetTenancy: func(c *component.Component) {
+				now := time.Now()
+				c.AddContextFiller(func(ctx context.Context) context.Context {
+					singletenantLicense := ttipb.License{
+						LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
+						CreatedAt:               now,
+						ValidFrom:               now,
+						ValidUntil:              now.Add(10 * time.Minute),
+						ComponentAddressRegexps: []string{"localhost"},
+						MultiTenancy:            false,
+					}
+					return license.NewContextWithLicense(ctx, singletenantLicense)
+				})
+			},
+			BodyShouldContain: []string{
+				`"attributes":{"description":"Gateway Description"}`,
+				`"frequency_plan":"EU_863_870"`,
+				`"frequency_plan_url":"http://example.com/api/v2/frequency-plans/EU_863_870"`,
+				`"router":{"id":"gatewayserver","mqtt_address":"mqtts://gatewayserver:8881"}`,
+				`"antenna_location":{"latitude":12.34,"longitude":56.78,"altitude":90}`,
+			},
+		},
+		{
+			Name:           "ValidSingleTenantTTKG",
+			GatewayIDOrUID: "test-gateway",
+			RequestSetup: func(req *http.Request) {
+				req.Header.Set("User-Agent", "TTNGateway")
+			},
+			SetTenancy: func(c *component.Component) {
+				now := time.Now()
+				c.AddContextFiller(func(ctx context.Context) context.Context {
+					singletenantLicense := ttipb.License{
+						LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
+						CreatedAt:               now,
+						ValidFrom:               now,
+						ValidUntil:              now.Add(10 * time.Minute),
+						ComponentAddressRegexps: []string{"localhost"},
+						MultiTenancy:            false,
+					}
+					return license.NewContextWithLicense(ctx, singletenantLicense)
+				})
+			},
+			ExpectedStatusCode:   http.StatusOK,
+			BodyShouldContain:    []string{`"router":{"mqtt_address":"mqtts://gatewayserver:8881"}`},
+			BodyShouldNotContain: []string{`"attributes"`},
+		},
+		{
+			Name:               "InValidSingleTenant",
+			GatewayIDOrUID:     "test-gateway@default",
+			ExpectedStatusCode: http.StatusBadRequest,
+			SetTenancy: func(c *component.Component) {
+				now := time.Now()
+				c.AddContextFiller(func(ctx context.Context) context.Context {
+					singletenantLicense := ttipb.License{
+						LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
+						CreatedAt:               now,
+						ValidFrom:               now,
+						ValidUntil:              now.Add(10 * time.Minute),
+						ComponentAddressRegexps: []string{"localhost"},
+						MultiTenancy:            false,
+					}
+					return license.NewContextWithLicense(ctx, singletenantLicense)
+				})
+			},
+		},
+	} {
+		t.Run(tc.Name, func(t *testing.T) {
+			if tc.SetTenancy != nil {
+				tc.SetTenancy(c)
+			}
+			req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/api/v2/gateways/%s", tc.GatewayIDOrUID), nil)
+			req.Header.Set(echo.HeaderAuthorization, "key some-key")
+			rec := httptest.NewRecorder()
+			if tc.RequestSetup != nil {
+				tc.RequestSetup(req)
+			}
+			c.ServeHTTP(rec, req)
+			resCode := rec.Result().StatusCode
+			if !a.So(resCode, should.Equal, tc.ExpectedStatusCode) {
+				t.Fatalf("Unexpected status code: %v", resCode)
+			}
+			if resCode == http.StatusOK {
+				body := rec.Body.String()
+				for _, expected := range tc.BodyShouldContain {
+					if !a.So(body, assertions.ShouldContainSubstring, expected) {
+						t.Fatalf("Response body does not contain expected string: %v", expected)
+					}
+				}
+				for _, expected := range tc.BodyShouldNotContain {
+					if !a.So(body, assertions.ShouldNotContainSubstring, expected) {
+						t.Fatalf("Response body contains string but it shouldn't: %v", expected)
+					}
+				}
+			}
+		})
 	}
 }

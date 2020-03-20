@@ -65,6 +65,7 @@ type gatewayInfoResponse struct {
 }
 
 var errUnauthenticated = errors.DefineUnauthenticated("unauthenticated", "call was not authenticated")
+var errGatewayNotRegistered = errors.DefineNotFound("gateway_not_registered", "gateway `{gateway_id_or_uid}` is not registered")
 
 func (s *Server) handleGetGateway(c echo.Context) error {
 	ctx := c.Request().Context()
@@ -78,11 +79,11 @@ func (s *Server) handleGetGateway(c echo.Context) error {
 		uid := c.Param("gateway_id_or_uid")
 		gatewayIDs, err = unique.ToGatewayID(uid)
 		if err != nil {
-			return errUnauthenticated
+			return errGatewayNotRegistered.WithAttributes("gateway_id_or_uid", uid)
 		}
 		ctx, err = unique.WithContext(ctx, uid)
 		if err != nil {
-			return errUnauthenticated
+			return errGatewayNotRegistered.WithAttributes("gateway_id_or_uid", uid)
 		}
 	}
 
