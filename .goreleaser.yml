@@ -196,8 +196,8 @@ dockers:
     goarch: amd64
     dockerfile: Dockerfile
     binaries:
-      - ttn-lw-cli
-      - ttn-lw-stack
+      - tti-lw-cli
+      - tti-lw-stack
     image_templates:
       - '{{ or (index .Env "DOCKER_IMAGE_DEV") "lorawan-stack-dev" }}:{{ .FullCommit }}'
     extra_files:
