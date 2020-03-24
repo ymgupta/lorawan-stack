@@ -73,6 +73,9 @@ export default {
   deviceClaim: {
     claim: ttnClient.DeviceClaim.claim.bind(ttnClient.DeviceClaim),
   },
+  device: {
+    update: ttnClient.Applications.Devices.updateById.bind(ttnClient.Applications.Devices),
+  },
   applications: {
     list: ttnClient.Applications.getAll.bind(ttnClient.Applications),
   },

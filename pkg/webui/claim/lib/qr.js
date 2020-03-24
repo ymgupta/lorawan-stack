@@ -12,8 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { defineMessages } from 'react-intl'
-
-export default defineMessages({
-  ClaimAuthMessage: 'Scan authentication QR code',
-})
+// eslint-disable-next-line import/prefer-default-export
+export function readQr(qrCode) {
+  const parts = qrCode.split(':')[3].split('_')
+  return {
+    joinEUI: parts[0],
+    devEUI: parts[1],
+    vendorModelID: parts[2],
+    qrCode,
+  }
+}

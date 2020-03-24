@@ -53,7 +53,7 @@ export default class QR extends React.Component {
 
     if (code !== null) {
       const { data } = code
-      if (data.length > 0) {
+      if (data.length > 0 && result.data !== data) {
         this.setState({ result: code })
         onChange(data)
       }
@@ -79,12 +79,7 @@ export default class QR extends React.Component {
 
   render() {
     const { result, camera } = this.state
-    return (
-      <div className={style.container}>
-        {this.QRInput(result, camera)}
-        <p className={style.result}>{result.data}</p>
-      </div>
-    )
+    return <div className={style.container}>{this.QRInput(result, camera)}</div>
   }
 }
 

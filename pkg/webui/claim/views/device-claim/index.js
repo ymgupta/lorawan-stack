@@ -16,6 +16,7 @@ import React, { Component } from 'react'
 import { Row, Col, Container } from 'react-grid-system'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
+import { defineMessages } from 'react-intl'
 import PropTypes from '../../../lib/prop-types'
 import api from '../../api'
 
@@ -25,6 +26,10 @@ import PageTitle from '../../../components/page-title'
 import DeviceClaimForm from '../../containers/device-claim-form'
 
 import style from './device-claim.styl'
+
+const m = defineMessages({
+  claimSuccess: 'End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` claimed',
+})
 
 @connect(
   function(state, props) {
@@ -42,22 +47,25 @@ import style from './device-claim.styl'
 export default class DeviceClaim extends Component {
   handleSubmit = async values => {
     const { appId } = this.props
-    try {
-      const device = await api.deviceClaim.claim(values.qrCode, appId)
-      return device
-    } catch (err) {
-      throw err
-    }
+    const { qrCode, ...attributes } = values
+    const claim = await api.deviceClaim.claim(values.qrCode, appId)
+    return await api.device.update(appId, claim.device_id, {
+      attributes,
+    })
   }
 
-  handleSubmitSuccess = () => {
+  handleSubmitSuccess = device => {
     /* eslint no-invalid-this: "off"*/
     const { redirectHome } = this.props
-    const message = sharedMessages.claimSuccess
-    redirectHome(message)
+    const { dev_eui: devEUI, join_eui: joinEUI } = device.ids
+    redirectHome({
+      values: { devEUI, joinEUI },
+      ...m.claimSuccess,
+    })
   }
 
   render() {
+    const { appId } = this.props
     return (
       <Container>
         <PageTitle title={sharedMessages.claimDevice} className={style.title} />
@@ -66,6 +74,7 @@ export default class DeviceClaim extends Component {
             <DeviceClaimForm
               onSubmit={this.handleSubmit}
               onSubmitSuccess={this.handleSubmitSuccess}
+              appId={appId}
             />
           </Col>
         </Row>

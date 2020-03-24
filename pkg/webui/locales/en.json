@@ -1,5 +1,7 @@
 {
-  "claim.containers.device-claim-form.messages.ClaimAuthMessage": "Scan authentication QR code",
+  "claim.containers.device-claim-form.index.claimRecognized": "End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` recognized",
+  "claim.containers.device-claim-form.index.claimAuthMessage": "Scan authentication QR code",
+  "claim.views.device-claim.index.claimSuccess": "End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` claimed",
   "claim.views.login.index.welcome": "Welcome to {siteTitle}",
   "claim.views.login.index.login": "You need to be logged in to use this site",
   "claim.views.login.index.loginWithStackAccount": "Login with your The Things Stack Account",
@@ -405,7 +407,6 @@
   "lib.shared-messages.changePassword": "Change Password",
   "lib.shared-messages.claimDevice": "Claim Device",
   "lib.shared-messages.claimAuth": "Claim Authentication Code",
-  "lib.shared-messages.claimSuccess": "Successfully claimed device",
   "lib.shared-messages.channel": "Channel",
   "lib.shared-messages.clear": "Clear",
   "lib.shared-messages.claiming": "Claiming",
