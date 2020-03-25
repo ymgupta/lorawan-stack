@@ -16,11 +16,32 @@ import (
 	"github.com/golang/groupcache/consistenthash"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
+
+func deriveName() (string, error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addrs {
+		switch addr := addr.(type) {
+		case *net.IPAddr:
+			if !addr.IP.IsLoopback() {
+				return addr.IP.String(), nil
+			}
+		case *net.IPNet:
+			if !addr.IP.IsLoopback() {
+				return addr.IP.String(), nil
+			}
+		}
+	}
+	return "", nil
+}
 
 func newDNS(ctx context.Context, config *Config, options ...Option) (Cluster, error) {
 	c := &dnsCluster{
@@ -31,6 +52,14 @@ func newDNS(ctx context.Context, config *Config, options ...Option) (Cluster, er
 		},
 		resolver:      net.DefaultResolver,
 		peerDiscovery: make(map[string][]ttnpb.ClusterRole),
+	}
+
+	if config.Name == "" {
+		name, err := deriveName()
+		if err != nil {
+			return nil, err
+		}
+		config.Name = name
 	}
 
 	claimRegistryConfig := config.Claim
