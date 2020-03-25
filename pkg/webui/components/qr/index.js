@@ -16,78 +16,60 @@
 
 import React from 'react'
 import PropTypes from 'prop-types'
+import bind from 'autobind-decorator'
 import * as jsQR from 'jsqr'
 import Video from './input/video'
 import Capture from './input/capture'
 
-import style from './qr.styl'
-
 export default class QR extends React.Component {
+  static propTypes = {
+    onChange: PropTypes.func.isRequired,
+  }
+
+  canvas = document.createElement('canvas')
+  ctx = this.canvas.getContext('2d')
   state = {
-    result: {
-      data: 'No Result',
-      location: null,
-    },
-    camera: !!navigator.mediaDevices,
+    value: null,
   }
 
-  onVideoStreamInit = (state, drawFrame) => {
-    const { onInit } = this.props
-
-    if (onInit) {
-      onInit(state)
-    }
-    this.drawVideoFrame = drawFrame
-    this.drawVideoFrame()
+  @bind
+  handleVideoInit(video) {
+    const { videoWidth: width, videoHeight: height } = video
+    this.handleRead(video, width, height)
+    requestAnimationFrame(() => {
+      // Loop over video feed.
+      this.handleVideoInit(video)
+    })
   }
 
-  onFrame = event => {
-    const { data, width, height } = event
-    const code = jsQR(data, width, height)
-    this.onFrameDecoded(code)
-  }
-
-  onFrameDecoded = code => {
+  @bind
+  handleRead(media, width, height) {
     const { onChange } = this.props
-    const { result, camera } = this.state
+    const { value } = this.state
 
-    if (code !== null) {
-      const { data } = code
-      if (data.length > 0 && result.data !== data) {
-        this.setState({ result: code })
-        onChange(data)
-      }
-    } else {
-      this.setState({
-        result: {
-          ...result,
-          location: null,
-        },
-      })
+    if (!width && !height) return
+
+    this.canvas.width = width
+    this.canvas.height = height
+    this.ctx.drawImage(media, 0, 0, width, height)
+
+    const { data } = this.ctx.getImageData(0, 0, width, height)
+    const qr = jsQR(data, width, height, {
+      // !Important dontInvert fixes a ~50% performance hit.
+      inversionAttempts: 'dontInvert',
+    })
+
+    if (qr && qr.data !== value) {
+      this.setState({ value: qr.data })
+      onChange(qr.data)
     }
-
-    return camera ? this.drawVideoFrame() : true
-  }
-
-  QRInput = function(result, camera) {
-    return camera ? (
-      <Video onFrame={this.onFrame} onInit={this.onVideoStreamInit} location={result.location} />
-    ) : (
-      <Capture onFrame={this.onFrame} />
-    )
   }
 
   render() {
-    const { result, camera } = this.state
-    return <div className={style.container}>{this.QRInput(result, camera)}</div>
+    return !!navigator.mediaDevices ? (
+      <Video onInit={this.handleVideoInit} />
+    ) : (
+      <Capture onRead={this.handleRead} />
+    )
   }
-}
-
-QR.propTypes = {
-  onChange: PropTypes.func.isRequired,
-  onInit: PropTypes.func,
-}
-
-QR.defaultProps = {
-  onInit: () => null,
 }
