@@ -121,10 +121,17 @@ func (r *RedisClaimRegistry) GetPeerID(ctx context.Context, ids ttnpb.Identifier
 	results := make([]*redis.BoolCmd, len(candidateIDs))
 	_, err := r.Redis.Pipelined(func(tx redis.Pipeliner) error {
 		for i, candidateID := range candidateIDs {
-			results[i] = tx.SIsMember(
-				r.Redis.Key(candidateID, fmt.Sprintf("%s-ids", ids.EntityType())),
-				unique.ID(ctx, ids),
-			)
+			if ids, ok := ids.Identifiers().(*ttnpb.GatewayIdentifiers); ok && ids.EUI != nil {
+				results[i] = tx.SIsMember(
+					r.Redis.Key(candidateID, "gateway-euis"),
+					ids.EUI.String(),
+				)
+			} else {
+				results[i] = tx.SIsMember(
+					r.Redis.Key(candidateID, fmt.Sprintf("%s-ids", ids.EntityType())),
+					unique.ID(ctx, ids),
+				)
+			}
 		}
 		return nil
 	})
