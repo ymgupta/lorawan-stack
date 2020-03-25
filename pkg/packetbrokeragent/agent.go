@@ -38,7 +38,12 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
-const upstreamBufferSize = 64
+const (
+	upstreamBufferSize = 64
+
+	// messageStateChangeTimeout defines the maximum time to wait for a message state change.
+	messageStateChangeTimeout = 2 * time.Second
+)
 
 // EndDeviceIdentifiersContextFiller fills the parent context based on the end device identifiers.
 type EndDeviceIdentifiersContextFiller func(parent context.Context, ids ttnpb.EndDeviceIdentifiers) (context.Context, error)
@@ -247,7 +252,7 @@ func (a *Agent) runForwarder(ctx context.Context, conn *grpc.ClientConn, uplinkC
 				ForwarderId:    a.forwarderConfig.ID,
 				Message:        msg,
 			}
-			ctx, cancel := context.WithCancel(ctx)
+			ctx, cancel := context.WithTimeout(ctx, messageStateChangeTimeout)
 			progress, err := client.Publish(ctx, req)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to publish uplink message")
@@ -256,7 +261,11 @@ func (a *Agent) runForwarder(ctx context.Context, conn *grpc.ClientConn, uplinkC
 			}
 			status, err := progress.Recv()
 			if err != nil {
-				logger.WithError(err).Warn("Failed to receive published uplink message status")
+				if errors.IsDeadlineExceeded(err) {
+					logger.Warn("Wait for message state change timed out")
+				} else {
+					logger.WithError(err).Warn("Failed to receive published uplink message status")
+				}
 				cancel()
 				continue
 			}
