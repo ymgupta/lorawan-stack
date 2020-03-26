@@ -791,7 +791,7 @@ func TestGatewayServer(t *testing.T) {
 					for _, tc := range []struct {
 						Name     string
 						Up       *ttnpb.GatewayUp
-						Forwards []int // Indices of uplink messages in Up that are being forwarded.
+						Forwards []uint32 // Timestamps of uplink messages in Up that are being forwarded.
 					}{
 						{
 							Name: "GatewayStatus",
@@ -825,12 +825,12 @@ func TestGatewayServer(t *testing.T) {
 											},
 											CodingRate: "4/5",
 											Frequency:  867900000,
-											Timestamp:  4242000,
+											Timestamp:  100,
 										},
 										RxMetadata: []*ttnpb.RxMetadata{
 											{
 												GatewayIdentifiers: ids,
-												Timestamp:          4242000,
+												Timestamp:          100,
 												RSSI:               -69,
 												ChannelRSSI:        -69,
 												SNR:                11,
@@ -841,7 +841,7 @@ func TestGatewayServer(t *testing.T) {
 									},
 								},
 							},
-							Forwards: []int{0},
+							Forwards: []uint32{100},
 						},
 						{
 							Name: "OneValidFSK",
@@ -857,12 +857,12 @@ func TestGatewayServer(t *testing.T) {
 												},
 											},
 											Frequency: 867900000,
-											Timestamp: 4242000,
+											Timestamp: 100,
 										},
 										RxMetadata: []*ttnpb.RxMetadata{
 											{
 												GatewayIdentifiers: ids,
-												Timestamp:          4242000,
+												Timestamp:          100,
 												RSSI:               -69,
 												ChannelRSSI:        -69,
 												SNR:                11,
@@ -873,7 +873,7 @@ func TestGatewayServer(t *testing.T) {
 									},
 								},
 							},
-							Forwards: []int{0},
+							Forwards: []uint32{100},
 						},
 						{
 							Name: "OneGarbageWithStatus",
@@ -891,12 +891,12 @@ func TestGatewayServer(t *testing.T) {
 											},
 											CodingRate: "4/5",
 											Frequency:  868500000,
-											Timestamp:  1234560000,
+											Timestamp:  100,
 										},
 										RxMetadata: []*ttnpb.RxMetadata{
 											{
 												GatewayIdentifiers: ids,
-												Timestamp:          1234560000,
+												Timestamp:          100,
 												RSSI:               -112,
 												ChannelRSSI:        -112,
 												SNR:                2,
@@ -917,12 +917,12 @@ func TestGatewayServer(t *testing.T) {
 											},
 											CodingRate: "4/5",
 											Frequency:  868100000,
-											Timestamp:  4242000,
+											Timestamp:  200,
 										},
 										RxMetadata: []*ttnpb.RxMetadata{
 											{
 												GatewayIdentifiers: ids,
-												Timestamp:          4242000,
+												Timestamp:          200,
 												RSSI:               -69,
 												ChannelRSSI:        -69,
 												SNR:                11,
@@ -943,12 +943,12 @@ func TestGatewayServer(t *testing.T) {
 											},
 											CodingRate: "4/5",
 											Frequency:  867700000,
-											Timestamp:  2424000,
+											Timestamp:  300,
 										},
 										RxMetadata: []*ttnpb.RxMetadata{
 											{
 												GatewayIdentifiers: ids,
-												Timestamp:          2424000,
+												Timestamp:          300,
 												RSSI:               -36,
 												ChannelRSSI:        -36,
 												SNR:                5,
@@ -965,7 +965,7 @@ func TestGatewayServer(t *testing.T) {
 									Time: time.Unix(4242424, 0),
 								},
 							},
-							Forwards: []int{1, 2},
+							Forwards: []uint32{200, 300},
 						},
 					} {
 						t.Run(tc.Name, func(t *testing.T) {
@@ -999,10 +999,27 @@ func TestGatewayServer(t *testing.T) {
 								uplinkCount += len(tc.Up.UplinkMessages)
 							}
 
-							for _, msgIdx := range tc.Forwards {
+							notSeen := make(map[uint32]struct{})
+							for _, t := range tc.Forwards {
+								notSeen[t] = struct{}{}
+							}
+							for len(notSeen) > 0 {
 								select {
 								case msg := <-ns.Up():
-									expected := tc.Up.UplinkMessages[msgIdx]
+									var expected *ttnpb.UplinkMessage
+									for _, up := range tc.Up.UplinkMessages {
+										if ts := up.Settings.Timestamp; ts == msg.Settings.Timestamp {
+											if _, ok := notSeen[ts]; !ok {
+												t.Fatalf("Not expecting message %v", msg)
+											}
+											expected = up
+											delete(notSeen, ts)
+											break
+										}
+									}
+									if expected == nil {
+										t.Fatalf("Received unexpected message")
+									}
 									a.So(time.Since(msg.ReceivedAt), should.BeLessThan, timeout)
 									a.So(msg.Settings, should.Resemble, expected.Settings)
 									for _, md := range msg.RxMetadata {

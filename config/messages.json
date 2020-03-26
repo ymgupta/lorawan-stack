@@ -1259,6 +1259,24 @@
       "file": "end_devices.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:fail_write": {
+    "translations": {
+      "en": "failed to write `{file}`"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "use.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:file_exists": {
+    "translations": {
+      "en": "`{file}` exists"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "use.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:gateway_server_address_mismatch": {
     "translations": {
       "en": "gateway server address mismatch"
@@ -1446,6 +1464,15 @@
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
       "file": "gateways.go"
+    }
+  },
+  "error:cmd/ttn-lw-cli/commands:no_host": {
+    "translations": {
+      "en": "no host set"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "use.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:no_ids": {
@@ -4049,6 +4076,15 @@
       "file": "gatewayserver.go"
     }
   },
+  "error:pkg/gatewayserver:handler_recovered": {
+    "translations": {
+      "en": "internal server error"
+    },
+    "description": {
+      "package": "pkg/gatewayserver",
+      "file": "gatewayserver.go"
+    }
+  },
   "error:pkg/gatewayserver:host_handle": {
     "translations": {
       "en": "host `{host}` failed to handle message"
@@ -5825,15 +5861,6 @@
   "error:pkg/networkserver:class_a_multicast": {
     "translations": {
       "en": "multicast device in class A mode"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:class_b_c_for_class_a": {
-    "translations": {
-      "en": "class B/C downlink queued for device in class A mode"
     },
     "description": {
       "package": "pkg/networkserver",
