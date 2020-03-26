@@ -17,10 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fix organization collaborator view not being accessible in the Console.
-- Error display on Data pages in the Console.
-- Fix too restrictive MQTT client validation in PubSub form in the Console.
-
 ### Security
 
 ## [3.7.0] (2020-03-19)
@@ -32,6 +28,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Access Tokens are now linked to User Sessions.
   - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
 - Edit application attributes in Application General Settings in the Console
+- New `use` CLI command to automatically generate CLI configuration files.
+
+### Fixed
+
+- Fix organization collaborator view not being accessible in the Console.
+- Error display on Data pages in the Console.
+- Fix too restrictive MQTT client validation in PubSub form in the Console.
+- Fix faulty display of device event stream data for end devices with the same ID in different applications.
+- Trailing slashes handling in webhook paths.
+- Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
+
 
 ## [3.6.2] (2020-03-19)
 
