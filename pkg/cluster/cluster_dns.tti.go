@@ -16,11 +16,32 @@ import (
 	"github.com/golang/groupcache/consistenthash"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
+
+func deriveName() (string, error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", err
+	}
+	for _, addr := range addrs {
+		switch addr := addr.(type) {
+		case *net.IPAddr:
+			if !addr.IP.IsLoopback() {
+				return addr.IP.String(), nil
+			}
+		case *net.IPNet:
+			if !addr.IP.IsLoopback() {
+				return addr.IP.String(), nil
+			}
+		}
+	}
+	return "", nil
+}
 
 func newDNS(ctx context.Context, config *Config, options ...Option) (Cluster, error) {
 	c := &dnsCluster{
@@ -32,6 +53,25 @@ func newDNS(ctx context.Context, config *Config, options ...Option) (Cluster, er
 		resolver:      net.DefaultResolver,
 		peerDiscovery: make(map[string][]ttnpb.ClusterRole),
 	}
+
+	if config.Name == "" {
+		name, err := deriveName()
+		if err != nil {
+			return nil, err
+		}
+		config.Name = name
+	}
+
+	claimRegistryConfig := config.Claim
+	claimRegistryConfig.PeerID = config.Name
+	claimRegistry, err := NewClaimRegistry(ctx, &claimRegistryConfig)
+	if err != nil {
+		return nil, err
+	}
+	if invalidator, ok := claimRegistry.(invalidator); ok {
+		c.notifyUpdate = append(c.notifyUpdate, invalidator.Invalidate)
+	}
+	c.claimRegistry = claimRegistry
 
 	if err := c.loadKeys(ctx, config.Keys...); err != nil {
 		return nil, err
@@ -81,6 +121,10 @@ type dnsCluster struct {
 	peerMu           sync.RWMutex
 	byRole           map[ttnpb.ClusterRole][]*peer
 	consistentHashes map[ttnpb.ClusterRole]*consistenthash.Map
+
+	notifyUpdate []func()
+
+	claimRegistry ClaimRegistry
 }
 
 func (c *dnsCluster) addPeerDiscovery(target string, roles ...ttnpb.ClusterRole) {
@@ -89,7 +133,7 @@ func (c *dnsCluster) addPeerDiscovery(target string, roles ...ttnpb.ClusterRole)
 	}
 	for _, spaceSeparated := range strings.Split(target, " ") {
 		for _, target := range strings.Split(spaceSeparated, ",") {
-			c.peerDiscovery[target] = roles
+			c.peerDiscovery[target] = append(c.peerDiscovery[target], roles...)
 		}
 	}
 }
@@ -111,9 +155,10 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 				continue
 			}
 			for _, record := range records {
+				name := record.String()
 				address := net.JoinHostPort(record.String(), port)
-				peers[address] = &peer{
-					name:   address,
+				peers[name] = &peer{
+					name:   name,
 					roles:  roles,
 					target: address,
 				}
@@ -143,6 +188,8 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		options = append(options, grpc.WithInsecure())
 	}
 
+	var newPeers []*peer
+
 	// Re-use existing peers, connect to new peers.
 	for name, peer := range peers {
 		if existing, ok := c.peers[name]; ok && existing.target == peer.target {
@@ -162,6 +209,7 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		} else {
 			logger.Debug("Connected to peer")
 		}
+		newPeers = append(newPeers, peer)
 	}
 
 	// Construct lookup maps.
@@ -214,6 +262,12 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 	c.byRole = byRole
 	c.consistentHashes = consistentHashes
 	c.peerMu.Unlock()
+
+	if len(oldPeers) > 0 || len(newPeers) > 0 {
+		for _, notify := range c.notifyUpdate {
+			notify()
+		}
+	}
 }
 
 func (c *dnsCluster) Join() (err error) {
@@ -262,6 +316,24 @@ func (c *dnsCluster) GetPeers(ctx context.Context, role ttnpb.ClusterRole) ([]Pe
 	return peerInterfaces, nil
 }
 
+func idKey(ctx context.Context, ids ttnpb.Identifiers) string {
+	tenantID := tenant.FromContext(ctx).TenantID
+	switch ids := ids.Identifiers().(type) {
+	case *ttnpb.EndDeviceIdentifiers:
+		if ids.DevAddr != nil {
+			return "dev_addr:" + ids.DevAddr.String() + "@" + tenantID
+		}
+		if ids.DevEUI != nil {
+			return "dev_eui:" + ids.DevEUI.String() + "@" + tenantID
+		}
+	case *ttnpb.GatewayIdentifiers:
+		if ids.EUI != nil {
+			return "gateway_eui:" + ids.EUI.String() + "@" + tenantID
+		}
+	}
+	return ids.EntityType() + ":" + unique.ID(ctx, ids)
+}
+
 func (c *dnsCluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) (Peer, error) {
 	role = overridePeerRole(ctx, role, ids)
 	roleString := strings.Title(strings.Replace(role.String(), "_", " ", -1))
@@ -269,32 +341,35 @@ func (c *dnsCluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids tt
 	c.peerMu.RLock()
 	defer c.peerMu.RUnlock()
 
+	matches := c.byRole[role]
+	switch len(matches) {
+	case 0:
+		return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
+	case 1:
+		return matches[0], nil
+	}
+
 	if ids == nil {
-		matches := c.byRole[role]
-		if len(matches) == 0 {
-			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
-		}
 		return matches[rand.Intn(len(matches))], nil
 	}
 
 	switch role {
 	case ttnpb.ClusterRole_GATEWAY_SERVER:
-		matches := c.byRole[role]
-		switch len(matches) {
-		case 0:
-			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
-		case 1:
-			return matches[0], nil
-		default:
-			// TODO: ID Claim lookup (https://github.com/TheThingsIndustries/lorawan-stack/issues/1970).
-			return matches[0], nil
+		candidateIDs := make([]string, len(matches))
+		for i, peer := range matches {
+			candidateIDs[i] = peer.Name()
 		}
+		peerID, err := c.claimRegistry.GetPeerID(ctx, ids, candidateIDs...)
+		if err != nil {
+			return nil, err
+		}
+		return c.peers[peerID], nil
 	default:
 		hashMap := c.consistentHashes[role]
 		if hashMap == nil {
 			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
 		}
-		key := ids.EntityType() + ":" + unique.ID(ctx, ids)
+		key := idKey(ctx, ids)
 		peerID := hashMap.Get(key)
 		if peerID == "" {
 			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
@@ -317,11 +392,9 @@ func (c *dnsCluster) GetPeerConn(ctx context.Context, role ttnpb.ClusterRole, id
 }
 
 func (c *dnsCluster) ClaimIDs(ctx context.Context, ids ttnpb.Identifiers) error {
-	// TODO: ID Claim lookup (https://github.com/TheThingsIndustries/lorawan-stack/issues/1970).
-	return nil
+	return c.claimRegistry.Claim(ctx, ids)
 }
 
 func (c *dnsCluster) UnclaimIDs(ctx context.Context, ids ttnpb.Identifiers) error {
-	// TODO: ID Claim lookup (https://github.com/TheThingsIndustries/lorawan-stack/issues/1970).
-	return nil
+	return c.claimRegistry.Unclaim(ctx, ids)
 }

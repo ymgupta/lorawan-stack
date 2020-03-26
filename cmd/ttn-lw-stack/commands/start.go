@@ -142,6 +142,10 @@ var startCommand = &cobra.Command{
 			componentOptions = append(componentOptions, component.WithLicense(*license))
 		}
 
+		if config.ServiceBase.Cluster.Claim.Backend == "redis" {
+			config.ServiceBase.Cluster.Claim.Redis = redis.New(config.Cache.Redis.WithNamespace("cluster", "claim"))
+		}
+
 		c, err := component.New(logger, &component.Config{ServiceBase: config.ServiceBase}, componentOptions...)
 		if err != nil {
 			return shared.ErrInitializeBaseComponent.WithCause(err)
