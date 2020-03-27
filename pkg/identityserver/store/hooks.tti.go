@@ -107,7 +107,7 @@ func (cli *Client) BeforeCreate(db *gorm.DB) error {
 	var maxClients *types.UInt64Value
 	if license.MaxClients != nil {
 		maxClients = license.MaxClients
-	} else if license.MultiTenancy {
+	} else if license.MultiTenancy && cli.TenantID != nil {
 		tenant, err := retrieveTenant(db, &cli.Model)
 		if err != nil {
 			return err
