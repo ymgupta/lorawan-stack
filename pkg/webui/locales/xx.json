@@ -1,5 +1,7 @@
 {
-  "claim.containers.device-claim-form.messages.ClaimAuthMessage": "Xxxx xxxxxxxxxxxxxx XX xxxx",
+  "claim.containers.device-claim-form.index.claimRecognized": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxxxxx",
+  "claim.containers.device-claim-form.index.claimAuthMessage": "Xxxx xxxxxxxxxxxxxx XX xxxx",
+  "claim.views.device-claim.index.claimSuccess": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxx",
   "claim.views.login.index.welcome": "Xxxxxxx xx {siteTitle}",
   "claim.views.login.index.login": "Xxx xxxx xx xx xxxxxx xx xx xxx xxxx xxxx",
   "claim.views.login.index.loginWithStackAccount": "Xxxxx xxxx xxxx Xxx Xxxxxx Xxxxx Xxxxxxx",
@@ -405,7 +407,6 @@
   "lib.shared-messages.changePassword": "Xxxxxx Xxxxxxxx",
   "lib.shared-messages.claimDevice": "Xxxxx Xxxxxx",
   "lib.shared-messages.claimAuth": "Xxxxx Xxxxxxxxxxxxxx Xxxx",
-  "lib.shared-messages.claimSuccess": "Xxxxxxxxxxxx xxxxxxx xxxxxx",
   "lib.shared-messages.channel": "Xxxxxxx",
   "lib.shared-messages.clear": "Xxxxx",
   "lib.shared-messages.claiming": "Xxxxxxxx",

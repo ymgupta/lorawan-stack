@@ -56,7 +56,6 @@ export default defineMessages({
   changePassword: 'Change Password',
   claimDevice: 'Claim Device',
   claimAuth: 'Claim Authentication Code',
-  claimSuccess: 'Successfully claimed device',
   channel: 'Channel',
   clear: 'Clear',
   claiming: 'Claiming',

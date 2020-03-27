@@ -13,8 +13,12 @@
 // limitations under the License.
 
 import React, { Component } from 'react'
+import { connect } from 'react-redux'
+import bind from 'autobind-decorator'
+import { defineMessages } from 'react-intl'
 
 import Form from '../../../components/form'
+import Input from '../../../components/input'
 import SubmitButton from '../../../components/submit-button'
 import SubmitBar from '../../../components/submit-bar'
 import QR from '../../../components/qr'
@@ -22,16 +26,51 @@ import QR from '../../../components/qr'
 import sharedMessages from '../../../lib/shared-messages'
 import errorMessages from '../../../lib/errors/error-messages'
 import PropTypes from '../../../lib/prop-types'
-import m from './messages'
+import { selectApplicationById } from '../../store/selectors/applications'
+import { readQr } from '../../lib/qr'
 
 import { deviceClaimValidationSchema } from './validation-schema'
 
 import style from './device-claim-form.styl'
 
+const m = defineMessages({
+  claimRecognized: 'End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` recognized',
+  claimAuthMessage: 'Scan authentication QR code',
+})
+
+@connect(function(state, props) {
+  return {
+    application: selectApplicationById(state, props.appId),
+  }
+})
 export default class DeviceClaimForm extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { error: '' } // state needs to be defined to be used in render function.
+  static propTypes = {
+    application: PropTypes.application,
+    onSubmit: PropTypes.func.isRequired,
+    onSubmitSuccess: PropTypes.func,
+  }
+
+  static defaultProps = {
+    onSubmitSuccess: () => null,
+    application: {},
+  }
+
+  formRef = React.createRef()
+  state = {
+    error: '',
+    info: '',
+    isQrCode: false,
+  }
+
+  addApplicationAttributes() {
+    const {
+      application: { attributes },
+    } = this.props
+
+    // return form inputs from application attributes.
+    return Object.keys(attributes).map(key => {
+      return <Form.Field title={key} name={key} type="text" component={Input} key={key} />
+    })
   }
 
   handleSubmit = async (values, { setSubmitting }) => {
@@ -42,48 +81,66 @@ export default class DeviceClaimForm extends Component {
     await this.setState({ error: '' })
 
     try {
-      await onSubmit(castedValues)
-      await onSubmitSuccess()
+      const device = await onSubmit(castedValues)
+      await onSubmitSuccess(device)
     } catch (error) {
       setSubmitting(false)
       const err = error instanceof Error ? errorMessages.genericError : error
-      await this.setState({ error: err })
+      await this.setState({ error: err, info: '' })
     }
   }
 
+  @bind
+  handleQrCodeChange(qrCode) {
+    const { devEUI, joinEUI } = readQr(qrCode)
+    const {
+      application: { attributes },
+    } = this.props
+
+    return !attributes && qrCode
+      ? this.formRef.current.submitForm()
+      : this.setState({
+          isQrCode: true,
+          info: {
+            values: { devEUI, joinEUI },
+            ...m.claimRecognized,
+          },
+        })
+  }
+
   render() {
-    const { error } = this.state
+    const { error, isQrCode, info } = this.state
     const initialValues = {}
 
     return (
       <div>
         <Form
           error={error}
+          info={info}
           onSubmit={this.handleSubmit}
           initialValues={initialValues}
           validationSchema={deviceClaimValidationSchema}
+          formikRef={this.formRef}
         >
-          <Form.Field
-            title={sharedMessages.claimAuth}
-            name="qrCode"
-            description={m.ClaimAuthMessage}
-            component={QR}
-            className={style.qrField}
-          />
-          <SubmitBar>
-            <Form.Submit component={SubmitButton} message={sharedMessages.saveChanges} />
-          </SubmitBar>
+          {isQrCode ? (
+            <>
+              {this.addApplicationAttributes()}
+              <SubmitBar>
+                <Form.Submit component={SubmitButton} message={sharedMessages.claimDevice} />
+              </SubmitBar>
+            </>
+          ) : (
+            <Form.Field
+              title={sharedMessages.claimAuth}
+              name="qrCode"
+              description={m.claimAuthMessage}
+              component={QR}
+              className={style.qrField}
+              onChange={this.handleQrCodeChange}
+            />
+          )}
         </Form>
       </div>
     )
   }
-}
-
-DeviceClaimForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-  onSubmitSuccess: PropTypes.func,
-}
-
-DeviceClaimForm.defaultProps = {
-  onSubmitSuccess: () => null,
 }
