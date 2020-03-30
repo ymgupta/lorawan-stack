@@ -16,26 +16,21 @@
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
+import bind from 'autobind-decorator'
 import FileInput from '../../../file-input'
 
 export default class Capture extends Component {
-  // Convert base64 to Uint8ClampedArray
-  handleChange = data => {
-    const { onFrame } = this.props
+  static propTypes = {
+    onRead: PropTypes.func.isRequired,
+  }
+
+  @bind
+  handleChange(data) {
+    const { onRead } = this.props
     const image = new Image()
     image.src = data
     image.onload = () => {
-      const canvas = document.createElement('canvas')
-      const ctx = canvas.getContext('2d')
-      canvas.width = image.width
-      canvas.height = image.height
-      ctx.drawImage(image, 0, 0)
-      const imageData = ctx.getImageData(0, 0, image.width, image.height)
-      onFrame({
-        data: imageData.data,
-        width: imageData.width,
-        height: imageData.height,
-      })
+      onRead(image, image.width, image.height)
     }
   }
 
@@ -43,14 +38,6 @@ export default class Capture extends Component {
   handleDataTransform = content => content
 
   render() {
-    return (
-      <FileInput onChange={this.handleChange} dataTransform={this.handleDataTransform} capture />
-    )
+    return <FileInput onChange={this.handleChange} dataTransform={this.handleDataTransform} />
   }
 }
-
-Capture.propTypes = {
-  onFrame: PropTypes.func.isRequired,
-}
-
-Capture.defaultProps = {}
