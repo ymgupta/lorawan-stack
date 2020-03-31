@@ -16,7 +16,6 @@ import * as user from '../../actions/user'
 import * as init from '../../actions/init'
 import api from '../../../api'
 import * as accessToken from '../../../lib/access-token'
-import { getApplicationsList } from '../../actions/applications'
 import createRequestLogic from './lib'
 
 const claimAppLogic = createRequestLogic({
@@ -32,7 +31,6 @@ const claimAppLogic = createRequestLogic({
       const userId = info.data.oauth_access_token.user_ids.user_id
       const result = await api.users.get(userId)
       dispatch(user.getUserMeSuccess(result.data))
-      dispatch(getApplicationsList({}, ['name', 'attributes']))
     } catch (error) {
       dispatch(user.getUserMeFailure())
       accessToken.clear()
