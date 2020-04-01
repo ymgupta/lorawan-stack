@@ -271,6 +271,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 
 				srv := http.Server{
 					Handler:           bsWebServer,
+					ReadTimeout:       120 * time.Second,
 					ReadHeaderTimeout: 5 * time.Second,
 				}
 				go func() {
@@ -503,6 +504,7 @@ func (gs *GatewayServer) GetConnection(ctx context.Context, ids ttnpb.GatewayIde
 var (
 	errNoNetworkServer = errors.DefineNotFound("no_network_server", "no Network Server found to handle message")
 	errHostHandle      = errors.Define("host_handle", "host `{host}` failed to handle message")
+	errNoRoute         = errors.DefineAborted("no_route", "no route for `{host}`")
 )
 
 var (
@@ -514,34 +516,33 @@ var (
 
 type upstreamHost struct {
 	name     string
-	handler  func(ids *ttnpb.EndDeviceIdentifiers) upstream.Handler
-	callOpts []grpc.CallOption
+	handler  upstream.Handler
 	handlers int32
 	handleWg sync.WaitGroup
 	handleCh chan upstreamItem
 }
 
 type upstreamItem struct {
-	ctx  context.Context
-	val  interface{}
-	host *upstreamHost
+	ctx context.Context
+	val interface{}
 }
 
 func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
-	ctx := conn.Context()
-	logger := log.FromContext(ctx)
+	var (
+		ctx      = conn.Context()
+		gtw      = conn.Gateway()
+		protocol = conn.Frontend().Protocol()
+		logger   = log.FromContext(ctx)
+	)
 	defer func() {
-		ids := conn.Gateway().GatewayIdentifiers
-		gs.connections.Delete(unique.ID(ctx, ids))
-		registerGatewayDisconnect(ctx, ids, conn.Frontend().Protocol())
+		gs.connections.Delete(unique.ID(ctx, gtw.GatewayIdentifiers))
+		registerGatewayDisconnect(ctx, gtw.GatewayIdentifiers, protocol)
 		logger.Info("Disconnected")
 		close(conn.upstreamDone)
 	}()
 
-	handleFn := func(host *upstreamHost) {
+	handleFn := func(ctx context.Context, host *upstreamHost) {
 		defer recoverHandler(ctx)
-		defer host.handleWg.Done()
-		defer atomic.AddInt32(&host.handlers, -1)
 		for {
 			select {
 			case <-ctx.Done():
@@ -552,7 +553,6 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 				ctx := item.ctx
 				switch msg := item.val.(type) {
 				case *ttnpb.GatewayUplinkMessage:
-					registerReceiveUplink(ctx, conn.Gateway(), msg.UplinkMessage, host.name)
 					drop := func(ids ttnpb.EndDeviceIdentifiers, err error) {
 						logger := logger.WithError(err)
 						if ids.JoinEUI != nil {
@@ -565,32 +565,39 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 							logger = logger.WithField("dev_addr", *ids.DevAddr)
 						}
 						logger.Debug("Drop message")
-						registerDropUplink(ctx, conn.Gateway(), msg.UplinkMessage, host.name, err)
+						registerDropUplink(ctx, gtw, msg.UplinkMessage, host.name, err)
 					}
 					ids, err := lorawan.GetUplinkMessageIdentifiers(msg.RawPayload)
 					if err != nil {
 						drop(ttnpb.EndDeviceIdentifiers{}, err)
 						break
 					}
-					handler := item.host.handler(&ids)
-					if handler == nil {
+					var pass bool
+					switch {
+					case ids.DevAddr != nil:
+						for _, prefix := range host.handler.GetDevAddrPrefixes() {
+							if ids.DevAddr.HasPrefix(prefix) {
+								pass = true
+								break
+							}
+						}
+					default:
+						pass = true
+					}
+					if !pass {
+						drop(ids, errNoRoute.WithAttributes("host", host.name))
 						break
 					}
-					if err := handler.HandleUplink(ctx, conn.Gateway().GatewayIdentifiers, ids, msg); err != nil {
-						drop(ids, errHostHandle.WithCause(err).WithAttributes("host", item.host.name))
+					if err := host.handler.HandleUplink(ctx, gtw.GatewayIdentifiers, ids, msg); err != nil {
+						drop(ids, errHostHandle.WithCause(err).WithAttributes("host", host.name))
 						break
 					}
-					registerForwardUplink(ctx, conn.Gateway(), msg.UplinkMessage, item.host.name)
+					registerForwardUplink(ctx, gtw, msg.UplinkMessage, host.name)
 				case *ttnpb.GatewayStatus:
-					registerReceiveStatus(ctx, conn.Gateway(), msg)
-					handler := item.host.handler(nil)
-					if handler == nil {
-						break
-					}
-					if err := handler.HandleStatus(ctx, conn.Gateway().GatewayIdentifiers, msg); err != nil {
-						registerDropStatus(ctx, conn.Gateway(), msg, item.host.name, err)
+					if err := host.handler.HandleStatus(ctx, gtw.GatewayIdentifiers, msg); err != nil {
+						registerDropStatus(ctx, gtw, msg, host.name, err)
 					} else {
-						registerForwardStatus(ctx, conn.Gateway(), msg, item.host.name)
+						registerForwardStatus(ctx, gtw, msg, host.name)
 					}
 				}
 			}
@@ -599,23 +606,9 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 
 	hosts := make([]*upstreamHost, 0, len(gs.upstreamHandlers))
 	for name, handler := range gs.upstreamHandlers {
-		handler := handler
-		passDevAddr := func(prefixes []types.DevAddrPrefix, devAddr types.DevAddr) bool {
-			for _, prefix := range prefixes {
-				if devAddr.HasPrefix(prefix) {
-					return true
-				}
-			}
-			return false
-		}
 		host := &upstreamHost{
-			name: name,
-			handler: func(ids *ttnpb.EndDeviceIdentifiers) upstream.Handler {
-				if ids != nil && ids.DevAddr != nil && !passDevAddr(handler.GetDevAddrPrefixes(), *ids.DevAddr) {
-					return nil
-				}
-				return handler
-			},
+			name:     name,
+			handler:  handler,
 			handleCh: make(chan upstreamItem),
 		}
 		hosts = append(hosts, host)
@@ -623,8 +616,10 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 	}
 
 	for {
-		ctx := ctx
-		var val interface{}
+		var (
+			ctx = ctx
+			val interface{}
+		)
 		select {
 		case <-ctx.Done():
 			return
@@ -632,63 +627,73 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:uplink:%s", events.NewCorrelationID()))
 			msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
 			val = msg
+			registerReceiveUplink(ctx, gtw, msg.UplinkMessage, protocol)
 		case msg := <-conn.Status():
 			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:status:%s", events.NewCorrelationID()))
 			val = msg
+			registerReceiveStatus(ctx, gtw, msg, protocol)
 		case msg := <-conn.TxAck():
 			ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("gs:tx_ack:%s", events.NewCorrelationID()))
 			msg.CorrelationIDs = append(msg.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
 			if msg.Result == ttnpb.TxAcknowledgment_SUCCESS {
-				registerSuccessDownlink(ctx, conn.Gateway())
+				registerSuccessDownlink(ctx, gtw, protocol)
 			} else {
-				registerFailDownlink(ctx, conn.Gateway(), msg)
+				registerFailDownlink(ctx, gtw, msg, protocol)
 			}
 			// TODO: Send Tx acknowledgement upstream (https://github.com/TheThingsNetwork/lorawan-stack/issues/76)
 			continue
 		}
+		item := upstreamItem{ctx, val}
 		for _, host := range hosts {
-			item := upstreamItem{
-				ctx:  ctx,
-				val:  val,
-				host: host,
-			}
+			host := host
 			select {
 			case host.handleCh <- item:
 			default:
 				if atomic.LoadInt32(&host.handlers) < maxUpstreamHandlers {
 					atomic.AddInt32(&host.handlers, 1)
 					host.handleWg.Add(1)
-					go handleFn(host)
-					go func(host *upstreamHost) {
+					registerUpstreamHandlerStart(ctx, host.name)
+					go func() {
+						defer host.handleWg.Done()
+						defer atomic.AddInt32(&host.handlers, -1)
+						defer registerUpstreamHandlerStop(ctx, host.name)
+						handleFn(ctx, host)
+					}()
+					go func() {
 						host.handleCh <- item
-					}(host)
+					}()
 					continue
 				}
-				logger.WithField("name", host.name).Warn("Upstream handler busy, drop message")
+				logger.WithField("name", host.name).Warn("Upstream handler busy, fail message")
 				switch msg := val.(type) {
 				case *ttnpb.UplinkMessage:
-					registerFailUplink(ctx, conn.Gateway(), msg, host.name)
+					registerFailUplink(ctx, gtw, msg, host.name)
 				case *ttnpb.GatewayStatus:
-					registerFailStatus(ctx, conn.Gateway(), msg, host.name)
+					registerFailStatus(ctx, gtw, msg, host.name)
 				}
 			}
 		}
 	}
 }
 
-// UpdateConnectionStats updates the stats for a single gateway connection.
-func (gs *GatewayServer) UpdateConnectionStats(ctx context.Context, conn *io.Connection) error {
-	return gs.statsRegistry.Set(ctx, conn.Gateway().GatewayIdentifiers, conn.Stats())
-}
-
 func (gs *GatewayServer) updateConnStats(conn connectionEntry) {
 	ctx := conn.Context()
 	logger := log.FromContext(ctx)
 
+	// Initial dummy update, so that gateway appears connected
+	if err := gs.UpdateConnectionStats(conn.Connection, false, false, true); err != nil {
+		logger.WithError(err).Error("Failed to initialize connection stats")
+	}
+
+	var (
+		lastUpdateUp, lastUpdateDown, lastUpdateStatus time.Time
+		newUp, newDown, newStatus                      bool
+	)
+
 	defer func() {
 		logger.Debug("Delete connection stats")
-		err := gs.statsRegistry.Set(ctx, conn.Gateway().GatewayIdentifiers, nil)
-		if err != nil {
+
+		if err := gs.ClearConnectionStats(conn.Connection, newUp, newDown, true); err != nil {
 			logger.WithError(err).Error("Failed to delete connection stats")
 		}
 	}()
@@ -698,17 +703,31 @@ func (gs *GatewayServer) updateConnStats(conn connectionEntry) {
 		case <-ctx.Done():
 			return
 		case <-conn.StatsChanged():
-			err := gs.UpdateConnectionStats(ctx, conn.Connection)
-			if err != nil {
-				logger.WithError(err).Error("Failed to update connection stats")
-			}
+		}
 
-			timeout := time.After(gs.updateConnectionStatsDebounceTime)
-			select {
-			case <-ctx.Done():
-				return
-			case <-timeout:
-			}
+		stats := conn.Stats()
+		if stats.LastUplinkReceivedAt != nil && stats.LastUplinkReceivedAt.After(lastUpdateUp) {
+			newUp = true
+			lastUpdateUp = *stats.LastUplinkReceivedAt
+		}
+		if stats.LastDownlinkReceivedAt != nil && stats.LastDownlinkReceivedAt.After(lastUpdateDown) {
+			newDown = true
+			lastUpdateDown = *stats.LastDownlinkReceivedAt
+		}
+		if stats.LastStatusReceivedAt != nil && stats.LastStatusReceivedAt.After(lastUpdateStatus) {
+			newStatus = true
+			lastUpdateStatus = *stats.LastStatusReceivedAt
+		}
+
+		if err := gs.UpdateConnectionStats(conn.Connection, newUp, newDown, newStatus); err != nil {
+			logger.WithError(err).Error("Failed to update connection stats")
+		}
+
+		timeout := time.After(gs.updateConnectionStatsDebounceTime)
+		select {
+		case <-ctx.Done():
+			return
+		case <-timeout:
 		}
 	}
 }
@@ -855,4 +874,14 @@ func recoverHandler(ctx context.Context) error {
 		return err
 	}
 	return nil
+}
+
+// UpdateConnectionStats updates the connection stats for a gateway
+func (gs *GatewayServer) UpdateConnectionStats(conn *io.Connection, up, down, status bool) error {
+	return gs.statsRegistry.Set(conn.Context(), conn.Gateway().GatewayIdentifiers, conn.Stats(), up, down, status)
+}
+
+// ClearConnectionStats clears the connection stats for a gateway
+func (gs *GatewayServer) ClearConnectionStats(conn *io.Connection, up, down, status bool) error {
+	return gs.statsRegistry.Set(conn.Context(), conn.Gateway().GatewayIdentifiers, nil, up, down, status)
 }

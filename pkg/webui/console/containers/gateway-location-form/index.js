@@ -1,4 +1,4 @@
-// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
+// Copyright © 2020 The Things Network Foundation, The Things Industries B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,20 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.filters
-  border-normal('bottom')
-  display: flex
-  justify-content: space-between
-  align-items: center
+import GatewayLocationForm from './gateway-location-form'
+import connect from './connect'
 
-  &-left
-    flex-basis: auto
-
-  &-right
-    flex: 1
-    display: flex
-    align-items: center
-    max-width: 30rem
-
-.import-devices
-  margin-right: 0
+export default connect(GatewayLocationForm)
