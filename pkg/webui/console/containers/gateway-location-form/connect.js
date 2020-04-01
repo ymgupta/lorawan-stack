@@ -12,18 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gatewayserver
+import { connect } from 'react-redux'
 
-import (
-	"context"
+import { updateGateway } from '../../store/actions/gateways'
+import { attachPromise } from '../../store/actions/lib'
+import { selectSelectedGateway, selectSelectedGatewayId } from '../../store/selectors/gateways'
 
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-)
+const mapStateToProps = state => ({
+  gateway: selectSelectedGateway(state),
+  gatewayId: selectSelectedGatewayId(state),
+})
 
-// GatewayConnectionStatsRegistry stores, updates and cleans up gateway connection stats.
-type GatewayConnectionStatsRegistry interface {
-	// Get returns connection stats for a gateway.
-	Get(ctx context.Context, ids ttnpb.GatewayIdentifiers) (*ttnpb.GatewayConnectionStats, error)
-	// Set sets or clears the connection stats for a gateway.
-	Set(ctx context.Context, ids ttnpb.GatewayIdentifiers, stats *ttnpb.GatewayConnectionStats, up, down, status bool) error
+const mapDispatchToProps = {
+  updateGateway: attachPromise(updateGateway),
 }
+
+export default Component =>
+  connect(
+    mapStateToProps,
+    mapDispatchToProps,
+  )(Component)

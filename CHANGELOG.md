@@ -9,13 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- View/edit `update_location_from_status` gateway property using the Console.
+
 ### Changed
+
+- Default DevStatus periodicity is increased, which means that, by default, DevStatusReq will be scheduled less often.
+- Default class B and C timeouts are increased, which means that, by default, if the Network Server expects an uplink from the device after a downlink, it will wait longer before rescheduling the downlink.
+- In case downlink frame carries MAC requests, Network Server will not force the downlink to be sent confirmed in class B and C.
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- End device location display bug when deleting the location entry in the Console.
 
 ### Security
 

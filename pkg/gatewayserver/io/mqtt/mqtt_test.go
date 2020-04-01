@@ -46,7 +46,7 @@ var (
 	registeredGatewayUID = unique.ID(test.Context(), registeredGatewayID)
 	registeredGatewayKey = "test-key"
 
-	timeout = 10 * test.Delay
+	timeout = 20 * test.Delay
 )
 
 func TestAuthentication(t *testing.T) {
