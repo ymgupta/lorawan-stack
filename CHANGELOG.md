@@ -24,10 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - End device location display bug when deleting the location entry in the Console.
+- GS could panic when gateway connection stats were updated while updating the registry.
+- Local CLI and stack config files now properly override global config.
+- Error display on failed end device deletion in the Console.
 
 ### Security
 
-## [3.7.0] (2020-03-19)
+## [3.7.0] (2020-04-02)
 
 ### Added
 
@@ -45,8 +48,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix too restrictive MQTT client validation in PubSub form in the Console.
 - Fix faulty display of device event stream data for end devices with the same ID in different applications.
 - Trailing slashes handling in webhook paths.
-- Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
 
+## [3.6.3] (2020-03-30)
+
+### Fixed
+
+-  Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
 
 ## [3.6.2] (2020-03-19)
 
@@ -721,6 +728,7 @@ NOTE: These links should respect backports. See https://github.com/TheThingsNetw
 
 [unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...HEAD
 [3.7.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.7.0
+[3.6.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.2...v3.6.3
 [3.6.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.1...v3.6.2
 [3.6.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.6.1
 [3.6.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.3...v3.6.0
