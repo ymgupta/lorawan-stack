@@ -3527,6 +3527,15 @@
       "file": "frequencyplans.go"
     }
   },
+  "error:pkg/gatewayconfigurationserver/gcsv2:gateway_not_registered": {
+    "translations": {
+      "en": "gateway `{gateway_id_or_uid}` is not registered"
+    },
+    "description": {
+      "package": "pkg/gatewayconfigurationserver/gcsv2",
+      "file": "get_gateway.go"
+    }
+  },
   "error:pkg/gatewayconfigurationserver/gcsv2:unauthenticated": {
     "translations": {
       "en": "call was not authenticated"
