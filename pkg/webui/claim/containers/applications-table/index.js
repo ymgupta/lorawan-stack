@@ -44,7 +44,7 @@ const headers = [
 export default class ApplicationsTable extends Component {
   constructor(props) {
     super(props)
-    this.getApplicationsList = params => getApplicationsList(params, ['name', 'attributes'])
+    this.getApplicationsList = params => getApplicationsList(params, ['name'])
   }
 
   baseDataSelector(state) {
