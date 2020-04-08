@@ -113,6 +113,7 @@ The user registration process can be customized by requiring approval by admin u
 
 - `is.user-registration.admin-approval.required`: Require admin approval for new users
 - `is.user-registration.contact-info-validation.required`: Require contact info validation for new users
+- `is.user-registration.contact-info-validation.token-ttl`: TTL of contact info validation tokens
 - `is.user-registration.invitation.required`: Require invitations for new users
 - `is.user-registration.invitation.token-ttl`: TTL of user invitation tokens
 
