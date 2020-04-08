@@ -24,6 +24,11 @@ type Validate struct {
 	TTL   time.Duration
 }
 
+// FormatTTL formats the TTL.
+func (v Validate) FormatTTL() string {
+	return formatTTL(v.TTL)
+}
+
 // TemplateName returns the name of the template to use for this email.
 func (Validate) TemplateName() string { return "validate" }
 
@@ -41,7 +46,7 @@ ttn-lw-cli {{.Entity.Type}}s contact-info validate {{.ID}} {{.Token}}
 
 {{- with .TTL }}
 
-These confirmation links will expire in {{ .Hours }} hour{{ if gt .Hours 1.0 }}s{{ end }}.
+These confirmation links expire {{ .FormatTTL }}.
 {{ end -}}
 `
 
