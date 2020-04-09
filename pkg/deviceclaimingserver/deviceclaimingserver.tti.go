@@ -179,11 +179,11 @@ func WithTenantRegistry(registry ttipb.TenantRegistryClient) Option {
 	}
 }
 
-func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context, ids *ttnpb.EndDeviceIdentifiers) (ttipb.TenantRegistryClient, error) {
+func (dcs *DeviceClaimingServer) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryClient, error) {
 	if dcs.tenantRegistry != nil {
 		return dcs.tenantRegistry, nil
 	}
-	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids)
+	conn, err := dcs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
 	if err != nil {
 		return nil, err
 	}
