@@ -22,11 +22,16 @@ import Input from '../../../components/input'
 import SubmitButton from '../../../components/submit-button'
 import SubmitBar from '../../../components/submit-bar'
 import QR from '../../../components/qr'
+import withRequest from '../../../lib/components/with-request'
 
 import sharedMessages from '../../../lib/shared-messages'
 import errorMessages from '../../../lib/errors/error-messages'
 import PropTypes from '../../../lib/prop-types'
-import { selectApplicationById } from '../../store/selectors/applications'
+import {
+  selectApplicationById,
+  selectApplicationFetching,
+} from '../../store/selectors/applications'
+import { getApplication } from '../../store/actions/applications'
 import { readQr } from '../../lib/qr'
 
 import { deviceClaimValidationSchema } from './validation-schema'
@@ -38,11 +43,23 @@ const m = defineMessages({
   claimAuthMessage: 'Scan authentication QR code',
 })
 
-@connect(function(state, props) {
-  return {
-    application: selectApplicationById(state, props.appId),
-  }
-})
+@connect(
+  function(state, props) {
+    return {
+      fetching: selectApplicationFetching(state),
+      application: selectApplicationById(state, props.appId),
+    }
+  },
+  dispatch => ({
+    loadData: id => {
+      dispatch(getApplication(id, ['name,attributes']))
+    },
+  }),
+)
+@withRequest(
+  ({ appId, loadData }) => loadData(appId),
+  ({ fetching, application }) => fetching || !Boolean(application),
+)
 export default class DeviceClaimForm extends Component {
   static propTypes = {
     application: PropTypes.application,
