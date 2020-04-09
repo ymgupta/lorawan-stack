@@ -1,6 +1,7 @@
 {
   "claim.containers.device-claim-form.index.claimRecognized": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxxxxx",
   "claim.containers.device-claim-form.index.claimAuthMessage": "Xxxx xxxxxxxxxxxxxx XX xxxx",
+  "claim.containers.device-claim-form.index.claimInvalid": "Xxxxxxx xxxxxxxxxxxxxx XX xxxx",
   "claim.views.device-claim.index.claimSuccess": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxx",
   "claim.views.login.index.welcome": "Xxxxxxx xx {siteTitle}",
   "claim.views.login.index.login": "Xxx xxxx xx xx xxxxxx xx xx xxx xxxx xxxx",

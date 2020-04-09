@@ -14,6 +14,7 @@
 
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import * as Yup from 'yup'
 import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
 
@@ -34,13 +35,18 @@ import {
 import { getApplication } from '../../store/actions/applications'
 import { readQr } from '../../lib/qr'
 
-import { deviceClaimValidationSchema } from './validation-schema'
-
 import style from './device-claim-form.styl'
 
 const m = defineMessages({
   claimRecognized: 'End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` recognized',
   claimAuthMessage: 'Scan authentication QR code',
+  claimInvalid: 'Invalid authentication QR code',
+})
+
+const validationSchema = Yup.object().shape({
+  qrCode: Yup.string()
+    .matches(/^URN:DEV:LW/, m.claimInvalid)
+    .required(m.claimInvalid),
 })
 
 @connect(
@@ -93,12 +99,10 @@ export default class DeviceClaimForm extends Component {
   handleSubmit = async (values, { setSubmitting }) => {
     /* eslint no-invalid-this: "off"*/
     const { onSubmit, onSubmitSuccess } = this.props
-    const validationSchema = deviceClaimValidationSchema
-    const castedValues = validationSchema.cast(values)
     await this.setState({ error: '' })
 
     try {
-      const device = await onSubmit(castedValues)
+      const device = await onSubmit(values)
       await onSubmitSuccess(device)
     } catch (error) {
       setSubmitting(false)
@@ -108,13 +112,16 @@ export default class DeviceClaimForm extends Component {
   }
 
   @bind
-  handleQrCodeChange(qrCode) {
+  async handleQrCodeChange(qrCode) {
+    const valid = await validationSchema.isValid({ qrCode })
+    if (!valid) return
+
     const { devEUI, joinEUI } = readQr(qrCode)
     const {
       application: { attributes },
     } = this.props
 
-    return !attributes && qrCode
+    return !attributes
       ? this.formRef.current.submitForm()
       : this.setState({
           isQrCode: true,
@@ -136,7 +143,8 @@ export default class DeviceClaimForm extends Component {
           info={info}
           onSubmit={this.handleSubmit}
           initialValues={initialValues}
-          validationSchema={deviceClaimValidationSchema}
+          validationSchema={validationSchema}
+          validateOnChange
           formikRef={this.formRef}
         >
           {isQrCode ? (
