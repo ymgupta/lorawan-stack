@@ -19,11 +19,11 @@ func WithTenantRegistry(registry ttipb.TenantRegistryClient) Option {
 	}
 }
 
-func (s *Server) getTenantRegistry(ctx context.Context, ids *ttnpb.GatewayIdentifiers) (ttipb.TenantRegistryClient, error) {
+func (s *Server) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryClient, error) {
 	if s.tenantRegistry != nil {
 		return s.tenantRegistry, nil
 	}
-	cc, err := s.component.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, ids)
+	cc, err := s.component.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (s *Server) getContextForGatewayEUI(ctx context.Context, eui types.EUI64, o
 	if tenantID := tenant.FromContext(ctx); tenantID.TenantID != "" {
 		return ctx, nil
 	}
-	registry, err := s.getTenantRegistry(ctx, nil)
+	registry, err := s.getTenantRegistry(ctx)
 	if err != nil {
 		return nil, err
 	}

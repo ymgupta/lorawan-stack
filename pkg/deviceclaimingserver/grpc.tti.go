@@ -175,7 +175,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	// Get the source end device identifiers belonging to the JoinEUI and DevEUI.
 	logger.Debug("Get source tenant identifiers by EUIs")
 	sourceCtx := rights.NewContextWithCache(ctx)
-	tenantRegistry, err := s.DCS.getTenantRegistry(sourceCtx, nil)
+	tenantRegistry, err := s.DCS.getTenantRegistry(sourceCtx)
 	if err != nil {
 		logger.WithError(err).Warn("Failed to get tenant registry")
 		return nil, err
