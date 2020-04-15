@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import Applications from './applications'
+
 const mockApplicationData = {
   ids: {
     application_id: 'test',
@@ -63,6 +65,7 @@ describe('Applications', function() {
     test('instance initializes correctly', function() {
       jest.resetModules()
 
+      expect(applications).toBeInstanceOf(Applications)
       expect(applications._api).toBeDefined()
     })
 
@@ -71,6 +74,7 @@ describe('Applications', function() {
 
       const app = await applications.getById('test')
       expect(app).toBeDefined()
+      expect(app.constructor.name).toBe('Application')
       expect(app.ids.application_id).toBe('test')
     })
 
@@ -83,6 +87,7 @@ describe('Applications', function() {
       const { applications: apps, totalCount } = result
       expect(apps.constructor.name).toBe('Array')
       expect(apps).toHaveLength(1)
+      expect(apps[0].constructor.name).toBe('Application')
       expect(totalCount).toBe(1)
     })
   })

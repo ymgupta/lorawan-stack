@@ -1,6 +1,7 @@
 ---
 title: "Kerlink Wirnet Station"
 description: ""
+weight: 1
 ---
 
 Kerlink Wirnet Station is a LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://www.kerlink.com/product/wirnet-station/). This page guides you to connect it to {{% tts %}}.
@@ -14,7 +15,7 @@ Kerlink Wirnet Station is a LoRaWAN gateway, whose technical specifications can 
 
 ## Registration
 
-Create a gateway by following the instructions for the [Console]({{< ref "/guides/getting-started/console/create-gateway" >}}) or the [CLI]({{< ref "/guides/getting-started/cli#create-gateway" >}}). Choose a **Gateway ID** and set **EUI** equal to the one on the gateway.
+Create a gateway by following the instructions for the [Console]({{< ref "/guides/getting-started/console#create-gateway" >}}) or the [CLI]({{< ref "/guides/getting-started/cli#create-gateway" >}}). Choose a **Gateway ID** and set **EUI** equal to the one on the gateway.
 
 Create an API Key with Gateway Info rights for this gateway using the same instructions. Copy the key and save it for later use.
 
@@ -26,7 +27,7 @@ All further steps will assume the gateway is available at `192.168.4.155`, the s
 
 1. Execute: 
 ```bash
-$ curl -sL 'https://raw.githubusercontent.com/TheThingsNetwork/kerlink-wirnet-firmware/v0.0.2/provision.sh' | bash -s -- 'wirnet-station' '192.168.4.155' 'thethings.example.com' 'example-gtw' 'NNSXS.GTSZYGHE4NBR4XJZHJWEEMLXWYIFHEYZ4WR7UAI.YAT3OFLWLUVGQ45YYXSNS7HTVTFALWYSXK6YLJ6BDUNBPJMRH3UQ'
+$ curl -sL https://raw.githubusercontent.com/TheThingsNetwork/kerlink-wirnet-firmware/v0.0.1/provision.sh | bash -s -- 'wirnet-station' '192.168.4.155' 'thethings.example.com' 'example-gtw' 'NNSXS.GTSZYGHE4NBR4XJZHJWEEMLXWYIFHEYZ4WR7UAI.YAT3OFLWLUVGQ45YYXSNS7HTVTFALWYSXK6YLJ6BDUNBPJMRH3UQ'
 ```
 
 Please refer to [Kerlink Wirnet provisioning documentation](https://github.com/TheThingsNetwork/kerlink-wirnet-firmware/tree/v0.0.1#provisioning) if more detailed up-to-date documentation is necessary.

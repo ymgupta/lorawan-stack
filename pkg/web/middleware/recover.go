@@ -34,11 +34,7 @@ func Recover() echo.MiddlewareFunc {
 				if p := recover(); p != nil {
 					fmt.Fprintln(os.Stderr, p)
 					os.Stderr.Write(debug.Stack())
-					if pErr, ok := p.(error); ok {
-						err = ErrHTTPRecovered.WithCause(pErr)
-					} else {
-						err = ErrHTTPRecovered.WithAttributes("panic", p)
-					}
+					err = ErrHTTPRecovered.WithAttributes("panic", p)
 				}
 			}()
 			return next(c)

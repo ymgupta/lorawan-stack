@@ -197,13 +197,13 @@ func (s *contactInfoStore) Validate(ctx context.Context, validation *ttnpb.Conta
 	}).Find(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return errValidationTokenNotFound.New()
+			return errValidationTokenNotFound
 		}
 		return err
 	}
 
 	if model.ExpiresAt.Before(time.Now()) {
-		return errValidationTokenExpired.New()
+		return errValidationTokenExpired
 	}
 
 	err = s.query(ctx, ContactInfo{}).Where(ContactInfo{

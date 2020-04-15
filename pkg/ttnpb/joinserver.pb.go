@@ -850,9 +850,7 @@ func init() {
 	golang_proto.RegisterType((*JoinEUIPrefixes)(nil), "ttn.lorawan.v3.JoinEUIPrefixes")
 }
 
-func init() {
-	proto.RegisterFile("lorawan-stack/api/joinserver.proto", fileDescriptor_1b695d5f526759a7)
-}
+func init() { proto.RegisterFile("lorawan-stack/api/joinserver.proto", fileDescriptor_1b695d5f526759a7) }
 func init() {
 	golang_proto.RegisterFile("lorawan-stack/api/joinserver.proto", fileDescriptor_1b695d5f526759a7)
 }
@@ -3125,7 +3123,7 @@ func NewPopulatedCryptoServicePayloadRequest(r randyJoinserver, easy bool) *Cryp
 	this := &CryptoServicePayloadRequest{}
 	v8 := NewPopulatedEndDeviceIdentifiers(r, easy)
 	this.EndDeviceIdentifiers = *v8
-	this.LoRaWANVersion = MACVersion([]int32{0, 1, 2, 3, 4, 5, 6}[r.Intn(7)])
+	this.LoRaWANVersion = MACVersion([]int32{0, 1, 2, 3, 4, 5}[r.Intn(6)])
 	v9 := r.Intn(100)
 	this.Payload = make([]byte, v9)
 	for i := 0; i < v9; i++ {
@@ -3168,7 +3166,7 @@ func NewPopulatedDeriveSessionKeysRequest(r randyJoinserver, easy bool) *DeriveS
 	this := &DeriveSessionKeysRequest{}
 	v13 := NewPopulatedEndDeviceIdentifiers(r, easy)
 	this.EndDeviceIdentifiers = *v13
-	this.LoRaWANVersion = MACVersion([]int32{0, 1, 2, 3, 4, 5, 6}[r.Intn(7)])
+	this.LoRaWANVersion = MACVersion([]int32{0, 1, 2, 3, 4, 5}[r.Intn(6)])
 	v14 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedJoinNonce(r)
 	this.JoinNonce = *v14
 	v15 := go_thethings_network_lorawan_stack_pkg_types.NewPopulatedDevNonce(r)

@@ -89,7 +89,12 @@ func (as *ApplicationServer) Context() context.Context {
 	return as.ctx
 }
 
-var errListenFrontend = errors.DefineFailedPrecondition("listen_frontend", "failed to start frontend listener `{protocol}` on address `{address}`")
+var (
+	errListenFrontend = errors.DefineFailedPrecondition(
+		"listen_frontend",
+		"failed to start frontend listener `{protocol}` on address `{address}`",
+	)
+)
 
 // New returns new *ApplicationServer.
 func New(c *component.Component, conf *Config) (as *ApplicationServer, err error) {
@@ -332,7 +337,7 @@ func (as *ApplicationServer) downlinkQueueOp(ctx context.Context, ids ttnpb.EndD
 				mask = append(mask, "pending_session.last_a_f_cnt_down")
 			}
 			if session == nil {
-				return nil, nil, errNoDeviceSession.New()
+				return nil, nil, errNoDeviceSession
 			}
 			var encryptedItems []*ttnpb.ApplicationDownlink
 			for _, item := range items {
@@ -444,10 +449,10 @@ func (as *ApplicationServer) DownlinkQueueList(ctx context.Context, ids ttnpb.En
 			}
 		}
 		if session == nil {
-			return nil, errNoDeviceSession.New()
+			return nil, errNoDeviceSession
 		}
 		if session.AppSKey == nil {
-			return nil, errNoAppSKey.New()
+			return nil, errNoAppSKey
 		}
 		if !dev.SkipPayloadCrypto {
 			// TODO: Cache unwrapped keys (https://github.com/TheThingsNetwork/lorawan-stack/issues/36)
@@ -647,7 +652,7 @@ func (as *ApplicationServer) handleUplink(ctx context.Context, ids ttnpb.EndDevi
 					log.WithError(err).Warn("Failed to recalculate downlink queue")
 				}
 			} else if dev.Session.AppSKey == nil {
-				return nil, nil, errNoAppSKey.New()
+				return nil, nil, errNoAppSKey
 			}
 			return dev, mask, nil
 		},
@@ -730,7 +735,7 @@ func (as *ApplicationServer) decryptDownlinkMessage(ctx context.Context, ids ttn
 		return nil
 	}
 	if dev.Session == nil || !bytes.Equal(dev.Session.SessionKeyID, msg.SessionKeyID) || dev.Session.AppSKey == nil {
-		return errNoAppSKey.New()
+		return errNoAppSKey
 	}
 	appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *dev.Session.AppSKey, as.KeyVault)
 	if err != nil {
@@ -756,7 +761,7 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 		newSession = dev.PendingSession
 	}
 	if newSession == nil || newSession.AppSKey == nil {
-		return errNoAppSKey.New()
+		return errNoAppSKey
 	}
 	newSession.LastAFCntDown = nextAFCntDown - 1
 	if len(invalid) == 0 {
@@ -789,7 +794,7 @@ func (as *ApplicationServer) recalculateDownlinkQueue(ctx context.Context, dev *
 		}
 	}()
 	if dev.SkipPayloadCrypto {
-		return errPayloadCryptoDisabled.New()
+		return errPayloadCryptoDisabled
 	}
 	logger.Debug("Recalculate downlink queue")
 	newAppSKey, err := cryptoutil.UnwrapAES128Key(ctx, *newSession.AppSKey, as.KeyVault)

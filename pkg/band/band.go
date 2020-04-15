@@ -16,7 +16,6 @@
 package band
 
 import (
-	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -27,46 +26,37 @@ import (
 // eirpDelta is the delta between EIRP and ERP.
 const eirpDelta = 2.15
 
-type MaxMACPayloadSizeFunc func(bool) uint16
-
-func makeConstMaxMACPayloadSizeFunc(v uint16) MaxMACPayloadSizeFunc {
-	return func(_ bool) uint16 {
-		return v
-	}
+// PayloadSizer abstracts the acceptable payload size depending on contextual parameters.
+type PayloadSizer interface {
+	PayloadSize(dwellTime bool) uint16
 }
 
-func makeDwellTimeMaxMACPayloadSizeFunc(noDwellTimeSize, dwellTimeSize uint16) MaxMACPayloadSizeFunc {
-	return func(dwellTime bool) uint16 {
-		if dwellTime {
-			return dwellTimeSize
-		}
-		return noDwellTimeSize
-	}
+type constPayloadSizer uint16
+
+func (p constPayloadSizer) PayloadSize(_ bool) uint16 {
+	return uint16(p)
 }
+
+type dwellTimePayloadSizer struct {
+	NoDwellTime uint16
+	DwellTime   uint16
+}
+
+//revive:disable:flag-parameter
+
+func (p dwellTimePayloadSizer) PayloadSize(dwellTime bool) uint16 {
+	if dwellTime {
+		return p.DwellTime
+	}
+	return p.NoDwellTime
+}
+
+//revive:enable:flag-parameter
 
 // DataRate indicates the properties of a band's data rate.
 type DataRate struct {
-	Rate              ttnpb.DataRate
-	MaxMACPayloadSize MaxMACPayloadSizeFunc
-}
-
-func makeLoRaDataRate(spreadingFactor uint8, bandwidth uint32, maximumMACPayloadSize MaxMACPayloadSizeFunc) DataRate {
-	return DataRate{
-		Rate: (&ttnpb.LoRaDataRate{
-			SpreadingFactor: uint32(spreadingFactor),
-			Bandwidth:       bandwidth,
-		}).DataRate(),
-		MaxMACPayloadSize: maximumMACPayloadSize,
-	}
-}
-
-func makeFSKDataRate(bitRate uint32, maximumMACPayloadSize MaxMACPayloadSizeFunc) DataRate {
-	return DataRate{
-		Rate: (&ttnpb.FSKDataRate{
-			BitRate: bitRate,
-		}).DataRate(),
-		MaxMACPayloadSize: maximumMACPayloadSize,
-	}
+	Rate           ttnpb.DataRate
+	DefaultMaxSize PayloadSizer
 }
 
 // Channel abstracts a band's channel properties.
@@ -147,7 +137,7 @@ type Band struct {
 	// SubBands define the sub-bands, their duty-cycle limit and Tx power. The frequency ranges may not overlap.
 	SubBands []SubBandParameters
 
-	DataRates map[ttnpb.DataRateIndex]DataRate
+	DataRates [16]DataRate
 
 	FreqMultiplier   uint64
 	ImplementsCFList bool
@@ -171,8 +161,10 @@ type Band struct {
 	MinAckTimeout time.Duration
 	MaxAckTimeout time.Duration
 
-	// TxOffset in dB: Tx power is computed by taking the MaxEIRP (default: +16dBm) and subtracting the offset.
-	TxOffset []float32
+	// TxOffset in dB: A Tx's power is computed by taking the MaxEIRP (default: +16dBm) and subtracting the offset.
+	TxOffset [16]float32
+	// MaxTxPowerIndex represents the maximum non-RFU TxPowerIndex, which can be used according to the band's spec.
+	MaxTxPowerIndex uint8
 	// MaxADRDataRateIndex represents the maximum non-RFU DataRateIndex suitable for ADR, which can be used according to the band's spec.
 	MaxADRDataRateIndex uint8
 
@@ -190,13 +182,10 @@ type Band struct {
 	Rx1DataRate func(ttnpb.DataRateIndex, uint32, bool) (ttnpb.DataRateIndex, error)
 
 	// GenerateChMasks generates a mapping ChMaskCntl -> ChMask.
-	// Length of desiredChs must be equal to length of currentChs.
-	// Meaning of desiredChs is as follows: for i in range 0..len(desiredChs) if desiredChs[i] == true,
+	// Length of chs must be equal to the maximum number of channels defined for the particular band.
+	// Meaning of chs is as follows: for i in range 0..len(chs) if chs[i] == true,
 	// then channel with index i should be enabled, otherwise it should be disabled.
-	// Meaning of currentChs is as follows: for i in range 0..len(currentChs) if currentChs[i] == true,
-	// then channel with index i is enabled, otherwise it is disabled.
-	// In case desiredChs equals currentChs, GenerateChMasks returns a singleton, which repesents a noop.
-	GenerateChMasks func(currentChs, desiredChs []bool) ([]ChMaskCntlPair, error)
+	GenerateChMasks func(chs []bool) ([]ChMaskCntlPair, error)
 	// ParseChMask computes the channels that have to be masked given ChMask mask and ChMaskCntl cntl.
 	ParseChMask func(mask [16]bool, cntl uint8) (map[uint8]bool, error)
 
@@ -209,14 +198,6 @@ type Band struct {
 	regionalParameters1_0_2RevB versionSwap
 	regionalParameters1_0_3RevA versionSwap
 	regionalParameters1_1RevA   versionSwap
-}
-
-func (b Band) MaxTxPowerIndex() uint8 {
-	n := len(b.TxOffset)
-	if n > math.MaxUint8 {
-		panic("length of TxOffset overflows uint8")
-	}
-	return uint8(n) - 1
 }
 
 // SubBandParameters contains the sub-band frequency range, duty cycle and Tx power.
@@ -305,22 +286,6 @@ func (b Band) FindSubBand(frequency uint64) (SubBandParameters, bool) {
 	return SubBandParameters{}, false
 }
 
-// FindUplinkDataRate returns the uplink data rate with index by API data rate, if any.
-func (b Band) FindUplinkDataRate(dr ttnpb.DataRate) (ttnpb.DataRateIndex, DataRate, bool) {
-	for i := ttnpb.DataRateIndex(0); int(i) < len(b.DataRates); i++ {
-		// NOTE: Some bands (e.g. US915) contain identical data rates under different indexes.
-		// It seems to be a convention in the spec for uplink-only data rates to be at indexes
-		// lower than downlink-only indexes, hence match the smallest index.
-		// NOTE(2): A more robust solution could be to record a list of uplink-only data rates
-		// per band and only match those here, however it is more complex and is not necessary.
-		bDR, ok := b.DataRates[i]
-		if ok && bDR.Rate.Equal(dr) {
-			return i, bDR, true
-		}
-	}
-	return 0, DataRate{}, false
-}
-
 func makeBeaconFrequencyFunc(frequencies [8]uint64) func(float64) uint64 {
 	return func(beaconTime float64) uint64 {
 		floor := math.Floor(beaconTime / float64(128))
@@ -335,119 +300,116 @@ var usAuBeaconFrequencies = func() (freqs [8]uint64) {
 	return freqs
 }()
 
-func parseChMask(offset uint8, mask ...bool) map[uint8]bool {
-	if len(mask)-1 > int(math.MaxUint8-offset) {
-		panic(fmt.Sprintf("channel mask overflows uint8, offset: %d, mask length: %d", offset, len(mask)))
-	}
-	m := make(map[uint8]bool, len(mask))
-	for i, v := range mask {
-		m[offset+uint8(i)] = v
-	}
-	return m
-}
-
 func parseChMask16(mask [16]bool, cntl uint8) (map[uint8]bool, error) {
+	chans := make(map[uint8]bool, 16)
 	switch cntl {
 	case 0:
-		return parseChMask(0, mask[:]...), nil
+		for i := uint8(0); i < 16; i++ {
+			chans[i] = mask[i]
+		}
 	case 6:
-		return parseChMask(0,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-		), nil
+		for i := uint8(0); i < 16; i++ {
+			chans[i] = true
+		}
+	default:
+		return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
 	}
-	return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
+	return chans, nil
 }
 
 func parseChMask72(mask [16]bool, cntl uint8) (map[uint8]bool, error) {
+	chans := make(map[uint8]bool, 72)
 	switch cntl {
-	case 0, 1, 2, 3:
-		return parseChMask(cntl*16, mask[:]...), nil
-	case 4:
-		return parseChMask(64, mask[0:8]...), nil
+	case 0, 1, 2, 3, 4:
+		for i := uint8(0); i < 72; i++ {
+			chans[i] = (i >= cntl*16 && i < (cntl+1)*16) && mask[i%16]
+		}
 	case 5:
-		return parseChMask(0,
-			mask[0], mask[0], mask[0], mask[0], mask[0], mask[0], mask[0], mask[0],
-			mask[1], mask[1], mask[1], mask[1], mask[1], mask[1], mask[1], mask[1],
-			mask[2], mask[2], mask[2], mask[2], mask[2], mask[2], mask[2], mask[2],
-			mask[3], mask[3], mask[3], mask[3], mask[3], mask[3], mask[3], mask[3],
-			mask[4], mask[4], mask[4], mask[4], mask[4], mask[4], mask[4], mask[4],
-			mask[5], mask[5], mask[5], mask[5], mask[5], mask[5], mask[5], mask[5],
-			mask[6], mask[6], mask[6], mask[6], mask[6], mask[6], mask[6], mask[6],
-			mask[7], mask[7], mask[7], mask[7], mask[7], mask[7], mask[7], mask[7],
-		), nil
-	case 6:
-		return parseChMask(0,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			false, false, false, false, false, false, false, false,
-			mask[0], mask[1], mask[2], mask[3], mask[4], mask[5], mask[6], mask[7],
-		), nil
-	case 7:
-		return parseChMask(0,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			mask[0], mask[1], mask[2], mask[3], mask[4], mask[5], mask[6], mask[7],
-		), nil
+		for i := uint8(0); i < 64; i++ {
+			chans[i] = mask[i/8]
+		}
+		for i := uint8(64); i < 72; i++ {
+			chans[i] = mask[i-64]
+		}
+	case 6, 7:
+		for i := uint8(0); i < 64; i++ {
+			chans[i] = cntl == 6
+		}
+		for i := uint8(64); i < 72; i++ {
+			chans[i] = mask[i-64]
+		}
+	default:
+		return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
 	}
-	return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
+	return chans, nil
 }
 
 func parseChMask96(mask [16]bool, cntl uint8) (map[uint8]bool, error) {
+	chans := make(map[uint8]bool, 96)
 	switch cntl {
 	case 0, 1, 2, 3, 4, 5:
-		return parseChMask(cntl*16, mask[:]...), nil
+		for i := uint8(0); i < 96; i++ {
+			chans[i] = (i >= cntl*16 && i < (cntl+1)*16) && mask[i%16]
+		}
 	case 6:
-		return parseChMask(0,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-			true, true, true, true, true, true, true, true,
-		), nil
+		for i := uint8(0); i < 96; i++ {
+			chans[i] = true
+		}
+	default:
+		return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
 	}
-	return nil, errUnsupportedChMaskCntl.WithAttributes("chmaskcntl", cntl)
+	return chans, nil
 }
 
-func boolsTo16BoolArray(vs ...bool) [16]bool {
-	if len(vs) > 16 {
-		panic(fmt.Sprintf("length of vs must be less or equal to 16, got %d", len(vs)))
+func generateChMaskBlock(mask []bool) ([16]bool, error) {
+	if len(mask) > 16 {
+		return [16]bool{}, errInvalidChannelCount
 	}
-	var ret [16]bool
-	for i, v := range vs {
-		ret[i] = v
+
+	block := [16]bool{}
+	for j, on := range mask {
+		block[j] = on
 	}
-	return ret
+	return block, nil
 }
 
-func generateChMask16(currentChs, desiredChs []bool) ([]ChMaskCntlPair, error) {
-	if len(currentChs) != 16 || len(desiredChs) != 16 {
-		return nil, errInvalidChannelCount.New()
+func generateChMaskMatrix(mask []bool) ([]ChMaskCntlPair, error) {
+	if len(mask) > math.MaxUint8 {
+		return nil, errInvalidChannelCount
 	}
-	// NOTE: ChMaskCntl==6 never provides a more optimal ChMask sequence than ChMaskCntl==0.
-	return []ChMaskCntlPair{
-		{
-			Mask: boolsTo16BoolArray(desiredChs...),
-		},
-	}, nil
+
+	n := uint8(len(mask))
+	if n == 0 {
+		return nil, errInvalidChannelCount
+	}
+
+	ret := make([]ChMaskCntlPair, 1+(n-1)/16)
+	for i := uint8(0); i <= n/16 && 16*i != n; i++ {
+		end := 16*i + 16
+		if end > n {
+			end = n
+		}
+
+		block, err := generateChMaskBlock(mask[16*i : end])
+		if err != nil {
+			return nil, err
+		}
+		ret[i] = ChMaskCntlPair{Cntl: i, Mask: block}
+	}
+	return ret, nil
+}
+
+func generateChMask16(mask []bool) ([]ChMaskCntlPair, error) {
+	if len(mask) != 16 {
+		return nil, errInvalidChannelCount
+	}
+
+	for _, on := range mask {
+		if !on {
+			return generateChMaskMatrix(mask)
+		}
+	}
+	return []ChMaskCntlPair{{Cntl: 6, Mask: [16]bool{}}}, nil
 }
 
 func equalChMasks(a, b []bool) bool {
@@ -463,240 +425,123 @@ func equalChMasks(a, b []bool) bool {
 	return true
 }
 
-func generateChMaskMatrix(pairs []ChMaskCntlPair, currentChs, desiredChs []bool) ([]ChMaskCntlPair, error) {
-	n := len(currentChs)
-	if n%16 != 0 || len(desiredChs) != n {
-		return nil, errInvalidChannelCount.New()
-	}
-	for i := 0; i < n/16; i++ {
-		for j := 0; j < 16; j++ {
-			if currentChs[16*i+j] != desiredChs[16*i+j] {
-				pairs = append(pairs, ChMaskCntlPair{
-					Cntl: uint8(i),
-					Mask: boolsTo16BoolArray(desiredChs[16*i : 16*i+16]...),
-				})
-				break
-			}
-		}
-	}
-	return pairs, nil
-}
-
-func trueCount(vs ...bool) int {
-	var n int
-	for _, v := range vs {
-		if v {
-			n++
-		}
-	}
-	return n
-}
-
-func generateChMask72Generic(currentChs, desiredChs []bool) ([]ChMaskCntlPair, error) {
-	if len(currentChs) != 72 || len(desiredChs) != 72 {
-		return nil, errInvalidChannelCount.New()
-	}
-	if equalChMasks(currentChs, desiredChs) {
-		return []ChMaskCntlPair{
-			{
-				Mask: boolsTo16BoolArray(desiredChs[0:16]...),
-			},
-		}, nil
-	}
-
-	on125 := trueCount(desiredChs[0:64]...)
-	switch on125 {
-	case 0:
-		return []ChMaskCntlPair{
-			{
-				Cntl: 7,
-				Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-			},
-		}, nil
-
-	case 64:
-		return []ChMaskCntlPair{
-			{
-				Cntl: 6,
-				Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-			},
-		}, nil
-	}
-
-	pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 5), currentChs[0:64], desiredChs[0:64])
-	if err != nil {
-		return nil, err
-	}
-	for i := 65; i < 72; i++ {
-		if currentChs[i] != desiredChs[i] {
-			pairs = append(pairs, ChMaskCntlPair{
-				Cntl: 4,
-				Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-			})
-			break
-		}
-	}
-	if len(pairs) <= 2 {
-		return pairs, nil
-	}
-	// Count amount of pairs required assuming either ChMaskCntl==6 or ChMaskCntl==7 is sent first.
-	// The minimum amount of pairs required in such case will be 2, hence only attempt this if amount
-	// of generated pairs so far is higher than 2.
-	cntl6Pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 4), []bool{
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-	}, desiredChs[0:64])
-	if err != nil {
-		return nil, err
-	}
-	cntl7Pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 4), []bool{
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-		false, false, false, false, false, false, false, false,
-	}, desiredChs[0:64])
-	if err != nil {
-		return nil, err
-	}
-	switch {
-	case len(pairs) <= 1+len(cntl6Pairs) && len(pairs) <= 1+len(cntl7Pairs):
-		return pairs, nil
-
-	case len(cntl6Pairs) < len(cntl7Pairs):
-		return append(append(make([]ChMaskCntlPair, 0, 1+len(cntl6Pairs)), ChMaskCntlPair{
-			Cntl: 6,
-			Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-		}), cntl6Pairs...), nil
-
-	default:
-		return append(append(make([]ChMaskCntlPair, 0, 1+len(cntl7Pairs)), ChMaskCntlPair{
-			Cntl: 7,
-			Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-		}), cntl7Pairs...), nil
-	}
-}
-
 //revive:disable:flag-parameter
 
-func makeGenerateChMask72(supportChMaskCntl5 bool) func([]bool, []bool) ([]ChMaskCntlPair, error) {
-	if !supportChMaskCntl5 {
-		return generateChMask72Generic
-	}
-	return func(currentChs, desiredChs []bool) ([]ChMaskCntlPair, error) {
-		pairs, err := generateChMask72Generic(currentChs, desiredChs)
-		if err != nil {
-			return nil, err
-		}
-		if len(pairs) <= 1 {
-			return pairs, nil
+func makeGenerateChMask72(supportChMaskCntl5 bool) func([]bool) ([]ChMaskCntlPair, error) {
+	return func(mask []bool) ([]ChMaskCntlPair, error) {
+		if len(mask) != 72 {
+			return nil, errInvalidChannelCount
 		}
 
-		var fsbs [8]bool
+		on125 := uint8(0)
+		for i := 0; i < 64; i++ {
+			if mask[i] {
+				on125++
+			}
+		}
+
+		if on125 == 0 || on125 == 64 {
+			block, err := generateChMaskBlock(mask[64:72])
+			if err != nil {
+				return nil, err
+			}
+
+			idx := uint8(6)
+			if on125 == 0 {
+				idx = 7
+			}
+			return []ChMaskCntlPair{{Cntl: idx, Mask: block}}, nil
+		}
+
+		if !supportChMaskCntl5 {
+			return generateChMaskMatrix(mask)
+		}
+
+		// Find the majority mask. The majority mask is the mask of
+		// FSBs that appears the most in the requested channels mask.
+		// A majority mask of 0b00000001 for example represents the
+		// first FSB.
+		var majorityMask [8]bool
+		majorityCount := 0
 		for i := 0; i < 8; i++ {
-			if trueCount(desiredChs[8*i:8*i+8]...) == 8 {
-				fsbs[i] = true
+			var currentMask [8]bool
+			for ch := 0; ch < 8; ch++ {
+				currentMask[ch] = mask[ch*8+i]
+			}
+
+			if majorityCount == 0 {
+				majorityMask = currentMask
+				majorityCount = 1
+			} else {
+				if equalChMasks(currentMask[:], majorityMask[:]) {
+					majorityCount++
+				} else {
+					majorityCount--
+				}
 			}
 		}
-		if n := trueCount(fsbs[:]...); n == 0 || n == 8 {
-			// Since there are either no enabled FSBs, or no disabled FSBs we won't be able to compute a
-			// more efficient result that one using ChMaskCntl==6 or ChMaskCntl==7.
-			return pairs, nil
-		}
-		cntl5Pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 5), []bool{
-			fsbs[0], fsbs[0], fsbs[0], fsbs[0], fsbs[0], fsbs[0], fsbs[0], fsbs[0],
-			fsbs[1], fsbs[1], fsbs[1], fsbs[1], fsbs[1], fsbs[1], fsbs[1], fsbs[1],
-			fsbs[2], fsbs[2], fsbs[2], fsbs[2], fsbs[2], fsbs[2], fsbs[2], fsbs[2],
-			fsbs[3], fsbs[3], fsbs[3], fsbs[3], fsbs[3], fsbs[3], fsbs[3], fsbs[3],
-			fsbs[4], fsbs[4], fsbs[4], fsbs[4], fsbs[4], fsbs[4], fsbs[4], fsbs[4],
-			fsbs[5], fsbs[5], fsbs[5], fsbs[5], fsbs[5], fsbs[5], fsbs[5], fsbs[5],
-			fsbs[6], fsbs[6], fsbs[6], fsbs[6], fsbs[6], fsbs[6], fsbs[6], fsbs[6],
-			fsbs[7], fsbs[7], fsbs[7], fsbs[7], fsbs[7], fsbs[7], fsbs[7], fsbs[7],
-		}, desiredChs[0:64])
-		if err != nil {
-			return nil, err
-		}
-		for i := 65; i < 72; i++ {
-			if currentChs[i] != desiredChs[i] {
-				cntl5Pairs = append(cntl5Pairs, ChMaskCntlPair{
-					Cntl: 4,
-					Mask: boolsTo16BoolArray(desiredChs[64:72]...),
-				})
-				break
+
+		// Find the channels which are not respecting the majority mask.
+		// Since we can set two FSBs at a time using only one ChMaskCntl
+		// command, we iterate them in pairs.
+		n := len(mask)
+		var outliers []int
+		for fsb := 0; fsb < 8; fsb++ {
+			for i := 0; i < 8; i += 2 {
+				if mask[i*8+fsb] != majorityMask[i] || mask[(i+1)*8+fsb] != majorityMask[i+1] {
+					outliers = append(outliers, i/2)
+					break
+				}
 			}
 		}
-		if len(pairs) <= 1+len(cntl5Pairs) {
-			return pairs, nil
+		if !equalChMasks(majorityMask[:], mask[64:72]) {
+			outliers = append(outliers, 4)
 		}
-		return append(append(make([]ChMaskCntlPair, 0, 1+len(cntl5Pairs)), ChMaskCntlPair{
-			Cntl: 5,
-			Mask: boolsTo16BoolArray(fsbs[:]...),
-		}), cntl5Pairs...), nil
+
+		// In order to ensure the minimality of the commands, we must
+		// ensure that the mask couldn't have been generated only using
+		// ChMaskCntl 0-4.
+		if len(outliers) < 5 {
+			var fsbMask [16]bool
+			for i := 0; i < 8; i++ {
+				fsbMask[15-i] = majorityMask[i]
+			}
+
+			cmds := make([]ChMaskCntlPair, len(outliers)+1)
+			cmds[0] = ChMaskCntlPair{Cntl: 5, Mask: fsbMask}
+
+			for i, cntl := range outliers {
+				end := cntl*16 + 16
+				if end > n {
+					end = n
+				}
+
+				block, err := generateChMaskBlock(mask[cntl*16 : end])
+				if err != nil {
+					return nil, err
+				}
+				cmds[i+1] = ChMaskCntlPair{Cntl: uint8(cntl), Mask: block}
+			}
+			return cmds, nil
+		}
+		// Fallback to ChMaskCntl 0-4.
+		return generateChMaskMatrix(mask)
 	}
 }
 
 //revive:enable:flag-parameter
 
-func generateChMask96(currentChs, desiredChs []bool) ([]ChMaskCntlPair, error) {
-	if len(currentChs) != 96 || len(desiredChs) != 96 {
-		return nil, errInvalidChannelCount.New()
+func generateChMask96(mask []bool) ([]ChMaskCntlPair, error) {
+	if len(mask) != 96 {
+		return nil, errInvalidChannelCount
 	}
-	if equalChMasks(currentChs, desiredChs) {
-		return []ChMaskCntlPair{
-			{
-				Mask: boolsTo16BoolArray(desiredChs[0:16]...),
-			},
-		}, nil
+
+	for _, on := range mask {
+		if !on {
+			return generateChMaskMatrix(mask)
+		}
 	}
-	if trueCount(desiredChs...) == 96 {
-		return []ChMaskCntlPair{
-			{
-				Cntl: 6,
-			},
-		}, nil
-	}
-	pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 6), currentChs, desiredChs)
-	if err != nil {
-		return nil, err
-	}
-	if len(pairs) <= 2 {
-		return pairs, nil
-	}
-	// Count amount of pairs required assuming ChMaskCntl==6 is sent first.
-	// The minimum amount of pairs required in such case will be 2, hence only attempt this if amount
-	// of generated pairs so far is higher than 2.
-	cntl6Pairs, err := generateChMaskMatrix(make([]ChMaskCntlPair, 0, 6), []bool{
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-		true, true, true, true, true, true, true, true,
-	}, desiredChs)
-	if err != nil {
-		return nil, err
-	}
-	if len(pairs) <= 1+len(cntl6Pairs) {
-		return pairs, nil
-	}
-	return append(append(make([]ChMaskCntlPair, 0, 1+len(cntl6Pairs)), ChMaskCntlPair{
-		Cntl: 6,
-	}), cntl6Pairs...), nil
+	return []ChMaskCntlPair{{Cntl: 6, Mask: [16]bool{}}}, nil
 }
 
 func uint64Ptr(v uint64) *uint64 {

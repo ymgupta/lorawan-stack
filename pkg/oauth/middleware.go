@@ -30,7 +30,7 @@ func (s *server) requireLogin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		_, err := s.getSession(c)
 		if err != nil {
-			return errUnauthenticated.New()
+			return errUnauthenticated
 		}
 		return next(c)
 	}

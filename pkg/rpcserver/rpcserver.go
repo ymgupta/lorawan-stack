@@ -24,6 +24,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/getsentry/raven-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
@@ -40,7 +41,7 @@ import (
 	rpcfillcontext "go.thethings.network/lorawan-stack/pkg/rpcmiddleware/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
-	sentrymiddleware "go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
+	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/validator"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -62,6 +63,7 @@ type options struct {
 	streamInterceptors []grpc.StreamServerInterceptor
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
+	sentry             *raven.Client
 }
 
 // Option for the gRPC server
@@ -102,6 +104,13 @@ func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 	}
 }
 
+// WithSentry sets a sentry server
+func WithSentry(sentry *raven.Client) Option {
+	return func(o *options) {
+		o.sentry = sentry
+	}
+}
+
 // ErrRPCRecovered is returned when a panic is caught from an RPC.
 var ErrRPCRecovered = errors.DefineInternal("rpc_recovered", "Internal Server Error")
 
@@ -123,12 +132,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		grpc_recovery.WithRecoveryHandler(func(p interface{}) (err error) {
 			fmt.Fprintln(os.Stderr, p)
 			os.Stderr.Write(debug.Stack())
-			if pErr, ok := p.(error); ok {
-				err = ErrRPCRecovered.WithCause(pErr)
-			} else {
-				err = ErrRPCRecovered.WithAttributes("panic", p)
-			}
-			return err
+			return ErrRPCRecovered.WithAttributes("panic", p)
 		}),
 	}
 
@@ -140,7 +144,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		events.StreamServerInterceptor,
 		rpclog.StreamServerInterceptor(ctx),
 		metrics.StreamServerInterceptor,
-		sentrymiddleware.StreamServerInterceptor(),
+		sentry.StreamServerInterceptor(options.sentry),
 		errors.StreamServerInterceptor(),
 		validator.StreamServerInterceptor(),
 		hooks.StreamServerInterceptor(),
@@ -154,7 +158,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		events.UnaryServerInterceptor,
 		rpclog.UnaryServerInterceptor(ctx),
 		metrics.UnaryServerInterceptor,
-		sentrymiddleware.UnaryServerInterceptor(),
+		sentry.UnaryServerInterceptor(options.sentry),
 		errors.UnaryServerInterceptor(),
 		validator.UnaryServerInterceptor(),
 		hooks.UnaryServerInterceptor(),
@@ -163,15 +167,9 @@ func New(ctx context.Context, opts ...Option) *Server {
 	baseOptions := []grpc.ServerOption{
 		grpc.StatsHandler(rpcmiddleware.StatsHandlers{new(ocgrpc.ServerHandler), metrics.StatsHandler}),
 		grpc.MaxConcurrentStreams(math.MaxUint16),
-		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
-			MinTime:             1 * time.Minute,
-			PermitWithoutStream: true,
-		}),
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			MaxConnectionIdle: 6 * time.Hour,
 			MaxConnectionAge:  24 * time.Hour,
-			Time:              1 * time.Minute,
-			Timeout:           20 * time.Second,
 		}),
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			append(

@@ -192,7 +192,7 @@ func NewDevAddr(netID NetID, nwkAddr []byte) (addr DevAddr, err error) {
 		nwkAddr = append(make([]byte, 4-len(nwkAddr)), nwkAddr...)
 	}
 	if nwkAddr[0]&(0xfe<<((NwkAddrBits(netID)-1)%8)) > 0 {
-		return DevAddr{}, errNwkAddrLength.New()
+		return DevAddr{}, errNwkAddrLength
 	}
 	copy(addr[:], nwkAddr)
 
@@ -287,13 +287,13 @@ func (prefix *DevAddrPrefix) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	if len(data) != 12 && len(data) != 13 {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	if data[0] != '"' || data[len(data)-1] != '"' {
 		return errInvalidJSON.WithAttributes("json", string(data))
 	}
 	if data[9] != '/' {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	b := make([]byte, hex.DecodedLen(8))
 	n, err := hex.Decode(b, data[1:9])
@@ -301,7 +301,7 @@ func (prefix *DevAddrPrefix) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if n != 4 || copy(prefix.DevAddr[:], b) != 4 {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	length, err := strconv.Atoi(string(data[10 : len(data)-1]))
 	if err != nil {
@@ -323,7 +323,7 @@ func (prefix *DevAddrPrefix) UnmarshalBinary(data []byte) error {
 		return nil
 	}
 	if len(data) != 5 {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	if err := prefix.DevAddr.Unmarshal(data[:4]); err != nil {
 		return err
@@ -348,10 +348,10 @@ func (prefix *DevAddrPrefix) UnmarshalText(data []byte) error {
 		return nil
 	}
 	if len(data) != 10 && len(data) != 11 {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	if data[8] != '/' {
-		return errInvalidDevAddrPrefix.New()
+		return errInvalidDevAddrPrefix
 	}
 	if err := prefix.DevAddr.UnmarshalText(data[:8]); err != nil {
 		return err

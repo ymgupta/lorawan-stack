@@ -22,23 +22,25 @@ import Tab from './tab'
 
 import style from './tabs.styl'
 
-const Tabs = function({ className, active, tabs, onTabChange, divider, narrow }) {
+const Tabs = function({ className, active, tabs, onTabChange, divider }) {
   return (
     <ul className={classnames(className, style.tabs, { [style.divider]: divider })}>
       {tabs.map(function(tab, index) {
+        const { disabled, title, name, icon, narrow, link, exact } = tab
+
         return (
           <Tab
             key={index}
-            active={tab.name === active}
-            name={tab.name}
-            disabled={tab.disabled}
+            active={name === active}
+            name={name}
+            disabled={disabled}
             onClick={onTabChange}
-            narrow={tab.narrow || narrow}
-            link={tab.link}
-            exact={tab.exact}
+            narrow={narrow}
+            link={link}
+            exact={exact}
           >
-            {tab.icon && <Icon icon={tab.icon} className={style.icon} />}
-            <Message content={tab.title} />
+            {icon && <Icon icon={icon} className={style.icon} />}
+            <Message content={title} />
           </Tab>
         )
       })}
@@ -56,9 +58,8 @@ Tabs.propTypes = {
    * A click handler to be called when the selected tab changes. Passes
    * the name of the new active tab as an argument.
    */
-  narrow: PropTypes.bool,
-  /** A list of tabs */
   onTabChange: PropTypes.func,
+  /** A list of tabs */
   tabs: PropTypes.arrayOf(
     PropTypes.shape({
       title: PropTypes.message.isRequired,
@@ -74,7 +75,6 @@ Tabs.defaultProps = {
   className: undefined,
   onTabChange: () => null,
   divider: false,
-  narrow: false,
 }
 
 export default Tabs

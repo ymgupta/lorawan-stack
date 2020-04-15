@@ -91,7 +91,7 @@ func (p *JoinServerProtocol) UnmarshalYAML(unmarshal func(interface{}) error) er
 		*p = LoRaWANJoinServerProtocol1_0
 		return nil
 	default:
-		return errUnknownProtocol.New()
+		return errUnknownProtocol
 	}
 }
 
@@ -136,7 +136,7 @@ func newHTTPRequest(url string, pld interface{}, headers map[string]string) (*ht
 	return req, nil
 }
 
-// JoinServerFQDN constructs Join Server FQDN using specified EUI under domain
+// JoinServerFQDN constructs Join Server FQDN using specified eui under domain
 // according to LoRaWAN Backend Interfaces specification.
 // If domain is empty, LoRaAllianceJoinEUIDomain is used.
 func JoinServerFQDN(eui types.EUI64, domain string) string {
@@ -248,7 +248,7 @@ var (
 func (cl joinServerHTTPClient) HandleJoinRequest(ctx context.Context, netID types.NetID, req *ttnpb.JoinRequest) (*ttnpb.JoinResponse, error) {
 	pld := req.Payload.GetJoinRequestPayload()
 	if pld == nil {
-		return nil, ErrMalformedMessage.New()
+		return nil, ErrMalformedMessage
 	}
 
 	dlSettings, err := lorawan.MarshalDLSettings(req.DownlinkSettings)
@@ -299,7 +299,7 @@ func (cl joinServerHTTPClient) HandleJoinRequest(ctx context.Context, netID type
 		log.FromContext(ctx).Debug("Interop join-accept does not contain session key ID, generate random ID")
 		id, err := ulid.New(ulid.Timestamp(time.Now()), rand.Reader)
 		if err != nil {
-			return nil, errGenerateSessionKeyID.New()
+			return nil, errGenerateSessionKeyID
 		}
 		sessionKeyID = make([]byte, 0, len(generatedSessionKeyIDPrefix)+len(id))
 		sessionKeyID = append(sessionKeyID, generatedSessionKeyIDPrefix...)
@@ -328,7 +328,6 @@ func makeJoinServerHTTPRequestFunc(scheme, dns, fqdn string, port uint32, rpcPat
 		port = defaultHTTPSPort
 	}
 	return func(joinEUI types.EUI64, pathFunc func(jsRPCPaths) string, pld interface{}) (*http.Request, error) {
-		fqdn := fqdn // Create a new reference to fqdn to avoid mutating the variable in the outside scope.
 		if fqdn == "" {
 			fqdn = JoinServerFQDN(joinEUI, dns)
 		}
@@ -418,7 +417,7 @@ func NewClient(ctx context.Context, conf config.InteropClient) (*Client, error) 
 		return nil, err
 	}
 	if fetcher == nil {
-		return nil, errUnknownConfig.New()
+		return nil, errUnknownConfig
 	}
 	confFileBytes, err := fetcher.File(InteropClientConfigurationName)
 	if err != nil {
@@ -487,7 +486,7 @@ func NewClient(ctx context.Context, conf config.InteropClient) (*Client, error) 
 				Protocol:       yamlJSConf.Protocol,
 			}
 		default:
-			return nil, errUnknownProtocol.New()
+			return nil, errUnknownProtocol
 		}
 		for _, pre := range jsConf.JoinEUIs {
 			jss = append(jss, prefixJoinServerClient{
@@ -522,7 +521,7 @@ func (cl Client) joinServer(joinEUI types.EUI64) (joinServerClient, bool) {
 func (cl Client) GetAppSKey(ctx context.Context, asID string, req *ttnpb.SessionKeyRequest) (*ttnpb.AppSKeyResponse, error) {
 	js, ok := cl.joinServer(req.JoinEUI)
 	if !ok {
-		return nil, errNotRegistered.New()
+		return nil, errNotRegistered
 	}
 	return js.GetAppSKey(ctx, asID, req)
 }
@@ -531,11 +530,11 @@ func (cl Client) GetAppSKey(ctx context.Context, asID string, req *ttnpb.Session
 func (cl Client) HandleJoinRequest(ctx context.Context, netID types.NetID, req *ttnpb.JoinRequest) (*ttnpb.JoinResponse, error) {
 	pld := req.Payload.GetJoinRequestPayload()
 	if pld == nil {
-		return nil, ErrMalformedMessage.New()
+		return nil, ErrMalformedMessage
 	}
 	js, ok := cl.joinServer(pld.JoinEUI)
 	if !ok {
-		return nil, errNotRegistered.New()
+		return nil, errNotRegistered
 	}
 	return js.HandleJoinRequest(ctx, netID, req)
 }

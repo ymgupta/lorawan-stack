@@ -47,7 +47,6 @@ import fetching from './ui/fetching'
 import error from './ui/error'
 import webhooks from './webhooks'
 import webhookFormats from './webhook-formats'
-import webhookTemplates from './webhook-templates'
 import pubsubs from './pubsubs'
 import pubsubFormats from './pubsub-formats'
 import deviceTemplateFormats from './device-template-formats'
@@ -67,7 +66,6 @@ export default history =>
     gateways,
     webhooks,
     webhookFormats,
-    webhookTemplates,
     deviceTemplateFormats,
     pubsubs,
     pubsubFormats,

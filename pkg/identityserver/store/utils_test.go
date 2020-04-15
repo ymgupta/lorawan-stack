@@ -41,11 +41,7 @@ func WithDB(t *testing.T, f func(t *testing.T, db *gorm.DB)) {
 		if dbName == "" {
 			dbName = "ttn_lorawan_is_store_test"
 		}
-		dbAuth := os.Getenv("SQL_DB_AUTH")
-		if dbAuth == "" {
-			dbAuth = "root"
-		}
-		dbConnString = fmt.Sprintf("postgresql://%s@%s/%s?sslmode=disable", dbAuth, dbAddress, dbName)
+		dbConnString = fmt.Sprintf("postgresql://root@%s/%s?sslmode=disable", dbAddress, dbName)
 		db, err := Open(test.Context(), dbConnString)
 		if err != nil {
 			panic(err)

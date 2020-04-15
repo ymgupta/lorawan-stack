@@ -29,9 +29,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
+	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
-	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
-	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
@@ -44,111 +43,83 @@ import (
 	"google.golang.org/grpc"
 )
 
-const (
-	RecentUplinkCount     = recentUplinkCount
-	RecentDownlinkCount   = recentDownlinkCount
-	OptimalADRUplinkCount = optimalADRUplinkCount
-
-	AppIDString = "test-app-id"
-	DevID       = "test-dev-id"
-)
-
 var (
-	AdaptDataRate                       = adaptDataRate
-	AppendRecentUplink                  = appendRecentUplink
-	ApplicationJoinAcceptWithoutAppSKey = applicationJoinAcceptWithoutAppSKey
-	DownlinkPathsFromMetadata           = downlinkPathsFromMetadata
-	FrequencyPlanChannels               = frequencyPlanChannels
-	HandleLinkCheckReq                  = handleLinkCheckReq
-	JoinResponseWithoutKeys             = joinResponseWithoutKeys
-	NewMACState                         = newMACState
-	TimePtr                             = timePtr
+	NewMACState = newMACState
+	TimePtr     = timePtr
 
 	ErrABPJoinRequest            = errABPJoinRequest
 	ErrDecodePayload             = errDecodePayload
-	ErrDeviceNotFound            = errDeviceNotFound
-	ErrDuplicate                 = errDuplicate
-	ErrInvalidPayload            = errInvalidPayload
-	ErrOutdatedData              = errOutdatedData
-	ErrRejoinRequest             = errRejoinRequest
 	ErrUnsupportedLoRaWANVersion = errUnsupportedLoRaWANVersion
 
-	EvtBeginApplicationLink          = evtBeginApplicationLink
-	EvtClassCSwitch                  = evtClassCSwitch
-	EvtClusterJoinAttempt            = evtClusterJoinAttempt
-	EvtClusterJoinFail               = evtClusterJoinFail
-	EvtClusterJoinSuccess            = evtClusterJoinSuccess
-	EvtCreateEndDevice               = evtCreateEndDevice
-	EvtDropDataUplink                = evtDropDataUplink
-	EvtDropJoinRequest               = evtDropJoinRequest
-	EvtEndApplicationLink            = evtEndApplicationLink
-	EvtEnqueueDeviceModeConfirmation = evtEnqueueDeviceModeConfirmation
-	EvtEnqueueDevStatusRequest       = evtEnqueueDevStatusRequest
-	EvtEnqueueRekeyConfirmation      = evtEnqueueRekeyConfirmation
-	EvtForwardDataUplink             = evtForwardDataUplink
-	EvtForwardJoinAccept             = evtForwardJoinAccept
-	EvtInteropJoinAttempt            = evtInteropJoinAttempt
-	EvtInteropJoinFail               = evtInteropJoinFail
-	EvtInteropJoinSuccess            = evtInteropJoinSuccess
-	EvtProcessDataUplink             = evtProcessDataUplink
-	EvtProcessJoinRequest            = evtProcessJoinRequest
-	EvtReceiveDataUplink             = evtReceiveDataUplink
-	EvtReceiveDeviceModeIndication   = evtReceiveDeviceModeIndication
-	EvtReceiveJoinRequest            = evtReceiveJoinRequest
-	EvtReceiveRekeyIndication        = evtReceiveRekeyIndication
-	EvtScheduleDataDownlinkAttempt   = evtScheduleDataDownlinkAttempt
-	EvtScheduleDataDownlinkFail      = evtScheduleDataDownlinkFail
-	EvtScheduleDataDownlinkSuccess   = evtScheduleDataDownlinkSuccess
-	EvtScheduleJoinAcceptAttempt     = evtScheduleJoinAcceptAttempt
-	EvtScheduleJoinAcceptFail        = evtScheduleJoinAcceptFail
-	EvtScheduleJoinAcceptSuccess     = evtScheduleJoinAcceptSuccess
-	EvtUpdateEndDevice               = evtUpdateEndDevice
+	EvtBeginApplicationLink    = evtBeginApplicationLink
+	EvtCreateEndDevice         = evtCreateEndDevice
+	EvtDeleteEndDevice         = evtDeleteEndDevice
+	EvtDropJoinRequest         = evtDropJoinRequest
+	EvtEndApplicationLink      = evtEndApplicationLink
+	EvtEnqueueDevStatusRequest = evtEnqueueDevStatusRequest
+	EvtEnqueueLinkCheckAnswer  = evtEnqueueLinkCheckAnswer
+	EvtForwardDataUplink       = evtForwardDataUplink
+	EvtForwardJoinRequest      = evtForwardJoinRequest
+	EvtMergeMetadata           = evtMergeMetadata
+	EvtReceiveLinkCheckRequest = evtReceiveLinkCheckRequest
+	EvtUpdateEndDevice         = evtUpdateEndDevice
 
 	Timeout = (1 << 10) * test.Delay
-
-	ErrTestInternal = errors.DefineInternal("test_internal", "test error")
-	ErrTestNotFound = errors.DefineNotFound("test_not_found", "test error")
-
-	FNwkSIntKey = types.AES128Key{0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	NwkSEncKey  = types.AES128Key{0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	SNwkSIntKey = types.AES128Key{0x42, 0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-	AppSKey     = types.AES128Key{0x42, 0x42, 0x42, 0x42, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff}
-
-	JoinEUI = types.EUI64{0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-	DevEUI  = types.EUI64{0x42, 0x42, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
-	DevAddr = types.DevAddr{0x42, 0x00, 0x00, 0x00}
-
-	AppID = ttnpb.ApplicationIdentifiers{ApplicationID: AppIDString}
-
-	NetID = test.Must(types.NewNetID(2, []byte{1, 2, 3})).(types.NetID)
 )
 
-type DownlinkPath = downlinkPath
+func init() {
+	nsScheduleWindow = time.Hour // Ensure downlink tasks are added quickly
+}
 
-var timeMu sync.RWMutex
+var timeNowMu sync.RWMutex
 
-func SetMockClock(clock *test.MockClock) func() {
-	timeMu.Lock()
-	oldNow := timeNow
-	oldAfter := timeAfter
-	timeNow = clock.Now
-	timeAfter = clock.After
+func SetTimeNow(f func() time.Time) func() {
+	timeNowMu.Lock()
+	old := timeNow
+	timeNow = f
 	return func() {
-		timeNow = oldNow
-		timeAfter = oldAfter
-		timeMu.Unlock()
+		timeNow = old
+		timeNowMu.Unlock()
 	}
 }
 
-func NSScheduleWindow() time.Duration {
-	return nsScheduleWindow()
+type MockClock time.Time
+
+// Set sets clock to time t and returns old clock time.
+func (m *MockClock) Set(t time.Time) time.Time {
+	old := time.Time(*m)
+	*m = MockClock(t)
+	return old
 }
 
-const InfrastructureDelay = infrastructureDelay
+// Add adds d to clock and returns current clock time.
+func (m *MockClock) Add(d time.Duration) time.Time {
+	t := time.Time(*m).Add(d)
+	*m = MockClock(t)
+	return t
+}
+
+// Now returns current clock time.
+func (m *MockClock) Now() time.Time {
+	return time.Time(*m)
+}
+
+func NSScheduleWindow() time.Duration {
+	return nsScheduleWindow
+}
+
+func GSScheduleWindow() time.Duration {
+	return gsScheduleWindow
+}
 
 // CopyEndDevice returns a deep copy of ttnpb.EndDevice pb.
 func CopyEndDevice(pb *ttnpb.EndDevice) *ttnpb.EndDevice {
 	return deepcopy.Copy(pb).(*ttnpb.EndDevice)
+}
+
+// CopyEndDevices returns a deep copy of []*ttnpb.EndDevice pbs.
+func CopyEndDevices(pbs ...*ttnpb.EndDevice) []*ttnpb.EndDevice {
+	return deepcopy.Copy(pbs).([]*ttnpb.EndDevice)
 }
 
 // CopyUplinkMessage returns a deep copy of ttnpb.UplinkMessage pb.
@@ -161,14 +132,9 @@ func CopyUplinkMessages(pbs ...*ttnpb.UplinkMessage) []*ttnpb.UplinkMessage {
 	return deepcopy.Copy(pbs).([]*ttnpb.UplinkMessage)
 }
 
-// CopyDownlinkMessage returns a deep copy of ttnpb.DownlinkMessage pb.
-func CopyDownlinkMessage(pb *ttnpb.DownlinkMessage) *ttnpb.DownlinkMessage {
-	return deepcopy.Copy(pb).(*ttnpb.DownlinkMessage)
-}
-
-// CopyDownlinkMessages returns a deep copy of ...*ttnpb.DownlinkMessage pbs.
-func CopyDownlinkMessages(pbs ...*ttnpb.DownlinkMessage) []*ttnpb.DownlinkMessage {
-	return deepcopy.Copy(pbs).([]*ttnpb.DownlinkMessage)
+// CopyMACParameters returns a deep copy of ttnpb.MACParameters pb.
+func CopyMACParameters(pb *ttnpb.MACParameters) *ttnpb.MACParameters {
+	return deepcopy.Copy(pb).(*ttnpb.MACParameters)
 }
 
 // CopySessionKeys returns a deep copy of ttnpb.SessionKeys pb.
@@ -184,16 +150,40 @@ func AES128KeyPtr(key types.AES128Key) *types.AES128Key {
 	return &key
 }
 
-func FrequencyPlan(id string) *frequencyplans.FrequencyPlan {
-	return test.Must(frequencyplans.NewStore(test.FrequencyPlansFetcher).GetByID(id)).(*frequencyplans.FrequencyPlan)
+func MustEncryptUplink(key types.AES128Key, devAddr types.DevAddr, fCnt uint32, b ...byte) []byte {
+	return test.Must(crypto.EncryptUplink(key, devAddr, fCnt, b)).([]byte)
 }
 
-func Band(id string, phyVersion ttnpb.PHYVersion) band.Band {
-	return test.Must(test.Must(band.GetByID(id)).(band.Band).Version(phyVersion)).(band.Band)
+func MustAppendLegacyUplinkMIC(fNwkSIntKey types.AES128Key, devAddr types.DevAddr, fCnt uint32, b ...byte) []byte {
+	mic := test.Must(crypto.ComputeLegacyUplinkMIC(fNwkSIntKey, devAddr, fCnt, b)).([4]byte)
+	return append(b, mic[:]...)
 }
 
-func MakeDefaultEU868CurrentChannels() []*ttnpb.MACParameters_Channel {
-	return []*ttnpb.MACParameters_Channel{
+func MustAppendUplinkMIC(sNwkSIntKey, fNwkSIntKey types.AES128Key, confFCnt uint32, txDRIdx uint8, txChIdx uint8, addr types.DevAddr, fCnt uint32, b ...byte) []byte {
+	mic := test.Must(crypto.ComputeUplinkMIC(sNwkSIntKey, fNwkSIntKey, confFCnt, txDRIdx, txChIdx, addr, fCnt, b)).([4]byte)
+	return append(b, mic[:]...)
+}
+
+func MustAppendLegacyDownlinkMIC(fNwkSIntKey types.AES128Key, devAddr types.DevAddr, fCnt uint32, b ...byte) []byte {
+	mic := test.Must(crypto.ComputeLegacyDownlinkMIC(fNwkSIntKey, devAddr, fCnt, b)).([4]byte)
+	return append(b, mic[:]...)
+}
+
+func MakeLinkCheckAns(mds ...*ttnpb.RxMetadata) *ttnpb.MACCommand {
+	maxSNR := mds[0].SNR
+	for _, md := range mds {
+		if md.SNR > maxSNR {
+			maxSNR = md.SNR
+		}
+	}
+	return (&ttnpb.MACCommand_LinkCheckAns{
+		Margin:       uint32(maxSNR + 15),
+		GatewayCount: uint32(len(mds)),
+	}).MACCommand()
+}
+
+func MakeEU868Channels(chs ...*ttnpb.MACParameters_Channel) []*ttnpb.MACParameters_Channel {
+	return append([]*ttnpb.MACParameters_Channel{
 		{
 			UplinkFrequency:   868100000,
 			DownlinkFrequency: 868100000,
@@ -215,83 +205,83 @@ func MakeDefaultEU868CurrentChannels() []*ttnpb.MACParameters_Channel {
 			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
 			EnableUplink:      true,
 		},
-	}
+	}, chs...)
 }
 
-func MakeDefaultEU868CurrentMACParameters(phyVersion ttnpb.PHYVersion) ttnpb.MACParameters {
-	return ttnpb.MACParameters{
-		ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
-		ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
-		ADRNbTrans:                 1,
-		MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
-		MaxEIRP:                    16,
-		PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_3},
-		PingSlotFrequency:          869525000,
-		RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
-		RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
-		Rx1Delay:                   ttnpb.RX_DELAY_1,
-		Rx2DataRateIndex:           ttnpb.DATA_RATE_0,
-		Rx2Frequency:               869525000,
-		Channels:                   MakeDefaultEU868CurrentChannels(),
-	}
-}
-
-func MakeDefaultEU868DesiredChannels() []*ttnpb.MACParameters_Channel {
-	return append(MakeDefaultEU868CurrentChannels(),
-		&ttnpb.MACParameters_Channel{
-			UplinkFrequency:   867100000,
-			DownlinkFrequency: 867100000,
-			MinDataRateIndex:  ttnpb.DATA_RATE_0,
-			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
-			EnableUplink:      true,
-		},
-		&ttnpb.MACParameters_Channel{
-			UplinkFrequency:   867300000,
-			DownlinkFrequency: 867300000,
-			MinDataRateIndex:  ttnpb.DATA_RATE_0,
-			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
-			EnableUplink:      true,
-		},
-		&ttnpb.MACParameters_Channel{
-			UplinkFrequency:   867500000,
-			DownlinkFrequency: 867500000,
-			MinDataRateIndex:  ttnpb.DATA_RATE_0,
-			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
-			EnableUplink:      true,
-		},
-		&ttnpb.MACParameters_Channel{
-			UplinkFrequency:   867700000,
-			DownlinkFrequency: 867700000,
-			MinDataRateIndex:  ttnpb.DATA_RATE_0,
-			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
-			EnableUplink:      true,
-		},
-		&ttnpb.MACParameters_Channel{
-			UplinkFrequency:   867900000,
-			DownlinkFrequency: 867900000,
-			MinDataRateIndex:  ttnpb.DATA_RATE_0,
-			MaxDataRateIndex:  ttnpb.DATA_RATE_5,
-			EnableUplink:      true,
-		},
-	)
-}
-
-func MakeDefaultEU868DesiredMACParameters(phyVersion ttnpb.PHYVersion) ttnpb.MACParameters {
-	params := MakeDefaultEU868CurrentMACParameters(phyVersion)
-	params.Channels = MakeDefaultEU868DesiredChannels()
-	return params
-}
-
-func MakeDefaultEU868MACState(class ttnpb.Class, macVersion ttnpb.MACVersion, phyVersion ttnpb.PHYVersion) *ttnpb.MACState {
+func MakeDefaultEU868MACState(class ttnpb.Class, ver ttnpb.MACVersion) *ttnpb.MACState {
 	return &ttnpb.MACState{
-		DeviceClass:       class,
-		LoRaWANVersion:    macVersion,
-		CurrentParameters: MakeDefaultEU868CurrentMACParameters(phyVersion),
-		DesiredParameters: MakeDefaultEU868DesiredMACParameters(phyVersion),
+		DeviceClass:    class,
+		LoRaWANVersion: ver,
+		CurrentParameters: ttnpb.MACParameters{
+			ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
+			ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
+			ADRNbTrans:                 1,
+			MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
+			MaxEIRP:                    16,
+			PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_3},
+			PingSlotFrequency:          869525000,
+			RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
+			RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
+			Rx1Delay:                   ttnpb.RX_DELAY_1,
+			Rx2DataRateIndex:           ttnpb.DATA_RATE_0,
+			Rx2Frequency:               869525000,
+			Channels:                   MakeEU868Channels(),
+		},
+		DesiredParameters: ttnpb.MACParameters{
+			ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
+			ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
+			ADRNbTrans:                 1,
+			MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
+			MaxEIRP:                    16,
+			PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_3},
+			PingSlotFrequency:          869525000,
+			RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
+			RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
+			Rx1Delay:                   ttnpb.RX_DELAY_1,
+			Rx2DataRateIndex:           ttnpb.DATA_RATE_0,
+			Rx2Frequency:               869525000,
+			Channels: MakeEU868Channels(
+				&ttnpb.MACParameters_Channel{
+					UplinkFrequency:   867100000,
+					DownlinkFrequency: 867100000,
+					MinDataRateIndex:  ttnpb.DATA_RATE_0,
+					MaxDataRateIndex:  ttnpb.DATA_RATE_5,
+					EnableUplink:      true,
+				},
+				&ttnpb.MACParameters_Channel{
+					UplinkFrequency:   867300000,
+					DownlinkFrequency: 867300000,
+					MinDataRateIndex:  ttnpb.DATA_RATE_0,
+					MaxDataRateIndex:  ttnpb.DATA_RATE_5,
+					EnableUplink:      true,
+				},
+				&ttnpb.MACParameters_Channel{
+					UplinkFrequency:   867500000,
+					DownlinkFrequency: 867500000,
+					MinDataRateIndex:  ttnpb.DATA_RATE_0,
+					MaxDataRateIndex:  ttnpb.DATA_RATE_5,
+					EnableUplink:      true,
+				},
+				&ttnpb.MACParameters_Channel{
+					UplinkFrequency:   867700000,
+					DownlinkFrequency: 867700000,
+					MinDataRateIndex:  ttnpb.DATA_RATE_0,
+					MaxDataRateIndex:  ttnpb.DATA_RATE_5,
+					EnableUplink:      true,
+				},
+				&ttnpb.MACParameters_Channel{
+					UplinkFrequency:   867900000,
+					DownlinkFrequency: 867900000,
+					MinDataRateIndex:  ttnpb.DATA_RATE_0,
+					MaxDataRateIndex:  ttnpb.DATA_RATE_5,
+					EnableUplink:      true,
+				},
+			),
+		},
 	}
 }
 
-func MakeDefaultUS915CurrentMACParameters(ver ttnpb.PHYVersion) ttnpb.MACParameters {
+func MakeUS915Channels() []*ttnpb.MACParameters_Channel {
 	var chs []*ttnpb.MACParameters_Channel
 	for i := 0; i < 64; i++ {
 		chs = append(chs, &ttnpb.MACParameters_Channel{
@@ -312,402 +302,100 @@ func MakeDefaultUS915CurrentMACParameters(ver ttnpb.PHYVersion) ttnpb.MACParamet
 	for i := 0; i < 72; i++ {
 		chs[i].DownlinkFrequency = uint64(923300000 + 600000*(i%8))
 	}
-	return ttnpb.MACParameters{
-		ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
-		ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
-		ADRNbTrans:                 1,
-		MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
-		MaxEIRP:                    30,
-		PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_8},
-		RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
-		RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
-		Rx1Delay:                   ttnpb.RX_DELAY_1,
-		Rx2DataRateIndex:           ttnpb.DATA_RATE_8,
-		Rx2Frequency:               923300000,
-		Channels:                   chs,
-	}
+	return chs
 }
 
-func MakeDefaultUS915FSB2DesiredMACParameters(ver ttnpb.PHYVersion) ttnpb.MACParameters {
-	params := MakeDefaultUS915CurrentMACParameters(ver)
-	for _, ch := range params.Channels {
-		switch ch.UplinkFrequency {
-		case 903900000,
-			904100000,
-			904300000,
-			904500000,
-			904700000,
-			904900000,
-			905100000,
-			905300000:
-			continue
-		}
-		ch.EnableUplink = false
-	}
-	return params
-}
-
-func MakeDefaultUS915FSB2MACState(class ttnpb.Class, macVersion ttnpb.MACVersion, phyVersion ttnpb.PHYVersion) *ttnpb.MACState {
+func MakeDefaultUS915FSB2MACState(class ttnpb.Class, ver ttnpb.MACVersion) *ttnpb.MACState {
 	return &ttnpb.MACState{
-		DeviceClass:       class,
-		LoRaWANVersion:    macVersion,
-		CurrentParameters: MakeDefaultUS915CurrentMACParameters(phyVersion),
-		DesiredParameters: MakeDefaultUS915FSB2DesiredMACParameters(phyVersion),
-	}
-}
-
-func MakeOTAAIdentifiers(devAddr *types.DevAddr) *ttnpb.EndDeviceIdentifiers {
-	ids := &ttnpb.EndDeviceIdentifiers{
-		ApplicationIdentifiers: AppID,
-		DeviceID:               DevID,
-
-		DevEUI:  DevEUI.Copy(&types.EUI64{}),
-		JoinEUI: JoinEUI.Copy(&types.EUI64{}),
-	}
-	if devAddr != nil {
-		ids.DevAddr = devAddr.Copy(&types.DevAddr{})
-	}
-	return ids
-}
-
-func MakeABPIdentifiers(withDevEUI bool) *ttnpb.EndDeviceIdentifiers {
-	ids := &ttnpb.EndDeviceIdentifiers{
-		ApplicationIdentifiers: AppID,
-		DeviceID:               DevID,
-		DevAddr:                DevAddr.Copy(&types.DevAddr{}),
-	}
-	if withDevEUI {
-		ids.DevEUI = DevEUI.Copy(&types.EUI64{})
-	}
-	return ids
-}
-
-func MakeSessionKeys(macVersion ttnpb.MACVersion, withAppSKey bool) *ttnpb.SessionKeys {
-	sk := &ttnpb.SessionKeys{
-		FNwkSIntKey: &ttnpb.KeyEnvelope{
-			Key: &FNwkSIntKey,
+		DeviceClass:    class,
+		LoRaWANVersion: ver,
+		CurrentParameters: ttnpb.MACParameters{
+			ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
+			ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
+			ADRNbTrans:                 1,
+			MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
+			MaxEIRP:                    30,
+			PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_8},
+			RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
+			RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
+			Rx1Delay:                   ttnpb.RX_DELAY_1,
+			Rx2DataRateIndex:           ttnpb.DATA_RATE_8,
+			Rx2Frequency:               923300000,
+			Channels:                   MakeUS915Channels(),
 		},
-		SessionKeyID: []byte("test-session-key-id"),
-	}
-	if withAppSKey {
-		sk.AppSKey = &ttnpb.KeyEnvelope{
-			Key: &AppSKey,
-		}
-	}
-	switch {
-	case macVersion.Compare(ttnpb.MAC_V1_1) < 0:
-		sk.NwkSEncKey = sk.FNwkSIntKey
-		sk.SNwkSIntKey = sk.FNwkSIntKey
-	default:
-		sk.NwkSEncKey = &ttnpb.KeyEnvelope{
-			Key: &NwkSEncKey,
-		}
-		sk.SNwkSIntKey = &ttnpb.KeyEnvelope{
-			Key: &SNwkSIntKey,
-		}
-	}
-	return CopySessionKeys(sk)
-}
-
-var RxMetadata = [...]*ttnpb.RxMetadata{
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-1"},
-		SNR:                    -9,
-		UplinkToken:            []byte("token-gtw-1"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
-	},
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-3"},
-		SNR:                    -5.3,
-		UplinkToken:            []byte("token-gtw-3"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
-	},
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-5"},
-		SNR:                    12,
-		UplinkToken:            []byte("token-gtw-5"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NEVER,
-	},
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-0"},
-		SNR:                    5.2,
-		UplinkToken:            []byte("token-gtw-0"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
-	},
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-2"},
-		SNR:                    6.3,
-		UplinkToken:            []byte("token-gtw-2"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
-	},
-	{
-		GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-4"},
-		SNR:                    -7,
-		UplinkToken:            []byte("token-gtw-4"),
-		DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
-	},
-}
-
-func MakeUplinkSettings(dr ttnpb.DataRate, freq uint64) ttnpb.TxSettings {
-	return ttnpb.TxSettings{
-		DataRate:  *deepcopy.Copy(&dr).(*ttnpb.DataRate),
-		EnableCRC: true,
-		Frequency: freq,
-		Timestamp: 42,
-	}
-}
-
-func MakeJoinRequestDevNonce() types.DevNonce {
-	return types.DevNonce{0x00, 0x01}
-}
-
-func MakeJoinRequestMIC() [4]byte {
-	return [...]byte{0x03, 0x02, 0x01, 0x00}
-}
-
-func MakeJoinRequestPHYPayload() [23]byte {
-	devNonce := MakeJoinRequestDevNonce()
-	mic := MakeJoinRequestMIC()
-	return [...]byte{
-		/* MHDR */
-		0b000_000_00,
-		JoinEUI[7], JoinEUI[6], JoinEUI[5], JoinEUI[4], JoinEUI[3], JoinEUI[2], JoinEUI[1], JoinEUI[0],
-		DevEUI[7], DevEUI[6], DevEUI[5], DevEUI[4], DevEUI[3], DevEUI[2], DevEUI[1], DevEUI[0],
-		/* DevNonce */
-		devNonce[1], devNonce[0],
-		/* MIC */
-		mic[0], mic[1], mic[2], mic[3],
-	}
-}
-
-func MakeJoinRequestDecodedPayload() *ttnpb.Message {
-	mic := MakeJoinRequestMIC()
-	return &ttnpb.Message{
-		MHDR: ttnpb.MHDR{
-			MType: ttnpb.MType_JOIN_REQUEST,
-			Major: ttnpb.Major_LORAWAN_R1,
-		},
-		MIC: mic[:],
-		Payload: &ttnpb.Message_JoinRequestPayload{
-			JoinRequestPayload: &ttnpb.JoinRequestPayload{
-				JoinEUI:  *JoinEUI.Copy(&types.EUI64{}),
-				DevEUI:   *DevEUI.Copy(&types.EUI64{}),
-				DevNonce: MakeJoinRequestDevNonce(),
-			},
+		DesiredParameters: ttnpb.MACParameters{
+			ADRAckDelayExponent:        &ttnpb.ADRAckDelayExponentValue{Value: ttnpb.ADR_ACK_DELAY_32},
+			ADRAckLimitExponent:        &ttnpb.ADRAckLimitExponentValue{Value: ttnpb.ADR_ACK_LIMIT_64},
+			ADRNbTrans:                 1,
+			MaxDutyCycle:               ttnpb.DUTY_CYCLE_1,
+			MaxEIRP:                    30,
+			PingSlotDataRateIndexValue: &ttnpb.DataRateIndexValue{Value: ttnpb.DATA_RATE_8},
+			RejoinCountPeriodicity:     ttnpb.REJOIN_COUNT_16,
+			RejoinTimePeriodicity:      ttnpb.REJOIN_TIME_0,
+			Rx1Delay:                   ttnpb.RX_DELAY_1,
+			Rx2DataRateIndex:           ttnpb.DATA_RATE_8,
+			Rx2Frequency:               923300000,
+			Channels: func() []*ttnpb.MACParameters_Channel {
+				ret := MakeUS915Channels()
+				for _, ch := range ret {
+					switch ch.UplinkFrequency {
+					case 903900000,
+						904100000,
+						904300000,
+						904500000,
+						904700000,
+						904900000,
+						905100000,
+						905300000:
+						continue
+					}
+					ch.EnableUplink = false
+				}
+				return ret
+			}(),
 		},
 	}
 }
 
-var JoinRequestCorrelationIDs = [...]string{
-	"join-request-correlation-id-1",
-	"join-request-correlation-id-2",
-	"join-request-correlation-id-3",
-}
-
-func MakeJoinRequest(decodePayload bool, dr ttnpb.DataRate, freq uint64, mds ...*ttnpb.RxMetadata) *ttnpb.UplinkMessage {
-	phyPayload := MakeJoinRequestPHYPayload()
-	msg := &ttnpb.UplinkMessage{
-		CorrelationIDs: append([]string{}, JoinRequestCorrelationIDs[:]...),
-		RawPayload:     phyPayload[:],
-		RxMetadata:     mds,
-		Settings:       MakeUplinkSettings(dr, freq),
-	}
-	if decodePayload {
-		msg.Payload = MakeJoinRequestDecodedPayload()
-	}
-	return msg
-}
-
-func MakeNsJsJoinRequest(macVersion ttnpb.MACVersion, phyVersion ttnpb.PHYVersion, fp *frequencyplans.FrequencyPlan, devAddr *types.DevAddr, rxDelay ttnpb.RxDelay, rx1DROffset uint8, rx2DR ttnpb.DataRateIndex, correlationIDs ...string) *ttnpb.JoinRequest {
-	phyPayload := MakeJoinRequestPHYPayload()
-	return &ttnpb.JoinRequest{
-		CFList:         frequencyplans.CFList(*fp, phyVersion),
-		CorrelationIDs: correlationIDs,
-		DevAddr: func() types.DevAddr {
-			if devAddr != nil {
-				return *devAddr.Copy(&types.DevAddr{})
-			} else {
-				return types.DevAddr{}
-			}
-		}(),
-		NetID:              *NetID.Copy(&types.NetID{}),
-		RawPayload:         phyPayload[:],
-		Payload:            MakeJoinRequestDecodedPayload(),
-		RxDelay:            rxDelay,
-		SelectedMACVersion: macVersion,
-		DownlinkSettings: ttnpb.DLSettings{
-			OptNeg:      macVersion.Compare(ttnpb.MAC_V1_1) >= 0,
-			Rx1DROffset: uint32(rx1DROffset),
-			Rx2DR:       rx2DR,
+func MakeRxMetadataSlice(mds ...*ttnpb.RxMetadata) []*ttnpb.RxMetadata {
+	return append([]*ttnpb.RxMetadata{
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-1"},
+			SNR:                    -9,
+			UplinkToken:            []byte("token-gtw-1"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
 		},
-	}
-}
-
-var DataUplinkCorrelationIDs = [...]string{
-	"data-uplink-correlation-id-1",
-	"data-uplink-correlation-id-2",
-	"data-uplink-correlation-id-3",
-}
-
-type MACCommander interface {
-	MACCommand() *ttnpb.MACCommand
-}
-
-func AppendMACCommanders(queue []*ttnpb.MACCommand, cmds ...MACCommander) []*ttnpb.MACCommand {
-	for _, cmd := range cmds {
-		queue = append(queue, cmd.MACCommand())
-	}
-	return queue
-}
-
-func MakeUplinkMACBuffer(phy band.Band, cmds ...MACCommander) []byte {
-	var b []byte
-	for _, cmd := range cmds {
-		b = test.Must(lorawan.DefaultMACCommands.AppendUplink(phy, b, *cmd.MACCommand())).([]byte)
-	}
-	return b
-}
-
-func MakeDownlinkMACBuffer(phy band.Band, cmds ...MACCommander) []byte {
-	var b []byte
-	for _, cmd := range cmds {
-		b = test.Must(lorawan.DefaultMACCommands.AppendDownlink(phy, b, *cmd.MACCommand())).([]byte)
-	}
-	return b
-}
-
-func MustEncryptUplink(key types.AES128Key, devAddr types.DevAddr, fCnt uint32, b ...byte) []byte {
-	return test.Must(crypto.EncryptUplink(key, devAddr, fCnt, b)).([]byte)
-}
-
-func MakeDataUplink(macVersion ttnpb.MACVersion, decodePayload, confirmed bool, devAddr types.DevAddr, fCtrl ttnpb.FCtrl, fCnt, confFCntDown uint32, fPort uint8, frmPayload, fOpts []byte, dr ttnpb.DataRate, drIdx ttnpb.DataRateIndex, freq uint64, chIdx uint8, mds ...*ttnpb.RxMetadata) *ttnpb.UplinkMessage {
-	if len(fOpts) > 0 && fPort == 0 {
-		panic("FOpts must not be set for FPort == 0")
-	}
-	devAddr = *devAddr.Copy(&types.DevAddr{})
-	mType := ttnpb.MType_UNCONFIRMED_UP
-	if confirmed {
-		mType = ttnpb.MType_CONFIRMED_UP
-	}
-	mhdr := ttnpb.MHDR{
-		MType: mType,
-		Major: ttnpb.Major_LORAWAN_R1,
-	}
-	keys := MakeSessionKeys(macVersion, false)
-	if fPort == 0 {
-		frmPayload = MustEncryptUplink(*keys.NwkSEncKey.Key, devAddr, fCnt, frmPayload...)
-	} else if len(fOpts) > 0 && macVersion.EncryptFOpts() {
-		fOpts = MustEncryptUplink(*keys.NwkSEncKey.Key, devAddr, fCnt, fOpts...)
-	}
-	fhdr := ttnpb.FHDR{
-		DevAddr: devAddr,
-		FCtrl:   fCtrl,
-		FCnt:    fCnt & 0xffff,
-		FOpts:   fOpts,
-	}
-	phyPayload := append(
-		append(
-			test.Must(lorawan.AppendFHDR(
-				test.Must(lorawan.AppendMHDR(nil, mhdr)).([]byte), fhdr, true),
-			).([]byte),
-			fPort),
-		frmPayload...)
-	var mic [4]byte
-	switch {
-	case macVersion.Compare(ttnpb.MAC_V1_1) < 0:
-		mic = test.Must(crypto.ComputeLegacyUplinkMIC(*keys.FNwkSIntKey.Key, devAddr, fCnt, phyPayload)).([4]byte)
-	default:
-		if !fCtrl.Ack {
-			confFCntDown = 0
-		}
-		mic = test.Must(crypto.ComputeUplinkMIC(*keys.SNwkSIntKey.Key, *keys.FNwkSIntKey.Key, confFCntDown, uint8(drIdx), chIdx, devAddr, fCnt, phyPayload)).([4]byte)
-	}
-	phyPayload = append(phyPayload, mic[:]...)
-	msg := &ttnpb.UplinkMessage{
-		CorrelationIDs: append([]string{}, DataUplinkCorrelationIDs[:]...),
-		RawPayload:     phyPayload,
-		RxMetadata:     deepcopy.Copy(mds).([]*ttnpb.RxMetadata),
-		Settings:       MakeUplinkSettings(dr, freq),
-	}
-	if decodePayload {
-		if frmPayload == nil {
-			frmPayload = []byte{}
-		}
-		msg.Payload = &ttnpb.Message{
-			MHDR: mhdr,
-			MIC:  phyPayload[len(phyPayload)-4:],
-			Payload: &ttnpb.Message_MACPayload{
-				MACPayload: &ttnpb.MACPayload{
-					FHDR:       fhdr,
-					FPort:      uint32(fPort),
-					FRMPayload: frmPayload,
-				},
-			},
-		}
-	}
-	return msg
-}
-
-func WithMatchedUplinkSettings(msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex) *ttnpb.UplinkMessage {
-	msg = CopyUplinkMessage(msg)
-	msg.Settings.DataRateIndex = drIdx
-	msg.DeviceChannelIndex = uint32(chIdx)
-	return msg
-}
-
-func MustEncryptDownlink(key types.AES128Key, devAddr types.DevAddr, fCnt uint32, b ...byte) []byte {
-	return test.Must(crypto.EncryptDownlink(key, devAddr, fCnt, b)).([]byte)
-}
-
-func MakeDataDownlink(macVersion ttnpb.MACVersion, confirmed bool, devAddr types.DevAddr, fCtrl ttnpb.FCtrl, fCnt, confFCntDown uint32, fPort uint8, frmPayload, fOpts []byte, txReq *ttnpb.TxRequest, cids ...string) *ttnpb.DownlinkMessage {
-	if len(fOpts) > 0 && fPort == 0 {
-		panic("FOpts must not be set for FPort == 0")
-	}
-	devAddr = *devAddr.Copy(&types.DevAddr{})
-	mType := ttnpb.MType_UNCONFIRMED_DOWN
-	if confirmed {
-		mType = ttnpb.MType_CONFIRMED_DOWN
-	}
-	mhdr := ttnpb.MHDR{
-		MType: mType,
-		Major: ttnpb.Major_LORAWAN_R1,
-	}
-	keys := MakeSessionKeys(macVersion, false)
-	if fPort == 0 {
-		frmPayload = MustEncryptDownlink(*keys.NwkSEncKey.Key, devAddr, fCnt, frmPayload...)
-	} else if len(fOpts) > 0 && macVersion.EncryptFOpts() {
-		fOpts = MustEncryptDownlink(*keys.NwkSEncKey.Key, devAddr, fCnt, fOpts...)
-	}
-	fhdr := ttnpb.FHDR{
-		DevAddr: devAddr,
-		FCtrl:   fCtrl,
-		FCnt:    fCnt & 0xffff,
-		FOpts:   fOpts,
-	}
-	phyPayload := append(
-		append(
-			test.Must(lorawan.AppendFHDR(
-				test.Must(lorawan.AppendMHDR(nil, mhdr)).([]byte), fhdr, false),
-			).([]byte),
-			fPort),
-		frmPayload...)
-	var mic [4]byte
-	switch {
-	case macVersion.Compare(ttnpb.MAC_V1_1) < 0:
-		mic = test.Must(crypto.ComputeLegacyDownlinkMIC(*keys.FNwkSIntKey.Key, devAddr, fCnt, phyPayload)).([4]byte)
-	default:
-		if !fCtrl.Ack {
-			confFCntDown = 0
-		}
-		mic = test.Must(crypto.ComputeDownlinkMIC(*keys.SNwkSIntKey.Key, devAddr, confFCntDown, fCnt, phyPayload)).([4]byte)
-	}
-	return &ttnpb.DownlinkMessage{
-		CorrelationIDs: append([]string{}, cids...),
-		RawPayload:     append(phyPayload, mic[:]...),
-		Settings: &ttnpb.DownlinkMessage_Request{
-			Request: txReq,
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-3"},
+			SNR:                    -5.3,
+			UplinkToken:            []byte("token-gtw-3"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
 		},
-	}
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-5"},
+			SNR:                    12,
+			UplinkToken:            []byte("token-gtw-5"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NEVER,
+		},
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-0"},
+			SNR:                    5.2,
+			UplinkToken:            []byte("token-gtw-0"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_NONE,
+		},
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-2"},
+			SNR:                    6.3,
+			UplinkToken:            []byte("token-gtw-2"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
+		},
+		{
+			GatewayIdentifiers:     ttnpb.GatewayIdentifiers{GatewayID: "gateway-test-4"},
+			SNR:                    -7,
+			UplinkToken:            []byte("token-gtw-4"),
+			DownlinkPathConstraint: ttnpb.DOWNLINK_PATH_CONSTRAINT_PREFER_OTHER,
+		},
+	}, mds...)
 }
 
 func NewISPeer(ctx context.Context, is interface {
@@ -788,6 +476,12 @@ func MakeApplicationUplinkQueueSubscribeChFunc(reqCh chan<- ApplicationUplinkQue
 		}
 		return <-respCh
 	}
+}
+
+// ApplicationUplinkSubscribeBlockFunc is ApplicationUplinks.Subscribe function, which blocks until ctx is done and returns nil.
+func ApplicationUplinkSubscribeBlockFunc(ctx context.Context, _ func(context.Context, ttnpb.EndDeviceIdentifiers, time.Time) error) error {
+	<-ctx.Done()
+	return ctx.Err()
 }
 
 var _ DownlinkTaskQueue = MockDownlinkTaskQueue{}
@@ -1163,76 +857,21 @@ func MakeNsGsScheduleDownlinkChFunc(reqCh chan<- NsGsScheduleDownlinkRequest) fu
 	}
 }
 
-var _ UplinkDeduplicator = &MockUplinkDeduplicator{}
-
-type MockUplinkDeduplicator struct {
-	DeduplicateUplinkFunc   func(context.Context, *ttnpb.UplinkMessage, time.Duration) (bool, error)
-	AccumulatedMetadataFunc func(context.Context, *ttnpb.UplinkMessage) ([]*ttnpb.RxMetadata, error)
-}
-
-// DeduplicateUplink calls DeduplicateUplinkFunc if set and panics otherwise.
-func (m MockUplinkDeduplicator) DeduplicateUplink(ctx context.Context, up *ttnpb.UplinkMessage, d time.Duration) (bool, error) {
-	if m.DeduplicateUplinkFunc == nil {
-		panic("DeduplicateUplink called, but not set")
-	}
-	return m.DeduplicateUplinkFunc(ctx, up, d)
-}
-
-// AccumulatedMetadata calls AccumulatedMetadataFunc if set and panics otherwise.
-func (m MockUplinkDeduplicator) AccumulatedMetadata(ctx context.Context, up *ttnpb.UplinkMessage) ([]*ttnpb.RxMetadata, error) {
-	if m.AccumulatedMetadataFunc == nil {
-		panic("AccumulatedMetadata called, but not set")
-	}
-	return m.AccumulatedMetadataFunc(ctx, up)
-}
-
-type UplinkDeduplicatorDeduplicateUplinkResponse struct {
-	Ok    bool
-	Error error
-}
-
-type UplinkDeduplicatorDeduplicateUplinkRequest struct {
+type WindowEndRequest struct {
 	Context  context.Context
-	Uplink   *ttnpb.UplinkMessage
-	Window   time.Duration
-	Response chan<- UplinkDeduplicatorDeduplicateUplinkResponse
+	Message  *ttnpb.UplinkMessage
+	Response chan<- time.Time
 }
 
-func MakeUplinkDeduplicatorDeduplicateUplinkChFunc(reqCh chan<- UplinkDeduplicatorDeduplicateUplinkRequest) func(context.Context, *ttnpb.UplinkMessage, time.Duration) (bool, error) {
-	return func(ctx context.Context, up *ttnpb.UplinkMessage, window time.Duration) (bool, error) {
-		respCh := make(chan UplinkDeduplicatorDeduplicateUplinkResponse)
-		reqCh <- UplinkDeduplicatorDeduplicateUplinkRequest{
+func MakeWindowEndChFunc(reqCh chan<- WindowEndRequest) func(ctx context.Context, msg *ttnpb.UplinkMessage) <-chan time.Time {
+	return func(ctx context.Context, msg *ttnpb.UplinkMessage) <-chan time.Time {
+		respCh := make(chan time.Time)
+		reqCh <- WindowEndRequest{
 			Context:  ctx,
-			Uplink:   up,
-			Window:   window,
+			Message:  msg,
 			Response: respCh,
 		}
-		resp := <-respCh
-		return resp.Ok, resp.Error
-	}
-}
-
-type UplinkDeduplicatorAccumulatedMetadataResponse struct {
-	Metadata []*ttnpb.RxMetadata
-	Error    error
-}
-
-type UplinkDeduplicatorAccumulatedMetadataRequest struct {
-	Context  context.Context
-	Uplink   *ttnpb.UplinkMessage
-	Response chan<- UplinkDeduplicatorAccumulatedMetadataResponse
-}
-
-func MakeUplinkDeduplicatorAccumulatedMetadataChFunc(reqCh chan<- UplinkDeduplicatorAccumulatedMetadataRequest) func(context.Context, *ttnpb.UplinkMessage) ([]*ttnpb.RxMetadata, error) {
-	return func(ctx context.Context, up *ttnpb.UplinkMessage) ([]*ttnpb.RxMetadata, error) {
-		respCh := make(chan UplinkDeduplicatorAccumulatedMetadataResponse)
-		reqCh <- UplinkDeduplicatorAccumulatedMetadataRequest{
-			Context:  ctx,
-			Uplink:   up,
-			Response: respCh,
-		}
-		resp := <-respCh
-		return resp.Metadata, resp.Error
+		return respCh
 	}
 }
 
@@ -1251,121 +890,6 @@ func AssertDownlinkTaskAddRequest(ctx context.Context, reqCh <-chan DownlinkTask
 		select {
 		case <-ctx.Done():
 			t.Error("Timed out while waiting for DownlinkTasks.Add response to be processed")
-			return false
-
-		case req.Response <- resp:
-			return true
-		}
-	}
-}
-
-func AssertDeduplicateUplink(ctx context.Context, reqCh <-chan UplinkDeduplicatorDeduplicateUplinkRequest, assert func(context.Context, *ttnpb.UplinkMessage, time.Duration) bool, resp UplinkDeduplicatorDeduplicateUplinkResponse) bool {
-	t := test.MustTFromContext(ctx)
-	t.Helper()
-	select {
-	case <-ctx.Done():
-		t.Error("Timed out while waiting for UplinkDeduplicator.DeduplicateUplink to be called")
-		return false
-
-	case req := <-reqCh:
-		if !assert(req.Context, req.Uplink, req.Window) {
-			return false
-		}
-		select {
-		case <-ctx.Done():
-			t.Error("Timed out while waiting for UplinkDeduplicator.DeduplicateUplink response to be processed")
-			return false
-
-		case req.Response <- resp:
-			return true
-		}
-	}
-}
-
-func AssertAccumulatedMetadata(ctx context.Context, reqCh <-chan UplinkDeduplicatorAccumulatedMetadataRequest, assert func(context.Context, *ttnpb.UplinkMessage) bool, resp UplinkDeduplicatorAccumulatedMetadataResponse) bool {
-	t := test.MustTFromContext(ctx)
-	t.Helper()
-	select {
-	case <-ctx.Done():
-		t.Error("Timed out while waiting for UplinkDeduplicator.AccumulatedMetadata to be called")
-		return false
-
-	case req := <-reqCh:
-		if !assert(req.Context, req.Uplink) {
-			return false
-		}
-		select {
-		case <-ctx.Done():
-			t.Error("Timed out while waiting for UplinkDeduplicator.AccumulatedMetadata response to be processed")
-			return false
-
-		case req.Response <- resp:
-			return true
-		}
-	}
-}
-
-func AssertDeviceRegistryGetByEUI(ctx context.Context, reqCh <-chan DeviceRegistryGetByEUIRequest, assert func(context.Context, types.EUI64, types.EUI64, []string) bool, respFunc func(context.Context) DeviceRegistryGetByEUIResponse) bool {
-	t := test.MustTFromContext(ctx)
-	t.Helper()
-	select {
-	case <-ctx.Done():
-		t.Error("Timed out while waiting for DeviceRegistry.GetByEUI to be called")
-		return false
-
-	case req := <-reqCh:
-		if !assert(req.Context, req.JoinEUI, req.DevEUI, req.Paths) {
-			return false
-		}
-		select {
-		case <-ctx.Done():
-			t.Error("Timed out while waiting for DeviceRegistry.GetByEUI response to be processed")
-			return false
-
-		case req.Response <- respFunc(req.Context):
-			return true
-		}
-	}
-}
-
-func AssertDeviceRegistrySetByID(ctx context.Context, reqCh <-chan DeviceRegistrySetByIDRequest, assert func(context.Context, ttnpb.ApplicationIdentifiers, string, []string, func(context.Context, *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) bool, respFunc func(context.Context) DeviceRegistrySetByIDResponse) bool {
-	t := test.MustTFromContext(ctx)
-	t.Helper()
-	select {
-	case <-ctx.Done():
-		t.Error("Timed out while waiting for DeviceRegistry.SetByID to be called")
-		return false
-
-	case req := <-reqCh:
-		if !assert(req.Context, req.ApplicationIdentifiers, req.DeviceID, req.Paths, req.Func) {
-			return false
-		}
-		select {
-		case <-ctx.Done():
-			t.Error("Timed out while waiting for DeviceRegistry.SetByID response to be processed")
-			return false
-
-		case req.Response <- respFunc(req.Context):
-			return true
-		}
-	}
-}
-
-func AssertDeviceRegistryRangeByAddr(ctx context.Context, reqCh <-chan DeviceRegistryRangeByAddrRequest, assert func(context.Context, types.DevAddr, []string, func(context.Context, *ttnpb.EndDevice) bool) bool, resp error) bool {
-	t := test.MustTFromContext(ctx)
-	t.Helper()
-	select {
-	case <-ctx.Done():
-		t.Error("Timed out while waiting for DeviceRegistry.RangeByAddr to be called")
-		return false
-
-	case req := <-reqCh:
-		if !assert(req.Context, req.DevAddr, req.Paths, req.Func) {
-			return false
-		}
-		select {
-		case <-ctx.Done():
-			t.Error("Timed out while waiting for DeviceRegistry.RangeByAddr response to be processed")
 			return false
 
 		case req.Response <- resp:
@@ -1561,10 +1085,10 @@ func AssertLinkApplication(ctx context.Context, conn *grpc.ClientConn, getPeerCh
 	}
 
 	if !a.So(test.AssertEventPubSubPublishRequests(ctx, eventsPublishCh, 1+len(replaceEvents), func(evs ...events.Event) bool {
-		return a.So(evs, should.HaveSameElementsEvent, append(
+		return a.So(evs, should.HaveSameElements, append(
 			[]events.Event{EvtBeginApplicationLink(events.ContextWithCorrelationID(test.Context(), reqCIDs...), appID, nil)},
 			replaceEvents...,
-		))
+		), test.EventEqual)
 	}), should.BeTrue) {
 		t.Error("AS link events assertion failed")
 		return nil, nil, false
@@ -1730,105 +1254,77 @@ func newMockInteropClient(t *testing.T) (InteropClient, InteropClientEnvironment
 		}
 }
 
-type UplinkDeduplicatorEnvironment struct {
-	DeduplicateUplink   <-chan UplinkDeduplicatorDeduplicateUplinkRequest
-	AccumulatedMetadata <-chan UplinkDeduplicatorAccumulatedMetadataRequest
-}
-
-func newMockUplinkDeduplicator(t *testing.T) (UplinkDeduplicator, UplinkDeduplicatorEnvironment, func()) {
-	t.Helper()
-
-	deduplicateUplinkCh := make(chan UplinkDeduplicatorDeduplicateUplinkRequest)
-	accumulatedMetadataCh := make(chan UplinkDeduplicatorAccumulatedMetadataRequest)
-	return &MockUplinkDeduplicator{
-			DeduplicateUplinkFunc:   MakeUplinkDeduplicatorDeduplicateUplinkChFunc(deduplicateUplinkCh),
-			AccumulatedMetadataFunc: MakeUplinkDeduplicatorAccumulatedMetadataChFunc(accumulatedMetadataCh),
-		}, UplinkDeduplicatorEnvironment{
-			DeduplicateUplink:   deduplicateUplinkCh,
-			AccumulatedMetadata: accumulatedMetadataCh,
-		},
-		func() {
-			select {
-			case <-deduplicateUplinkCh:
-				t.Error("UplinkDeduplicator.DeduplicateUplink call missed")
-			default:
-				close(deduplicateUplinkCh)
-			}
-			select {
-			case <-accumulatedMetadataCh:
-				t.Error("UplinkDeduplicator.AccumulatedMetadata call missed")
-			default:
-				close(accumulatedMetadataCh)
-			}
-		}
-}
-
 type TestEnvironment struct {
 	Cluster struct {
 		Auth    <-chan test.ClusterAuthRequest
 		GetPeer <-chan test.ClusterGetPeerRequest
 	}
+	CollectionDone     <-chan WindowEndRequest
+	DeduplicationDone  <-chan WindowEndRequest
 	ApplicationUplinks *ApplicationUplinkQueueEnvironment
 	DeviceRegistry     *DeviceRegistryEnvironment
 	DownlinkTasks      *DownlinkTaskQueueEnvironment
 	Events             <-chan test.EventPubSubPublishRequest
 	InteropClient      *InteropClientEnvironment
-	UplinkDeduplicator *UplinkDeduplicatorEnvironment
 }
 
-func StartTest(t *testing.T, cmpConf component.Config, nsConf Config, timeout time.Duration, opts ...Option) (*NetworkServer, context.Context, TestEnvironment, func()) {
+func StartTest(t *testing.T, conf Config, timeout time.Duration, stubDeduplication bool, opts ...Option) (*NetworkServer, context.Context, TestEnvironment, func()) {
 	t.Helper()
 
 	authCh := make(chan test.ClusterAuthRequest)
 	getPeerCh := make(chan test.ClusterGetPeerRequest)
 	eventsPublishCh := make(chan test.EventPubSubPublishRequest)
 
+	var collectionDoneCh, deduplicationDoneCh chan WindowEndRequest
+	if stubDeduplication {
+		conf.CooldownWindow = 42
+		conf.DeduplicationWindow = 42
+
+		collectionDoneCh = make(chan WindowEndRequest)
+		deduplicationDoneCh = make(chan WindowEndRequest)
+
+		opts = append([]Option{
+			WithCollectionDoneFunc(MakeWindowEndChFunc(collectionDoneCh)),
+			WithDeduplicationDoneFunc(MakeWindowEndChFunc(deduplicationDoneCh)),
+		}, opts...)
+	}
+
 	env := TestEnvironment{
-		Events: eventsPublishCh,
+		CollectionDone:    collectionDoneCh,
+		DeduplicationDone: deduplicationDoneCh,
 	}
 	env.Cluster.Auth = authCh
 	env.Cluster.GetPeer = getPeerCh
+	env.Events = eventsPublishCh
 
 	var closeFuncs []func()
 	closeFuncs = append(closeFuncs, test.SetDefaultEventsPubSub(&test.MockEventPubSub{
 		PublishFunc: test.MakeEventPubSubPublishChFunc(eventsPublishCh),
 	}))
-	if nsConf.ApplicationUplinks == nil {
+	if conf.ApplicationUplinks == nil {
 		m, mEnv, closeM := newMockApplicationUplinkQueue(t)
-		nsConf.ApplicationUplinks = m
+		conf.ApplicationUplinks = m
 		env.ApplicationUplinks = &mEnv
 		closeFuncs = append(closeFuncs, closeM)
 	}
-	if nsConf.Devices == nil {
+	if conf.Devices == nil {
 		m, mEnv, closeM := newMockDeviceRegistry(t)
-		nsConf.Devices = m
+		conf.Devices = m
 		env.DeviceRegistry = &mEnv
 		closeFuncs = append(closeFuncs, closeM)
 	}
-	if nsConf.DownlinkTasks == nil {
+	if conf.DownlinkTasks == nil {
 		m, mEnv, closeM := newMockDownlinkTaskQueue(t)
-		nsConf.DownlinkTasks = m
+		conf.DownlinkTasks = m
 		env.DownlinkTasks = &mEnv
 		closeFuncs = append(closeFuncs, closeM)
-	}
-	if nsConf.UplinkDeduplicator == nil {
-		m, mEnv, closeM := newMockUplinkDeduplicator(t)
-		nsConf.UplinkDeduplicator = m
-		env.UplinkDeduplicator = &mEnv
-		closeFuncs = append(closeFuncs, closeM)
-	}
-	if nsConf.DeduplicationWindow == 0 {
-		nsConf.DeduplicationWindow = time.Nanosecond
-	}
-	if nsConf.CooldownWindow == 0 {
-		nsConf.CooldownWindow = nsConf.DeduplicationWindow + time.Nanosecond
 	}
 
 	ns := test.Must(New(
 		componenttest.NewComponent(
 			t,
-			&cmpConf,
-			component.WithClusterNew(func(context.Context, *cluster.Config, ...cluster.Option) (cluster.Cluster, error) {
+			&component.Config{},
+			component.WithClusterNew(func(context.Context, *config.Cluster, ...cluster.Option) (cluster.Cluster, error) {
 				return &test.MockCluster{
 					AuthFunc:    test.MakeClusterAuthChFunc(authCh),
 					GetPeerFunc: test.MakeClusterGetPeerChFunc(getPeerCh),
@@ -1839,7 +1335,7 @@ func StartTest(t *testing.T, cmpConf component.Config, nsConf Config, timeout ti
 				}, nil
 			}),
 		),
-		&nsConf,
+		&conf,
 		opts...,
 	)).(*NetworkServer)
 	ns.Component.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
@@ -1882,147 +1378,55 @@ func StartTest(t *testing.T, cmpConf component.Config, nsConf Config, timeout ti
 	}
 }
 
-func MakeTestCaseName(parts ...string) string {
-	return strings.Join(parts, "/")
-}
-
-func ForEachBand(t *testing.T, f func(func(...string) string, band.Band, ttnpb.PHYVersion)) {
+func ForEachBand(t *testing.T, f func(makeName func(parts ...string) string, phy band.Band)) {
 	for phyID, phy := range band.All {
-		for _, phyVersion := range phy.Versions() {
-			phy, err := phy.Version(phyVersion)
+		for _, phyVer := range phy.Versions() {
+			phy, err := phy.Version(phyVer)
 			if err != nil {
-				t.Errorf("Failed to convert %s band to %s version", phyID, phyVersion)
+				t.Errorf("Failed to convert %s band to %s version", phyID, phyVer)
 				continue
 			}
 			f(func(parts ...string) string {
-				return MakeTestCaseName(append(parts, fmt.Sprintf("%s/PHY:%s", phyID, phyVersion.String()))...)
-			}, phy, phyVersion)
+				return fmt.Sprintf("%s/PHY:%s/%s", phyID, phyVer.String(), strings.Join(parts, "/"))
+			}, phy)
 		}
 	}
 }
 
-func ForEachPHYVersion(f func(func(...string) string, ttnpb.PHYVersion)) {
-	for _, phyVersion := range []ttnpb.PHYVersion{
-		ttnpb.PHY_V1_0,
-		ttnpb.PHY_V1_0_1,
-		ttnpb.PHY_V1_0_2_REV_A,
-		ttnpb.PHY_V1_0_2_REV_B,
-		ttnpb.PHY_V1_0_3_REV_A,
-		ttnpb.PHY_V1_1_REV_A,
-		ttnpb.PHY_V1_1_REV_B,
-	} {
-		f(func(parts ...string) string {
-			return MakeTestCaseName(append(parts, fmt.Sprintf("PHY:%s", phyVersion.String()))...)
-		}, phyVersion)
-	}
-}
-
-func ForEachMACVersion(f func(func(...string) string, ttnpb.MACVersion)) {
+func ForEachMACVersion(f func(makeName func(parts ...string) string, macVersion ttnpb.MACVersion)) {
 	for _, macVersion := range []ttnpb.MACVersion{
 		ttnpb.MAC_V1_0,
 		ttnpb.MAC_V1_0_1,
 		ttnpb.MAC_V1_0_2,
 		ttnpb.MAC_V1_0_3,
-		ttnpb.MAC_V1_0_4,
 		ttnpb.MAC_V1_1,
 	} {
 		f(func(parts ...string) string {
-			return MakeTestCaseName(append(parts, fmt.Sprintf("MAC:%s", macVersion.String()))...)
+			return fmt.Sprintf("MAC:%s/%s", macVersion.String(), strings.Join(parts, "/"))
 		}, macVersion)
 	}
 }
 
-func ForEachClass(f func(func(...string) string, ttnpb.Class)) {
+func ForEachBandMACVersion(t *testing.T, f func(makeName func(parts ...string) string, phy band.Band, macVersion ttnpb.MACVersion)) {
+	ForEachBand(t, func(makeBandName func(...string) string, phy band.Band) {
+		ForEachMACVersion(func(makeMACName func(...string) string, macVersion ttnpb.MACVersion) {
+			f(func(parts ...string) string {
+				return makeBandName(makeMACName(parts...))
+			}, phy, macVersion)
+		})
+	})
+}
+
+func ForEachClass(f func(makeName func(parts ...string) string, class ttnpb.Class)) {
 	for _, class := range []ttnpb.Class{
 		ttnpb.CLASS_A,
 		ttnpb.CLASS_B,
 		ttnpb.CLASS_C,
 	} {
 		f(func(parts ...string) string {
-			return MakeTestCaseName(append(parts, fmt.Sprintf("Class:%s", class.String()))...)
+			return fmt.Sprintf("Class:%s/%s", class.String(), strings.Join(parts, "/"))
 		}, class)
 	}
-}
-
-func ForEachFrequencyPlan(t *testing.T, f func(func(...string) string, string, *frequencyplans.FrequencyPlan)) {
-	fps := frequencyplans.NewStore(test.FrequencyPlansFetcher)
-	fpIDs, err := fps.GetAllIDs()
-	if err != nil {
-		t.Errorf("failed to get frequency plans: %w", err)
-		return
-	}
-	for _, fpID := range fpIDs {
-		fp, err := fps.GetByID(fpID)
-		if err != nil {
-			t.Errorf("failed to get frequency plan `%s`: %w", fpID, err)
-			continue
-		}
-		f(func(parts ...string) string {
-			return MakeTestCaseName(append(parts, fmt.Sprintf("FP:%s", fpID))...)
-		}, fpID, fp)
-	}
-}
-
-func ForEachPHYMACVersion(f func(func(...string) string, ttnpb.PHYVersion, ttnpb.MACVersion)) {
-	ForEachPHYVersion(func(makePHYName func(...string) string, phyVersion ttnpb.PHYVersion) {
-		ForEachMACVersion(func(makeMACName func(...string) string, macVersion ttnpb.MACVersion) {
-			f(func(parts ...string) string {
-				return makePHYName(makeMACName(parts...))
-			}, phyVersion, macVersion)
-		})
-	})
-}
-
-func ForEachClassPHYMACVersion(f func(func(...string) string, ttnpb.Class, ttnpb.PHYVersion, ttnpb.MACVersion)) {
-	ForEachClass(func(makeClassName func(...string) string, class ttnpb.Class) {
-		ForEachPHYMACVersion(func(makePHYMACName func(parts ...string) string, phyVersion ttnpb.PHYVersion, macVersion ttnpb.MACVersion) {
-			f(func(parts ...string) string {
-				return makeClassName(makePHYMACName(parts...))
-			}, class, phyVersion, macVersion)
-		})
-	})
-}
-
-func ForEachClassMACVersion(f func(func(...string) string, ttnpb.Class, ttnpb.MACVersion)) {
-	ForEachClass(func(makeClassName func(...string) string, class ttnpb.Class) {
-		ForEachMACVersion(func(makeMACName func(parts ...string) string, macVersion ttnpb.MACVersion) {
-			f(func(parts ...string) string {
-				return makeClassName(makeMACName(parts...))
-			}, class, macVersion)
-		})
-	})
-}
-
-func ForEachFrequencyPlanBandMACVersion(t *testing.T, f func(func(...string) string, string, *frequencyplans.FrequencyPlan, band.Band, ttnpb.PHYVersion, ttnpb.MACVersion)) {
-	ForEachFrequencyPlan(t, func(makeFPName func(...string) string, fpID string, fp *frequencyplans.FrequencyPlan) {
-		phy, err := band.GetByID(fp.BandID)
-		if err != nil {
-			t.Errorf("failed to get PHY by id `%s` associated with frequency plan `%s`: %s", fp.BandID, fpID, err)
-			return
-		}
-		for _, phyVersion := range phy.Versions() {
-			phy, err := phy.Version(phyVersion)
-			if err != nil {
-				t.Errorf("Failed to convert band `%s` to version `%s`: %s", fp.BandID, phyVersion, err)
-				continue
-			}
-			ForEachMACVersion(func(makeMACName func(parts ...string) string, macVersion ttnpb.MACVersion) {
-				f(func(parts ...string) string {
-					return makeFPName(makeMACName(append(parts, fmt.Sprintf("PHY:%s", phyVersion))...))
-				}, fpID, fp, phy, phyVersion, macVersion)
-			})
-		}
-	})
-}
-
-func ForEachBandMACVersion(t *testing.T, f func(func(...string) string, band.Band, ttnpb.PHYVersion, ttnpb.MACVersion)) {
-	ForEachBand(t, func(makeBandName func(...string) string, phy band.Band, phyVersion ttnpb.PHYVersion) {
-		ForEachMACVersion(func(makeMACName func(...string) string, macVersion ttnpb.MACVersion) {
-			f(func(parts ...string) string {
-				return makeBandName(makeMACName(parts...))
-			}, phy, phyVersion, macVersion)
-		})
-	})
 }
 
 var redisNamespace = [...]string{
@@ -2097,31 +1501,4 @@ func NewRedisDownlinkTaskQueue(t testing.TB) (DownlinkTaskQueue, func() error) {
 			}
 			return closeErr
 		}
-}
-
-func NewRedisUplinkDeduplicator(t testing.TB) (UplinkDeduplicator, func() error) {
-	cl, flush := test.NewRedis(t, append(redisNamespace[:], "uplink-deduplication")...)
-	return &redis.UplinkDeduplicator{
-			Redis: cl,
-		},
-		func() error {
-			flush()
-			return cl.Close()
-		}
-}
-
-func AllTrue(vs ...bool) bool {
-	for _, v := range vs {
-		if !v {
-			return false
-		}
-	}
-	return true
-}
-
-func LogEvents(t *testing.T, ch <-chan test.EventPubSubPublishRequest) {
-	for ev := range ch {
-		t.Logf("Event %s published with data %v", ev.Event.Name(), ev.Event.Data())
-		ev.Response <- struct{}{}
-	}
 }

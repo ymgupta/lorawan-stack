@@ -6706,7 +6706,7 @@
             },
             {
               "name": "queued_application_downlinks",
-              "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.\nThis field is deprecated and is always set equal to session.queued_application_downlinks.",
+              "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.",
               "label": "repeated",
               "type": "ApplicationDownlink",
               "longType": "ApplicationDownlink",
@@ -8637,16 +8637,6 @@
               "fullType": "ttn.lorawan.v3.DownlinkMessage",
               "ismap": false,
               "defaultValue": ""
-            },
-            {
-              "name": "last_network_initiated_downlink_at",
-              "description": "Time when the last network-initiated downlink message was scheduled.",
-              "label": "",
-              "type": "Timestamp",
-              "longType": "google.protobuf.Timestamp",
-              "fullType": "google.protobuf.Timestamp",
-              "ismap": false,
-              "defaultValue": ""
             }
           ]
         },
@@ -8713,24 +8703,6 @@
                   {
                     "name": "message.required",
                     "value": true
-                  }
-                ]
-              }
-            },
-            {
-              "name": "correlation_ids",
-              "description": "",
-              "label": "repeated",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "repeated.items.string.max_len",
-                    "value": 100
                   }
                 ]
               }
@@ -8821,16 +8793,6 @@
               "type": "Timestamp",
               "longType": "google.protobuf.Timestamp",
               "fullType": "google.protobuf.Timestamp",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
-              "name": "queued_application_downlinks",
-              "description": "Queued Application downlink messages. Stored in Application Server and Network Server.",
-              "label": "repeated",
-              "type": "ApplicationDownlink",
-              "longType": "ApplicationDownlink",
-              "fullType": "ttn.lorawan.v3.ApplicationDownlink",
               "ismap": false,
               "defaultValue": ""
             }
@@ -9994,16 +9956,6 @@
               "type": "Duration",
               "longType": "google.protobuf.Duration",
               "fullType": "google.protobuf.Duration",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
-              "name": "update_location_from_status",
-              "description": "update the location of this gateway from status messages",
-              "label": "",
-              "type": "bool",
-              "longType": "bool",
-              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }
@@ -14603,11 +14555,6 @@
               "name": "MAC_V1_0_3",
               "number": "5",
               "description": ""
-            },
-            {
-              "name": "MAC_V1_0_4",
-              "number": "6",
-              "description": ""
             }
           ]
         },
@@ -16320,10 +16267,6 @@
               "options": {
                 "validate.rules": [
                   {
-                    "name": "uint64.lte",
-                    "value": 0
-                  },
-                  {
                     "name": "uint64.gte",
                     "value": 100000
                   }
@@ -16966,10 +16909,6 @@
               "options": {
                 "validate.rules": [
                   {
-                    "name": "uint64.lte",
-                    "value": 0
-                  },
-                  {
                     "name": "uint64.gte",
                     "value": 100000
                   }
@@ -17065,10 +17004,6 @@
               "defaultValue": "",
               "options": {
                 "validate.rules": [
-                  {
-                    "name": "uint64.lte",
-                    "value": 0
-                  },
                   {
                     "name": "uint64.gte",
                     "value": 100000
@@ -19226,16 +19161,6 @@
               "fullType": "uint32",
               "ismap": false,
               "defaultValue": ""
-            },
-            {
-              "name": "confirmed",
-              "description": "next: 12",
-              "label": "",
-              "type": "bool",
-              "longType": "bool",
-              "fullType": "bool",
-              "ismap": false,
-              "defaultValue": ""
             }
           ]
         },
@@ -20494,24 +20419,6 @@
               }
             },
             {
-              "name": "user_session_id",
-              "description": "",
-              "label": "",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "string.max_len",
-                    "value": 64
-                  }
-                ]
-              }
-            },
-            {
               "name": "client_ids",
               "description": "",
               "label": "",
@@ -20692,24 +20599,6 @@
                   {
                     "name": "message.required",
                     "value": true
-                  }
-                ]
-              }
-            },
-            {
-              "name": "user_session_id",
-              "description": "",
-              "label": "",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": "",
-              "options": {
-                "validate.rules": [
-                  {
-                    "name": "string.max_len",
-                    "value": 64
                   }
                 ]
               }

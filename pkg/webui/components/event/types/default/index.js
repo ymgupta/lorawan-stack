@@ -39,6 +39,7 @@ class DefaultEvent extends React.PureComponent {
     const { className, event, widget, overviewClassName, expandedClassName } = this.props
 
     const entityId = getEntityId(event.identifiers[0])
+
     const content = <Message content={{ id: `event:${event.name}` }} />
 
     return (
@@ -50,7 +51,6 @@ class DefaultEvent extends React.PureComponent {
         content={content}
         emitter={entityId}
         widget={widget}
-        data={event.data}
       />
     )
   }

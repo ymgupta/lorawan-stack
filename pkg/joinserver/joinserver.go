@@ -152,7 +152,6 @@ var supportedMACVersions = [...]ttnpb.MACVersion{
 	ttnpb.MAC_V1_0_1,
 	ttnpb.MAC_V1_0_2,
 	ttnpb.MAC_V1_0_3,
-	ttnpb.MAC_V1_0_4,
 	ttnpb.MAC_V1_1,
 }
 
@@ -252,10 +251,10 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 
 	pld := req.Payload.GetJoinRequestPayload()
 	if pld == nil {
-		return nil, errNoJoinRequest.New()
+		return nil, errNoJoinRequest
 	}
 	if pld.DevEUI.IsZero() {
-		return nil, errNoDevEUI.New()
+		return nil, errNoDevEUI
 	}
 	logger = logger.WithFields(log.Fields(
 		"join_eui", pld.JoinEUI,
@@ -270,7 +269,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 		}
 	}
 	if !match {
-		return nil, errUnknownJoinEUI.New()
+		return nil, errUnknownJoinEUI
 	}
 
 	var handled bool
@@ -293,7 +292,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 		func(ctx context.Context, dev *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error) {
 			if dn, ok := auth.X509DNFromContext(ctx); ok {
 				if dev.NetID == nil {
-					return nil, nil, errNoNetID.New()
+					return nil, nil, errNoNetID
 				}
 				if !req.NetID.Equal(*dev.NetID) {
 					return nil, nil, errNetIDMismatch.WithAttributes("net_id", req.NetID)
@@ -308,13 +307,13 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			paths := make([]string, 0, 3)
 
 			dn := uint32(binary.BigEndian.Uint16(pld.DevNonce[:]))
-			if req.SelectedMACVersion.IncrementDevNonce() {
+			if req.SelectedMACVersion.Compare(ttnpb.MAC_V1_1) >= 0 {
 				if (dn != 0 || dev.LastDevNonce != 0 || dev.LastJoinNonce != 0) && !dev.ResetsJoinNonces {
 					if dn <= dev.LastDevNonce {
-						return nil, nil, errDevNonceTooSmall.New()
+						return nil, nil, errDevNonceTooSmall
 					}
 					if dn == math.MaxUint32 {
-						return nil, nil, errDevNonceTooHigh.New()
+						return nil, nil, errDevNonceTooHigh
 					}
 				}
 				dev.LastDevNonce = dn
@@ -327,7 +326,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 					dev.UsedDevNonces[i] = dn
 					paths = append(paths, "used_dev_nonces")
 				} else if !dev.ResetsJoinNonces {
-					return nil, nil, errReuseDevNonce.New()
+					return nil, nil, errReuseDevNonce
 				}
 			}
 
@@ -346,7 +345,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			}
 
 			if dev.LastJoinNonce >= 1<<24-1 {
-				return nil, nil, errJoinNonceTooHigh.New()
+				return nil, nil, errJoinNonceTooHigh
 			}
 			dev.LastJoinNonce++
 			paths = append(paths, "last_join_nonce")
@@ -372,7 +371,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			skID, err := ulid.New(ulid.Timestamp(time.Now()), js.entropy)
 			js.entropyMu.Unlock()
 			if err != nil {
-				return nil, nil, errGenerateSessionKeyID.New()
+				return nil, nil, errGenerateSessionKeyID
 			}
 
 			cc, err := js.GetPeerConn(ctx, ttnpb.ClusterRole_CRYPTO_SERVER, dev.EndDeviceIdentifiers)
@@ -384,7 +383,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			}
 
 			var networkCryptoService cryptoservices.Network
-			if req.SelectedMACVersion.UseNwkKey() && dev.RootKeys != nil && dev.RootKeys.NwkKey != nil {
+			if req.SelectedMACVersion.Compare(ttnpb.MAC_V1_1) >= 0 && dev.RootKeys != nil && dev.RootKeys.NwkKey != nil {
 				// LoRaWAN 1.1 and higher use a NwkKey.
 				nwkKey, err := cryptoutil.UnwrapAES128Key(ctx, *dev.RootKeys.NwkKey, js.KeyVault)
 				if err != nil {
@@ -402,7 +401,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 					return nil, nil, err
 				}
 				applicationCryptoService = cryptoservices.NewMemory(nil, &appKey)
-				if !req.SelectedMACVersion.UseNwkKey() {
+				if req.SelectedMACVersion.Compare(ttnpb.MAC_V1_1) < 0 {
 					// LoRaWAN 1.0.x use the AppKey for network security operations.
 					networkCryptoService = cryptoservices.NewMemory(nil, &appKey)
 				}
@@ -410,10 +409,10 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 				applicationCryptoService = cryptoservices.NewApplicationRPCClient(cc, js.KeyVault, js.WithClusterAuth())
 			}
 			if networkCryptoService == nil {
-				return nil, nil, errNoNwkKey.New()
+				return nil, nil, errNoNwkKey
 			}
 			if applicationCryptoService == nil {
-				return nil, nil, errNoAppKey.New()
+				return nil, nil, errNoAppKey
 			}
 
 			cryptoDev := &ttnpb.EndDevice{}
@@ -425,7 +424,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 				return nil, nil, errComputeMIC.WithCause(err)
 			}
 			if !bytes.Equal(reqMIC[:], req.RawPayload[19:]) {
-				return nil, nil, errMICMismatch.New()
+				return nil, nil, errMICMismatch
 			}
 			resMIC, err := networkCryptoService.JoinAcceptMIC(ctx, cryptoDev, req.SelectedMACVersion, 0xff, pld.DevNonce, b)
 			if err != nil {
@@ -464,7 +463,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			if err != nil {
 				return nil, nil, errWrapKey.WithCause(err)
 			}
-			if req.SelectedMACVersion.UseNwkKey() {
+			if req.SelectedMACVersion.Compare(ttnpb.MAC_V1_1) >= 0 {
 				sessionKeys.SNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.SNwkSIntKey, nsKEKLabel)
 				if err != nil {
 					return nil, nil, errWrapKey.WithCause(err)
@@ -489,7 +488,7 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 				},
 				func(stored *ttnpb.SessionKeys) (*ttnpb.SessionKeys, []string, error) {
 					if stored != nil {
-						return nil, nil, errDuplicateIdentifiers.New()
+						return nil, nil, errDuplicateIdentifiers
 					}
 					return &res.SessionKeys, []string{
 						"session_key_id",
@@ -562,13 +561,13 @@ func (js *JoinServer) GetNwkSKeys(ctx context.Context, req *ttnpb.SessionKeyRequ
 	}
 
 	if ks.NwkSEncKey == nil {
-		return nil, errNoNwkSEncKey.New()
+		return nil, errNoNwkSEncKey
 	}
 	if ks.FNwkSIntKey == nil {
-		return nil, errNoFNwkSIntKey.New()
+		return nil, errNoFNwkSIntKey
 	}
 	if ks.SNwkSIntKey == nil {
-		return nil, errNoSNwkSIntKey.New()
+		return nil, errNoSNwkSIntKey
 	}
 
 	return &ttnpb.NwkSKeysResponse{
@@ -599,7 +598,7 @@ func (js *JoinServer) GetAppSKey(ctx context.Context, req *ttnpb.SessionKeyReque
 				return nil, err
 			}
 		} else {
-			return nil, errNoApplicationServerID.New()
+			return nil, errNoApplicationServerID
 		}
 	} else if err := clusterauth.Authorized(ctx); err != nil {
 		return nil, err
@@ -614,7 +613,7 @@ func (js *JoinServer) GetAppSKey(ctx context.Context, req *ttnpb.SessionKeyReque
 		return nil, errRegistryOperation.WithCause(err)
 	}
 	if ks.AppSKey == nil {
-		return nil, errNoAppSKey.New()
+		return nil, errNoAppSKey
 	}
 	return &ttnpb.AppSKeyResponse{
 		AppSKey: *ks.AppSKey,

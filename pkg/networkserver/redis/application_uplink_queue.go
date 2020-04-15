@@ -86,7 +86,7 @@ var (
 	errMissingPayload = errors.DefineDataLoss("missing_payload", "missing payload")
 )
 
-// Subscribe ranges over q.uidUplinkKey(unique.ID(ctx, appID)) using f until ctx is done.
+// Subscribe ranges over q.upStream(unique.ID(ctx, appID)) using f until ctx is done.
 // Subscribe assumes that there's at most 1 active consumer in q.Group per stream at all times.
 func (q *ApplicationUplinkQueue) Subscribe(ctx context.Context, appID ttnpb.ApplicationIdentifiers, f func(context.Context, *ttnpb.ApplicationUp) error) error {
 	uid := unique.ID(ctx, appID)
@@ -121,11 +121,11 @@ func (q *ApplicationUplinkQueue) Subscribe(ctx context.Context, appID ttnpb.Appl
 			for _, msg := range ret.Messages {
 				v, ok := msg.Values[payloadKey]
 				if !ok {
-					return errMissingPayload.New()
+					return errMissingPayload
 				}
 				s, ok := v.(string)
 				if !ok {
-					return errInvalidPayload.New()
+					return errInvalidPayload
 				}
 				up := &ttnpb.ApplicationUp{}
 				if err = ttnredis.UnmarshalProto(s, up); err != nil {

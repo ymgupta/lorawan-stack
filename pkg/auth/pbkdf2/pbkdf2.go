@@ -65,7 +65,7 @@ var errZeroLengthSalt = errors.DefineInternal(
 // Hash hashes a plain text password.
 func (p PBKDF2) Hash(plain string) (string, error) {
 	if p.SaltLength == 0 {
-		return "", errZeroLengthSalt.New()
+		return "", errZeroLengthSalt
 	}
 
 	salt := random.String(p.SaltLength)

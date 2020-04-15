@@ -26,7 +26,6 @@ import diff from '../../../../lib/diff'
 import m from '../../../components/device-data-form/messages'
 import PropTypes from '../../../../lib/prop-types'
 import sharedMessages from '../../../../lib/shared-messages'
-import { selectAsConfig, selectJsConfig, selectNsConfig } from '../../../../lib/selectors/env'
 import { parseLorawanMacVersion, hasExternalJs, isDeviceOTAA } from '../utils'
 import validationSchema from './validation-schema'
 
@@ -37,31 +36,23 @@ const messages = defineMessages({
 })
 
 const IdentityServerForm = React.memo(props => {
-  const {
-    device,
-    onSubmit,
-    onSubmitSuccess,
-    onDelete,
-    onDeleteSuccess,
-    onDeleteFailure,
-    mayReadKeys,
-  } = props
+  const { device, onSubmit, onSubmitSuccess, onDelete, onDeleteSuccess, onDeleteFailure } = props
   const { name, ids } = device
 
   const formRef = React.useRef(null)
   const [error, setError] = React.useState('')
-  const [externalJs, setExternaljs] = React.useState(hasExternalJs(device) && mayReadKeys)
+  const [externalJs, setExternaljs] = React.useState(hasExternalJs(device))
 
   const initialValues = React.useMemo(() => {
     const initialValues = {
       ...device,
-      _external_js: hasExternalJs(device) && mayReadKeys,
+      _external_js: hasExternalJs(device),
       _lorawan_version: device.lorawan_version,
       _supports_join: device.supports_join,
     }
 
     return validationSchema.cast(initialValues)
-  }, [device, mayReadKeys])
+  }, [device])
 
   const handleExternalJsChange = React.useCallback(evt => {
     const { checked: externalJsChecked } = evt.target
@@ -108,18 +99,10 @@ const IdentityServerForm = React.memo(props => {
     }
   }, [onDelete, onDeleteFailure, onDeleteSuccess])
 
-  const { enabled: jsEnabled } = selectJsConfig()
-  const { enabled: asEnabled } = selectAsConfig()
-  const { enabled: nsEnabled } = selectNsConfig()
-
   const isOTAA = isDeviceOTAA(device)
   const isNewLorawanVersion = parseLorawanMacVersion(device.lorawan_version) >= 110
   const hasJoinEUI = Boolean(device.ids.join_eui)
   const hasDevEUI = Boolean(device.ids.dev_eui)
-
-  // We do not want to show the external JS option if the user is on JS only deployment.
-  // See https://github.com/TheThingsNetwork/lorawan-stack/issues/2119#issuecomment-597736420
-  const hideExternalJs = !isOTAA || (jsEnabled && !asEnabled && !nsEnabled)
 
   let joinServerAddressPlaceholder = sharedMessages.addressPlaceholder
   if (isOTAA && externalJs) {
@@ -198,7 +181,7 @@ const IdentityServerForm = React.memo(props => {
         name="application_server_address"
         component={Input}
       />
-      {!hideExternalJs && (
+      {isOTAA && (
         <>
           <Form.Field
             title={m.externalJoinServer}
@@ -235,7 +218,6 @@ const IdentityServerForm = React.memo(props => {
 
 IdentityServerForm.propTypes = {
   device: PropTypes.device.isRequired,
-  mayReadKeys: PropTypes.bool.isRequired,
   onDelete: PropTypes.func.isRequired,
   onDeleteFailure: PropTypes.func.isRequired,
   onDeleteSuccess: PropTypes.func.isRequired,

@@ -255,7 +255,7 @@ var errNoTrust = errors.DefineInternal("no_trust", "no trusted certificate found
 // It supports the typical format "host:port" (port being optional).
 // It allows schemes "http://host:port" to be present.
 // If schemes http/https/ws/wss are used, the port is inferred if not present.
-func parseAddress(defaultScheme, address string) (scheme, host, port string, err error) {
+func parseAddress(address string) (scheme, host, port string, err error) {
 	if address == "" {
 		return
 	}
@@ -275,19 +275,12 @@ func parseAddress(defaultScheme, address string) (scheme, host, port string, err
 	} else {
 		host = address
 	}
-	if scheme == "" {
-		scheme = defaultScheme
-	}
 	if port == "" {
 		switch scheme {
-		case "http":
+		case "http", "ws":
 			port = "80"
-		case "ws":
-			port = "1887"
-		case "https":
+		case "https", "wss":
 			port = "443"
-		case "wss":
-			port = "8887"
 		}
 	}
 	return
@@ -298,11 +291,14 @@ func (s *Server) getTrust(address string) (*x509.Certificate, error) {
 		if s.trust != nil {
 			return s.trust, nil
 		}
-		return nil, errNoTrust.New()
+		return nil, errNoTrust
 	}
-	_, host, port, err := parseAddress("https", address)
+	_, host, port, err := parseAddress(address)
 	if err != nil {
 		return nil, err
+	}
+	if port == "" {
+		port = "443"
 	}
 	address = net.JoinHostPort(host, port)
 
@@ -337,7 +333,7 @@ func (s *Server) getTrust(address string) (*x509.Certificate, error) {
 			return trust, nil
 		}
 
-		return nil, errNoTrust.New()
+		return nil, errNoTrust
 	})
 	if err != nil {
 		return nil, err

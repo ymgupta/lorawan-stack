@@ -69,7 +69,7 @@ func (is *IdentityServer) Get(ctx context.Context, req *ttnpb.GetGatewayRequest)
 	uid := unique.ID(ctx, req.GatewayIdentifiers)
 	app, ok := is.gateways[uid]
 	if !ok {
-		return nil, errNotFound.New()
+		return nil, errNotFound
 	}
 	return app, nil
 }

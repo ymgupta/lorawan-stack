@@ -45,7 +45,7 @@ func (gs *GatewayServer) ScheduleDownlink(ctx context.Context, down *ttnpb.Downl
 	}
 	request := down.GetRequest()
 	if request == nil {
-		return nil, errNotTxRequest.New()
+		return nil, errNotTxRequest
 	}
 
 	var pathErrs []errors.ErrorDetails
@@ -82,7 +82,7 @@ func (gs *GatewayServer) ScheduleDownlink(ctx context.Context, down *ttnpb.Downl
 		}
 		ctx = events.ContextWithCorrelationID(ctx, events.CorrelationIDsFromContext(conn.Context())...)
 		down.CorrelationIDs = append(down.CorrelationIDs, events.CorrelationIDsFromContext(ctx)...)
-		registerSendDownlink(ctx, conn.Gateway(), down, conn.Frontend().Protocol())
+		registerSendDownlink(ctx, conn.Gateway(), down)
 		return &ttnpb.ScheduleDownlinkResponse{
 			Delay: delay,
 		}, nil

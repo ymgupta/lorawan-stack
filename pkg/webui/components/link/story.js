@@ -17,11 +17,9 @@ import { storiesOf } from '@storybook/react'
 
 import Link from '.'
 
-const divStyle = { width: '100px', height: '100px', backgroundColor: 'lightblue' }
-
 const titleStyle = { marginRight: '20px' }
 storiesOf('Link', module)
-  .add('Default (Unstyled)', () => (
+  .add('Default', () => (
     <div>
       <div>
         <span style={titleStyle}>link:</span>
@@ -33,81 +31,17 @@ storiesOf('Link', module)
       </div>
     </div>
   ))
-  .add('As wrapper', () => (
-    <div>
-      <div>
-        <span style={titleStyle}>linked block element:</span>
-        <Link to="/">
-          <div style={divStyle} />
-        </Link>
-      </div>
-      <div>
-        <span style={titleStyle}>anchor linked block element:</span>
-        <Link.Anchor href="/">
-          <div style={divStyle} />
-        </Link.Anchor>
-      </div>
-    </div>
-  ))
-  .add('Primary', () => (
-    <div>
-      <div>
-        <span style={titleStyle}>link:</span>
-        <Link primary to="/">
-          Show more
-        </Link>
-      </div>
-      <div>
-        <span style={titleStyle}>anchor link:</span>
-        <Link.Anchor primary href="/">
-          Show more
-        </Link.Anchor>
-      </div>
-    </div>
-  ))
-  .add('Secondary', () => (
-    <div>
-      <div>
-        <span style={titleStyle}>link:</span>
-        <Link secondary to="/">
-          Show more
-        </Link>
-      </div>
-      <div>
-        <span style={titleStyle}>anchor link:</span>
-        <Link.Anchor secondary href="/">
-          Show more
-        </Link.Anchor>
-      </div>
-    </div>
-  ))
   .add('Show Visited', () => (
     <div>
       <div>
         <span style={titleStyle}>link:</span>
-        <Link primary showVisited to="/">
+        <Link showVisited to="/">
           Show more
         </Link>
       </div>
       <div>
         <span style={titleStyle}>anchor link:</span>
-        <Link.Anchor primary showVisited href="/">
-          Show more
-        </Link.Anchor>
-      </div>
-    </div>
-  ))
-  .add('Disabled', () => (
-    <div>
-      <div>
-        <span style={titleStyle}>link:</span>
-        <Link primary disabled to="/">
-          Show more
-        </Link>
-      </div>
-      <div>
-        <span style={titleStyle}>anchor link:</span>
-        <Link.Anchor primary disabled href="/">
+        <Link.Anchor showVisited href="/">
           Show more
         </Link.Anchor>
       </div>

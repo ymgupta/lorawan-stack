@@ -59,7 +59,7 @@ func Parse(data []byte) (Data, error) {
 			return model, nil
 		}
 	}
-	return nil, errFormat.New()
+	return nil, errFormat
 }
 
 // EndDeviceFormat is a end device QR code format.

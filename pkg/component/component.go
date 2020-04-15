@@ -26,6 +26,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/getsentry/raven-go"
 	"github.com/heptiolabs/healthcheck"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
@@ -35,7 +36,9 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/interop"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/log/middleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
+	"go.thethings.network/lorawan-stack/pkg/version"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"golang.org/x/crypto/acme/autocert"
 	"google.golang.org/grpc"
@@ -58,9 +61,10 @@ type Component struct {
 	acme *autocert.Manager
 
 	logger log.Stack
+	sentry *raven.Client
 
 	cluster    cluster.Cluster
-	clusterNew func(ctx context.Context, config *cluster.Config, options ...cluster.Option) (cluster.Cluster, error)
+	clusterNew func(ctx context.Context, config *config.Cluster, options ...cluster.Option) (cluster.Cluster, error)
 
 	grpc           *rpcserver.Server
 	grpcSubsystems []rpcserver.Registerer
@@ -95,7 +99,7 @@ type Option func(*Component)
 // setting up the cluster.
 // This allows extending the cluster configuration with custom logic based on
 // information in the context.
-func WithClusterNew(f func(ctx context.Context, config *cluster.Config, options ...cluster.Option) (cluster.Cluster, error)) Option {
+func WithClusterNew(f func(ctx context.Context, config *config.Cluster, options ...cluster.Option) (cluster.Cluster, error)) Option {
 	return func(c *Component) {
 		c.clusterNew = f
 	}
@@ -139,6 +143,13 @@ func New(logger log.Stack, config *Config, opts ...Option) (c *Component, err er
 		tcpListeners: make(map[string]*listener),
 
 		KeyVault: keyVault,
+	}
+
+	if config.Sentry.DSN != "" {
+		c.sentry, _ = raven.New(config.Sentry.DSN)
+		c.sentry.SetIncludePaths([]string{"go.thethings.network/lorawan-stack"})
+		c.sentry.SetRelease(version.String())
+		c.logger.Use(sentry.New(c.sentry))
 	}
 
 	for _, opt := range opts {
@@ -329,12 +340,12 @@ func (c *Component) Close() {
 	c.tcpListenersMu.Lock()
 	defer c.tcpListenersMu.Unlock()
 	for _, l := range c.tcpListeners {
-		err := l.Close()
+		err := l.lis.Close()
 		if err != nil && c.ctx.Err() == nil {
-			c.logger.WithError(err).Errorf("Error while stopping to listen on %s", l.Addr())
+			c.logger.WithError(err).Errorf("Error while stopping to listen on %s", l.lis.Addr())
 			continue
 		}
-		c.logger.Debugf("Stopped listening on %s", l.Addr())
+		c.logger.Debugf("Stopped listening on %s", l.lis.Addr())
 	}
 
 	if c.grpc != nil {

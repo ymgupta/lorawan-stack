@@ -18,7 +18,7 @@ import ApiKeys from './api-keys'
 import Collaborators from './collaborators'
 
 class Gateways {
-  constructor(api, { defaultUserId, stackConfig }) {
+  constructor(api, { defaultUserId, stackConfig, proxy = true }) {
     this._api = api
     this._defaultUserId = defaultUserId
     this._stackConfig = stackConfig
@@ -37,27 +37,6 @@ class Gateways {
         set: 'gateway_ids.gateway_id',
       },
     })
-  }
-
-  _emitDefaults(paths, gateway) {
-    // Handle zero coordinates that are swallowed by the grpc-gateway for gateway antennas.
-    if (paths.includes('antennas') && Boolean(gateway.antennas)) {
-      const { antennas } = gateway
-
-      for (const antenna of antennas) {
-        if (!('altitude' in antenna.location)) {
-          antenna.location.altitude = 0
-        }
-        if (!('longitude' in antenna.location)) {
-          antenna.location.longitude = 0
-        }
-        if (!('latitude' in antenna.location)) {
-          antenna.location.latitude = 0
-        }
-      }
-    }
-
-    return gateway
   }
 
   // Retrieval
@@ -80,7 +59,7 @@ class Gateways {
       fieldMask,
     )
 
-    return this._emitDefaults(fieldMask.field_mask.paths, Marshaler.unwrapGateway(response))
+    return Marshaler.unwrapGateway(response)
   }
 
   async search(params, selector) {
@@ -89,7 +68,7 @@ class Gateways {
       ...Marshaler.selectorToFieldMask(selector),
     })
 
-    return Marshaler.unwrapGateways(response)
+    return Marshaler.payloadListResponse('gateways', response)
   }
 
   // Update
@@ -105,7 +84,7 @@ class Gateways {
       },
     )
 
-    return this._emitDefaults(mask, Marshaler.unwrapGateway(response))
+    return Marshaler.unwrapGateway(response)
   }
 
   // Create

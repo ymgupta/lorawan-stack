@@ -27,7 +27,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/basicstation"
-	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
@@ -58,8 +57,7 @@ var (
 
 	testTrafficEndPoint = "/traffic/eui-0101010101010101"
 
-	timeout               = (1 << 5) * test.Delay
-	defaultWSPingInterval = (1 << 3) * test.Delay
+	timeout = 10 * test.Delay
 )
 
 func eui64Ptr(eui types.EUI64) *types.EUI64 { return &eui }
@@ -79,7 +77,7 @@ func TestClientTokenAuth(t *testing.T) {
 				Listen:                      ":0",
 				AllowInsecureForCredentials: true,
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},
@@ -90,7 +88,7 @@ func TestClientTokenAuth(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -183,7 +181,7 @@ func TestDiscover(t *testing.T) {
 				Listen:                      ":0",
 				AllowInsecureForCredentials: true,
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},
@@ -194,7 +192,7 @@ func TestDiscover(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -372,6 +370,7 @@ func TestDiscover(t *testing.T) {
 			if err := conn.WriteMessage(websocket.TextMessage, req); err != nil {
 				t.Fatalf("Failed to write message: %v", err)
 			}
+
 			resCh := make(chan []byte)
 			go func() {
 				_, data, err := conn.ReadMessage()
@@ -421,7 +420,7 @@ func TestVersion(t *testing.T) {
 				Listen:                      ":0",
 				AllowInsecureForCredentials: true,
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},
@@ -432,7 +431,7 @@ func TestVersion(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -682,7 +681,7 @@ func TestTraffic(t *testing.T) {
 				Listen:                      ":0",
 				AllowInsecureForCredentials: true,
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},
@@ -693,7 +692,7 @@ func TestTraffic(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -1014,7 +1013,7 @@ func TestRTT(t *testing.T) {
 				Listen:                      ":0",
 				AllowInsecureForCredentials: true,
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},
@@ -1025,7 +1024,7 @@ func TestRTT(t *testing.T) {
 	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
 	gs := mock.NewServer(c)
 
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
+	bsWebServer := New(ctx, gs, false)
 	lis, err := net.Listen("tcp", serverAddress)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
@@ -1274,98 +1273,4 @@ func TestRTT(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestPingPong(t *testing.T) {
-	a := assertions.New(t)
-	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
-	ctx, cancelCtx := context.WithCancel(ctx)
-	defer cancelCtx()
-
-	is, isAddr := mock.NewIS(ctx)
-	is.Add(ctx, registeredGatewayID, registeredGatewayToken)
-	c := componenttest.NewComponent(t, &component.Config{
-		ServiceBase: config.ServiceBase{
-			GRPC: config.GRPC{
-				Listen:                      ":0",
-				AllowInsecureForCredentials: true,
-			},
-			Cluster: cluster.Config{
-				IdentityServer: isAddr,
-			},
-		},
-	})
-	c.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
-	componenttest.StartComponent(t, c)
-	defer c.Close()
-	mustHavePeer(ctx, c, ttnpb.ClusterRole_ENTITY_REGISTRY)
-	gs := mock.NewServer(c)
-
-	bsWebServer := New(ctx, gs, false, defaultWSPingInterval)
-	lis, err := net.Listen("tcp", serverAddress)
-	if !a.So(err, should.BeNil) {
-		t.FailNow()
-	}
-	defer lis.Close()
-	go func() error {
-		return http.Serve(lis, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			bsWebServer.ServeHTTP(w, r)
-		}))
-	}()
-	servAddr := fmt.Sprintf("ws://%s", lis.Addr().String())
-
-	conn, _, err := websocket.DefaultDialer.Dial(servAddr+testTrafficEndPoint, nil)
-	if !a.So(err, should.BeNil) {
-		t.Fatalf("Connection failed: %v", err)
-	}
-	defer conn.Close()
-
-	pingCh := make(chan []byte)
-	pongCh := make(chan []byte)
-
-	// Read server ping
-	go func() {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			//  The ping/pong handlers are called only after ws.ReadMessage() receives a ping/pong message. The data read here is irrelevant.
-			_, _, err := conn.ReadMessage()
-			if err != nil {
-				return
-			}
-		}
-	}()
-
-	conn.SetPingHandler(func(data string) error {
-		pingCh <- []byte{}
-		return nil
-	})
-
-	conn.SetPongHandler(func(data string) error {
-		pongCh <- []byte{}
-		return nil
-	})
-
-	select {
-	case <-pingCh:
-		t.Log("Received server ping")
-		break
-	case <-time.After(timeout):
-		t.Fatalf("Server ping timeout")
-	}
-
-	// Client Ping, Server Pong
-	if err := conn.WriteMessage(websocket.PingMessage, nil); err != nil {
-		t.Fatalf("Failed to ping server: %v", err)
-	}
-	select {
-	case <-pongCh:
-		t.Log("Received server pong")
-		break
-	case <-time.After(timeout):
-		t.Fatalf("Server pong timeout")
-	}
-
 }

@@ -87,11 +87,7 @@ DateTime.propTypes = {
 DateTime.defaultProps = {
   date: true,
   time: true,
-  dateFormatOptions: {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  },
+  dateFormatOptions: {},
   timeFormatOptions: {
     hour: 'numeric',
     minute: 'numeric',

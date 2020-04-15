@@ -60,28 +60,14 @@ export default class DeviceBulkCreateForm extends Component {
       format_id: PropTypes.string,
       data: PropTypes.string,
       set_claim_auth_code: PropTypes.bool,
-      components: PropTypes.shape({
-        is: PropTypes.bool,
-        ns: PropTypes.bool,
-        js: PropTypes.bool,
-        as: PropTypes.bool,
-      }),
     }).isRequired,
     onSubmit: PropTypes.func.isRequired,
   }
 
-  constructor(props) {
-    super(props)
-
-    const { initialValues } = props
-
-    this.state = {
-      allowedFileExtensions: undefined,
-      formatDescription: undefined,
-      formatSelected: false,
-      jsSelected: Boolean(initialValues.components.js),
-    }
-    this.formRef = React.createRef()
+  state = {
+    allowedFileExtensions: undefined,
+    formatDescription: undefined,
+    formatSelected: false,
   }
 
   @bind
@@ -96,31 +82,11 @@ export default class DeviceBulkCreateForm extends Component {
     this.setState(newState)
   }
 
-  @bind
-  handleComponentChange(value) {
-    const { jsSelected } = this.state
-    const { state } = this.formRef.current
-    const { js } = value
-
-    if (js !== jsSelected) {
-      this.setState({ jsSelected: js }, () => {
-        if (state.values.set_claim_auth_code) {
-          const { setFieldValue } = this.formRef.current
-
-          // `claim_authentication_code` is stored in JS, so if JS option is not selected
-          // we dont want to include it in the paylaod
-          setFieldValue('set_claim_auth_code', false)
-        }
-      })
-    }
-  }
-
   render() {
     const { initialValues, onSubmit, components } = this.props
-    const { allowedFileExtensions, formatSelected, formatDescription, jsSelected } = this.state
+    const { allowedFileExtensions, formatSelected, formatDescription } = this.state
     return (
       <Form
-        formikRef={this.formRef}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
         submitEnabledWhenInvalid
@@ -141,7 +107,6 @@ export default class DeviceBulkCreateForm extends Component {
           required
         />
         <Form.Field
-          onChange={this.handleComponentChange}
           component={Checkbox.Group}
           name="components"
           title={m.targetedComponents}
@@ -159,7 +124,7 @@ export default class DeviceBulkCreateForm extends Component {
           ))}
         </Form.Field>
         <Form.Field
-          disabled={!formatSelected || !jsSelected}
+          disabled={!formatSelected}
           title={m.claimAuthCode}
           component={Checkbox}
           name="set_claim_auth_code"

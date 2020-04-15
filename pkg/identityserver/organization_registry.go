@@ -53,7 +53,7 @@ func (is *IdentityServer) createOrganization(ctx context.Context, req *ttnpb.Cre
 			return nil, err
 		}
 	} else if orgIDs := req.Collaborator.GetOrganizationIDs(); orgIDs != nil {
-		return nil, errNestedOrganizations.New()
+		return nil, errNestedOrganizations
 	}
 	if err := validateContactInfo(req.Organization.ContactInfo); err != nil {
 		return nil, err
@@ -138,7 +138,7 @@ func (is *IdentityServer) listOrganizations(ctx context.Context, req *ttnpb.List
 			return nil, err
 		}
 	} else if orgIDs := req.Collaborator.GetOrganizationIDs(); orgIDs != nil {
-		return nil, errNestedOrganizations.New()
+		return nil, errNestedOrganizations
 	}
 	ctx = store.WithOrder(ctx, req.Order)
 	var total uint64

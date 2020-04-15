@@ -139,7 +139,7 @@ func (m *mockGatewayClient) UpdateAPIKey(ctx context.Context, in *ttnpb.UpdateGa
 
 const updateInfoRequest = `{
   "router": "58a0:cbff:fe80:19",
-  "cupsUri": "https://thethingsnetwork.org:443",
+  "cupsUri": "https://mh.sm.tc:7000",
   "tcUri": "",
   "cupsCredCrc": 1398343300,
   "tcCredCrc": 0,
@@ -176,6 +176,7 @@ func TestServer(t *testing.T) {
 	lnsURI := (&url.URL{Scheme: "wss", Host: tlsServerURL.Host}).String()
 
 	mockGateway := func() *ttnpb.Gateway {
+
 		return &ttnpb.Gateway{
 			GatewayIdentifiers: ttnpb.GatewayIdentifiers{
 				GatewayID: "test-gateway",

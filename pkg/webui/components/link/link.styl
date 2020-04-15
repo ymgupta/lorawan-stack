@@ -13,32 +13,17 @@
 // limitations under the License.
 
 .link
-  &:not(.primary):not(.secondary)
-    text-decoration: none
+  color: $tc-subtle-gray
+  text-decoration: none
 
-  &.primary
-    color: $c-active-blue
+  &:active,
+  &:hover
+    color: $tc-deep-gray
+    text-decoration: underline
 
-    &:active,
-    &:hover
-      color: $c-active-blue-hover
-      text-decoration: underline
-
-    &.link-visited
-      &:visited
-        color: $c-active-blue-active
-
-  &.secondary
-    color: $tc-subtle-gray
-    &:active,
-    &:hover
+  &-visited
+    &:visited
       color: $tc-deep-gray
 
-    &.link-visited
-      &:visited
-        color: $tc-deep-gray
-
-  &.primary, &.secondary
-    &.disabled
-      opacity: .5
-      cursor: not-allowed
+.disabled
+  pointer-events: none

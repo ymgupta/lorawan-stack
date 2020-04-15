@@ -92,7 +92,7 @@ func enqueueDLChannelReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, 
 
 func handleDLChannelAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACCommand_DLChannelAns) ([]events.DefinitionDataClosure, error) {
 	if pld == nil {
-		return nil, errNoPayload.New()
+		return nil, errNoPayload
 	}
 
 	var err error

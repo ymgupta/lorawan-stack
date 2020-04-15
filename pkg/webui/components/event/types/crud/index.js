@@ -21,6 +21,7 @@ import PropTypes from '../../../../lib/prop-types'
 import { getEntityId } from '../../../../lib/selectors/id'
 import { warn } from '../../../../lib/log'
 import style from './crud.styl'
+
 import { getEventActionByName } from '..'
 
 class CRUDEvent extends React.PureComponent {
@@ -70,7 +71,6 @@ class CRUDEvent extends React.PureComponent {
         emitter={entityId}
         content={content}
         widget={widget}
-        data={event.data}
       />
     )
   }

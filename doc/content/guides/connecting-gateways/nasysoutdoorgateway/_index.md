@@ -1,6 +1,7 @@
 ---
 title: "NASys LoRaWAN Outdoor Gateway"
 description: ""
+weight: 1
 ---
 
 NASys LoRaWAN Outdoor Gateway is an 8 Channel LoRaWAN gateway, whose technical specifications can be found in [the official product page](https://www.nasys.no/product/lorawan-gateway/). This page guides you to connect it to {{% tts %}}.
@@ -12,7 +13,7 @@ NASys LoRaWAN Outdoor Gateway is an 8 Channel LoRaWAN gateway, whose technical s
 
 ## Registration
 
-Create a gateway by following the instructions for the [Console]({{< ref "/guides/getting-started/console/create-gateway" >}}) or the [CLI]({{< ref "/guides/getting-started/cli#create-gateway" >}}). Typically, the **EUI** field for your gateway should exist on the sticker at the bottom. Make note of the Gateway ID you choose, because it will be needed later.
+Create a gateway by following the instructions for the [Console]({{< ref "/guides/getting-started/console#create-gateway" >}}) or the [CLI]({{< ref "/guides/getting-started/cli#create-gateway" >}}). Typically, the **EUI** field for your gateway should exist on the sticker at the bottom. Make note of the Gateway ID you choose, because it will be needed later.
 
 ## Configuration using a Terminal
 

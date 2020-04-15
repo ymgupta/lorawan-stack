@@ -36,7 +36,7 @@ func handleLinkCheckReq(ctx context.Context, dev *ttnpb.EndDevice, msg *ttnpb.Up
 	if dr, ok := msg.Settings.DataRate.Modulation.(*ttnpb.DataRate_LoRa); ok {
 		floor, ok = demodulationFloor[dr.LoRa.SpreadingFactor][dr.LoRa.Bandwidth]
 		if !ok {
-			return evs, errInvalidDataRate.New()
+			return evs, errInvalidDataRate
 		}
 	}
 	if len(msg.RxMetadata) == 0 {

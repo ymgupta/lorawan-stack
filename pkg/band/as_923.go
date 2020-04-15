@@ -52,15 +52,40 @@ func init() {
 			},
 		},
 
-		DataRates: map[ttnpb.DataRateIndex]DataRate{
-			0: makeLoRaDataRate(12, 125000, makeDwellTimeMaxMACPayloadSizeFunc(59, 0)),
-			1: makeLoRaDataRate(11, 125000, makeDwellTimeMaxMACPayloadSizeFunc(59, 0)),
-			2: makeLoRaDataRate(10, 125000, makeDwellTimeMaxMACPayloadSizeFunc(59, 19)),
-			3: makeLoRaDataRate(9, 125000, makeDwellTimeMaxMACPayloadSizeFunc(123, 61)),
-			4: makeLoRaDataRate(8, 125000, makeDwellTimeMaxMACPayloadSizeFunc(230, 133)),
-			5: makeLoRaDataRate(7, 125000, makeDwellTimeMaxMACPayloadSizeFunc(230, 250)),
-			6: makeLoRaDataRate(7, 250000, makeDwellTimeMaxMACPayloadSizeFunc(230, 250)),
-			7: makeFSKDataRate(50000, makeDwellTimeMaxMACPayloadSizeFunc(230, 250)),
+		DataRates: [16]DataRate{
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 12,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{59, 0}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 11,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{59, 0}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 10,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{59, 19}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 9,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{123, 61}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 8,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{230, 133}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 7,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{230, 250}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 7,
+				Bandwidth:       250000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{230, 250}},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_FSK{FSK: &ttnpb.FSKDataRate{
+				BitRate: 50000,
+			}}}, DefaultMaxSize: dwellTimePayloadSizer{230, 250}},
+			{}, {}, {}, {}, {}, {}, {}, // RFU
+			{}, // Used by LinkADRReq starting from LoRaWAN Regional Parameters 1.1, RFU before
 		},
 		MaxADRDataRateIndex: 5,
 
@@ -75,16 +100,12 @@ func init() {
 		MaxAckTimeout:    defaultAckTimeout + defaultAckTimeoutMargin,
 
 		DefaultMaxEIRP: 16,
-		TxOffset: []float32{
-			0,
-			-2,
-			-4,
-			-6,
-			-8,
-			-10,
-			-12,
-			-14,
+		TxOffset: [16]float32{
+			0, -2, -4, -6, -8, -10, -12, -14,
+			0, 0, 0, 0, 0, 0, 0, // RFU
+			0, // Used by LinkADRReq starting from LoRaWAN Regional Parameters 1.1, RFU before
 		},
+		MaxTxPowerIndex: 7,
 
 		LoRaCodingRate: "4/5",
 

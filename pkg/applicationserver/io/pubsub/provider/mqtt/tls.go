@@ -30,7 +30,7 @@ func createTLSConfig(caPEM []byte, certPEM []byte, keyPEM []byte) (*tls.Config, 
 	if len(caPEM) != 0 {
 		certPool = x509.NewCertPool()
 		if !certPool.AppendCertsFromPEM(caPEM) {
-			return nil, errInvalidCAPEMData.New()
+			return nil, errInvalidCAPEMData
 		}
 	}
 	cert, err := tls.X509KeyPair(certPEM, keyPEM)

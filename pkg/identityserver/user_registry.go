@@ -104,7 +104,7 @@ func (is *IdentityServer) createUser(ctx context.Context, req *ttnpb.CreateUserR
 		return nil, err
 	}
 	if req.InvitationToken == "" && is.configFromContext(ctx).UserRegistration.Invitation.Required && !createdByAdmin {
-		return nil, errInvitationTokenRequired.New()
+		return nil, errInvitationTokenRequired
 	}
 
 	if err := validate.Email(req.User.PrimaryEmailAddress); err != nil {
@@ -172,7 +172,7 @@ func (is *IdentityServer) createUser(ctx context.Context, req *ttnpb.CreateUserR
 				return err
 			}
 			if !invitationToken.ExpiresAt.IsZero() && invitationToken.ExpiresAt.Before(time.Now()) {
-				return errInvitationTokenExpired.New()
+				return errInvitationTokenExpired
 			}
 		}
 
@@ -334,7 +334,6 @@ func (is *IdentityServer) updateUser(ctx context.Context, req *ttnpb.UpdateUserR
 				return nil, errUpdateUserAdminField.WithAttributes("field", path)
 			}
 		}
-		req.PrimaryEmailAddressValidatedAt = nil
 		cleanContactInfo(req.User.ContactInfo)
 	}
 
@@ -378,6 +377,7 @@ func (is *IdentityServer) updateUser(ctx context.Context, req *ttnpb.UpdateUserR
 				if err != nil {
 					return err
 				}
+				contactInfo = usr.ContactInfo
 			}
 			if updatingPrimaryEmailAddress {
 				if !updatingContactInfo {
@@ -386,13 +386,14 @@ func (is *IdentityServer) updateUser(ctx context.Context, req *ttnpb.UpdateUserR
 						return err
 					}
 				}
+				req.PrimaryEmailAddressValidatedAt = nil
 				if !ttnpb.HasAnyField(req.FieldMask.Paths, "primary_email_address_validated_at") {
-					for _, contactInfo := range contactInfo {
-						if contactInfo.ContactMethod == ttnpb.CONTACT_METHOD_EMAIL && contactInfo.Value == req.User.PrimaryEmailAddress {
-							req.PrimaryEmailAddressValidatedAt = contactInfo.ValidatedAt
-							req.FieldMask.Paths = append(req.FieldMask.Paths, "primary_email_address_validated_at")
-							break
-						}
+					req.FieldMask.Paths = append(req.FieldMask.Paths, "primary_email_address_validated_at")
+				}
+				for _, contactInfo := range contactInfo {
+					if contactInfo.ContactMethod == ttnpb.CONTACT_METHOD_EMAIL && contactInfo.Value == req.User.PrimaryEmailAddress {
+						req.PrimaryEmailAddressValidatedAt = contactInfo.ValidatedAt
+						break
 					}
 				}
 			}
@@ -472,7 +473,7 @@ func (is *IdentityServer) updateUserPassword(ctx context.Context, req *ttnpb.Upd
 		} else {
 			if usr.TemporaryPassword == "" {
 				events.Publish(evtUpdateUserIncorrectPassword(ctx, req.UserIdentifiers, nil))
-				return errIncorrectPassword.New()
+				return errIncorrectPassword
 			}
 			region := trace.StartRegion(ctx, "validate temporary password")
 			valid, err = auth.Validate(usr.TemporaryPassword, req.Old)
@@ -482,10 +483,10 @@ func (is *IdentityServer) updateUserPassword(ctx context.Context, req *ttnpb.Upd
 				return err
 			case !valid:
 				events.Publish(evtUpdateUserIncorrectPassword(ctx, req.UserIdentifiers, nil))
-				return errIncorrectPassword.New()
+				return errIncorrectPassword
 			case usr.TemporaryPasswordExpiresAt.Before(time.Now()):
 				events.Publish(evtUpdateUserIncorrectPassword(ctx, req.UserIdentifiers, nil))
-				return errTemporaryPasswordExpired.New()
+				return errTemporaryPasswordExpired
 			}
 			usr.TemporaryPassword, usr.TemporaryPasswordCreatedAt, usr.TemporaryPasswordExpiresAt = "", nil, nil
 			updateMask = temporaryPasswordFieldMask
@@ -556,7 +557,7 @@ func (is *IdentityServer) createTemporaryPassword(ctx context.Context, req *ttnp
 			return err
 		}
 		if usr.TemporaryPasswordExpiresAt != nil && usr.TemporaryPasswordExpiresAt.After(time.Now()) {
-			return errTemporaryPasswordStillValid.New()
+			return errTemporaryPasswordStillValid
 		}
 		usr.TemporaryPassword = hashedTemporaryPassword
 		expires := now.Add(time.Hour)

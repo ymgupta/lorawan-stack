@@ -109,43 +109,45 @@ func (p Packet) BuildAck() (Packet, error) {
 	case PullData:
 		ack.PacketType = PullAck
 	default:
-		return Packet{}, errInvalidPacketType.New()
+		return Packet{}, errInvalidPacketType
 	}
 
 	return ack, nil
 }
 
 // UnmarshalBinary implements the encoding.BinaryUnmarshaler
-func (p *Packet) UnmarshalBinary(b []byte) error {
+func (p *Packet) UnmarshalBinary(b []byte) (err error) {
 	if len(b) < 4 {
 		return io.EOF
 	}
 	p.ProtocolVersion = ProtocolVersion(b[0])
 	copy(p.Token[:], b[1:3])
 	p.PacketType = PacketType(b[3])
+
 	i := 4
 
 	if p.PacketType.HasGatewayEUI() {
 		if len(b) < i+8 {
-			return errNoEUI.New()
+			return errNoEUI
 		}
+
 		p.GatewayEUI = new(types.EUI64)
-		if err := p.GatewayEUI.UnmarshalBinary(b[i : i+8]); err != nil {
+		err = p.GatewayEUI.UnmarshalBinary(b[i : i+8])
+		if err != nil {
 			return errEUI.WithCause(err)
 		}
 		i += 8
 	}
 
-	if p.PacketType.HasData() {
+	if p.PacketType.HasData() && len(b)-i > 0 {
 		p.Data = new(Data)
-		if len(b)-i > 0 {
-			if err := json.Unmarshal(b[i:], p.Data); err != nil {
-				return err
-			}
+		err = json.Unmarshal(b[i:], p.Data)
+		if err != nil {
+			return err
 		}
 	}
 
-	return nil
+	return
 }
 
 // MarshalBinary implements the encoding.BinaryMarshaler

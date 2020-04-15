@@ -238,7 +238,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 					return err
 				}
 				if updated.ApplicationIdentifiers != appID || updated.DeviceID != devID {
-					return errInvalidIdentifiers.New()
+					return errInvalidIdentifiers
 				}
 			} else {
 				if ttnpb.HasAnyField(sets, "ids.application_ids.application_id") && pb.ApplicationID != stored.ApplicationID {
@@ -272,10 +272,10 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 					}
 					i, err := tx.Exists(ek).Result()
 					if err != nil {
-						return err
+						return ttnredis.ConvertError(err)
 					}
 					if i != 0 {
-						return errDuplicateIdentifiers.New()
+						return errDuplicateIdentifiers
 					}
 					p.SetNX(ek, uid, 0)
 				}
@@ -315,7 +315,7 @@ func (r *DeviceRegistry) SetByID(ctx context.Context, appID ttnpb.ApplicationIde
 		return nil
 	}, uk)
 	if err != nil {
-		return nil, ctx, ttnredis.ConvertError(err)
+		return nil, ctx, err
 	}
 	return pb, ctx, nil
 }

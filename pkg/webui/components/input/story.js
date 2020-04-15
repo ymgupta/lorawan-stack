@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import crypto from 'crypto'
 import React from 'react'
 import bind from 'autobind-decorator'
 import { storiesOf } from '@storybook/react'
@@ -34,13 +33,13 @@ class Example extends React.Component {
   }
 
   render() {
-    const { type, valid, component: Component, ...props } = this.props
+    const { type, valid, ...props } = this.props
     const { value } = this.state
 
-    const InputComponent = Component ? Component : Input
+    const Component = type === 'toggled' ? Input.Toggled : Input
 
     return (
-      <InputComponent
+      <Component
         {...props}
         type={type}
         onChange={this.onChange}
@@ -50,13 +49,6 @@ class Example extends React.Component {
     )
   }
 }
-
-const generateRandomValue = () => `random-value-${Math.floor(Math.random() * 100)}`
-const generateRandom16Bytes = () =>
-  crypto
-    .randomBytes(16)
-    .toString('hex')
-    .toUpperCase()
 
 storiesOf('Input', module)
   .add('Default', () => (
@@ -75,10 +67,8 @@ storiesOf('Input', module)
   .add('Number', () => <Example type="number" />)
   .add('Byte', () => <Example type="byte" min={1} max={5} />)
   .add('Byte read-only', () => <Example type="byte" min={1} max={5} value="A0BF49A464" readOnly />)
-  .add('Toggled', () => (
-    <Example component={Input.Toggled} type="toggled" enabledMessage="Enabled" />
-  ))
-  .add('Textarea', () => <Example type="textarea" />)
+  .add('Toggled', () => <Example type="toggled" enabledMessage="Enabled" />)
+  .add('Textarea', () => <Example component="textarea" />)
   .add('With Spinner', () => <Example icon="search" loading />)
   .add('With Action', () => (
     <div>
@@ -86,16 +76,4 @@ storiesOf('Input', module)
       <Example action={{ icon: 'build', secondary: true }} warning />
       <Example action={{ icon: 'build', secondary: true }} error />
     </div>
-  ))
-  .add('Generate', () => (
-    <>
-      <Example component={Input.Generate} onGenerateValue={generateRandomValue} />
-      <Example
-        type="byte"
-        component={Input.Generate}
-        onGenerateValue={generateRandom16Bytes}
-        min={16}
-        max={16}
-      />
-    </>
   ))

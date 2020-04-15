@@ -23,13 +23,10 @@ import Select from '../../../../components/select'
 import Form from '../../../../components/form'
 import { NsFrequencyPlansSelect } from '../../../containers/freq-plans-select'
 import DevAddrInput from '../../../containers/dev-addr-input'
-import Notification from '../../../../components/notification'
 
 import diff from '../../../../lib/diff'
 import m from '../../../components/device-data-form/messages'
-import messages from '../messages'
 import sharedMessages from '../../../../lib/shared-messages'
-import randomByteString from '../../../lib/random-bytes'
 import PropTypes from '../../../../lib/prop-types'
 
 import {
@@ -43,14 +40,11 @@ import {
 } from '../utils'
 import validationSchema from './validation-schema'
 
-const random16BytesString = () => randomByteString(32)
-
 const lorawanVersions = [
   { value: '1.0.0', label: 'MAC V1.0' },
   { value: '1.0.1', label: 'MAC V1.0.1' },
   { value: '1.0.2', label: 'MAC V1.0.2' },
   { value: '1.0.3', label: 'MAC V1.0.3' },
-  { value: '1.0.4', label: 'MAC V1.0.4' },
   { value: '1.1.0', label: 'MAC V1.1' },
 ]
 
@@ -65,7 +59,7 @@ const lorawanPhyVersions = [
 ]
 
 const NetworkServerForm = React.memo(props => {
-  const { device, onSubmit, onSubmitSuccess, mayEditKeys, mayReadKeys } = props
+  const { device, onSubmit, onSubmitSuccess } = props
 
   const isABP = isDeviceABP(device)
   const isMulticast = isDeviceMulticast(device)
@@ -94,25 +88,39 @@ const NetworkServerForm = React.memo(props => {
     const values = {
       ...device,
       _activation_mode,
-      _external_js: hasExternalJs(device) && mayReadKeys,
+      _external_js: hasExternalJs(device),
       _joined: isDeviceOTAA(device) && isDeviceJoined(device),
-      _may_edit_keys: mayEditKeys,
-      _may_read_keys: mayReadKeys,
     }
 
     return validationSchema.cast(values)
-  }, [device, mayEditKeys, mayReadKeys])
+  }, [device])
 
   const onFormSubmit = React.useCallback(
     async (values, { resetForm, setSubmitting }) => {
+      const isABP = initialValues._activation_mode === ACTIVATION_MODES.ABP
+      const isOTAA = initialValues._activation_mode === ACTIVATION_MODES.OTAA
+
       const castedValues = validationSchema.cast(values)
       const updatedValues = diff(initialValues, castedValues, [
         '_activation_mode',
         '_external_js',
         '_joined',
-        '_may_edit_keys',
-        '_may_read_keys',
       ])
+
+      if (isABP) {
+        // Do not reset session keys
+        if (updatedValues.session.keys && Object.keys(updatedValues.session.keys).length === 0) {
+          delete updatedValues.session.keys
+        }
+
+        if (Object.keys(updatedValues.session).length === 0) {
+          delete updatedValues.session
+        }
+      } else if (isOTAA) {
+        if (updatedValues.root_keys && Object.keys(updatedValues.root_keys).length === 0) {
+          delete updatedValues.root_keys
+        }
+      }
 
       setError('')
       try {
@@ -177,10 +185,6 @@ const NetworkServerForm = React.memo(props => {
     [initialValues],
   )
 
-  // Notify the user that the session keys might be there, but since there are no rights
-  // to read the keys we cannot display them.
-  const showResetNotification = !mayReadKeys && mayEditKeys && !Boolean(device.session)
-
   return (
     <Form
       validationSchema={validationSchema}
@@ -223,23 +227,12 @@ const NetworkServerForm = React.memo(props => {
       </Form.Field>
       {(isABP || isMulticast || isJoinedOTAA) && (
         <>
-          {!isMulticast && !isJoinedOTAA && (
-            <Form.Field
-              title={m.resetsFCnt}
-              onChange={handleResetsFCntChange}
-              warning={resetsFCnt ? m.resetWarning : undefined}
-              name="mac_settings.resets_f_cnt"
-              component={Checkbox}
-            />
-          )}
-          {showResetNotification && <Notification content={messages.keysResetWarning} info small />}
           <DevAddrInput
             title={sharedMessages.devAddr}
             name="session.dev_addr"
             placeholder={m.leaveBlankPlaceholder}
             description={m.deviceAddrDescription}
-            disabled={!mayEditKeys}
-            required={mayReadKeys && mayEditKeys}
+            required
           />
           <Form.Field
             title={lorawanVersion >= 110 ? sharedMessages.fNwkSIntKey : sharedMessages.nwkSKey}
@@ -247,11 +240,9 @@ const NetworkServerForm = React.memo(props => {
             type="byte"
             min={16}
             max={16}
+            placeholder={m.leaveBlankPlaceholder}
             description={lorawanVersion >= 110 ? m.fNwkSIntKeyDescription : m.nwkSKeyDescription}
-            disabled={!mayEditKeys}
-            component={Input.Generate}
-            mayGenerateValue={mayEditKeys}
-            onGenerateValue={random16BytesString}
+            component={Input}
           />
           {lorawanVersion >= 110 && (
             <Form.Field
@@ -260,11 +251,9 @@ const NetworkServerForm = React.memo(props => {
               type="byte"
               min={16}
               max={16}
+              placeholder={m.leaveBlankPlaceholder}
               description={m.sNwkSIKeyDescription}
-              disabled={!mayEditKeys}
-              component={Input.Generate}
-              mayGenerateValue={mayEditKeys}
-              onGenerateValue={random16BytesString}
+              component={Input}
             />
           )}
           {lorawanVersion >= 110 && (
@@ -274,11 +263,18 @@ const NetworkServerForm = React.memo(props => {
               type="byte"
               min={16}
               max={16}
+              placeholder={m.leaveBlankPlaceholder}
               description={m.nwkSEncKeyDescription}
-              disabled={!mayEditKeys}
-              component={Input.Generate}
-              mayGenerateValue={mayEditKeys}
-              onGenerateValue={random16BytesString}
+              component={Input}
+            />
+          )}
+          {!isMulticast && !isJoinedOTAA && (
+            <Form.Field
+              title={m.resetsFCnt}
+              onChange={handleResetsFCntChange}
+              warning={resetsFCnt ? m.resetWarning : undefined}
+              name="mac_settings.resets_f_cnt"
+              component={Checkbox}
             />
           )}
         </>
@@ -292,8 +288,6 @@ const NetworkServerForm = React.memo(props => {
 
 NetworkServerForm.propTypes = {
   device: PropTypes.device.isRequired,
-  mayEditKeys: PropTypes.bool.isRequired,
-  mayReadKeys: PropTypes.bool.isRequired,
   onSubmit: PropTypes.func.isRequired,
   onSubmitSuccess: PropTypes.func.isRequired,
 }

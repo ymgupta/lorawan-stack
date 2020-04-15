@@ -72,10 +72,6 @@ func init() {
 	defaultUser.PrimaryEmailAddressValidatedAt = &now
 	defaultUser.State = ttnpb.STATE_APPROVED
 
-	defaultUser.TemporaryPassword = ""
-	defaultUser.TemporaryPasswordCreatedAt = nil
-	defaultUser.TemporaryPasswordExpiresAt = nil
-
 	for id, apiKeys := range population.APIKeys {
 		if id.GetUserIDs().GetUserID() == defaultUser.GetUserID() {
 			population.APIKeys[id] = append(
@@ -276,11 +272,7 @@ func getIdentityServer(t *testing.T) (*IdentityServer, *grpc.ClientConn) {
 		if dbName == "" {
 			dbName = "ttn_lorawan_is_test"
 		}
-		dbAuth := os.Getenv("SQL_DB_AUTH")
-		if dbAuth == "" {
-			dbAuth = "root"
-		}
-		dbConnString = fmt.Sprintf("postgresql://%s@%s/%s?sslmode=disable", dbAuth, dbAddress, dbName)
+		dbConnString = fmt.Sprintf("postgresql://root@%s/%s?sslmode=disable", dbAddress, dbName)
 		db, err := store.Open(ctx, dbConnString)
 		if err != nil {
 			panic(err)

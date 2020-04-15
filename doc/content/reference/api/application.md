@@ -1,6 +1,7 @@
 ---
 title: "Application APIs"
 description: ""
+weight: 1
 ---
 
 ## The `ApplicationRegistry` service

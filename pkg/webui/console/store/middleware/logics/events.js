@@ -28,7 +28,6 @@ import {
 } from '../../actions/events'
 import { createEventsStatusSelector } from '../../selectors/events'
 import { isUnauthenticatedError } from '../../../../lib/errors/utils'
-import { getCombinedDeviceId } from '../../../../lib/selectors/id'
 import user from './user'
 
 /**
@@ -61,13 +60,12 @@ const createEventsConnectLogics = function(reducerName, entityName, onEventsStar
       processOptions: {
         dispatchMultiple: true,
       },
-      validate({ getState, action = {} }, allow, reject) {
-        if (!action.id) {
+      validate({ getState, action }, allow, reject) {
+        const { id } = action
+        if (!id) {
           reject()
           return
         }
-
-        const id = typeof action.id === 'object' ? getCombinedDeviceId(action.id) : action.id
 
         // only proceed if not already connected
         const status = selectEntityEventsStatus(getState(), id)
@@ -101,13 +99,12 @@ const createEventsConnectLogics = function(reducerName, entityName, onEventsStar
     }),
     createLogic({
       type: [STOP_EVENTS, START_EVENTS_FAILURE, GET_EVENT_MESSAGE_FAILURE],
-      validate({ getState, action = {} }, allow, reject) {
-        if (!action.id) {
+      validate({ getState, action }, allow, reject) {
+        const { id } = action
+        if (!id) {
           reject()
           return
         }
-
-        const id = typeof action.id === 'object' ? getCombinedDeviceId(action.id) : action.id
 
         // only proceed if connected
         const status = selectEntityEventsStatus(getState(), id)

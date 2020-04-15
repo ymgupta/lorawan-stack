@@ -128,7 +128,7 @@ func UnwrapKey(ciphertext, kek []byte) ([]byte, error) {
 
 	// Check for corruption
 	if a != iv {
-		return nil, errCorruptKey.New()
+		return nil, errCorruptKey
 	}
 
 	// Build the result

@@ -139,12 +139,6 @@ export default {
       update: ttnClient.Applications.Webhooks.updateById.bind(ttnClient.Applications.Webhooks),
       delete: ttnClient.Applications.Webhooks.deleteById.bind(ttnClient.Applications.Webhooks),
       getFormats: ttnClient.Applications.Webhooks.getFormats.bind(ttnClient.Applications.Webhooks),
-      listTemplates: ttnClient.Applications.Webhooks.listTemplates.bind(
-        ttnClient.Applications.Webhooks,
-      ),
-      getTemplate: ttnClient.Applications.Webhooks.getTemplate.bind(
-        ttnClient.Applications.Webhooks,
-      ),
     },
     pubsubs: {
       list: ttnClient.Applications.PubSubs.getAll.bind(ttnClient.Applications.PubSubs),

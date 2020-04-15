@@ -81,18 +81,13 @@ class Tab extends React.PureComponent {
       [style.tabItemDisabled]: disabled,
     })
 
-    // There is no support for disabled on anchors in html and hence in `react-router`. So, do
-    // not render the link component if the tab is disabled, but render regular tab item instead.
-    const canRenderLink = link && !disabled
-
-    const Component = canRenderLink ? NavLink : 'span'
+    const Component = link ? NavLink : 'span'
     const props = {
       role: 'button',
       className: tabItemClassNames,
       children,
     }
-
-    if (canRenderLink) {
+    if (link) {
       props.exact = exact
       props.to = link
       props.activeClassName = style.tabItemActive

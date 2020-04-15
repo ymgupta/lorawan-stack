@@ -31,10 +31,10 @@ var errNoPayload = errors.Define("no_payload", "no payload")
 
 func (as *ApplicationServer) encodeAndEncrypt(ctx context.Context, dev *ttnpb.EndDevice, session *ttnpb.Session, downlink *ttnpb.ApplicationDownlink, defaultFormatters *ttnpb.MessagePayloadFormatters) error {
 	if session == nil || session.AppSKey == nil {
-		return errNoAppSKey.New()
+		return errNoAppSKey
 	}
 	if downlink.FRMPayload == nil && downlink.DecodedPayload == nil {
-		return errNoPayload.New()
+		return errNoPayload
 	}
 	if downlink.FRMPayload == nil && downlink.DecodedPayload != nil {
 		var formatter ttnpb.PayloadFormatter
@@ -64,7 +64,7 @@ func (as *ApplicationServer) encodeAndEncrypt(ctx context.Context, dev *ttnpb.En
 
 func (as *ApplicationServer) decryptAndDecode(ctx context.Context, dev *ttnpb.EndDevice, uplink *ttnpb.ApplicationUplink, defaultFormatters *ttnpb.MessagePayloadFormatters) error {
 	if dev.Session == nil || dev.Session.AppSKey == nil {
-		return errNoAppSKey.New()
+		return errNoAppSKey
 	}
 	appSKey, err := cryptoutil.UnwrapAES128Key(ctx, *dev.Session.AppSKey, as.KeyVault)
 	if err != nil {
@@ -104,7 +104,7 @@ var (
 
 func (p payloadFormatter) getRepositoryFormatters(version *ttnpb.EndDeviceVersionIdentifiers) (*ttnpb.MessagePayloadFormatters, error) {
 	if version == nil || p.repository == nil {
-		return nil, errNoVersion.New()
+		return nil, errNoVersion
 	}
 	versions, err := p.repository.DeviceVersions(version.BrandID, version.ModelID)
 	if err != nil {
@@ -115,7 +115,7 @@ func (p payloadFormatter) getRepositoryFormatters(version *ttnpb.EndDeviceVersio
 			return &v.DefaultFormatters, nil
 		}
 	}
-	return nil, errVersionUnavailable.New()
+	return nil, errVersionUnavailable
 }
 
 var errFormatterNotConfigured = errors.DefineFailedPrecondition("formatter_not_configured", "formatter `{formatter}` is not configured")

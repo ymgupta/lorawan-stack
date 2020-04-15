@@ -86,19 +86,53 @@ func init() {
 			},
 		},
 
-		DataRates: map[ttnpb.DataRateIndex]DataRate{
-			0: makeLoRaDataRate(10, 125000, makeConstMaxMACPayloadSizeFunc(19)),
-			1: makeLoRaDataRate(9, 125000, makeConstMaxMACPayloadSizeFunc(61)),
-			2: makeLoRaDataRate(8, 125000, makeConstMaxMACPayloadSizeFunc(133)),
-			3: makeLoRaDataRate(7, 125000, makeConstMaxMACPayloadSizeFunc(250)),
-			4: makeLoRaDataRate(8, 500000, makeConstMaxMACPayloadSizeFunc(250)),
-
-			8:  makeLoRaDataRate(12, 500000, makeConstMaxMACPayloadSizeFunc(41)),
-			9:  makeLoRaDataRate(11, 500000, makeConstMaxMACPayloadSizeFunc(117)),
-			10: makeLoRaDataRate(10, 500000, makeConstMaxMACPayloadSizeFunc(230)),
-			11: makeLoRaDataRate(9, 500000, makeConstMaxMACPayloadSizeFunc(230)),
-			12: makeLoRaDataRate(8, 500000, makeConstMaxMACPayloadSizeFunc(230)),
-			13: makeLoRaDataRate(7, 500000, makeConstMaxMACPayloadSizeFunc(230)),
+		DataRates: [16]DataRate{
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 10,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: constPayloadSizer(19)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 9,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: constPayloadSizer(61)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 8,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: constPayloadSizer(133)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 7,
+				Bandwidth:       125000,
+			}}}, DefaultMaxSize: constPayloadSizer(250)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 8,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(250)},
+			{}, {}, {}, // RFU
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 12,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(41)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 11,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(117)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 10,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(230)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 9,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(230)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 8,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(230)},
+			{Rate: ttnpb.DataRate{Modulation: &ttnpb.DataRate_LoRa{LoRa: &ttnpb.LoRaDataRate{
+				SpreadingFactor: 7,
+				Bandwidth:       500000,
+			}}}, DefaultMaxSize: constPayloadSizer(230)},
+			{}, // Used by LinkADRReq starting from LoRaWAN Regional Parameters 1.1, RFU before
 		},
 		MaxADRDataRateIndex: 3,
 
@@ -113,23 +147,14 @@ func init() {
 		MaxAckTimeout:    defaultAckTimeout + defaultAckTimeoutMargin,
 
 		DefaultMaxEIRP: 30,
-		TxOffset: []float32{
-			0,
-			-2,
-			-4,
-			-6,
-			-8,
-			-10,
-			-12,
-			-14,
-			-16,
-			-18,
-			-20,
-			-22,
-			-24,
-			-26,
-			-28,
-		},
+		TxOffset: func() [16]float32 {
+			offset := [16]float32{}
+			for i := 0; i < 15; i++ {
+				offset[i] = float32(0 - 2*i)
+			}
+			return offset
+		}(),
+		MaxTxPowerIndex: 14,
 
 		Rx1Channel: channelIndexModulo(8),
 		Rx1DataRate: func(idx ttnpb.DataRateIndex, offset uint32, _ bool) (ttnpb.DataRateIndex, error) {
@@ -162,15 +187,9 @@ func init() {
 		regionalParameters1_0:       bandIdentity,
 		regionalParameters1_0_1:     bandIdentity,
 		regionalParameters1_0_2RevA: usBeacon1_0_2,
-		regionalParameters1_0_2RevB: composeSwaps(
-			disableCFList1_0_2,
-			disableChMaskCntl51_0_2,
-			makeSetMaxTxPowerIndexFunc(10),
-		),
-		regionalParameters1_0_3RevA: composeSwaps(
-			makeAddTxPowerFunc(-30),
-		),
-		regionalParameters1_1RevA: bandIdentity,
+		regionalParameters1_0_2RevB: composeSwaps(disableCFList1_0_2, disableChMaskCntl51_0_2),
+		regionalParameters1_0_3RevA: bandIdentity,
+		regionalParameters1_1RevA:   bandIdentity,
 	}
 	All[US_902_928] = us_902_928
 }

@@ -18,7 +18,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"unicode"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.thethings.network/lorawan-stack/pkg/errors"
@@ -84,112 +83,57 @@ func defineEnqueueMACRequestEvent(name, desc string) func() events.Definition {
 	)
 }
 
-func defineClassSwitchEvent(class rune) func() events.Definition {
-	return events.DefineFunc(
-		fmt.Sprintf("ns.class.switch.%c", class), fmt.Sprintf("switched to class %c", unicode.ToUpper(class)),
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-}
-
 var (
 	evtBeginApplicationLink = events.Define(
-		"ns.application.link.begin", "begin application link",
+		"ns.application.begin_link", "begin application link",
 		ttnpb.RIGHT_APPLICATION_LINK,
 	)
 	evtEndApplicationLink = events.Define(
-		"ns.application.link.end", "end application link",
+		"ns.application.end_link", "end application link",
 		ttnpb.RIGHT_APPLICATION_LINK,
 	)
-	evtReceiveDataUplink = events.Define(
-		"ns.up.data.receive", "receive data message",
+	evtReceiveUplink = events.Define(
+		"ns.up.receive", "receive uplink message",
+		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
+	)
+	evtReceiveUplinkDuplicate = events.Define(
+		"ns.up.receive_duplicate", "receive duplicate uplink message",
+		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
+	)
+	evtMergeMetadata = events.Define(
+		"ns.up.merge_metadata", "merge uplink message metadata",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
 	evtDropDataUplink = events.Define(
 		"ns.up.data.drop", "drop data message",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
-	evtProcessDataUplink = events.Define(
-		"ns.up.data.process", "successfully processed data message",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
 	evtForwardDataUplink = events.Define(
-		"ns.up.data.forward", "forward data message to Application Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleDataDownlinkAttempt = events.Define(
-		"ns.down.data.schedule.attempt", "schedule data downlink for transmission on Gateway Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleDataDownlinkSuccess = events.Define(
-		"ns.down.data.schedule.success", "successfully scheduled data downlink for transmission on Gateway Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleDataDownlinkFail = events.Define(
-		"ns.down.data.schedule.fail", "failed to schedule data downlink for transmission on Gateway Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtReceiveJoinRequest = events.Define(
-		"ns.up.join.receive", "receive join-request",
+		"ns.up.data.forward", "forward data message",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
 	evtDropJoinRequest = events.Define(
 		"ns.up.join.drop", "drop join-request",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
-	evtProcessJoinRequest = events.Define(
-		"ns.up.join.process", "successfully processed join-request",
+	evtForwardJoinRequest = events.Define(
+		"ns.up.join.forward", "forward join-request",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
-	evtClusterJoinAttempt = events.Define(
-		"ns.up.join.cluster.attempt", "send join-request to cluster-local Join Server",
+	evtDropRejoinRequest = events.Define(
+		"ns.up.rejoin.drop", "drop rejoin-request",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
-	evtClusterJoinSuccess = events.Define(
-		"ns.up.join.cluster.success", "join-request to cluster-local Join Server succeeded",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtClusterJoinFail = events.Define(
-		"ns.up.join.cluster.fail", "join-request to cluster-local Join Server failed",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtInteropJoinAttempt = events.Define(
-		"ns.up.join.interop.attempt", "forward join-request to interoperability Join Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtInteropJoinSuccess = events.Define(
-		"ns.up.join.interop.success", "join-request to interoperability Join Server succeeded",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtInteropJoinFail = events.Define(
-		"ns.up.join.interop.fail", "join-request to interoperability Join Server failed",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtForwardJoinAccept = events.Define(
-		"ns.up.join.accept.forward", "forward join-accept to Application Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleJoinAcceptAttempt = events.Define(
-		"ns.down.join.schedule.attempt", "schedule join-accept for transmission on Gateway Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleJoinAcceptSuccess = events.Define(
-		"ns.down.join.schedule.success", "successfully scheduled join-accept for transmission on Gateway Server",
-		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
-	)
-	evtScheduleJoinAcceptFail = events.Define(
-		"ns.down.join.schedule.fail", "failed to schedule join-accept for transmission on Gateway Server",
+	evtForwardRejoinRequest = events.Define(
+		"ns.up.rejoin.forward", "forward rejoin-request",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
 	evtEnqueueProprietaryMACAnswer  = defineEnqueueMACAnswerEvent("proprietary", "proprietary MAC command")
 	evtEnqueueProprietaryMACRequest = defineEnqueueMACRequestEvent("proprietary", "proprietary MAC command")
 	evtReceiveProprietaryMAC        = events.Define(
-		"ns.mac.proprietary.receive", "receive proprietary MAC command",
+		"ns.mac.proprietary.receive", "proprietary MAC command received",
 		ttnpb.RIGHT_APPLICATION_TRAFFIC_READ,
 	)
-
-	evtClassASwitch = defineClassSwitchEvent('a')()
-	evtClassBSwitch = defineClassSwitchEvent('b')()
-	evtClassCSwitch = defineClassSwitchEvent('c')()
 )
 
 const (
@@ -270,16 +214,17 @@ func (m messageMetrics) Collect(ch chan<- prometheus.Metric) {
 	m.uplinkGateways.Collect(ch)
 }
 
-func uplinkMTypeLabel(mType ttnpb.MType) string {
-	return strings.ToLower(mType.String())
-}
-
-func registerReceiveUniqueUplink(ctx context.Context, msg *ttnpb.UplinkMessage) {
-	nsMetrics.uplinkUniqueReceived.WithLabelValues(ctx, uplinkMTypeLabel(msg.Payload.MType)).Inc()
+func uplinkMTypeLabel(msg *ttnpb.UplinkMessage) string {
+	return strings.ToLower(msg.Payload.MType.String())
 }
 
 func registerReceiveUplink(ctx context.Context, msg *ttnpb.UplinkMessage) {
-	nsMetrics.uplinkReceived.WithLabelValues(ctx, uplinkMTypeLabel(msg.Payload.MType)).Inc()
+	nsMetrics.uplinkReceived.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
+	nsMetrics.uplinkUniqueReceived.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
+}
+
+func registerReceiveUplinkDuplicate(ctx context.Context, msg *ttnpb.UplinkMessage) {
+	nsMetrics.uplinkReceived.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
 }
 
 func registerMergeMetadata(ctx context.Context, msg *ttnpb.UplinkMessage) {
@@ -290,22 +235,38 @@ func registerMergeMetadata(ctx context.Context, msg *ttnpb.UplinkMessage) {
 	nsMetrics.uplinkGateways.WithLabelValues(ctx).Observe(float64(len(gtws)))
 }
 
-func registerForwardDataUplink(ctx context.Context, msg *ttnpb.ApplicationUplink) {
-	mType := ttnpb.MType_UNCONFIRMED_UP
-	if msg.Confirmed {
-		mType = ttnpb.MType_CONFIRMED_UP
-	}
-	nsMetrics.uplinkForwarded.WithLabelValues(ctx, uplinkMTypeLabel(mType)).Inc()
+func registerForwardDataUplink(ctx context.Context, msg *ttnpb.UplinkMessage) {
+	nsMetrics.uplinkForwarded.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
 }
 
 func registerForwardJoinRequest(ctx context.Context, msg *ttnpb.UplinkMessage) {
-	nsMetrics.uplinkForwarded.WithLabelValues(ctx, uplinkMTypeLabel(msg.Payload.MType)).Inc()
+	nsMetrics.uplinkForwarded.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
 }
 
-func registerDropUplink(ctx context.Context, msg *ttnpb.UplinkMessage, err error) {
-	cause := unknown
+func registerForwardRejoinRequest(ctx context.Context, msg *ttnpb.UplinkMessage) {
+	nsMetrics.uplinkForwarded.WithLabelValues(ctx, uplinkMTypeLabel(msg)).Inc()
+}
+
+func registerDropDataUplink(ctx context.Context, msg *ttnpb.UplinkMessage, err error) {
 	if ttnErr, ok := errors.From(err); ok {
-		cause = ttnErr.FullName()
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), ttnErr.FullName()).Inc()
+	} else {
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), unknown).Inc()
 	}
-	nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg.Payload.MType), cause).Inc()
+}
+
+func registerDropJoinRequest(ctx context.Context, msg *ttnpb.UplinkMessage, err error) {
+	if ttnErr, ok := errors.From(err); ok {
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), ttnErr.FullName()).Inc()
+	} else {
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), unknown).Inc()
+	}
+}
+
+func registerDropRejoinRequest(ctx context.Context, msg *ttnpb.UplinkMessage, err error) {
+	if ttnErr, ok := errors.From(err); ok {
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), ttnErr.FullName()).Inc()
+	} else {
+		nsMetrics.uplinkDropped.WithLabelValues(ctx, uplinkMTypeLabel(msg), unknown).Inc()
+	}
 }

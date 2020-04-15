@@ -88,6 +88,8 @@ export function splitGetPaths(paths, base, components) {
  * other options
  * @param {Object} api - The Api object as passed to the service
  * @param {Object} stackConfig - The Things Stack config object
+ * @param {boolean} ignoreDisabledComponents - A flag indicating whether queries
+ * against disabled components should be ignored insread of throwing
  * @param {string} operation - The operation, an enum of 'create', 'set', 'get'
  * and 'delete'
  * @param {string} requestTree - The request tree, as returned by the splitPaths
@@ -102,10 +104,11 @@ export function splitGetPaths(paths, base, components) {
 export async function makeRequests(
   api,
   stackConfig,
+  ignoreDisabledComponents,
   operation,
   requestTree,
   params,
-  payload = {},
+  payload,
   ignoreNotFound = false,
 ) {
   const isCreate = operation === 'create'
@@ -135,25 +138,18 @@ export async function makeRequests(
     }
   }
 
-  // Split end device payload per stack component.
-  function splitPayload(payload = {}, paths, base = {}) {
-    if (!Boolean(payload.end_device)) {
-      return payload
-    }
-
-    const { end_device } = payload
-
-    const result = traverse(base)
-    const endDevice = traverse(end_device)
-
-    for (const path of paths) {
-      result.set(path, endDevice.get(path))
-    }
-
-    return Marshaler.payload(result.value, 'end_device')
-  }
-
   const requests = new Array(3)
+
+  // Check whether the request would query against disabled components
+  if (!ignoreDisabledComponents) {
+    for (const component of Object.keys(requestTree)) {
+      if (!stackConfig.isComponentAvailable(component)) {
+        throw new Error(
+          `Cannot run ${operation.toUpperCase()} end device request which (partially) depends on disabled component: "${component}".`,
+        )
+      }
+    }
+  }
 
   if (isSet && !('end_device.ids.device_id' in params.routeParams)) {
     // Ensure using the PUT method by setting the device id route param. This
@@ -172,8 +168,6 @@ export async function makeRequests(
     { component: 'is', hasAttempted: false, hasErrored: false },
   ]
 
-  const { end_device = {} } = payload
-
   // Do a possible IS request first
   if (stackConfig.isComponentAvailable('is') && 'is' in requestTree) {
     let func
@@ -186,13 +180,12 @@ export async function makeRequests(
     } else {
       func = 'Get'
     }
-
     result[3] = await requestWrapper(
       api.EndDeviceRegistry[func],
       params,
       'is',
       {
-        ...splitPayload(payload, requestTree.is, { ids: end_device.ids }),
+        ...payload,
         ...Marshaler.pathsToFieldMask(requestTree.is),
       },
       false,
@@ -211,19 +204,19 @@ export async function makeRequests(
   // Compose an array of possible api calls to NS, AS, JS
   if (stackConfig.isComponentAvailable('ns') && 'ns' in requestTree) {
     requests[0] = requestWrapper(api.NsEndDeviceRegistry[rpcFunction], params, 'ns', {
-      ...splitPayload(payload, requestTree.ns),
+      ...payload,
       ...Marshaler.pathsToFieldMask(requestTree.ns),
     })
   }
   if (stackConfig.isComponentAvailable('as') && 'as' in requestTree) {
     requests[1] = requestWrapper(api.AsEndDeviceRegistry[rpcFunction], params, 'as', {
-      ...splitPayload(payload, requestTree.as),
+      ...payload,
       ...Marshaler.pathsToFieldMask(requestTree.as),
     })
   }
   if (stackConfig.isComponentAvailable('js') && 'js' in requestTree) {
     requests[2] = requestWrapper(api.JsEndDeviceRegistry[rpcFunction], params, 'js', {
-      ...splitPayload(payload, requestTree.js, { ids: end_device.ids }),
+      ...payload,
       ...Marshaler.pathsToFieldMask(requestTree.js),
     })
   }

@@ -15,7 +15,7 @@
 package networkserver
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/band"
+	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -148,12 +148,14 @@ func maxSNRFromMetadata(mds ...*ttnpb.RxMetadata) (float32, bool) {
 func uplinkMetadata(ups ...*ttnpb.UplinkMessage) []*ttnpb.RxMetadata {
 	mds := make([]*ttnpb.RxMetadata, 0, len(ups))
 	for _, up := range ups {
-		mds = append(mds, up.RxMetadata...)
+		for _, md := range up.RxMetadata {
+			mds = append(mds, md)
+		}
 	}
 	return mds
 }
 
-func adaptDataRate(dev *ttnpb.EndDevice, phy band.Band, defaults ttnpb.MACSettings) error {
+func adaptDataRate(dev *ttnpb.EndDevice, fps *frequencyplans.Store, defaults ttnpb.MACSettings) error {
 	ups := dev.RecentADRUplinks
 	if len(ups) == 0 {
 		return nil
@@ -162,6 +164,11 @@ func adaptDataRate(dev *ttnpb.EndDevice, phy band.Band, defaults ttnpb.MACSettin
 	maxSNR, ok := maxSNRFromMetadata(uplinkMetadata(ups...)...)
 	if !ok {
 		return nil
+	}
+
+	_, phy, err := getDeviceBandVersion(dev, fps)
+	if err != nil {
+		return err
 	}
 
 	dev.MACState.DesiredParameters.ADRDataRateIndex = dev.MACState.CurrentParameters.ADRDataRateIndex
@@ -175,7 +182,7 @@ func adaptDataRate(dev *ttnpb.EndDevice, phy band.Band, defaults ttnpb.MACSettin
 		var ok bool
 		df, ok = demodulationFloor[dr.SpreadingFactor][dr.Bandwidth]
 		if !ok {
-			return errInvalidDataRate.New()
+			return errInvalidDataRate
 		}
 	}
 
@@ -201,7 +208,7 @@ func adaptDataRate(dev *ttnpb.EndDevice, phy band.Band, defaults ttnpb.MACSettin
 	}
 
 	// If we still have margin left, we decrease the Tx power (increase the index).
-	for dev.MACState.DesiredParameters.ADRTxPowerIndex < uint32(phy.MaxTxPowerIndex()) {
+	for int(dev.MACState.DesiredParameters.ADRTxPowerIndex) < int(phy.MaxTxPowerIndex) {
 		newMargin := margin - (phy.TxOffset[dev.MACState.DesiredParameters.ADRTxPowerIndex] - phy.TxOffset[dev.MACState.DesiredParameters.ADRTxPowerIndex+1])
 		if newMargin < 0 {
 			break

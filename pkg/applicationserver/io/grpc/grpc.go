@@ -137,7 +137,7 @@ func (s *impl) GetMQTTConnectionInfo(ctx context.Context, ids *ttnpb.Application
 		return nil, err
 	}
 	if s.mqttConfigProvider == nil {
-		return nil, errNoMQTTConfigProvider.New()
+		return nil, errNoMQTTConfigProvider
 	}
 	config, err := s.mqttConfigProvider.GetMQTTConfig(ctx)
 	if err != nil {

@@ -25,7 +25,7 @@ type basePathFetcher struct {
 
 func (f basePathFetcher) File(pathElements ...string) ([]byte, error) {
 	if len(pathElements) == 0 {
-		return nil, errFilenameNotSpecified.New()
+		return nil, errFilenameNotSpecified
 	}
 
 	// NOTE: filepath.IsAbs returns true for paths starting with '/' on all supported operating systems.

@@ -91,7 +91,7 @@ func NewScheduler(ctx context.Context, fps map[string]*frequencyplans.FrequencyP
 	var toa *frequencyplans.TimeOffAir
 	for _, fp := range fps {
 		if toa != nil && fp.TimeOffAir != *toa {
-			return nil, errFrequencyPlansTimeOffAir.New()
+			return nil, errFrequencyPlansTimeOffAir
 		}
 		toa = &fp.TimeOffAir
 	}
@@ -124,7 +124,7 @@ func NewScheduler(ctx context.Context, fps map[string]*frequencyplans.FrequencyP
 							break
 						}
 						if subBand.HasOverlap(sb) {
-							return nil, errFrequencyPlansOverlapSubBand.New()
+							return nil, errFrequencyPlansOverlapSubBand
 						}
 					}
 					if !isIdentical {
@@ -150,7 +150,7 @@ func NewScheduler(ctx context.Context, fps map[string]*frequencyplans.FrequencyP
 							break
 						}
 						if subBand.HasOverlap(sb) {
-							return nil, errFrequencyPlansOverlapSubBand.New()
+							return nil, errFrequencyPlansOverlapSubBand
 						}
 					}
 					if !isIdentical {
@@ -228,7 +228,7 @@ func (s *Scheduler) newEmission(payloadSize int, settings ttnpb.TxSettings, star
 			return NewEmission(starts, d), nil
 		}
 	}
-	return Emission{}, errDwellTime.New()
+	return Emission{}, errDwellTime
 }
 
 // SubBandCount returns the number of sub bands in the scheduler.
@@ -252,7 +252,7 @@ func (s *Scheduler) ScheduleAt(ctx context.Context, payloadSize int, settings tt
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if !s.clock.IsSynced() {
-		return Emission{}, errNoClockSync.New()
+		return Emission{}, errNoClockSync
 	}
 	minScheduleTime := ScheduleTimeShort
 	var medianRTT *time.Duration
@@ -271,11 +271,11 @@ func (s *Scheduler) ScheduleAt(ctx context.Context, payloadSize int, settings tt
 			if medianRTT != nil {
 				serverTime, ok := s.clock.FromServerTime(*settings.Time)
 				if !ok {
-					return Emission{}, errNoServerTime.New()
+					return Emission{}, errNoServerTime
 				}
 				starts = serverTime - ConcentratorTime(*medianRTT/2)
 			} else {
-				return Emission{}, errNoAbsoluteGatewayTime.New()
+				return Emission{}, errNoAbsoluteGatewayTime
 			}
 		}
 		// Assume that the absolute time is the time of arrival, not time of transmission.
@@ -302,7 +302,7 @@ func (s *Scheduler) ScheduleAt(ctx context.Context, payloadSize int, settings tt
 	}
 	for _, other := range s.emissions {
 		if em.OverlapsWithOffAir(other, s.timeOffAir) {
-			return Emission{}, errConflict.New()
+			return Emission{}, errConflict
 		}
 	}
 	if err := sb.Schedule(em, priority); err != nil {
@@ -326,7 +326,7 @@ func (s *Scheduler) ScheduleAnytime(ctx context.Context, payloadSize int, settin
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	if !s.clock.IsSynced() {
-		return Emission{}, errNoClockSync.New()
+		return Emission{}, errNoClockSync
 	}
 	minScheduleTime := ScheduleTimeShort
 	if rtts != nil {
@@ -337,7 +337,7 @@ func (s *Scheduler) ScheduleAnytime(ctx context.Context, payloadSize int, settin
 	var starts ConcentratorTime
 	now, ok := s.clock.FromServerTime(s.timeSource.Now())
 	if !ok {
-		return Emission{}, errNoServerTime.New()
+		return Emission{}, errNoServerTime
 	}
 	if settings.Timestamp == 0 {
 		starts = now + ConcentratorTime(s.scheduleAnytimeDelay)

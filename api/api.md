@@ -1860,7 +1860,7 @@ SDKs are responsible for combining (if desired) the three.
 | `recent_adr_uplinks` | [`UplinkMessage`](#ttn.lorawan.v3.UplinkMessage) | repeated | Recent uplink messages with ADR bit set to 1 sorted by time. Stored in Network Server. The field is reset each time an uplink message carrying MACPayload is received with ADR bit set to 0. The number of messages stored is in the range [0,20]; |
 | `recent_uplinks` | [`UplinkMessage`](#ttn.lorawan.v3.UplinkMessage) | repeated | Recent uplink messages sorted by time. Stored in Network Server. The number of messages stored may depend on configuration. |
 | `recent_downlinks` | [`DownlinkMessage`](#ttn.lorawan.v3.DownlinkMessage) | repeated | Recent downlink messages sorted by time. Stored in Network Server. The number of messages stored may depend on configuration. |
-| `queued_application_downlinks` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) | repeated | Queued Application downlink messages. Stored in Application Server, which sets them on the Network Server. This field is deprecated and is always set equal to session.queued_application_downlinks. |
+| `queued_application_downlinks` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) | repeated | Queued Application downlink messages. Stored in Application Server, which sets them on the Network Server. |
 | `formatters` | [`MessagePayloadFormatters`](#ttn.lorawan.v3.MessagePayloadFormatters) |  | The payload formatters for this end device. Stored in Application Server. Copied on creation from template identified by version_ids. |
 | `provisioner_id` | [`string`](#string) |  | ID of the provisioner. Stored in Join Server. |
 | `provisioning_data` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  | Vendor-specific provisioning data. Stored in Join Server. |
@@ -2222,7 +2222,6 @@ This is used internally by the Network Server and is read only.
 | `rx_windows_available` | [`bool`](#bool) |  | Whether or not Rx windows are expected to be open. Set to true every time an uplink is received. Set to false every time a successful downlink scheduling attempt is made. |
 | `recent_uplinks` | [`UplinkMessage`](#ttn.lorawan.v3.UplinkMessage) | repeated | Recent data uplink messages sorted by time. The number of messages stored may depend on configuration. |
 | `recent_downlinks` | [`DownlinkMessage`](#ttn.lorawan.v3.DownlinkMessage) | repeated | Recent data downlink messages sorted by time. The number of messages stored may depend on configuration. |
-| `last_network_initiated_downlink_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Time when the last network-initiated downlink message was scheduled. |
 
 #### Field Rules
 
@@ -2240,7 +2239,6 @@ This is used internally by the Network Server and is read only.
 | `payload` | [`bytes`](#bytes) |  | Payload of the join-accept received from Join Server. |
 | `request` | [`JoinRequest`](#ttn.lorawan.v3.JoinRequest) |  | JoinRequest sent to Join Server. |
 | `keys` | [`SessionKeys`](#ttn.lorawan.v3.SessionKeys) |  | Network session keys associated with the join. |
-| `correlation_ids` | [`string`](#string) | repeated |  |
 
 #### Field Rules
 
@@ -2249,7 +2247,6 @@ This is used internally by the Network Server and is read only.
 | `payload` | <p>`bytes.min_len`: `17`</p><p>`bytes.max_len`: `33`</p> |
 | `request` | <p>`message.required`: `true`</p> |
 | `keys` | <p>`message.required`: `true`</p> |
-| `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 
 ### <a name="ttn.lorawan.v3.Session">Message `Session`</a>
 
@@ -2262,7 +2259,6 @@ This is used internally by the Network Server and is read only.
 | `last_a_f_cnt_down` | [`uint32`](#uint32) |  | Last application downlink frame counter value used. Application Server only. |
 | `last_conf_f_cnt_down` | [`uint32`](#uint32) |  | Frame counter of the last confirmed downlink message sent. Network Server only. |
 | `started_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Time when the session started. Network Server only. |
-| `queued_application_downlinks` | [`ApplicationDownlink`](#ttn.lorawan.v3.ApplicationDownlink) | repeated | Queued Application downlink messages. Stored in Application Server and Network Server. |
 
 #### Field Rules
 
@@ -2510,7 +2506,6 @@ Gateway is the message that defines a gateway on the network.
 | `enforce_duty_cycle` | [`bool`](#bool) |  | Enforcing gateway duty cycle is recommended for all gateways to respect spectrum regulations. Disable enforcing the duty cycle only in controlled research and development environments. |
 | `downlink_path_constraint` | [`DownlinkPathConstraint`](#ttn.lorawan.v3.DownlinkPathConstraint) |  |  |
 | `schedule_anytime_delay` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  | Adjust the time that GS schedules class C messages in advance. This is useful for gateways that have a known high latency backhaul, like 3G and satellite. |
-| `update_location_from_status` | [`bool`](#bool) |  | update the location of this gateway from status messages |
 
 #### Field Rules
 
@@ -3717,7 +3712,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `frequency` | <p>`uint64.lte`: `0`</p><p>`uint64.gte`: `100000`</p> |
+| `frequency` | <p>`uint64.gte`: `100000`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.BeaconTimingAns">Message `MACCommand.BeaconTimingAns`</a>
 
@@ -3897,7 +3892,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 | Field | Validations |
 | ----- | ----------- |
 | `channel_index` | <p>`uint32.lte`: `255`</p> |
-| `frequency` | <p>`uint64.lte`: `0`</p><p>`uint64.gte`: `100000`</p> |
+| `frequency` | <p>`uint64.gte`: `100000`</p> |
 | `min_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 | `max_data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 
@@ -3919,7 +3914,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 
 | Field | Validations |
 | ----- | ----------- |
-| `frequency` | <p>`uint64.lte`: `0`</p><p>`uint64.gte`: `100000`</p> |
+| `frequency` | <p>`uint64.gte`: `100000`</p> |
 | `data_rate_index` | <p>`enum.defined_only`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.MACCommand.PingSlotInfoReq">Message `MACCommand.PingSlotInfoReq`</a>
@@ -4374,7 +4369,6 @@ Transmission settings for downlink.
 | `MAC_V1_0_2` | 3 |  |
 | `MAC_V1_1` | 4 |  |
 | `MAC_V1_0_3` | 5 |  |
-| `MAC_V1_0_4` | 6 |  |
 
 ### <a name="ttn.lorawan.v3.MType">Enum `MType`</a>
 
@@ -4731,7 +4725,6 @@ The UplinkMessageProcessor service processes uplink messages.
 | `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Server time when the Network Server received the message. |
 | `app_s_key` | [`KeyEnvelope`](#ttn.lorawan.v3.KeyEnvelope) |  | The AppSKey of the current session. This field is only present if the skip_payload_crypto field of the EndDevice is true. Can be used to decrypt uplink payloads and encrypt downlink payloads. |
 | `last_a_f_cnt_down` | [`uint32`](#uint32) |  | The last AFCntDown of the current session. This field is only present if the skip_payload_crypto field of the EndDevice is true. Can be used with app_s_key to encrypt downlink payloads. |
-| `confirmed` | [`bool`](#bool) |  | next: 12 |
 
 #### Field Rules
 
@@ -5049,7 +5042,6 @@ The NsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `user_ids` | [`UserIdentifiers`](#ttn.lorawan.v3.UserIdentifiers) |  |  |
-| `user_session_id` | [`string`](#string) |  |  |
 | `client_ids` | [`ClientIdentifiers`](#ttn.lorawan.v3.ClientIdentifiers) |  |  |
 | `id` | [`string`](#string) |  |  |
 | `access_token` | [`string`](#string) |  |  |
@@ -5063,7 +5055,6 @@ The NsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Validations |
 | ----- | ----------- |
 | `user_ids` | <p>`message.required`: `true`</p> |
-| `user_session_id` | <p>`string.max_len`: `64`</p> |
 | `client_ids` | <p>`message.required`: `true`</p> |
 
 ### <a name="ttn.lorawan.v3.OAuthAccessTokenIdentifiers">Message `OAuthAccessTokenIdentifiers`</a>
@@ -5092,7 +5083,6 @@ The NsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `user_ids` | [`UserIdentifiers`](#ttn.lorawan.v3.UserIdentifiers) |  |  |
-| `user_session_id` | [`string`](#string) |  |  |
 | `client_ids` | [`ClientIdentifiers`](#ttn.lorawan.v3.ClientIdentifiers) |  |  |
 | `rights` | [`Right`](#ttn.lorawan.v3.Right) | repeated |  |
 | `code` | [`string`](#string) |  |  |
@@ -5106,7 +5096,6 @@ The NsEndDeviceRegistry service allows clients to manage their end devices on th
 | Field | Validations |
 | ----- | ----------- |
 | `user_ids` | <p>`message.required`: `true`</p> |
-| `user_session_id` | <p>`string.max_len`: `64`</p> |
 | `client_ids` | <p>`message.required`: `true`</p> |
 | `redirect_uri` | <p>`string.uri_ref`: `true`</p> |
 

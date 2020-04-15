@@ -60,7 +60,7 @@ func verifySource(ctx context.Context, validKeys [][]byte) error {
 	switch md.AuthType {
 	case AuthType:
 	case "":
-		return errNoClusterKey.New()
+		return errNoClusterKey
 	default:
 		return errUnsupportedAuthType.WithAttributes("auth_type", md.AuthType)
 	}
@@ -73,7 +73,7 @@ func verifySource(ctx context.Context, validKeys [][]byte) error {
 			return nil
 		}
 	}
-	return errInvalidClusterKey.New()
+	return errInvalidClusterKey
 }
 
 // Authorized returns whether the context has been identified as a cluster call.

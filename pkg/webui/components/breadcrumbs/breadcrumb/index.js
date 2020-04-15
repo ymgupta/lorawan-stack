@@ -15,7 +15,7 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import Link from '../../link'
+import { Link } from 'react-router-dom'
 import Message from '../../../lib/components/message'
 import PropTypes from '../../../lib/prop-types'
 
@@ -27,7 +27,7 @@ const Breadcrumb = function({ className, path, content, isLast }) {
   let componentProps
   if (!isLast) {
     Component = Link
-    componentProps = { className: classnames(className, style.link), to: path, secondary: true }
+    componentProps = { className: classnames(className, style.link), to: path }
   } else {
     Component = 'span'
     componentProps = { className: classnames(className, style.last) }

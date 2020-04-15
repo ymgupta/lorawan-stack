@@ -1,6 +1,7 @@
 ---
 title: "Email Templates"
 description: ""
+weight: 15
 ---
 
 Email templates define the contents of the emails that {{% tts %}} sends to its users. They allow network operators to override the default contents of the emails with their own custom contents.

@@ -30,7 +30,7 @@ const Stepper = props => {
       return null
     }
 
-    if (React.isValidElement(child) && child.type.displayName === 'Stepper.Step') {
+    if (React.isValidElement(child) && child.type.displayName === 'Step') {
       const stepNumber = index + stepCountStart
       let stepStatus = status
       if (stepNumber < currentStep) {

@@ -54,9 +54,7 @@ const Status = function({
       className: classnames(label.props.className, style.statusLabel, { [style.flipped]: flipped }),
     })
   } else {
-    statusLabel = label && (
-      <Message className={style.statusLabel} content={label} values={labelValues} />
-    )
+    statusLabel = <Message className={style.statusLabel} content={label} values={labelValues} />
   }
 
   let translatedTitle

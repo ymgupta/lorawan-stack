@@ -55,7 +55,7 @@ func (cli osinClient) GetUserData() interface{} { return nil }
 
 // userData is used as the UserData interface in osin structs.
 type userData struct {
-	ttnpb.UserSessionIdentifiers
+	ttnpb.UserIdentifiers
 	ID string
 }
 
@@ -83,12 +83,12 @@ func (s *storage) GetClient(id string) (osin.Client, error) {
 }
 
 func (s *storage) SaveAuthorize(data *osin.AuthorizeData) error {
-	userSessionIDs := data.UserData.(userData).UserSessionIdentifiers
+	userIDs := data.UserData.(userData).UserIdentifiers
 	client := ttnpb.Client(data.Client.(osinClient))
 	rights := rightsFromScope(data.Scope)
 	_, err := s.oauth.Authorize(s.ctx, &ttnpb.OAuthClientAuthorization{
 		ClientIDs: client.ClientIdentifiers,
-		UserIDs:   userSessionIDs.UserIdentifiers,
+		UserIDs:   userIDs,
 		Rights:    rights,
 	})
 	if err != nil {
@@ -98,15 +98,14 @@ func (s *storage) SaveAuthorize(data *osin.AuthorizeData) error {
 		data.CreatedAt = time.Now()
 	}
 	err = s.oauth.CreateAuthorizationCode(s.ctx, &ttnpb.OAuthAuthorizationCode{
-		ClientIDs:     client.ClientIdentifiers,
-		UserIDs:       userSessionIDs.UserIdentifiers,
-		UserSessionID: userSessionIDs.SessionID,
-		Rights:        rights,
-		Code:          data.Code,
-		RedirectURI:   data.RedirectUri,
-		State:         data.State,
-		CreatedAt:     data.CreatedAt,
-		ExpiresAt:     data.CreatedAt.Add(time.Duration(data.ExpiresIn) * time.Second),
+		ClientIDs:   client.ClientIdentifiers,
+		UserIDs:     userIDs,
+		Rights:      rights,
+		Code:        data.Code,
+		RedirectURI: data.RedirectUri,
+		State:       data.State,
+		CreatedAt:   data.CreatedAt,
+		ExpiresAt:   data.CreatedAt.Add(time.Duration(data.ExpiresIn) * time.Second),
 	})
 	if err != nil {
 		return err
@@ -131,12 +130,7 @@ func (s *storage) LoadAuthorize(code string) (data *osin.AuthorizeData, err erro
 		RedirectUri: authorizationCode.RedirectURI,
 		State:       authorizationCode.State,
 		CreatedAt:   authorizationCode.CreatedAt,
-		UserData: userData{
-			UserSessionIdentifiers: ttnpb.UserSessionIdentifiers{
-				UserIdentifiers: authorizationCode.UserIDs,
-				SessionID:       authorizationCode.UserSessionID,
-			},
-		},
+		UserData:    userData{UserIdentifiers: authorizationCode.UserIDs},
 	}, nil
 }
 
@@ -168,7 +162,7 @@ func (s *storage) SaveAccess(data *osin.AccessData) error {
 		return err
 	}
 	if tokenType != auth.AccessToken {
-		return errNoAccessToken.New()
+		return errNoAccessToken
 	}
 	accessHash, err = auth.Hash(s.ctx, accessKey)
 	if err != nil {
@@ -180,7 +174,7 @@ func (s *storage) SaveAccess(data *osin.AccessData) error {
 			return err
 		}
 		if tokenType != auth.RefreshToken {
-			return errNoRefreshToken.New()
+			return errNoRefreshToken
 		}
 		if refreshID != accessID {
 			return errTokenMismatch.WithAttributes("refresh_token_id", refreshID, "access_token_id", accessID)
@@ -190,7 +184,7 @@ func (s *storage) SaveAccess(data *osin.AccessData) error {
 			return err
 		}
 	}
-	userSessionIDs := data.UserData.(userData).UserSessionIdentifiers
+	userIDs := data.UserData.(userData).UserIdentifiers
 	client := ttnpb.Client(data.Client.(osinClient))
 	rights := rightsFromScope(data.Scope)
 	if data.CreatedAt.IsZero() {
@@ -207,15 +201,14 @@ func (s *storage) SaveAccess(data *osin.AccessData) error {
 		}
 	}
 	return s.oauth.CreateAccessToken(s.ctx, &ttnpb.OAuthAccessToken{
-		ClientIDs:     client.ClientIdentifiers,
-		UserIDs:       userSessionIDs.UserIdentifiers,
-		UserSessionID: userSessionIDs.SessionID,
-		Rights:        rights,
-		ID:            accessID,
-		AccessToken:   accessHash,
-		RefreshToken:  refreshHash,
-		CreatedAt:     data.CreatedAt,
-		ExpiresAt:     data.CreatedAt.Add(time.Duration(data.ExpiresIn) * time.Second),
+		ClientIDs:    client.ClientIdentifiers,
+		UserIDs:      userIDs,
+		Rights:       rights,
+		ID:           accessID,
+		AccessToken:  accessHash,
+		RefreshToken: refreshHash,
+		CreatedAt:    data.CreatedAt,
+		ExpiresAt:    data.CreatedAt.Add(time.Duration(data.ExpiresIn) * time.Second),
 	}, previousID)
 }
 
@@ -235,13 +228,7 @@ func (s *storage) loadAccess(id string) (*osin.AccessData, error) {
 		ExpiresIn:    int32(accessToken.ExpiresAt.Sub(accessToken.CreatedAt).Seconds()),
 		Scope:        rightsToScope(accessToken.Rights...),
 		CreatedAt:    accessToken.CreatedAt,
-		UserData: userData{
-			UserSessionIdentifiers: ttnpb.UserSessionIdentifiers{
-				UserIdentifiers: accessToken.UserIDs,
-				SessionID:       accessToken.UserSessionID,
-			},
-			ID: id,
-		},
+		UserData:     userData{UserIdentifiers: accessToken.UserIDs, ID: id},
 	}, nil
 }
 
@@ -252,7 +239,7 @@ func (s *storage) LoadAccess(token string) (*osin.AccessData, error) {
 func (s *storage) RemoveAccess(token string) error {
 	if tokenType, id, _, err := auth.SplitToken(token); err == nil {
 		if tokenType != auth.AccessToken {
-			return errNoAccessToken.New()
+			return errNoAccessToken
 		}
 		return s.oauth.DeleteAccessToken(s.ctx, id)
 	}
@@ -265,7 +252,7 @@ func (s *storage) LoadRefresh(token string) (*osin.AccessData, error) {
 		return nil, err
 	}
 	if tokenType != auth.RefreshToken {
-		return nil, errNoRefreshToken.New()
+		return nil, errNoRefreshToken
 	}
 	data, err := s.loadAccess(id)
 	if err != nil {
@@ -273,7 +260,7 @@ func (s *storage) LoadRefresh(token string) (*osin.AccessData, error) {
 	}
 	valid, err := auth.Validate(data.RefreshToken, tokenKey)
 	if !valid || err != nil {
-		return nil, errInvalidToken.New()
+		return nil, errInvalidToken
 	}
 	return data, nil
 }
@@ -281,7 +268,7 @@ func (s *storage) LoadRefresh(token string) (*osin.AccessData, error) {
 func (s *storage) RemoveRefresh(token string) error {
 	if tokenType, id, _, err := auth.SplitToken(token); err == nil {
 		if tokenType != auth.RefreshToken {
-			return errNoRefreshToken.New()
+			return errNoRefreshToken
 		}
 		return s.oauth.DeleteAccessToken(s.ctx, id)
 	}

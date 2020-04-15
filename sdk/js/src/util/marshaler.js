@@ -49,7 +49,7 @@ class Marshaler {
     return res
   }
 
-  static payloadListResponse(entity, { data = {}, headers = {} }) {
+  static payloadListResponse(entity, { data = {}, headers = {} }, transform) {
     const list = data[entity]
 
     if (!list) {
@@ -62,10 +62,12 @@ class Marshaler {
       return { [entity]: list, totalCount: list.length }
     }
 
-    return { [entity]: list, totalCount }
+    const transformedList = transform ? list.map(transform) : list
+
+    return { [entity]: transformedList, totalCount }
   }
 
-  static payloadSingleResponse(response) {
+  static payloadSingleResponse(response, transform) {
     if (typeof response !== 'object') {
       throw new Error(`Invalid response type: ${typeof response}`)
     }
@@ -74,40 +76,39 @@ class Marshaler {
     }
 
     const entity = response.data || response
-
-    return entity
+    return transform ? transform(entity) : entity
   }
 
-  static unwrapRights(result) {
-    return this.payloadListResponse('rights', result)
+  static unwrapRights(result, transform) {
+    return this.payloadListResponse('rights', result, transform)
   }
 
-  static unwrapApplications(result) {
-    return this.payloadListResponse('applications', result)
+  static unwrapApplications(result, transform) {
+    return this.payloadListResponse('applications', result, transform)
   }
 
-  static unwrapApplication(result) {
-    return this.payloadSingleResponse(result)
+  static unwrapApplication(result, transform) {
+    return this.payloadSingleResponse(result, transform)
   }
 
-  static unwrapDevices(result) {
-    return this.payloadListResponse('end_devices', result)
+  static unwrapDevices(result, transform) {
+    return this.payloadListResponse('end_devices', result, transform)
   }
 
-  static unwrapDevice(result) {
-    return this.payloadSingleResponse(result)
+  static unwrapDevice(result, transform) {
+    return this.payloadSingleResponse(result, transform)
   }
 
-  static unwrapGateways(result) {
-    return this.payloadListResponse('gateways', result)
+  static unwrapGateways(result, transform) {
+    return this.payloadListResponse('gateways', result, transform)
   }
 
-  static unwrapGateway(result) {
-    return this.payloadSingleResponse(result)
+  static unwrapGateway(result, transform) {
+    return this.payloadSingleResponse(result, transform)
   }
 
-  static unwrapUser(result) {
-    return this.payloadSingleResponse(result)
+  static unwrapUser(result, transform) {
+    return this.payloadSingleResponse(result, transform)
   }
 
   static fieldMaskFromPatch(patch, whitelist, remaps) {

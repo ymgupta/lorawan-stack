@@ -20,6 +20,8 @@ import Message from '../../../../lib/components/message'
 import Icon from '../../../icon'
 import PropTypes from '../../../../lib/prop-types'
 import { getEntityId } from '../../../../lib/selectors/id'
+import formatMessageData from './format-message'
+
 import style from './message.styl'
 
 @bind
@@ -45,6 +47,7 @@ class MessageEvent extends React.PureComponent {
 
     const entityId = getEntityId(event.identifiers[0])
     const icon = type === 'downlink' ? 'downlink' : 'uplink'
+    const data = formatMessageData(event.data)
 
     const eventContent = <Message content={{ id: `event:${event.name}` }} />
     const eventIcon = <Icon icon={icon} className={style.messageIcon} />
@@ -58,7 +61,7 @@ class MessageEvent extends React.PureComponent {
         time={event.time}
         emitter={entityId}
         content={eventContent}
-        data={event.data}
+        data={data}
         widget={widget}
       />
     )

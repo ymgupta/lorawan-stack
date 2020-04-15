@@ -32,7 +32,11 @@ func InitializeEvents(ctx context.Context, config config.ServiceBase) (err error
 	case "internal":
 		return nil // this is the default.
 	case "redis":
-		events.SetDefaultPubSub(redis.NewPubSub(config.Events.Redis))
+		if !config.Events.Redis.IsZero() {
+			events.SetDefaultPubSub(redis.NewPubSub(config.Events.Redis))
+		} else {
+			events.SetDefaultPubSub(redis.NewPubSub(config.Redis))
+		}
 		return nil
 	case "cloud":
 		ps, err := cloud.NewPubSub(ctx, config.Events.Cloud.PublishURL, config.Events.Cloud.SubscribeURL)

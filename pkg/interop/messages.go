@@ -242,7 +242,7 @@ func parseMessage() echo.MiddlewareFunc {
 			switch header.ProtocolVersion {
 			case "1.0", "1.1":
 			default:
-				return ErrProtocolVersion.New()
+				return ErrProtocolVersion
 			}
 			var msg interface{}
 			switch header.MessageType {
@@ -259,10 +259,10 @@ func parseMessage() echo.MiddlewareFunc {
 			case MessageTypeHomeNSAns:
 				msg = &HomeNSAns{}
 			default:
-				return ErrMalformedMessage.New()
+				return ErrMalformedMessage
 			}
 			if err := json.Unmarshal(buf, msg); err != nil {
-				return ErrMalformedMessage.New()
+				return ErrMalformedMessage
 			}
 			c.Set(messageKey, msg)
 			return next(c)
@@ -278,7 +278,7 @@ func verifySenderID(getSenderClientCAs func(string) []*x509.Certificate) echo.Mi
 			header := c.Get(headerKey).(*RawMessageHeader)
 			senderClientCAs := getSenderClientCAs(header.SenderID)
 			if len(senderClientCAs) == 0 {
-				return ErrUnknownSender.New()
+				return ErrUnknownSender
 			}
 			if state := c.Request().TLS; state != nil {
 				for _, chain := range state.VerifiedChains {
@@ -292,7 +292,7 @@ func verifySenderID(getSenderClientCAs func(string) []*x509.Certificate) echo.Mi
 				}
 			}
 			// TODO: Check headers (https://github.com/TheThingsNetwork/lorawan-stack/issues/717)
-			return ErrUnknownSender.New()
+			return ErrUnknownSender
 		}
 	}
 }

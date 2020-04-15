@@ -1,6 +1,7 @@
 ---
 title: "Downlink Queue Operations"
 description: ""
+weight: 30
 ---
 
 {{% tts %}} keeps a queue of downlink messages per device. Applications can keep pushing downlink messages or replace the queue with a list of downlink messages.
@@ -23,10 +24,9 @@ To push downlink to the end of the queue:
 $ ttn-lw-cli end-devices downlink push app1 dev1 \
   --frm-payload 01020304 \
   --priority NORMAL
-  --f-port 42
 ```
 
-You must pass an `FPort` with `--f-port`. Confirmed downlinks can be set using `--confirmed`.
+You can pass an `FPort` (default `1`) with `--f-port`, and confirmed downlink with `--confirmed`.
 
 To replace the existing queue with a new item:
 

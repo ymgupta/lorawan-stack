@@ -101,7 +101,6 @@ type ApplicationAccessListRightsResponse struct {
 	Response *ttnpb.Rights
 	Error    error
 }
-
 type ApplicationAccessListRightsRequest struct {
 	Context  context.Context
 	Message  *ttnpb.ApplicationIdentifiers

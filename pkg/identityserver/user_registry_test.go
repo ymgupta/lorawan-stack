@@ -80,12 +80,6 @@ func TestTemporaryValidPassword(t *testing.T) {
 			UserIdentifiers: userID,
 		})
 
-		a.So(err, should.BeNil)
-
-		_, err = reg.CreateTemporaryPassword(ctx, &ttnpb.CreateTemporaryPasswordRequest{
-			UserIdentifiers: userID,
-		})
-
 		if a.So(err, should.NotBeNil) {
 			a.So(errors.IsInvalidArgument(err), should.BeTrue)
 		}
@@ -130,7 +124,7 @@ func TestUserUpdateInvalidPassword(t *testing.T) {
 		})
 
 		if a.So(err, should.NotBeNil) {
-			a.So(errors.IsUnauthenticated(err), should.BeTrue)
+			a.So(errors.IsInternal(err), should.BeTrue)
 		}
 	})
 }
@@ -252,6 +246,7 @@ func TestUsersCRUD(t *testing.T) {
 			a.So(got.Name, should.Equal, user.Name)
 			a.So(got.Admin, should.Equal, user.Admin)
 			a.So(got.CreatedAt, should.Equal, user.CreatedAt)
+			a.So(got.UpdatedAt, should.Equal, user.UpdatedAt)
 		}
 
 		got, err = reg.Get(ctx, &ttnpb.GetUserRequest{

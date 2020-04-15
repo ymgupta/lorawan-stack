@@ -8,7 +8,7 @@ import (
 )
 
 func (dst *UplinkMessage) SetFields(src *UplinkMessage, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "raw_payload":
 			if len(subs) > 0 {
@@ -109,7 +109,7 @@ func (dst *UplinkMessage) SetFields(src *UplinkMessage, paths ...string) error {
 }
 
 func (dst *DownlinkMessage) SetFields(src *DownlinkMessage, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "raw_payload":
 			if len(subs) > 0 {
@@ -275,7 +275,7 @@ func (dst *DownlinkMessage) SetFields(src *DownlinkMessage, paths ...string) err
 }
 
 func (dst *TxAcknowledgment) SetFields(src *TxAcknowledgment, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "correlation_ids":
 			if len(subs) > 0 {
@@ -305,7 +305,7 @@ func (dst *TxAcknowledgment) SetFields(src *TxAcknowledgment, paths ...string) e
 }
 
 func (dst *GatewayUplinkMessage) SetFields(src *GatewayUplinkMessage, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "message":
 			if len(subs) > 0 {
@@ -351,7 +351,7 @@ func (dst *GatewayUplinkMessage) SetFields(src *GatewayUplinkMessage, paths ...s
 }
 
 func (dst *ApplicationUplink) SetFields(src *ApplicationUplink, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "session_key_id":
 			if len(subs) > 0 {
@@ -472,16 +472,6 @@ func (dst *ApplicationUplink) SetFields(src *ApplicationUplink, paths ...string)
 				var zero uint32
 				dst.LastAFCntDown = zero
 			}
-		case "confirmed":
-			if len(subs) > 0 {
-				return fmt.Errorf("'confirmed' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.Confirmed = src.Confirmed
-			} else {
-				var zero bool
-				dst.Confirmed = zero
-			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -491,7 +481,7 @@ func (dst *ApplicationUplink) SetFields(src *ApplicationUplink, paths ...string)
 }
 
 func (dst *ApplicationLocation) SetFields(src *ApplicationLocation, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "service":
 			if len(subs) > 0 {
@@ -539,7 +529,7 @@ func (dst *ApplicationLocation) SetFields(src *ApplicationLocation, paths ...str
 }
 
 func (dst *ApplicationJoinAccept) SetFields(src *ApplicationJoinAccept, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "session_key_id":
 			if len(subs) > 0 {
@@ -613,7 +603,7 @@ func (dst *ApplicationJoinAccept) SetFields(src *ApplicationJoinAccept, paths ..
 }
 
 func (dst *ApplicationDownlink) SetFields(src *ApplicationDownlink, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "session_key_id":
 			if len(subs) > 0 {
@@ -725,7 +715,7 @@ func (dst *ApplicationDownlink) SetFields(src *ApplicationDownlink, paths ...str
 }
 
 func (dst *ApplicationDownlinks) SetFields(src *ApplicationDownlinks, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "downlinks":
 			if len(subs) > 0 {
@@ -745,7 +735,7 @@ func (dst *ApplicationDownlinks) SetFields(src *ApplicationDownlinks, paths ...s
 }
 
 func (dst *ApplicationDownlinkFailed) SetFields(src *ApplicationDownlinkFailed, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "downlink":
 			if len(subs) > 0 {
@@ -792,7 +782,7 @@ func (dst *ApplicationDownlinkFailed) SetFields(src *ApplicationDownlinkFailed, 
 }
 
 func (dst *ApplicationInvalidatedDownlinks) SetFields(src *ApplicationInvalidatedDownlinks, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "downlinks":
 			if len(subs) > 0 {
@@ -822,7 +812,7 @@ func (dst *ApplicationInvalidatedDownlinks) SetFields(src *ApplicationInvalidate
 }
 
 func (dst *ApplicationUp) SetFields(src *ApplicationUp, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "end_device_ids":
 			if len(subs) > 0 {
@@ -1187,7 +1177,7 @@ func (dst *ApplicationUp) SetFields(src *ApplicationUp, paths ...string) error {
 }
 
 func (dst *MessagePayloadFormatters) SetFields(src *MessagePayloadFormatters, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "up_formatter":
 			if len(subs) > 0 {
@@ -1238,7 +1228,7 @@ func (dst *MessagePayloadFormatters) SetFields(src *MessagePayloadFormatters, pa
 }
 
 func (dst *DownlinkQueueRequest) SetFields(src *DownlinkQueueRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "end_device_ids":
 			if len(subs) > 0 {
@@ -1276,7 +1266,7 @@ func (dst *DownlinkQueueRequest) SetFields(src *DownlinkQueueRequest, paths ...s
 }
 
 func (dst *ApplicationDownlink_ClassBC) SetFields(src *ApplicationDownlink_ClassBC, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateways":
 			if len(subs) > 0 {

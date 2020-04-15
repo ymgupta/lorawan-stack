@@ -13,35 +13,144 @@
 // limitations under the License.
 
 import React from 'react'
+import { connect } from 'react-redux'
 import { Col, Row, Container } from 'react-grid-system'
+import bind from 'autobind-decorator'
+import { defineMessages } from 'react-intl'
+import * as Yup from 'yup'
 
 import PageTitle from '../../../components/page-title'
-import GatewayLocationForm from '../../containers/gateway-location-form'
+import LocationForm from '../../../components/location-form'
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import withFeatureRequirement from '../../lib/components/with-feature-requirement'
 import sharedMessages from '../../../lib/shared-messages'
 
+import { updateGateway } from '../../store/actions/gateways'
+import { attachPromise } from '../../store/actions/lib'
+import { selectSelectedGateway, selectSelectedGatewayId } from '../../store/selectors/gateways'
 import { mayViewOrEditGatewayLocation } from '../../lib/feature-checks'
 
-const GatewayLocation = () => {
-  return (
-    <Container>
-      <PageTitle title={sharedMessages.location} />
-      <Row>
-        <Col lg={8} md={12}>
-          <GatewayLocationForm />
-        </Col>
-      </Row>
-    </Container>
-  )
+import {
+  latitude as latitudeRegexp,
+  longitude as longitudeRegexp,
+  int32 as int32Regexp,
+} from '../../lib/regexp'
+import PropTypes from '../../../lib/prop-types'
+
+const m = defineMessages({
+  setGatewayLocation: 'Set gateway antenna location',
+})
+
+const validationSchema = Yup.object().shape({
+  latitude: Yup.string()
+    .required(sharedMessages.validateRequired)
+    .matches(latitudeRegexp, sharedMessages.validateLatLong),
+  longitude: Yup.string()
+    .required(sharedMessages.validateRequired)
+    .matches(longitudeRegexp, sharedMessages.validateLatLong),
+  altitude: Yup.string()
+    .matches(int32Regexp, sharedMessages.validateInt32)
+    .required(sharedMessages.validateRequired),
+})
+
+const getRegistryLocation = function(antennas) {
+  let registryLocation
+  if (antennas) {
+    for (const key of Object.keys(antennas)) {
+      if (antennas[key].location.source === 'SOURCE_REGISTRY') {
+        registryLocation = { antenna: antennas[key], key }
+        break
+      }
+    }
+  }
+  return registryLocation
 }
 
-export default withBreadcrumb('gateway.single.data', function(props) {
+@connect(
+  state => ({
+    gateway: selectSelectedGateway(state),
+    gtwId: selectSelectedGatewayId(state),
+  }),
+  { updateGateway: attachPromise(updateGateway) },
+)
+@withBreadcrumb('gateway.single.data', function(props) {
   const { gtwId } = props
   return <Breadcrumb path={`/gateways/${gtwId}/location`} content={sharedMessages.location} />
-})(
-  withFeatureRequirement(mayViewOrEditGatewayLocation, {
-    redirect: ({ gtwId }) => `/gateways/${gtwId}`,
-  })(GatewayLocation),
-)
+})
+@withFeatureRequirement(mayViewOrEditGatewayLocation, {
+  redirect: ({ gtwId }) => `/gateways/${gtwId}`,
+})
+@bind
+export default class GatewayLocation extends React.Component {
+  static propTypes = {
+    gateway: PropTypes.gateway.isRequired,
+    gtwId: PropTypes.string.isRequired,
+    updateGateway: PropTypes.func.isRequired,
+  }
+
+  async handleSubmit(values) {
+    const { gateway, gtwId, updateGateway } = this.props
+
+    const patch = {}
+    const registryLocation = getRegistryLocation(gateway.antennas)
+    if (registryLocation) {
+      // Update old location value
+      patch.antennas = [...gateway.antennas]
+      patch.antennas[registryLocation.key].location = {
+        ...registryLocation.antenna.location,
+        ...values,
+      }
+    } else {
+      // Create new location value
+      patch.antennas = [
+        {
+          gain: 0,
+          location: {
+            ...values,
+            accuracy: 0,
+            source: 'SOURCE_REGISTRY',
+          },
+        },
+      ]
+    }
+
+    await updateGateway(gtwId, patch)
+  }
+
+  async handleDelete() {
+    const { gateway, gtwId, updateGateway } = this.props
+    const registryLocation = getRegistryLocation(gateway.antennas)
+
+    const patch = {
+      antennas: [...gateway.antennas],
+    }
+    patch.antennas.splice(registryLocation.key, 1)
+
+    await updateGateway(gtwId, patch)
+  }
+
+  render() {
+    const { gateway, gtwId } = this.props
+    const registryLocation = getRegistryLocation(gateway.antennas)
+    const initialValues = registryLocation ? registryLocation.antenna.location : undefined
+
+    return (
+      <Container>
+        <PageTitle title={sharedMessages.location} />
+        <Row>
+          <Col lg={8} md={12}>
+            <LocationForm
+              entityId={gtwId}
+              formTitle={m.setGatewayLocation}
+              validationSchema={validationSchema}
+              initialValues={initialValues}
+              onSubmit={this.handleSubmit}
+              onDelete={this.handleDelete}
+            />
+          </Col>
+        </Row>
+      </Container>
+    )
+  }
+}

@@ -1,6 +1,7 @@
 ---
 title: 'Identity Server Options'
 description: ''
+weight: 2
 ---
 
 ## Database Options

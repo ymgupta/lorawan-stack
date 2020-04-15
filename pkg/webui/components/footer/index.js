@@ -15,11 +15,11 @@
 import React from 'react'
 import classnames from 'classnames'
 import { defineMessages } from 'react-intl'
+import { Link } from 'react-router-dom'
 import PropTypes from '../../lib/prop-types'
 
 import Message from '../../lib/components/message'
 import Button from '../../components/button'
-import Link from '../../components/link'
 import OfflineStatus from '../../containers/offline-status'
 
 import style from './footer.styl'
@@ -36,15 +36,15 @@ const Footer = function({ className, links, supportLink }) {
         <span className={style.claim}>
           <Message content={m.footer} /> –{' '}
         </span>
-        <Link.Anchor secondary className={style.link} href="https://www.thethingsnetwork.org">
+        <a className={style.link} href="https://www.thethingsnetwork.org">
           The Things Network
-        </Link.Anchor>
+        </a>
       </div>
       <div>
         {links.map((item, key) => (
-          <Link.Anchor secondary key={key} className={style.link} href={item.link}>
+          <Link key={key} className={style.link} to={item.link}>
             <Message content={item.title} />
-          </Link.Anchor>
+          </Link>
         ))}
         <OfflineStatus showOfflineOnly showWarnings />
         <span className={style.version}>v{process.env.VERSION}</span>

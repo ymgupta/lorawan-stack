@@ -64,8 +64,8 @@ import PropTypes from '../../../lib/prop-types'
     return {
       gtwId,
       gateway,
-      error: selectGatewayError(state) || selectGatewayRightsError(state),
-      fetching: selectGatewayFetching(state) || selectGatewayRightsFetching(state),
+      error: selectGatewayError(state) && selectGatewayRightsError(state),
+      fetching: selectGatewayFetching(state) && selectGatewayRightsFetching(state),
       rights: selectGatewayRights(state),
     }
   },
@@ -90,9 +90,7 @@ import PropTypes from '../../../lib/prop-types'
       'status_public',
       'auto_update',
       'schedule_downlink_late',
-      'update_location_from_status',
       'update_channel',
-      'schedule_anytime_delay',
     ]),
   ({ fetching, gateway }) => fetching || !Boolean(gateway),
 )
@@ -112,17 +110,10 @@ export default class Gateway extends React.Component {
     gtwId: PropTypes.string.isRequired,
     match: PropTypes.match.isRequired,
     rights: PropTypes.rights.isRequired,
-    stopStream: PropTypes.func.isRequired,
   }
 
   static defaultProps = {
     env: undefined,
-  }
-
-  componentWillUnmount() {
-    const { stopStream, gtwId } = this.props
-
-    stopStream(gtwId)
   }
 
   render() {

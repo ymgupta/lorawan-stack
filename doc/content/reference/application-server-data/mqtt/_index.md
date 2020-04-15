@@ -1,6 +1,7 @@
 ---
 title: "MQTT Server"
 description: ""
+weight: 3
 ---
 
 The Application Server exposes a MQTT server to work with streaming events. In order to use the MQTT server you need to create a new API key to authenticate.
@@ -138,7 +139,7 @@ For example, to send an unconfirmed downlink message to the device `dev1` in app
   "downlinks": [{
     "f_port": 15,
     "frm_payload": "vu8=",
-    "priority": "NORMAL"
+    "priority": "NORMAL",
   }]
 }
 ```

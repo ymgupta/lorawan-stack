@@ -195,7 +195,7 @@ func (s *Server) UpdateInfo(c echo.Context) error {
 		}
 	} else if gtw.Attributes[cupsAuthHeaderAttribute] != "" {
 		if subtle.ConstantTimeCompare([]byte(getAuthHeader(ctx)), []byte(gtw.Attributes[cupsAuthHeaderAttribute])) != 1 {
-			return errInvalidToken.New()
+			return errInvalidToken
 		}
 		logger.Debug("Authorized with CUPS Auth Header")
 		md := rpcmetadata.FromIncomingContext(ctx)
@@ -203,7 +203,7 @@ func (s *Server) UpdateInfo(c echo.Context) error {
 		md.AllowInsecure = s.component.AllowInsecureForCredentials()
 		gatewayAuth = grpc.PerRPCCredentials(md)
 	} else {
-		return errUnauthenticated.New()
+		return errUnauthenticated
 	}
 
 	if gtw.Attributes == nil {
@@ -248,12 +248,17 @@ func (s *Server) UpdateInfo(c echo.Context) error {
 		}
 	}
 	if gtw.GatewayServerAddress != req.LNSURI {
-		scheme, host, port, err := parseAddress("wss", gtw.GatewayServerAddress)
+		scheme, host, port, err := parseAddress(gtw.GatewayServerAddress)
 		if err != nil {
 			return err
 		}
+		if scheme == "" {
+			scheme = "wss"
+		}
 		address := host
-		address = net.JoinHostPort(host, port)
+		if port != "" {
+			address = net.JoinHostPort(host, port)
+		}
 		res.LNSURI = fmt.Sprintf("%s://%s", scheme, address)
 	}
 

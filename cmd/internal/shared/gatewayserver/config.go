@@ -16,7 +16,6 @@ package shared
 
 import (
 	"fmt"
-	"time"
 
 	"go.thethings.network/lorawan-stack/cmd/internal/shared"
 	"go.thethings.network/lorawan-stack/pkg/config"
@@ -26,8 +25,7 @@ import (
 
 // DefaultGatewayServerConfig is the default configuration for the GatewayServer.
 var DefaultGatewayServerConfig = gatewayserver.Config{
-	RequireRegisteredGateways:         false,
-	UpdateGatewayLocationDebounceTime: time.Hour,
+	RequireRegisteredGateways: false,
 	Forward: map[string][]string{
 		"": {"00000000/0"},
 	},
@@ -49,10 +47,8 @@ var DefaultGatewayServerConfig = gatewayserver.Config{
 		PublicAddress:    fmt.Sprintf("%s:1882", shared.DefaultPublicHost),
 		PublicTLSAddress: fmt.Sprintf("%s:8882", shared.DefaultPublicHost),
 	},
-	UpdateConnectionStatsDebounceTime: 3 * time.Second,
 	BasicStation: gatewayserver.BasicStationConfig{
-		Listen:         ":1887",
-		ListenTLS:      ":8887",
-		WSPingInterval: 30 * time.Second,
+		Listen:    ":1887",
+		ListenTLS: ":8887",
 	},
 }

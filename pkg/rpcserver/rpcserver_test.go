@@ -18,7 +18,6 @@ import (
 	"context"
 	"runtime"
 	"testing"
-	"time"
 
 	"github.com/gogo/protobuf/types"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -108,7 +107,6 @@ func TestNewRPCServer(t *testing.T) {
 		a.So(mock.pushCtx.Value(&mockKey2{}), should.Resemble, "bar")
 
 		runtime.Gosched()
-		time.Sleep(test.Delay)
 
 		a.So(logHandler.entries, should.HaveLength, 1)
 	})
@@ -136,7 +134,6 @@ func TestNewRPCServer(t *testing.T) {
 		a.So(mock.subCtx.Value(&mockKey2{}), should.Resemble, "foo")
 
 		runtime.Gosched()
-		time.Sleep(test.Delay)
 
 		a.So(logHandler.entries, should.HaveLength, 2)
 	})

@@ -12,14 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { merge } from 'lodash'
-
-import {
-  GET_WEBHOOK,
-  GET_WEBHOOK_SUCCESS,
-  GET_WEBHOOKS_LIST_SUCCESS,
-  UPDATE_WEBHOOK_SUCCESS,
-} from '../actions/webhooks'
+import { GET_WEBHOOK, GET_WEBHOOK_SUCCESS, GET_WEBHOOKS_LIST_SUCCESS } from '../actions/webhooks'
 import { getWebhookId } from '../../../lib/selectors/id'
 
 const defaultState = {
@@ -53,16 +46,6 @@ const webhooks = function(state = defaultState, { type, payload }) {
           }, {}),
         },
         totalCount: payload.totalCount,
-      }
-    case UPDATE_WEBHOOK_SUCCESS:
-      const webhookId = getWebhookId(payload)
-
-      return {
-        ...state,
-        entities: {
-          ...state.entities,
-          [webhookId]: merge({}, state.entities[webhookId], payload),
-        },
       }
     default:
       return state

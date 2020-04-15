@@ -25,7 +25,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
 
@@ -85,7 +84,7 @@ func TestProtobufV2Downlink(t *testing.T) {
 		t.Fatal("Could not marshal the v2 struct")
 	}
 
-	actualBuf, err := mqtt.NewProtobufV2(test.Context()).FromDownlink(input, ids)
+	actualBuf, err := mqtt.ProtobufV2.FromDownlink(input, ids)
 	if !a.So(err, should.BeNil) {
 		t.Fatal("Could not marshal the input v3 struct")
 	}
@@ -102,7 +101,6 @@ func TestProtobufV2Uplinks(t *testing.T) {
 		},
 	}
 	validV3Settings := ttnpb.TxSettings{
-		Timestamp: 1000,
 		DataRate: ttnpb.DataRate{
 			Modulation: &ttnpb.DataRate_LoRa{
 				LoRa: &ttnpb.LoRaDataRate{
@@ -221,7 +219,7 @@ func TestProtobufV2Uplinks(t *testing.T) {
 			if !a.So(err, should.BeNil) {
 				t.FailNow()
 			}
-			res, err := mqtt.NewProtobufV2(test.Context()).ToUplink(buf, ids)
+			res, err := mqtt.ProtobufV2.ToUplink(buf, ids)
 			if tc.ErrorAssertion != nil {
 				if !a.So(tc.ErrorAssertion(err), should.BeTrue) {
 					t.FailNow()
@@ -374,7 +372,7 @@ func TestProtobufV2Status(t *testing.T) {
 			if !a.So(err, should.BeNil) {
 				t.FailNow()
 			}
-			res, err := mqtt.NewProtobufV2(test.Context()).ToStatus(buf, ids)
+			res, err := mqtt.ProtobufV2.ToStatus(buf, ids)
 			if tc.ErrorAssertion != nil {
 				if !a.So(tc.ErrorAssertion(err), should.BeTrue) {
 					t.FailNow()

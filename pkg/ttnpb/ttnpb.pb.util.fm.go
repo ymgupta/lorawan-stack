@@ -3,31 +3,40 @@
 package ttnpb
 
 import (
+	"sort"
 	"strings"
 )
 
 // _processPaths returns paths as a pathMap.
 func _processPaths(paths []string) map[string][]string {
-	if len(paths) == 0 {
-		return nil
-	}
-	pathMap := make(map[string][]string, len(paths))
+	sort.Strings(paths)
+
+	topLevel := make(map[string]struct{}, len(paths))
+	_pathMap := make(map[string]map[string]struct{}, len(paths))
 	for _, p := range paths {
 		if !strings.Contains(p, ".") {
-			pathMap[p] = nil
+			topLevel[p] = struct{}{}
 			continue
 		}
 		parts := strings.SplitN(p, ".", 2)
 		h, t := parts[0], parts[1]
-		if val, ok := pathMap[h]; ok {
-			if val == nil {
-				continue
-			}
-			pathMap[h] = append(pathMap[h], t)
+		if _pathMap[h] == nil {
+			_pathMap[h] = map[string]struct{}{t: {}}
 		} else {
-			pathMap[h] = []string{t}
+			_pathMap[h][t] = struct{}{}
 		}
 	}
 
+	for f := range topLevel {
+		_pathMap[f] = nil
+	}
+
+	pathMap := make(map[string][]string, len(_pathMap))
+	for top, subs := range _pathMap {
+		pathMap[top] = make([]string, 0, len(subs))
+		for sub := range subs {
+			pathMap[top] = append(pathMap[top], sub)
+		}
+	}
 	return pathMap
 }

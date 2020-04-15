@@ -20,28 +20,19 @@ import (
 )
 
 var (
-	errDecode              = errors.Define("decode", "failed to decode value")
-	errEncode              = errors.Define("encode", "failed to encode value")
-	errInvalidKeyValueType = errors.DefineInvalidArgument("value_type", "invalid value type for key `{key}`")
-	errNoArguments         = errors.DefineInvalidArgument("no_arguments", "no arguments")
 	errNotFound            = errors.DefineNotFound("not_found", "entity not found")
 	errStore               = errors.Define("store", "store error")
-	errTransactionFailed   = errors.DefineAborted("transaction_failed", "transaction failed")
+	errInvalidKeyValueType = errors.DefineInvalidArgument("value_type", "invalid value type for key `{key}`")
 )
 
 // ConvertError converts Redis error into errors.Error.
 func ConvertError(err error) error {
-	ttnErr, ok := errors.From(err)
-	if ok {
-		return ttnErr
-	}
 	switch err {
 	case nil:
 		return nil
 	case redis.Nil:
-		return errNotFound.New()
-	case redis.TxFailedErr:
-		return errTransactionFailed.New()
+		return errNotFound
+	default:
+		return errStore.WithCause(err)
 	}
-	return errStore.WithCause(err)
 }

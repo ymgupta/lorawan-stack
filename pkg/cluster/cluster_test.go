@@ -23,6 +23,7 @@ import (
 
 	"github.com/smartystreets/assertions"
 	. "go.thethings.network/lorawan-stack/pkg/cluster"
+	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
@@ -54,7 +55,7 @@ func TestCluster(t *testing.T) {
 
 	go grpc.NewServer().Serve(lis)
 
-	config := Config{
+	config := config.Cluster{
 		Address:           lis.Addr().String(),
 		IdentityServer:    lis.Addr().String(),
 		GatewayServer:     lis.Addr().String(),

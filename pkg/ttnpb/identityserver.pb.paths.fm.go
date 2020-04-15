@@ -43,7 +43,6 @@ var AuthInfoResponseFieldPathsNested = []string{
 	"access_method.oauth_access_token.user_ids",
 	"access_method.oauth_access_token.user_ids.email",
 	"access_method.oauth_access_token.user_ids.user_id",
-	"access_method.oauth_access_token.user_session_id",
 	"is_admin",
 	"universal_rights",
 	"universal_rights.rights",

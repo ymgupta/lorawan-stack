@@ -28,7 +28,6 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
-	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
@@ -91,7 +90,7 @@ func TestWeb(t *testing.T) {
 				Listen: httpAddress,
 			},
 			FrequencyPlans: fpConf,
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 			},
 		},

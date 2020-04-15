@@ -16,10 +16,7 @@ package udp
 
 import (
 	"context"
-	"fmt"
 	"net"
-	"os"
-	"runtime/debug"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -34,14 +31,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 )
-
-// RateLimitingConfig contains configuration settings for the rate limiting
-// capabilities of the UDP gateway frontend firewall.
-type RateLimitingConfig struct {
-	Enable    bool          `name:"enable" description:"Enable rate limiting for gateways"`
-	Messages  int           `name:"messages" description:"Number of past messages to check timestamp for"`
-	Threshold time.Duration `name:"threshold" description:"Filter packet if timestamp is not newer than the older timestamps of the previous messages by this threshold"`
-}
 
 // Config contains configuration settings for the UDP gateway frontend.
 // Use DefaultConfig for recommended settings.
@@ -62,23 +51,16 @@ type Config struct {
 	ScheduleLateTime time.Duration `name:"schedule-late-time" description:"Time in advance to send downlink to the gateway when scheduling late"`
 	// AddrChangeBlock defines the time to block traffic when the address changes.
 	AddrChangeBlock time.Duration `name:"addr-change-block" description:"Time to block traffic when a gateway's address changes"`
-	// RateLimitingConfig is the configuration for the rate limiting firewall capabilities.
-	RateLimiting RateLimitingConfig `name:"rate-limiting"`
 }
 
 // DefaultConfig contains the default configuration.
 var DefaultConfig = Config{
-	PacketHandlers:      1 << 4,
+	PacketHandlers:      10,
 	PacketBuffer:        50,
 	DownlinkPathExpires: 15 * time.Second, // Expire downlink after missing typically 3 PULL_DATA messages.
 	ConnectionExpires:   1 * time.Minute,  // Expire connection after missing typically 2 status messages.
 	ScheduleLateTime:    800 * time.Millisecond,
 	AddrChangeBlock:     1 * time.Minute, // Release address when the connection expires.
-	RateLimiting: RateLimitingConfig{
-		Enable:    true,
-		Messages:  10,
-		Threshold: 10 * time.Millisecond,
-	},
 }
 
 type srv struct {
@@ -95,17 +77,12 @@ type srv struct {
 func (*srv) Protocol() string            { return "udp" }
 func (*srv) SupportsDownlinkClaim() bool { return true }
 
-var errUDPFrontendRecovered = errors.DefineInternal("udp_frontend_recovered", "internal server error")
-
 // Serve serves the UDP frontend.
 func Serve(ctx context.Context, server io.Server, conn *net.UDPConn, config Config) error {
 	ctx = log.NewContextWithField(ctx, "namespace", "gatewayserver/io/udp")
 	var firewall Firewall
 	if config.AddrChangeBlock > 0 {
 		firewall = NewMemoryFirewall(ctx, config.AddrChangeBlock)
-	}
-	if config.RateLimiting.Enable == true {
-		firewall = NewRateLimitingFirewall(firewall, config.RateLimiting.Messages, config.RateLimiting.Threshold)
 	}
 	s := &srv{
 		ctx:      ctx,
@@ -126,13 +103,7 @@ func Serve(ctx context.Context, server io.Server, conn *net.UDPConn, config Conf
 	return s.read()
 }
 
-func (s *srv) read() (err error) {
-	defer func() {
-		retrievedErr := recoverUDPFrontend(s.ctx)
-		if retrievedErr != nil {
-			err = retrievedErr
-		}
-	}()
+func (s *srv) read() error {
 	var buf [65507]byte
 	for {
 		n, addr, err := s.conn.ReadFromUDP(buf[:])
@@ -176,7 +147,6 @@ func (s *srv) read() (err error) {
 }
 
 func (s *srv) handlePackets() {
-	defer recoverUDPFrontend(s.ctx)
 	for {
 		select {
 		case <-s.ctx.Done():
@@ -211,8 +181,6 @@ func (s *srv) handlePackets() {
 		}
 	}
 }
-
-var errConnectionNotReady = errors.DefineUnavailable("connection_not_ready", "connection is not ready")
 
 func (s *srv) connect(ctx context.Context, eui types.EUI64) (*state, error) {
 	cs := &state{
@@ -252,11 +220,7 @@ func (s *srv) connect(ctx context.Context, eui types.EUI64) (*state, error) {
 			return nil, err
 		}
 	} else {
-		select {
-		case <-cs.ioWait:
-		default:
-			return nil, errConnectionNotReady.New()
-		}
+		<-cs.ioWait
 		if cs.ioErr != nil {
 			return nil, cs.ioErr
 		}
@@ -321,7 +285,7 @@ func (s *srv) handleUp(ctx context.Context, state *state, packet encoding.Packet
 			logger.Debug("Received Tx acknowledgement, JIT queue supported")
 		}
 		var msg *ttnpb.GatewayUp
-		if packet.Data.TxPacketAck != nil {
+		if packet.Data != nil {
 			var err error
 			msg, err = encoding.ToGatewayUp(*packet.Data, md)
 			if err != nil {
@@ -380,7 +344,7 @@ func (s *srv) handleDown(ctx context.Context, state *state) error {
 				break
 			}
 			downlinkPath := state.lastDownlinkPath.Load().(downlinkPath)
-			logger := logger.WithField("remote_addr", downlinkPath.addr.String())
+			logger = logger.WithField("remote_addr", downlinkPath.addr.String())
 			packet := encoding.Packet{
 				GatewayAddr:     &downlinkPath.addr,
 				ProtocolVersion: downlinkPath.version,
@@ -425,7 +389,7 @@ func (s *srv) handleDown(ctx context.Context, state *state) error {
 				state.startHandleDownMu.Lock()
 				state.startHandleDown = &sync.Once{}
 				state.startHandleDownMu.Unlock()
-				return errDownlinkPathExpired.New()
+				return errDownlinkPathExpired
 			}
 		}
 	}
@@ -508,20 +472,4 @@ type state struct {
 	startHandleDownMu sync.RWMutex
 
 	tokens io.DownlinkTokens
-}
-
-func recoverUDPFrontend(ctx context.Context) error {
-	if p := recover(); p != nil {
-		fmt.Fprintln(os.Stderr, p)
-		os.Stderr.Write(debug.Stack())
-		var err error
-		if pErr, ok := p.(error); ok {
-			err = errUDPFrontendRecovered.WithCause(pErr)
-		} else {
-			err = errUDPFrontendRecovered.WithAttributes("panic", p)
-		}
-		log.FromContext(ctx).WithError(err).Error("UDP frontend failed")
-		return err
-	}
-	return nil
 }

@@ -15,32 +15,19 @@
 import React, { Component } from 'react'
 import { Container, Col, Row } from 'react-grid-system'
 import { connect } from 'react-redux'
-import { defineMessages } from 'react-intl'
 
 import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
 import { withBreadcrumb } from '../../../components/breadcrumbs/context'
 import Message from '../../../lib/components/message'
 import IntlHelmet from '../../../lib/components/intl-helmet'
-import PropTypes from '../../../lib/prop-types'
 import DeviceImporter from '../../containers/device-importer'
-import Notification from '../../../components/notification'
 import sharedMessages from '../../../lib/shared-messages'
-import {
-  selectDeviceTemplateFormats,
-  selectDeviceTemplateFormatsFetching,
-} from '../../store/selectors/device-template-formats'
+import { selectSelectedApplicationId } from '../../store/selectors/applications'
 
 import style from './device-import.styl'
 
-const m = defineMessages({
-  noTemplatesTitle: 'No device templates found',
-  noTemplates:
-    'There are currently no device templates set up. Please set up a device template to make use of the bulk device import feature. For more information please refer to the documentation.',
-})
-
 @connect(state => ({
-  deviceTemplateFormats: selectDeviceTemplateFormats(state),
-  deviceTemplateFormatsFetching: selectDeviceTemplateFormatsFetching(state),
+  appId: selectSelectedApplicationId(state),
 }))
 @withBreadcrumb('devices.import', function(props) {
   const { appId } = props
@@ -49,15 +36,7 @@ const m = defineMessages({
   )
 })
 export default class DeviceAddBulk extends Component {
-  static propTypes = {
-    deviceTemplateFormats: PropTypes.shape().isRequired,
-    deviceTemplateFormatsFetching: PropTypes.bool.isRequired,
-  }
-
   render() {
-    const { deviceTemplateFormatsFetching, deviceTemplateFormats } = this.props
-    const showEmptyWarning =
-      !deviceTemplateFormatsFetching && Object.keys(deviceTemplateFormats).length === 0
     return (
       <Container>
         <Row>
@@ -72,9 +51,6 @@ export default class DeviceAddBulk extends Component {
         </Row>
         <Row>
           <Col lg={8} md={12}>
-            {showEmptyWarning && (
-              <Notification warning title={m.noTemplatesTitle} content={m.noTemplates} />
-            )}
             <DeviceImporter />
           </Col>
         </Row>

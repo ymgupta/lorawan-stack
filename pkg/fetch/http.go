@@ -35,7 +35,7 @@ type httpFetcher struct {
 
 func (f httpFetcher) File(pathElements ...string) ([]byte, error) {
 	if len(pathElements) == 0 {
-		return nil, errFilenameNotSpecified.New()
+		return nil, errFilenameNotSpecified
 	}
 
 	start := time.Now()
@@ -77,7 +77,7 @@ func FromHTTP(rootURL string, cache bool) (Interface, error) {
 			return nil, err
 		}
 		if !root.IsAbs() {
-			return nil, errSchemeNotSpecified.New()
+			return nil, errSchemeNotSpecified
 		}
 	}
 	return httpFetcher{

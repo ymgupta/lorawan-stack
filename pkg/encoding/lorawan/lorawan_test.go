@@ -21,7 +21,6 @@ import (
 	"testing"
 
 	"github.com/smartystreets/assertions"
-	_ "go.thethings.network/lorawan-stack/pkg/crypto" // Needed to make the populators work.
 	. "go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"

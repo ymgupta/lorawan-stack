@@ -298,15 +298,8 @@ func FromGatewayUp(up *ttnpb.GatewayUp) (rxs []*RxPacket, stat *Stat, ack *TxPac
 		})
 	}
 	if up.GatewayStatus != nil {
-		// TODO: Handle multiple antenna locations (https://github.com/TheThingsNetwork/lorawan-stack/issues/2006).
 		stat = &Stat{
 			Time: ExpandedTime(up.GatewayStatus.Time),
-		}
-		if len(up.GatewayStatus.AntennaLocations) > 0 {
-			loc := up.GatewayStatus.AntennaLocations[0]
-			stat.Long = &loc.Longitude
-			stat.Lati = &loc.Latitude
-			stat.Alti = &loc.Altitude
 		}
 	}
 	if up.TxAcknowledgment != nil {
@@ -352,7 +345,7 @@ func FromDownlinkMessage(msg *ttnpb.DownlinkMessage) (*TxPacket, error) {
 	payload := msg.GetRawPayload()
 	scheduled := msg.GetScheduled()
 	if scheduled == nil {
-		return nil, errNotScheduled.New()
+		return nil, errNotScheduled
 	}
 	tx := &TxPacket{
 		Freq: float64(scheduled.Frequency) / 1000000,

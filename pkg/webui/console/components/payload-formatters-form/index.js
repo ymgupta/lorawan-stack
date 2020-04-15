@@ -75,8 +75,6 @@ class PayloadFormattersForm extends React.Component {
   async handleSubmit(values, { resetForm }) {
     const { onSubmit, onSubmitSuccess, onSubmitFailure } = this.props
 
-    this.setState({ error: '' })
-
     const {
       [FIELD_NAMES.RADIO]: type,
       [FIELD_NAMES.JAVASCRIPT]: javascriptParameter,
@@ -108,7 +106,7 @@ class PayloadFormattersForm extends React.Component {
     } catch (error) {
       resetForm(resetValues)
 
-      this.setState({ error })
+      await this.setState({ error })
       await onSubmitFailure(error)
     }
   }
@@ -156,7 +154,6 @@ class PayloadFormattersForm extends React.Component {
 
   render() {
     const { initialType, initialParameter, linked, uplink } = this.props
-    const { error } = this.state
 
     const initialValues = {
       [FIELD_NAMES.RADIO]: initialType,
@@ -175,7 +172,6 @@ class PayloadFormattersForm extends React.Component {
           onSubmit={this.handleSubmit}
           initialValues={initialValues}
           validationSchema={validationSchema}
-          error={error}
         >
           <Form.Field
             name={FIELD_NAMES.RADIO}

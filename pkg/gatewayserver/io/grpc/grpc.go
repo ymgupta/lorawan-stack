@@ -106,53 +106,53 @@ func (s *impl) LinkGateway(link ttnpb.GtwGs_LinkGatewayServer) error {
 
 	go func() {
 		for {
-			msg, err := link.Recv()
-			if err != nil {
-				if !errors.IsCanceled(err) {
-					logger.WithError(err).Warn("Link failed")
-				}
-				conn.Disconnect(err)
+			select {
+			case <-conn.Context().Done():
 				return
-			}
-			now := time.Now()
-
-			logger.WithFields(log.Fields(
-				"has_status", msg.GatewayStatus != nil,
-				"uplink_count", len(msg.UplinkMessages),
-			)).Debug("Received message")
-
-			for _, up := range msg.UplinkMessages {
-				up.ReceivedAt = now
-				if err := conn.HandleUp(up); err != nil {
-					logger.WithError(err).Warn("Failed to handle uplink message")
+			case down := <-conn.Down():
+				msg := &ttnpb.GatewayDown{
+					DownlinkMessage: down,
 				}
-			}
-			if msg.GatewayStatus != nil {
-				if err := conn.HandleStatus(msg.GatewayStatus); err != nil {
-					logger.WithError(err).Warn("Failed to handle status message")
-				}
-			}
-			if msg.TxAcknowledgment != nil {
-				if err := conn.HandleTxAck(msg.TxAcknowledgment); err != nil {
-					logger.WithError(err).Warn("Failed to handle Tx acknowledgement")
+				logger.Info("Send downlink message")
+				if err := link.Send(msg); err != nil {
+					logger.WithError(err).Warn("Failed to send message")
+					conn.Disconnect(err)
+					return
 				}
 			}
 		}
 	}()
 
 	for {
-		select {
-		case <-conn.Context().Done():
-			return conn.Context().Err()
-		case down := <-conn.Down():
-			msg := &ttnpb.GatewayDown{
-				DownlinkMessage: down,
+		msg, err := link.Recv()
+		if err != nil {
+			if !errors.IsCanceled(err) {
+				logger.WithError(err).Warn("Link failed")
 			}
-			logger.Info("Send downlink message")
-			if err := link.Send(msg); err != nil {
-				logger.WithError(err).Warn("Failed to send message")
-				conn.Disconnect(err)
-				return err
+			conn.Disconnect(err)
+			return err
+		}
+		now := time.Now()
+
+		logger.WithFields(log.Fields(
+			"has_status", msg.GatewayStatus != nil,
+			"uplink_count", len(msg.UplinkMessages),
+		)).Debug("Received message")
+
+		for _, up := range msg.UplinkMessages {
+			up.ReceivedAt = now
+			if err := conn.HandleUp(up); err != nil {
+				logger.WithError(err).Warn("Failed to handle uplink message")
+			}
+		}
+		if msg.GatewayStatus != nil {
+			if err := conn.HandleStatus(msg.GatewayStatus); err != nil {
+				logger.WithError(err).Warn("Failed to handle status message")
+			}
+		}
+		if msg.TxAcknowledgment != nil {
+			if err := conn.HandleTxAck(msg.TxAcknowledgment); err != nil {
+				logger.WithError(err).Warn("Failed to handle Tx acknowledgement")
 			}
 		}
 	}
@@ -190,7 +190,7 @@ func getMQTTConnectionProvider(ctx context.Context, ids *ttnpb.GatewayIdentifier
 		return nil, err
 	}
 	if provider == nil {
-		return nil, errNoMQTTConfigProvider.New()
+		return nil, errNoMQTTConfigProvider
 	}
 	config, err := provider.GetMQTTConfig(ctx)
 	if err != nil {

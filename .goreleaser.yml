@@ -30,9 +30,6 @@ builds:
     goarm:
       - 6
       - 7
-    ignore:
-      - goos: darwin
-        goarch: 386
 
   - id: cli
     main: ./cmd/ttn-lw-cli
@@ -57,9 +54,6 @@ builds:
     goarm:
       - 6
       - 7
-    ignore:
-      - goos: darwin
-        goarch: 386
 
 archives:
   - id: stack
@@ -70,6 +64,8 @@ archives:
     files:
       - LICENSE
       - README.md
+      - doc/**/*
+      - docker-compose.yml
       - public/**/*
     wrap_in_directory: true
     format_overrides:
@@ -83,6 +79,7 @@ archives:
     files:
       - LICENSE
       - README.md
+      - doc/**/*
     wrap_in_directory: true
     format_overrides:
       - goos: windows
@@ -141,7 +138,7 @@ brews:
     skip_upload: auto
     install: |
       bin.install "ttn-lw-cli"
-      libexec.install %w[ttn-lw-stack public]
+      libexec.install %w[ttn-lw-stack public doc]
       env = {
           :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
       }
@@ -163,6 +160,7 @@ brews:
     skip_upload: auto
     install: |
       bin.install "ttn-lw-cli"
+      libexec.install doc
 
 blobs:
   - provider: s3
@@ -176,24 +174,14 @@ blobs:
 dockers:
   - goos: linux
     goarch: amd64
-    dockerfile: Dockerfile
     binaries:
       - ttn-lw-cli
       - ttn-lw-stack
     image_templates:
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:latest'
+      - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}'
       - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
       - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Version }}'
     skip_push: auto
-    extra_files:
-      - public
-
-  - goos: linux
-    goarch: amd64
-    dockerfile: Dockerfile
-    binaries:
-      - ttn-lw-cli
-      - ttn-lw-stack
-    image_templates:
-      - '{{ or (index .Env "DOCKER_IMAGE_DEV") "lorawan-stack-dev" }}:{{ .FullCommit }}'
     extra_files:
       - public

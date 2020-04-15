@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 )
 
@@ -92,11 +91,8 @@ func ShouldEqualErrorOrDefinition(actual interface{}, expected ...interface{}) s
 	if len(expected) != 1 {
 		return fmt.Sprintf(needExactValues, 1, len(expected))
 	}
-	if expected[0] == nil {
-		return assertions.ShouldBeNil(actual)
-	}
-	if s := assertions.ShouldNotBeNil(actual); s != "" {
-		return s
+	if actual == nil && expected[0] == nil {
+		return success
 	}
 	if expected, ok := expected[0].(errors.Interface); ok {
 		if actual, ok := actual.(errors.Interface); ok {

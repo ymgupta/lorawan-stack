@@ -31,8 +31,6 @@ import (
 var (
 	selectApplicationWebhookFlags = util.FieldMaskFlags(&ttnpb.ApplicationWebhook{})
 	setApplicationWebhookFlags    = util.FieldFlags(&ttnpb.ApplicationWebhook{})
-
-	selectAllApplicationWebhookFlags = util.SelectAllFlagSet("application webhook")
 )
 
 func applicationWebhookIDFlags() *pflag.FlagSet {
@@ -116,7 +114,6 @@ var (
 					paths = append(paths, strings.Replace(flag.Name, "-", "_", -1))
 				})
 			}
-			paths = ttnpb.AllowedFields(paths, ttnpb.AllowedFieldMaskPathsForRPC["/ttn.lorawan.v3.ApplicationWebhookRegistry/Get"])
 
 			as, err := api.Dial(ctx, config.ApplicationServerGRPCAddress)
 			if err != nil {
@@ -149,7 +146,6 @@ var (
 					paths = append(paths, strings.Replace(flag.Name, "-", "_", -1))
 				})
 			}
-			paths = ttnpb.AllowedFields(paths, ttnpb.AllowedFieldMaskPathsForRPC["/ttn.lorawan.v3.ApplicationWebhookRegistry/List"])
 
 			as, err := api.Dial(ctx, config.ApplicationServerGRPCAddress)
 			if err != nil {
@@ -227,11 +223,9 @@ func init() {
 	applicationsWebhooksCommand.AddCommand(applicationsWebhooksGetFormatsCommand)
 	applicationsWebhooksGetCommand.Flags().AddFlagSet(applicationWebhookIDFlags())
 	applicationsWebhooksGetCommand.Flags().AddFlagSet(selectApplicationWebhookFlags)
-	applicationsWebhooksGetCommand.Flags().AddFlagSet(selectAllApplicationWebhookFlags)
 	applicationsWebhooksCommand.AddCommand(applicationsWebhooksGetCommand)
 	applicationsWebhooksListCommand.Flags().AddFlagSet(applicationIDFlags())
 	applicationsWebhooksListCommand.Flags().AddFlagSet(selectApplicationWebhookFlags)
-	applicationsWebhooksListCommand.Flags().AddFlagSet(selectAllApplicationWebhookFlags)
 	applicationsWebhooksCommand.AddCommand(applicationsWebhooksListCommand)
 	applicationsWebhooksSetCommand.Flags().AddFlagSet(applicationWebhookIDFlags())
 	applicationsWebhooksSetCommand.Flags().AddFlagSet(setApplicationWebhookFlags)

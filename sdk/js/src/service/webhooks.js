@@ -19,14 +19,10 @@ class Webhooks {
     this._api = registry
   }
 
-  async getAll(appId, selector) {
-    const fieldMask = Marshaler.selectorToFieldMask(selector)
-    const result = await this._api.List(
-      {
-        routeParams: { 'application_ids.application_id': appId },
-      },
-      fieldMask,
-    )
+  async getAll(appId) {
+    const result = await this._api.List({
+      routeParams: { 'application_ids.application_id': appId },
+    })
 
     return Marshaler.payloadListResponse('webhooks', result)
   }
@@ -101,27 +97,6 @@ class Webhooks {
 
   async getFormats() {
     const result = await this._api.GetFormats()
-
-    return Marshaler.payloadSingleResponse(result)
-  }
-
-  async listTemplates(selector) {
-    const fieldMask = Marshaler.selectorToFieldMask(selector)
-    const result = await this._api.ListTemplates(undefined, fieldMask)
-
-    return Marshaler.payloadListResponse('templates', result)
-  }
-
-  async getTemplate(templateId, selector) {
-    const fieldMask = Marshaler.selectorToFieldMask(selector)
-    const result = await this._api.GetTemplate(
-      {
-        routeParams: {
-          'ids.template_id': templateId,
-        },
-      },
-      fieldMask,
-    )
 
     return Marshaler.payloadSingleResponse(result)
   }

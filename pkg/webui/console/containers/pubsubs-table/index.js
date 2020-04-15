@@ -39,7 +39,29 @@ const headers = [
   {
     name: 'ids.pub_sub_id',
     displayName: sharedMessages.id,
-    width: 40,
+    width: 25,
+  },
+  {
+    getValue(row) {
+      if (row.nats) {
+        return 'NATS'
+      } else if (row.mqtt) {
+        return 'MQTT'
+      }
+      return 'Not set'
+    },
+    displayName: sharedMessages.provider,
+    width: 10,
+  },
+  {
+    name: 'format',
+    displayName: m.format,
+    width: 10,
+  },
+  {
+    name: 'base_topic',
+    displayName: sharedMessages.pubsubBaseTopic,
+    width: 15,
   },
   {
     getValue(row) {
@@ -52,29 +74,7 @@ const headers = [
       return ''
     },
     displayName: m.host,
-    width: 33,
-  },
-  {
-    name: 'base_topic',
-    displayName: sharedMessages.pubsubBaseTopic,
-    width: 9,
-  },
-  {
-    getValue(row) {
-      if (row.nats) {
-        return 'NATS'
-      } else if (row.mqtt) {
-        return 'MQTT'
-      }
-      return 'Not set'
-    },
-    displayName: sharedMessages.provider,
-    width: 9,
-  },
-  {
-    name: 'format',
-    displayName: m.format,
-    width: 9,
+    width: 40,
   },
 ]
 

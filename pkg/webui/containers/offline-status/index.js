@@ -43,7 +43,7 @@ export default class OfflineStatus extends Component {
   }
 
   state = {
-    online: window.navigator.onLine,
+    online: true,
   }
 
   handleOnline() {

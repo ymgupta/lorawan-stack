@@ -37,7 +37,6 @@ import (
 	iopubsubredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub/redis"
 	iowebredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/web/redis"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
@@ -251,7 +250,7 @@ hardware_versions:
 			HTTP: config.HTTP{
 				Listen: ":8099",
 			},
-			Cluster: cluster.Config{
+			Cluster: config.Cluster{
 				IdentityServer: isAddr,
 				JoinServer:     jsAddr,
 				NetworkServer:  nsAddr,

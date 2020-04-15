@@ -36,52 +36,26 @@ func TestHandlePingSlotInfoReq(t *testing.T) {
 		{
 			Name: "nil payload",
 			Device: &ttnpb.EndDevice{
-				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_B,
-				},
+				MACState: &ttnpb.MACState{},
 			},
 			Expected: &ttnpb.EndDevice{
-				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_B,
-				},
+				MACState: &ttnpb.MACState{},
 			},
 			Error: errNoPayload,
-		},
-		{
-			Name: "class B device",
-			Device: &ttnpb.EndDevice{
-				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_B,
-				},
-			},
-			Expected: &ttnpb.EndDevice{
-				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_B,
-				},
-			},
-			Payload: &ttnpb.MACCommand_PingSlotInfoReq{
-				Period: 42,
-			},
-			Events: []events.DefinitionDataClosure{
-				evtReceivePingSlotInfoRequest.BindData(&ttnpb.MACCommand_PingSlotInfoReq{
-					Period: 42,
-				}),
-			},
 		},
 		{
 			Name: "empty queue",
 			Device: &ttnpb.EndDevice{
 				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_A,
+					QueuedResponses: []*ttnpb.MACCommand{},
 				},
 			},
 			Expected: &ttnpb.EndDevice{
 				MACState: &ttnpb.MACState{
-					DeviceClass:         ttnpb.CLASS_A,
-					PingSlotPeriodicity: &ttnpb.PingSlotPeriodValue{Value: 42},
 					QueuedResponses: []*ttnpb.MACCommand{
 						ttnpb.CID_PING_SLOT_INFO.MACCommand(),
 					},
+					PingSlotPeriodicity: &ttnpb.PingSlotPeriodValue{Value: 42},
 				},
 			},
 			Payload: &ttnpb.MACCommand_PingSlotInfoReq{
@@ -98,7 +72,6 @@ func TestHandlePingSlotInfoReq(t *testing.T) {
 			Name: "non-empty queue",
 			Device: &ttnpb.EndDevice{
 				MACState: &ttnpb.MACState{
-					DeviceClass: ttnpb.CLASS_A,
 					QueuedResponses: []*ttnpb.MACCommand{
 						{},
 						{},
@@ -108,14 +81,13 @@ func TestHandlePingSlotInfoReq(t *testing.T) {
 			},
 			Expected: &ttnpb.EndDevice{
 				MACState: &ttnpb.MACState{
-					DeviceClass:         ttnpb.CLASS_A,
-					PingSlotPeriodicity: &ttnpb.PingSlotPeriodValue{Value: 42},
 					QueuedResponses: []*ttnpb.MACCommand{
 						{},
 						{},
 						{},
 						ttnpb.CID_PING_SLOT_INFO.MACCommand(),
 					},
+					PingSlotPeriodicity: &ttnpb.PingSlotPeriodValue{Value: 42},
 				},
 			},
 			Payload: &ttnpb.MACCommand_PingSlotInfoReq{

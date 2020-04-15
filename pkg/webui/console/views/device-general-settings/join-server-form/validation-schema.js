@@ -14,10 +14,14 @@
 
 import * as Yup from 'yup'
 
+import randomByteString from '../../../lib/random-bytes'
 import m from '../../../components/device-data-form/messages'
 import sharedMessages from '../../../../lib/shared-messages'
 
 import { parseLorawanMacVersion } from '../utils'
+
+const random16BytesString = () => randomByteString(32)
+const toUndefined = value => (!Boolean(value) ? undefined : value)
 
 const validationSchema = Yup.object()
   .shape({
@@ -25,20 +29,19 @@ const validationSchema = Yup.object()
       .emptyOrLength(3 * 2, m.validate6) // 3 Byte hex
       .default(''),
     root_keys: Yup.object().when(
-      ['_external_js', '_lorawan_version', '_may_edit_keys', '_may_read_keys'],
-      (externalJs, version, mayEditKeys, mayReadKeys, schema) => {
+      ['_external_js', '_lorawan_version'],
+      (externalJs, version, schema) => {
         const strippedSchema = Yup.object().strip()
-        const keySchema = Yup.lazy(value => {
-          return !externalJs && Boolean(value) && Boolean(value.key)
+        const keySchema = Yup.lazy(() => {
+          return !externalJs
             ? Yup.object().shape({
-                key: Yup.string().emptyOrLength(16 * 2, m.validate32), // 16 Byte hex
+                key: Yup.string()
+                  .emptyOrLength(16 * 2, m.validate32) // 16 Byte hex
+                  .transform(toUndefined)
+                  .default(random16BytesString),
               })
             : Yup.object().strip()
         })
-
-        if (!mayEditKeys && !mayReadKeys) {
-          return schema.strip()
-        }
 
         if (externalJs) {
           return schema.shape({
@@ -77,8 +80,6 @@ const validationSchema = Yup.object()
       .default(''),
     _external_js: Yup.boolean().default(false),
     _lorawan_version: Yup.string().default('1.1.0'),
-    _may_edit_keys: Yup.boolean().default(false),
-    _may_read_keys: Yup.boolean().default(false),
   })
   .noUnknown()
 

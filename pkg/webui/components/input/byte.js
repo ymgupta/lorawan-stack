@@ -58,12 +58,59 @@ const clean = function(str) {
   return str.replace(new RegExp(`[ ${PLACEHOLDER_CHAR}]`, 'g'), '')
 }
 
+const Placeholder = function(props) {
+  const { min = 0, max = 256, placeholder, showPerChar = false } = props
+  let { value } = props
+
+  if (value === null) {
+    value = ''
+  }
+
+  if (placeholder || Boolean(value)) {
+    return null
+  }
+
+  const len = 1.5 * value.length - (value.length - 2 * Math.floor(value.length / 2))
+
+  const content = mask(min, max, showPerChar)
+    .map(function(el, i) {
+      if (!(el instanceof RegExp)) {
+        return ' '
+      }
+
+      if (i < len) {
+        return ' '
+      }
+
+      return PLACEHOLDER_CHAR
+    })
+    .join('')
+
+  return <div className={style.placeholder}>{content}</div>
+}
+
+Placeholder.propTypes = {
+  max: PropTypes.number,
+  min: PropTypes.number,
+  placeholder: PropTypes.message,
+  showPerChar: PropTypes.bool,
+  value: PropTypes.string,
+}
+
+Placeholder.defaultProps = {
+  min: 0,
+  max: 256,
+  value: '',
+  placeholder: undefined,
+  showPerChar: false,
+}
+
+@bind
 export default class ByteInput extends React.Component {
   static propTypes = {
     className: PropTypes.string,
     max: PropTypes.number,
     min: PropTypes.number,
-    onBlur: PropTypes.func,
     onChange: PropTypes.func.isRequired,
     placeholder: PropTypes.message,
     showPerChar: PropTypes.bool,
@@ -76,7 +123,6 @@ export default class ByteInput extends React.Component {
     max: 256,
     placeholder: undefined,
     showPerChar: false,
-    onBlur: () => null,
   }
 
   input = React.createRef()
@@ -88,19 +134,17 @@ export default class ByteInput extends React.Component {
   }
 
   render() {
-    const {
-      onBlur,
-      value,
-      className,
-      min,
-      max,
-      onChange,
-      placeholder,
-      showPerChar,
-      ...rest
-    } = this.props
+    const { value, className, min, max, onChange, placeholder, showPerChar, ...rest } = this.props
 
-    return (
+    return [
+      <Placeholder
+        key="placeholder"
+        min={min}
+        max={max}
+        value={value}
+        placeholder={placeholder}
+        showPerChar={showPerChar}
+      />,
       <MaskedInput
         ref={this.input}
         key="input"
@@ -114,11 +158,9 @@ export default class ByteInput extends React.Component {
         placeholder={placeholder}
         onCopy={this.onCopy}
         onCut={this.onCut}
-        onBlur={this.onBlur}
-        showMask={!placeholder}
         {...rest}
-      />
-    )
+      />,
+    ]
   }
 
   focus() {
@@ -137,7 +179,6 @@ export default class ByteInput extends React.Component {
     }
   }
 
-  @bind
   onChange(evt) {
     this.props.onChange({
       target: {
@@ -146,16 +187,6 @@ export default class ByteInput extends React.Component {
     })
   }
 
-  @bind
-  onBlur(evt) {
-    this.props.onBlur({
-      target: {
-        value: clean(evt.target.value),
-      },
-    })
-  }
-
-  @bind
   onCopy(evt) {
     const input = evt.target
     const value = input.value.substr(
@@ -166,7 +197,6 @@ export default class ByteInput extends React.Component {
     evt.preventDefault()
   }
 
-  @bind
   onCut(evt) {
     const input = evt.target
     const value = input.value.substr(

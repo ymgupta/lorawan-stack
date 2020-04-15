@@ -17,10 +17,8 @@ package shared
 import (
 	"time"
 
-	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
-	"go.thethings.network/lorawan-stack/pkg/redis"
 	"golang.org/x/crypto/acme"
 )
 
@@ -44,7 +42,7 @@ var DefaultTLSConfig = config.TLS{
 }
 
 // DefaultClusterConfig is the default cluster configuration.
-var DefaultClusterConfig = cluster.Config{}
+var DefaultClusterConfig = config.Cluster{}
 
 // DefaultHTTPConfig is the default HTTP config.
 var DefaultHTTPConfig = config.HTTP{
@@ -77,10 +75,10 @@ var DefaultGRPCConfig = config.GRPC{
 }
 
 // DefaultRedisConfig is the default config for Redis.
-var DefaultRedisConfig = redis.Config{
-	Address:       "localhost:6379",
-	Database:      0,
-	RootNamespace: []string{"ttn", "v3"},
+var DefaultRedisConfig = config.Redis{
+	Address:   "localhost:6379",
+	Database:  0,
+	Namespace: []string{"ttn", "v3"},
 }
 
 // DefaultEventsConfig is the default config for Events.

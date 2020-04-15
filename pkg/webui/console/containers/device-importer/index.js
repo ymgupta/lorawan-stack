@@ -25,7 +25,7 @@ import { selectNsConfig, selectJsConfig, selectAsConfig } from '../../../lib/sel
 import DeviceImportForm from '../../components/device-import-form'
 import SubmitBar from '../../../components/submit-bar'
 import Button from '../../../components/button'
-import ErrorNotification from '../../../components/error-notification'
+import Notification from '../../../components/notification'
 import api from '../../api'
 import PropTypes from '../../../lib/prop-types'
 import Message from '../../../lib/components/message'
@@ -61,7 +61,7 @@ const statusMap = {
 }
 
 @connect(
-  state => {
+  function(state) {
     const asConfig = selectAsConfig()
     const nsConfig = selectNsConfig()
     const jsConfig = selectJsConfig()
@@ -135,16 +135,21 @@ export default class DeviceImporter extends Component {
       this.setState({ step: 'conversion', status: 'processing' })
       this.appendToLog('Converting device templates…')
       const templateStream = await api.deviceTemplates.convert(format_id, data)
-      const devices = await new Promise((resolve, reject) => {
-        const chunks = []
+      const devices = await new Promise(
+        function(resolve, reject) {
+          const chunks = []
 
-        templateStream.on('chunk', message => {
-          this.appendToLog(message)
-          chunks.push(message)
-        })
-        templateStream.on('error', reject)
-        templateStream.on('close', () => resolve(chunks))
-      })
+          templateStream.on(
+            'chunk',
+            function(message) {
+              this.appendToLog(message)
+              chunks.push(message)
+            }.bind(this),
+          )
+          templateStream.on('error', reject)
+          templateStream.on('close', () => resolve(chunks))
+        }.bind(this),
+      )
 
       // Apply default values
       for (const deviceAndFieldMask of devices) {
@@ -158,11 +163,11 @@ export default class DeviceImporter extends Component {
           field_mask.paths.push('join_server_address')
         }
         if (!device.application_server_address && asConfig.enabled) {
-          device.application_server_address = new URL(asConfig.base_url).hostname
+          device.network_server_address = new URL(nsConfig.base_url).hostname
           field_mask.paths.push('application_server_address')
         }
         if (!device.network_server_address && nsConfig.enabled) {
-          device.network_server_address = new URL(nsConfig.base_url).hostname
+          device.application_server_address = new URL(asConfig.base_url).hostname
           field_mask.paths.push('network_server_address')
         }
       }
@@ -175,11 +180,13 @@ export default class DeviceImporter extends Component {
       this.appendToLog('Creating devices…')
       const createStream = api.device.bulkCreate(appId, devices, componentArray)
 
-      await new Promise((resolve, reject) => {
-        createStream.on('chunk', this.handleCreationProgress)
-        createStream.on('error', reject)
-        createStream.on('close', resolve)
-      })
+      await new Promise(
+        function(resolve, reject) {
+          createStream.on('chunk', this.handleCreationProgress)
+          createStream.on('error', reject)
+          createStream.on('close', resolve)
+        }.bind(this),
+      )
 
       this.setState({ status: 'finished' })
     } catch (error) {
@@ -203,7 +210,6 @@ export default class DeviceImporter extends Component {
     } else if (status === 'finished') {
       statusMessage = m.operationFinished
     }
-
     return (
       <div>
         <Message className={style.title} component="h4" content={operationMessage} />
@@ -223,7 +229,7 @@ export default class DeviceImporter extends Component {
             />
           </React.Fragment>
         ) : (
-          <ErrorNotification small content={error} title={m.errorTitle} />
+          <Notification small error={error} title={m.errorTitle} />
         )}
         <CodeEditor
           className={style.logOutput}

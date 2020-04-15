@@ -44,8 +44,6 @@ var (
 	setEndDeviceFlags        = &pflag.FlagSet{}
 	endDeviceFlattenPaths    = []string{"provisioning_data"}
 	endDevicePictureFlags    = &pflag.FlagSet{}
-
-	selectAllEndDeviceFlags = util.SelectAllFlagSet("end devices")
 )
 
 func selectEndDeviceIDFlags() *pflag.FlagSet {
@@ -88,7 +86,6 @@ var (
 	errEndDeviceEUIUpdate           = errors.DefineInvalidArgument("end_device_eui_update", "end device EUIs can not be updated")
 	errEndDeviceKeysWithProvisioner = errors.DefineInvalidArgument("end_device_keys_provisioner", "end device ABP or OTAA keys cannot be set when there is a provisioner")
 	errInconsistentEndDeviceEUI     = errors.DefineInvalidArgument("inconsistent_end_device_eui", "given end device EUIs do not match registered EUIs")
-	errInvalidDataRateIndex         = errors.DefineInvalidArgument("data_rate_index", "Data rate index is invalid")
 	errInvalidMACVerson             = errors.DefineInvalidArgument("mac_version", "LoRaWAN MAC version is invalid")
 	errInvalidPHYVerson             = errors.DefineInvalidArgument("phy_version", "LoRaWAN PHY version is invalid")
 	errNoEndDeviceEUI               = errors.DefineInvalidArgument("no_end_device_eui", "no end device EUIs set")
@@ -209,7 +206,6 @@ var (
 				return errNoApplicationID
 			}
 			paths := util.SelectFieldMask(cmd.Flags(), selectEndDeviceListFlags)
-			paths = ttnpb.AllowedFields(paths, ttnpb.AllowedFieldMaskPathsForRPC["/ttn.lorawan.v3.EndDeviceRegistry/List"])
 
 			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
 			if err != nil {
@@ -1111,18 +1107,15 @@ func init() {
 	endDevicesCommand.AddCommand(endDevicesListFrequencyPlans)
 	endDevicesListCommand.Flags().AddFlagSet(applicationIDFlags())
 	endDevicesListCommand.Flags().AddFlagSet(selectEndDeviceListFlags)
-	endDevicesListCommand.Flags().AddFlagSet(selectAllEndDeviceFlags)
 	endDevicesListCommand.Flags().AddFlagSet(paginationFlags())
 	endDevicesListCommand.Flags().AddFlagSet(orderFlags())
 	endDevicesCommand.AddCommand(endDevicesListCommand)
 	endDevicesSearchCommand.Flags().AddFlagSet(applicationIDFlags())
 	endDevicesSearchCommand.Flags().AddFlagSet(searchEndDevicesFlags())
 	endDevicesSearchCommand.Flags().AddFlagSet(selectApplicationFlags)
-	endDevicesSearchCommand.Flags().AddFlagSet(selectAllEndDeviceFlags)
 	endDevicesCommand.AddCommand(endDevicesSearchCommand)
 	endDevicesGetCommand.Flags().AddFlagSet(endDeviceIDFlags())
 	endDevicesGetCommand.Flags().AddFlagSet(selectEndDeviceFlags)
-	endDevicesGetCommand.Flags().AddFlagSet(selectAllEndDeviceFlags)
 	endDevicesCommand.AddCommand(endDevicesGetCommand)
 	endDevicesCreateCommand.Flags().AddFlagSet(endDeviceIDFlags())
 	endDevicesCreateCommand.Flags().AddFlagSet(setEndDeviceFlags)

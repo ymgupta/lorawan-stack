@@ -33,7 +33,7 @@ class InnerForm extends React.PureComponent {
     children: PropTypes.node.isRequired,
     className: PropTypes.string,
     formError: PropTypes.error,
-    formInfo: PropTypes.message,
+    formInfo: PropTypes.string,
     handleSubmit: PropTypes.func.isRequired,
     horizontal: PropTypes.bool,
     isSubmitting: PropTypes.bool.isRequired,

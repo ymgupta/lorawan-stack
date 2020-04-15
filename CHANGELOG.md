@@ -9,175 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- CLI can now dump JSON encoded `grpc_payload` field for unary requests (see `--dump-requests` flag).
-- Template ID column in the webhook table in the Console.
-- Select all field mask paths in CLI get, list and search commands (see `--all` option).
-- Create webhooks via webhook templates in the Console.
-- `ns.up.data.receive` and `ns.up.join.receive` events, which are triggered when respective uplink is received and matched to a device by Network Server.
-- `ns.up.data.forward` and `ns.up.join.accept.forward` events, which are triggered when respective message is forwarded from Network Server to Application Server.
-- `ns.up.join.cluster.attempt` and `ns.up.join.interop.attempt` events, which are triggered when the join-request is sent to respective Join Server by the Network Server.
-- `ns.up.join.cluster.success` and `ns.up.join.interop.success` events, which are triggered when Network Server's join-request is accepted by respective Join Server.
-- `ns.up.join.cluster.fail` and `ns.up.join.interop.fail` events, which are triggered when Network Server's join-request to respective Join Server fails.
-- `ns.up.data.process` and `ns.up.join.accept.process` events, which are triggered when respective message is successfully processed by Network Server.
-- `ns.down.data.schedule.attempt` and `ns.down.join.schedule.attempt` events, which are triggered when Network Server attempts to schedule a respective downlink on Gateway Server.
-- `ns.down.data.schedule.success` and `ns.down.join.schedule.success` events, which are triggered when Network Server successfully schedules a respective downlink on Gateway Server.
-- `ns.down.data.schedule.fail` and `ns.down.join.schedule.fail` events, which are triggered when Network Server fails to schedule a respective downlink on Gateway Server.
 - Guide to connect MikroTik Routerboard
 
 ### Changed
-
-- Styling improvements to webhook and pubsub table in Console.
-- Gateway location is updated even if no antenna locations had been previously set.
-- Renamed `ns.application.begin_link` event to `ns.application.link.begin`.
-- Renamed `ns.application.end_link` event to `ns.application.link.end`.
-- `ns.up.data.drop` and `ns.up.join.drop` events are now triggered when respective uplink duplicate is dropped by Network Server.
-- Network Server now drops FPort 0 data uplinks with non-empty FOpts.
 
 ### Deprecated
 
 ### Removed
 
-- `ns.up.merge_metadata` event.
-- `ns.up.receive_duplicate` event.
-- `ns.up.receive` event.
-
 ### Fixed
-
-- End device claim display bug when claim dates not set.
-- DeviceModeInd handling for LoRaWAN 1.1 devices.
-- Do not perform unnecessary gateway location updates.
-- Error display on failed end device import in the Console.
-- Update password view not being accessible
-
-### Security
-
-## [3.7.0] (2020-04-02)
-
-### Added
-
-- Update gateway antenna location from incoming status message (see `update_location_from_status` gateway field and `--gs.update-gateway-location-debounce-time` option).
-  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
-- Access Tokens are now linked to User Sessions.
-  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
-- Edit application attributes in Application General Settings in the Console
-- New `use` CLI command to automatically generate CLI configuration files.
-- View/edit `update_location_from_status` gateway property using the Console.
-
-### Changed
-
-- Default DevStatus periodicity is increased, which means that, by default, DevStatusReq will be scheduled less often.
-- Default class B and C timeouts are increased, which means that, by default, if the Network Server expects an uplink from the device after a downlink, it will wait longer before rescheduling the downlink.
-- In case downlink frame carries MAC requests, Network Server will not force the downlink to be sent confirmed in class B and C.
-
-### Fixed
-
-- Fix organization collaborator view not being accessible in the Console.
-- Error display on Data pages in the Console.
-- Fix too restrictive MQTT client validation in PubSub form in the Console.
-- Fix faulty display of device event stream data for end devices with the same ID in different applications.
-- Trailing slashes handling in webhook paths.
-- End device location display bug when deleting the location entry in the Console.
-- GS could panic when gateway connection stats were updated while updating the registry.
-- Local CLI and stack config files now properly override global config.
-- Error display on failed end device deletion in the Console.
-
-## [3.6.3] (2020-03-30)
-
-### Fixed
-
--  Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
-
-## [3.6.2] (2020-03-19)
-
-### Fixed
-
-- Entity events subscription release in the Console (Firefox).
-- RekeyInd handling for LoRaWAN 1.1 devices.
-- Network server deduplication Redis configuration.
-- Change the date format in the Console to be unambiguous (`17 Mar, 2020`).
-- Handling of uplink frame counters exceeding 65535.
-- Gateway events subscription release in the Console.
-- Panic when receiving a UDP `PUSH_DATA` frame from a gateway without payload.
-
-### Security
-
-- Admin users that are suspended can no longer create, view or delete other users.
-
-## [3.6.1] (2020-03-13)
-
-### Added
-
-- New `list` and `request-validation` subcommands for the CLI's `contact-info` commands.
-- Device Claim Authentication Code page in the Console.
-- Gateway Server rate limiting support for the UDP frontend, see (`--gs.udp.rate-limiting` options).
-- Uplink deduplication via Redis in Network Server.
-
-### Changed
-
-- Network and Application Servers now maintain application downlink queue per-session.
-- Gateway Server skips setting up an upstream if the DevAddr prefixes to forward are empty.
-- Gateway connection stats are now cached in Redis (see `--cache.service` and `--gs.update-connections-stats-debounce-time` options).
-
-### Fixed
-
-- Telemetry and events for gateway statuses.
-- Handling of downlink frame counters exceeding 65535.
-- Creating 1.0.4 ABP end devices via the Console.
-- ADR uplink handling.
-- Uplink retransmission handling.
-- Synchronizing Basic Station concentrator time after reconnect or initial connect after long inactivity.
-
-### Security
-
-- Changing username and password to be not required in pubsub integration.
-
-## [3.6.0] (2020-02-27)
-
-### Added
-
-- Class B support.
-- WebSocket Ping-Pong support for Basic Station frontend in the Gateway Server.
-- LoRaWAN 1.0.4 support.
-
-### Changed
-
-- Do not use `personal-files` plugin for Snap package.
-- Network Server will never attempt RX1 for devices with `Rx1Delay` of 1 second.
-- Improved efficiency of ADR MAC commands.
-- Gateway Configuration Server will use the default WebSocket TLS port if none is set.
-
-### Fixed
-
-- End device events subscription release in the Console.
-- Blocking UDP packet handling while the gateway was still connecting. Traffic is now dropped while the connection is in progress, so that traffic from already connected gateways keep flowing.
-- Join-request transmission parameters.
-- ADR in 72-channel regions.
-- Payload length limits used by Network Server being too low.
-- CLI ignores default config files that cannot be read.
-- Device creation rollback potentially deleting existing device with same ID.
-- Returned values not representing the effective state of the devices in Network Server when deprecated field paths are used.
-- Downlink queue operations in Network Server for LoRaWAN 1.1 devices.
-
-## [3.5.3] (2020-02-14)
-
-### Added
-
-- Display of error payloads in console event log.
-- Zero coordinate handling in location form in the Console.
-
-### Fixed
-
-- Updating `supports_class_c` field in the Device General Settings Page in the Console.
-- Updating MQTT pubsub configuration in the Console
-- Handling multiple consequent updates of MQTT pubsub/webhook integrations in the Console.
-- Displaying total device count in application overview section when using device search in the Console
-- FQDN used for Backend Interfaces interoperability requests.
-- Exposing device sensitive fields to unrelated stack components in the Console.
-- CLI trying to read input while none available.
-- Reconnections of gateways whose previous connection was not cleaned up properly. New connections from the same gateway now actively disconnects existing connections.
-- `ttn-lw-stack` and `ttn-lw-cli` file permission errors when installed using snap.
-  - You may need to run `sudo snap connect ttn-lw-stack:personal-files`
-- Changing username and password to be not required in pubsub integration
 
 ### Security
 
@@ -316,8 +156,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix crashing of organization collaborator edit page.
 - Avoid validating existing queue on application downlink pushes.
-- Correct `AU_915_928` maximum EIRP value to 30 dBm in 915.0 – 928.0 MHz (was 16.15 dBm).
-- Correct `US_902_928` maximum EIRP value to 23.15 dBm in 902.3 – 914.9 MHz (was 32.15 dBm) and 28.15 dBm in 923.3 – 927.5 MHz (was 32.15 dBm). This aligns with US915 Hybrid Mode.
+- Correct `AU_915_928` maximum EIRP value to 30 dBm in 915.0 – 928.0 MHz (was 16.15 dBm).
+- Correct `US_902_928` maximum EIRP value to 23.15 dBm in 902.3 – 914.9 MHz (was 32.15 dBm) and 28.15 dBm in 923.3 – 927.5 MHz (was 32.15 dBm). This aligns with US915 Hybrid Mode.
 - Correct `AS_923` maximum EIRP value to 16 dBm in 923.0 – 923.5 MHz (was 16.15 dBm).
 
 ### Security
@@ -749,13 +589,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...HEAD
-[3.7.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.7.0
-[3.6.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.2...v3.6.3
-[3.6.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.1...v3.6.2
-[3.6.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.6.1
-[3.6.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.3...v3.6.0
-[3.5.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.2...v3.5.3
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.2...HEAD
 [3.5.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.1...v3.5.2
 [3.5.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.5.0...v3.5.1
 [3.5.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.4.2...v3.5.0

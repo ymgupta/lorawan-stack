@@ -13,8 +13,6 @@
 // limitations under the License.
 
 import * as webhooks from '../../actions/webhooks'
-import * as webhookFormats from '../../actions/webhook-formats'
-import * as webhookTemplates from '../../actions/webhook-templates'
 
 import api from '../../../api'
 import createRequestLogic from './lib'
@@ -33,58 +31,10 @@ const getWebhookLogic = createRequestLogic({
 const getWebhooksLogic = createRequestLogic({
   type: webhooks.GET_WEBHOOKS_LIST,
   async process({ action }) {
-    const {
-      payload: { appId },
-      meta: { selector },
-    } = action
-    const res = await api.application.webhooks.list(appId, selector)
+    const { appId } = action.payload
+    const res = await api.application.webhooks.list(appId)
     return { entities: res.webhooks, totalCount: res.totalCount }
   },
 })
 
-const updateWebhookLogic = createRequestLogic({
-  type: webhooks.UPDATE_WEBHOOK,
-  async process({ action }) {
-    const { appId, webhookId, patch } = action.payload
-
-    return api.application.webhooks.update(appId, webhookId, patch)
-  },
-})
-
-const getWebhookFormatsLogic = createRequestLogic({
-  type: webhookFormats.GET_WEBHOOK_FORMATS,
-  async process() {
-    const { formats } = await api.application.webhooks.getFormats()
-    return formats
-  },
-})
-
-const getWebhookTemplateLogic = createRequestLogic({
-  type: webhookTemplates.GET_WEBHOOK_TEMPLATE,
-  async process({ action }) {
-    const { id } = action.payload
-    const { selector } = action.meta
-    const template = await api.application.webhooks.getTemplate(id, selector)
-
-    return template
-  },
-})
-
-const getWebhookTemplatesLogic = createRequestLogic({
-  type: webhookTemplates.LIST_WEBHOOK_TEMPLATES,
-  async process({ action }) {
-    const { selector } = action.meta
-    const { templates } = await api.application.webhooks.listTemplates(selector)
-
-    return templates
-  },
-})
-
-export default [
-  getWebhookLogic,
-  getWebhooksLogic,
-  updateWebhookLogic,
-  getWebhookFormatsLogic,
-  getWebhookTemplateLogic,
-  getWebhookTemplatesLogic,
-]
+export default [getWebhookLogic, getWebhooksLogic]

@@ -25,7 +25,7 @@
 
 # Security
 /pkg/auth @johanstokking @htdvisser
-/pkg/crypto @johanstokking @htdvisser @rvolosatovs
+/pkg/crypto @johanstokking @htdvisser
 
 # Shared components
 /pkg/component @johanstokking @htdvisser

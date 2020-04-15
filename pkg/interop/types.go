@@ -96,12 +96,10 @@ func (v MACVersion) MarshalJSON() ([]byte, error) {
 		res = "1.0.2"
 	case ttnpb.MAC_V1_0_3:
 		res = "1.0.3"
-	case ttnpb.MAC_V1_0_4:
-		res = "1.0.4"
 	case ttnpb.MAC_V1_1:
 		res = "1.1"
 	default:
-		return nil, errUnknownMACVersion.New()
+		return nil, errUnknownMACVersion
 	}
 	return []byte(fmt.Sprintf(`"%s"`, res)), nil
 }
@@ -118,12 +116,10 @@ func (v *MACVersion) UnmarshalJSON(data []byte) error {
 		res = ttnpb.MAC_V1_0_2
 	case "1.0.3":
 		res = ttnpb.MAC_V1_0_3
-	case "1.0.4":
-		res = ttnpb.MAC_V1_0_4
 	case "1.1":
 		res = ttnpb.MAC_V1_1
 	default:
-		return errUnknownMACVersion.New()
+		return errUnknownMACVersion
 	}
 	*v = MACVersion(res)
 	return nil
@@ -140,7 +136,7 @@ func (b Buffer) MarshalJSON() ([]byte, error) {
 // UnmarshalJSON unmarshals a hexadecimal string to binary data.
 func (b *Buffer) UnmarshalJSON(data []byte) error {
 	if len(data) < 2 || data[0] != '"' || data[len(data)-1] != '"' {
-		return errInvalidLength.New()
+		return errInvalidLength
 	}
 	buf, err := hex.DecodeString(strings.TrimPrefix(string(data[1:len(data)-1]), "0x"))
 	if err != nil {
@@ -211,7 +207,7 @@ func (n *NetID) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if len(buf) != 3 {
-		return errInvalidLength.New()
+		return errInvalidLength
 	}
 	copy(n[:], buf)
 	return nil
@@ -233,7 +229,7 @@ func (n *EUI64) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if len(buf) != 8 {
-		return errInvalidLength.New()
+		return errInvalidLength
 	}
 	copy(n[:], buf)
 	return nil
@@ -255,7 +251,7 @@ func (n *DevAddr) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	if len(buf) != 4 {
-		return errInvalidLength.New()
+		return errInvalidLength
 	}
 	copy(n[:], buf)
 	return nil

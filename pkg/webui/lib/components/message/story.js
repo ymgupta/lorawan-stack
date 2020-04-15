@@ -25,11 +25,6 @@ const exampleMessage = {
   defaultMessage: 'This is the default message',
 }
 
-const exampleLowercaseMessage = {
-  id: '$.some.other.id',
-  defaultMessage: 'this is the default message',
-}
-
 const placeholderMessage = {
   id: '$.placeholder',
   defaultMessage: 'There are {number} gateways.',
@@ -37,7 +32,6 @@ const placeholderMessage = {
 
 const messages = {
   '$.some.id': 'This is the translated message',
-  '$.some.other.id': 'this is the translated message',
   '$.placeholder': 'There are {number} gateways.',
 }
 
@@ -60,12 +54,3 @@ storiesOf('Utility Components/Message', module)
   .add('Default', () => <Message content={exampleMessage} />)
   .add('Placeholder', () => <Message content={placeholderMessage} values={{ number: 5 }} />)
   .add('String', () => <Message content="I can also be just a string, but will issue a warning" />)
-  .add('Transforms', () => (
-    <ul>
-      <Message capitalize component="li" content={exampleLowercaseMessage} />
-      <Message firstToUpper component="li" content={exampleLowercaseMessage} />
-      <Message firstToLower component="li" content={exampleMessage} />
-      <Message uppercase component="li" content={exampleLowercaseMessage} />
-      <Message lowercase component="li" content={exampleMessage} />
-    </ul>
-  ))

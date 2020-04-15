@@ -79,7 +79,7 @@ func (is *mockIS) Get(ctx context.Context, req *ttnpb.GetApplicationRequest) (*t
 	uid := unique.ID(ctx, req.ApplicationIdentifiers)
 	app, ok := is.applications[uid]
 	if !ok {
-		return nil, errNotFound.New()
+		return nil, errNotFound
 	}
 	return app, nil
 }

@@ -17,6 +17,7 @@
 import traverse from 'traverse'
 import Marshaler from '../../util/marshaler'
 import combineStreams from '../../util/combine-streams'
+import Device from '../../entity/device'
 import { notify, EVENTS } from '../../api/stream/shared'
 import deviceEntityMap from '../../../generated/device-entity-map.json'
 import { splitSetPaths, splitGetPaths, makeRequests } from './split'
@@ -28,40 +29,21 @@ import mergeDevice from './merge'
  * device data.
  */
 class Devices {
-  constructor(api, { stackConfig }) {
+  constructor(api, { proxy = true, ignoreDisabledComponents = true, stackConfig }) {
     if (!api) {
       throw new Error('Cannot initialize device service without api object.')
     }
     this._api = api
     this._stackConfig = stackConfig
+    this._proxy = proxy
+    this._ignoreDisabledComponents = ignoreDisabledComponents
   }
 
-  _emitDefaults(paths, device) {
-    // Handle zero coordinates that are swallowed by the grpc-gateway for device location.
-    const hasLocation = Boolean(device.locations) && Boolean(device.locations.user)
-    const requestedLocation = paths.some(path => path.startsWith('location'))
-
-    if (hasLocation && requestedLocation) {
-      const { locations } = device
-
-      if (!('altitude' in locations.user)) {
-        locations.user.altitude = 0
-      }
-
-      if (!('longitude' in locations.user)) {
-        locations.user.longitude = 0
-      }
-
-      if (!('latitude' in locations.user)) {
-        locations.user.latitude = 0
-      }
-    }
-
-    if (paths.includes('claim_authentication_code') && !Boolean(device.claim_authentication_code)) {
-      device.claim_authentication_code = null
-    }
-
-    return device
+  _responseTransform(response, single = true) {
+    return Marshaler[single ? 'unwrapDevice' : 'unwrapDevices'](
+      response,
+      this._proxy ? device => new Device(device, this._api) : undefined,
+    )
   }
 
   async _setDevice(applicationId, deviceId, device, create = false, requestTreeOverwrite) {
@@ -124,7 +106,18 @@ class Devices {
       return acc
     }, [])
 
-    const requestTree = requestTreeOverwrite ? requestTreeOverwrite : splitSetPaths(paths)
+    // Make sure to write at least the ids, in case of creation
+    const mergeBase = create
+      ? {
+          ns: [['ids']],
+          as: [['ids']],
+          js: [['ids']],
+        }
+      : {}
+
+    const requestTree = requestTreeOverwrite
+      ? requestTreeOverwrite
+      : splitSetPaths(paths, mergeBase)
 
     if (create) {
       if (device.join_server_address !== this._stackConfig.jsHost) {
@@ -199,6 +192,7 @@ class Devices {
     const setParts = await makeRequests(
       this._api,
       this._stackConfig,
+      this._ignoreDisabledComponents,
       create ? 'create' : 'set',
       requestTree,
       params,
@@ -212,22 +206,15 @@ class Devices {
     if (errors.length !== 0) {
       // Roll back successfully created registry entries
       if (create) {
-        const rollbackComponents = setParts.reduce((components, part) => {
-          if (part.hasAttempted && !part.hasErrored) {
-            components.push(part.component)
-          }
-
-          return components
-        }, [])
-
-        this._deleteDevice(appId, devId, rollbackComponents)
+        this._deleteDevice(appId, devId, setParts.map(e => e.hasAttempted && !e.hasErrored))
       }
 
       // Throw the first error
       throw errors[0].error
     }
 
-    return mergeDevice(setParts)
+    const result = mergeDevice(setParts)
+    return result
   }
 
   async _getDevice(applicationId, deviceId, paths, ignoreNotFound) {
@@ -251,6 +238,7 @@ class Devices {
     const deviceParts = await makeRequests(
       this._api,
       this._stackConfig,
+      this._ignoreDisabledComponents,
       'get',
       requestTree,
       params,
@@ -263,14 +251,6 @@ class Devices {
   }
 
   async _deleteDevice(applicationId, deviceId, components = ['is', 'ns', 'as', 'js']) {
-    if (!Boolean(applicationId)) {
-      throw new Error('Missing application ID for device')
-    }
-
-    if (!Boolean(deviceId)) {
-      throw new Error('Missing end device ID')
-    }
-
     const params = {
       routeParams: {
         'application_ids.application_id': applicationId,
@@ -278,49 +258,25 @@ class Devices {
       },
     }
 
-    const requests = []
-    if (this._stackConfig.isComponentAvailable('as') && components.includes('as')) {
-      requests.push(this._api.AsEndDeviceRegistry.Delete(params))
-    }
-    if (this._stackConfig.isComponentAvailable('js') && components.includes('js')) {
-      requests.push(this._api.JsEndDeviceRegistry.Delete(params))
-    }
-    if (this._stackConfig.isComponentAvailable('ns') && components.includes('ns')) {
-      requests.push(this._api.NsEndDeviceRegistry.Delete(params))
-    }
+    // Compose a request tree
+    const requestTree = components.reduce(function(acc, val) {
+      acc[val] = undefined
+      return acc
+    }, {})
 
-    const responses = await Promise.all(
-      // Simulate behavior of allSettled
-      requests.map(promise =>
-        promise.then(
-          value => ({
-            status: 'fulfilled',
-            value,
-          }),
-          reason => ({ status: 'rejected', reason }),
-        ),
-      ),
+    const deleteParts = await makeRequests(
+      this._api,
+      this._stackConfig,
+      this._ignoreDisabledComponents,
+      'delete',
+      requestTree,
+      params,
+      undefined,
+      true,
     )
-
-    // Check for errors and filter out 404 errors, since we cannot consistently return
-    // not found errors.
-    // TODO: Check for 404 errors, see https://github.com/TheThingsNetwork/lorawan-stack/issues/2323
-    const errors = responses.filter(
-      ({ status, reason }) => status === 'rejected' && reason.code !== 5,
-    )
-
-    // Only proceed deleting the device from IS (so it is not accessible anymore) if there are no errors
-    if (errors.length > 0) {
-      throw errors[0].reason
-    }
-
-    if (this._stackConfig.isComponentAvailable('is') && components.includes('is')) {
-      const response = await this._api.EndDeviceRegistry.Delete(params)
-
-      return Marshaler.payloadSingleResponse(response)
-    }
-
-    return {}
+    return deleteParts.every(e => Boolean(e.device) && Object.keys(e.device).length === 0)
+      ? {}
+      : deleteParts
   }
 
   async getAll(applicationId, params, selector) {
@@ -334,7 +290,7 @@ class Devices {
       },
     )
 
-    return Marshaler.unwrapDevices(response)
+    return this._responseTransform(response, false)
   }
 
   async search(applicationId, params, selector) {
@@ -359,228 +315,40 @@ class Devices {
       ignoreNotFound,
     )
 
-    const { field_mask } = Marshaler.selectorToFieldMask(selector)
-
-    return this._emitDefaults(field_mask.paths, Marshaler.unwrapDevice(response))
+    return this._responseTransform(response)
   }
 
-  /**
-   * Updates the `deviceId` end device under the `applicationId` application.
-   * This method will cause updates of the end device in all available stack
-   * components (i.e. NS, AS, IS, JS) based on provided end device payload.
-   * @param {string} applicationId - Application ID
-   * @param {string} deviceId - Device ID
-   * @param {Object} patch - The end device payload
-   * @returns {Object} - Updated end device on successful update, an error otherwise
-   */
   async updateById(applicationId, deviceId, patch) {
-    if (!Boolean(applicationId)) {
-      throw new Error('Missing application ID for device')
+    const response = await this._setDevice(applicationId, deviceId, patch)
+
+    if ('root_keys' in patch) {
+      patch.supports_join = true
     }
 
-    if (!Boolean(deviceId)) {
-      throw new Error('Missing end device ID')
-    }
-
-    const deviceMap = traverse(deviceEntityMap)
-    const paths = traverse(patch).reduce(function(acc) {
-      // Only add the top level path for arrays, otherwise
-      // paths are generated for each item in the array.
-      if (Array.isArray(this.node)) {
-        acc.push(this.path)
-        this.update(this.node, true)
-      }
-
-      if (this.isLeaf) {
-        const path = this.path
-
-        const parentAdded = acc.some(e => path[0].startsWith(e.join()))
-
-        // Only consider adding, if a common parent has not been already added
-        if (!parentAdded) {
-          // Add only the deepest possible field mask of the patch
-          const commonPath = path.filter((_, index, array) => {
-            const arr = array.slice(0, index + 1)
-            return deviceMap.has(arr)
-          })
-
-          acc.push(commonPath)
-        }
-      }
-      return acc
-    }, [])
-
-    const requestTree = splitSetPaths(paths)
-
-    // Assemble paths for end device fields that need to be retrieved first to make the update request
-    const combinePaths = []
-    if ('as' in requestTree && !('application_server_address' in patch)) {
-      combinePaths.push(['application_server_address'])
-    }
-    if ('js' in requestTree && !('join_server_address' in patch)) {
-      combinePaths.push(['join_server_address'])
-      combinePaths.push(['supports_join'])
-
-      const { ids = {} } = patch
-      if (!('dev_eui' in ids) || !('join_eui' in ids)) {
-        combinePaths.push(['ids', 'dev_eui'])
-        combinePaths.push(['ids', 'join_eui'])
-      }
-    }
-    if ('ns' in requestTree && !('network_server_address' in patch)) {
-      combinePaths.push(['network_server_address'])
-    }
-
-    const assembledValues = await this._getDevice(applicationId, deviceId, combinePaths, true)
-
-    if (assembledValues.network_server_address !== this._stackConfig.nsHost) {
-      delete requestTree.ns
-    }
-
-    if (assembledValues.application_server_address !== this._stackConfig.asHost) {
-      delete requestTree.as
-    }
-
-    if (
-      !assembledValues.supports_join ||
-      assembledValues.join_server_address !== this._stackConfig.jsHost
-    ) {
-      delete requestTree.js
-    }
-
-    // Make sure to include `join_eui` and `dev_eui` for js request as those are required
-    if ('js' in requestTree) {
-      const { ids = {} } = patch
-      const {
-        ids: { join_eui, dev_eui },
-      } = assembledValues
-
-      patch.ids = {
-        ...ids,
-        join_eui,
-        dev_eui,
-      }
-    }
-
-    const routeParams = {
-      routeParams: {
-        'end_device.ids.application_ids.application_id': applicationId,
-        'end_device.ids.device_id': deviceId,
-      },
-    }
-
-    // Perform the requests
-    const devicePayload = Marshaler.payload(patch, 'end_device')
-    const setParts = await makeRequests(
-      this._api,
-      this._stackConfig,
-      'set',
-      requestTree,
-      routeParams,
-      devicePayload,
-    )
-
-    // Filter out errored requests
-    const errors = setParts.filter(part => part.hasErrored)
-
-    // Handle possible errored requests
-    if (errors.length !== 0) {
-      // Throw the first error
-      throw errors[0].error
-    }
-
-    return this._emitDefaults(
-      Marshaler.fieldMaskFromPatch(patch),
-      Marshaler.unwrapDevice(mergeDevice(setParts)),
-    )
+    return this._responseTransform(response)
   }
 
-  /**
-   * Creates an end device under the `applicationId` application.
-   * This method will cause creating the end device in all available stack
-   * components (i.e. NS, AS, IS, JS) based on provided end device payload.
-   * @param {string} applicationId - Application ID
-   * @param {Object} device - The end device payload
-   * @returns {Object} - Created end device on successful creation, an error otherwise
-   */
-  async create(applicationId, device) {
-    if (!Boolean(applicationId)) {
-      throw new Error('Missing application ID for device')
+  async create(applicationId, device, { otaa = false }) {
+    const dev = device
+
+    if (!otaa) {
+      dev.supports_join = false
+    } else {
+      if ('provisioner_id' in dev && dev.provisioner_id !== '') {
+        throw new Error('Setting a provisioner with end device keys is not allowed.')
+      }
+
+      dev.supports_join = true
     }
+    const response = await this._setDevice(applicationId, undefined, dev, true)
 
-    const { supports_join = false, ids = {} } = device
-
-    const deviceId = ids.device_id
-    if (!Boolean(deviceId)) {
-      throw new Error('Missing end device ID')
-    }
-
-    if (supports_join && 'provisioner_id' in device && device.provisioner_id !== '') {
-      throw new Error('Setting a provisioner with end device keys is not allowed.')
-    }
-
-    const requestTree = splitSetPaths(traverse(device).paths())
-
-    if (!supports_join || device.join_server_address !== this._stackConfig.jsHost) {
-      delete requestTree.js
-    }
-
-    if (device.network_server_address !== this._stackConfig.nsHost) {
-      delete requestTree.ns
-    }
-
-    if (device.application_server_address !== this._stackConfig.asHost) {
-      delete requestTree.as
-    }
-
-    const devicePayload = Marshaler.payload(device, 'end_device')
-    const routeParams = {
-      routeParams: {
-        'end_device.ids.application_ids.application_id': applicationId,
-      },
-    }
-    const setParts = await makeRequests(
-      this._api,
-      this._stackConfig,
-      'create',
-      requestTree,
-      routeParams,
-      devicePayload,
-    )
-
-    // Filter out errored requests
-    const errors = setParts.filter(part => part.hasErrored)
-
-    // Handle possible errored requests
-    if (errors.length !== 0) {
-      // Roll back successfully created registry entries
-      const rollbackComponents = setParts.reduce((components, part) => {
-        if (part.hasAttempted && !part.hasErrored) {
-          components.push(part.component)
-        }
-
-        return components
-      }, [])
-
-      this._deleteDevice(applicationId, deviceId, rollbackComponents)
-
-      // Throw the first error
-      throw errors[0].error
-    }
-
-    return mergeDevice(setParts)
+    return this._responseTransform(response)
   }
 
-  /**
-   * Deletes the `deviceId` end device under the `applicationId` application.
-   * This method will cause deletion of the end device in all available stack
-   * components (i.e. NS, AS, IS, JS).
-   * @param {string} applicationId - Application ID
-   * @param {string} deviceId - Device ID
-   * @returns {Object} - Empty object on successful update, an error otherwise
-   */
   async deleteById(applicationId, deviceId) {
-    return this._deleteDevice(applicationId, deviceId)
+    const result = this._deleteDevice(applicationId, deviceId)
+
+    return result
   }
 
   // End Device Template Converter

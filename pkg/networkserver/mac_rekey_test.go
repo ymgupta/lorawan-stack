@@ -53,10 +53,8 @@ func TestHandleRekeyInd(t *testing.T) {
 					LastFCntUp:    42,
 					LastNFCntDown: 43,
 				},
-				PendingMACState: &ttnpb.MACState{},
 				MACState: &ttnpb.MACState{
-					PendingJoinRequest: &ttnpb.JoinRequest{},
-					QueuedResponses:    []*ttnpb.MACCommand{},
+					QueuedResponses: []*ttnpb.MACCommand{},
 				},
 			},
 			Expected: &ttnpb.EndDevice{
@@ -99,9 +97,7 @@ func TestHandleRekeyInd(t *testing.T) {
 					LastFCntUp:    42,
 					LastNFCntDown: 43,
 				},
-				PendingMACState: &ttnpb.MACState{},
 				MACState: &ttnpb.MACState{
-					PendingJoinRequest: &ttnpb.JoinRequest{},
 					QueuedResponses: []*ttnpb.MACCommand{
 						{},
 						{},

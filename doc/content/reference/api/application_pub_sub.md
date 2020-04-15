@@ -1,6 +1,7 @@
 ---
-title: "Application Pub/Sub APIs"
+title: "Application Pub-Sub APIs"
 description: ""
+weight: 4
 ---
 
 ## The `ApplicationPubSubRegistry` service

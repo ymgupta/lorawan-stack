@@ -15,52 +15,45 @@
 package sentry
 
 import (
-	"github.com/getsentry/sentry-go"
+	"runtime"
+
+	raven "github.com/getsentry/raven-go"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 )
 
-// NewEvent creates a new Sentry event for the given error.
-func NewEvent(err error) *sentry.Event {
-	evt := sentry.NewEvent()
-	if err == nil {
-		return evt
-	}
-
-	evt.Level = sentry.LevelError
-	evt.Message = err.Error()
-
-	// Error Tags.
-	if ttnErr, ok := errors.From(err); ok && ttnErr != nil {
-		evt.Tags["error.namespace"] = ttnErr.Namespace()
-		evt.Tags["error.name"] = ttnErr.Name()
-		if correlationID := ttnErr.CorrelationID(); correlationID != "" {
-			evt.EventID = sentry.EventID(correlationID)
-		}
-	}
-
+// ErrorAsExceptions converts the error into a raven.Exceptions.
+func ErrorAsExceptions(err error, includePaths ...string) *raven.Exceptions {
 	errStack := errors.Stack(err)
-
-	// Error Attributes.
-	for k, v := range errors.Attributes(errStack...) {
-		evt.Extra["error.attributes."+k] = v
+	exceptions := &raven.Exceptions{
+		Values: make([]*raven.Exception, len(errStack)),
 	}
-
-	// Error Stack.
-	for i := len(errStack) - 1; i >= 0; i-- {
-		err := errStack[i]
-		exception := sentry.Exception{
+	for i, err := range errStack {
+		exception := &raven.Exception{
 			Value: err.Error(),
 		}
-		if ttnErr, ok := errors.From(err); ok && ttnErr != nil {
+		if ttnErr, ok := errors.From(err); ok {
+			exception.Value = ttnErr.MessageFormat()
 			exception.Type = ttnErr.Name()
 			exception.Module = ttnErr.Namespace()
-			exception.Value = ttnErr.FormatMessage(ttnErr.PublicAttributes())
+			var frames []*raven.StacktraceFrame
+			for _, f := range ttnErr.StackTrace() { // copied from raven-go
+				pc := uintptr(f) - 1
+				fn := runtime.FuncForPC(pc)
+				var file string
+				var line int
+				if fn != nil {
+					file, line = fn.FileLine(pc)
+				} else {
+					file = "unknown"
+				}
+				frame := raven.NewStacktraceFrame(pc, fn.Name(), file, line, 3, includePaths)
+				if frame != nil {
+					frames = append([]*raven.StacktraceFrame{frame}, frames...)
+				}
+			}
+			exception.Stacktrace = &raven.Stacktrace{Frames: frames}
 		}
-		if stackTrace := sentry.ExtractStacktrace(err); stackTrace != nil {
-			exception.Stacktrace = stackTrace
-		}
-		evt.Exception = append(evt.Exception, exception)
+		exceptions.Values[len(errStack)-i-1] = exception
 	}
-
-	return evt
+	return exceptions
 }

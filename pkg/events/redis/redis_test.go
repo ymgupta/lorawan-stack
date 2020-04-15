@@ -21,21 +21,21 @@ import (
 	"time"
 
 	"github.com/smartystreets/assertions"
+	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/events/redis"
-	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
 
 // redisConfig returns a new redis config for testing
-func redisConfig() ttnredis.Config {
+func redisConfig() config.Redis {
 	var err error
-	config := ttnredis.Config{
-		Address:       "localhost:6379",
-		Database:      1,
-		RootNamespace: []string{"test"},
+	config := config.Redis{
+		Address:   "localhost:6379",
+		Database:  1,
+		Namespace: []string{"test"},
 	}
 	if address := os.Getenv("REDIS_ADDRESS"); address != "" {
 		config.Address = address
@@ -47,14 +47,14 @@ func redisConfig() ttnredis.Config {
 		}
 	}
 	if prefix := os.Getenv("REDIS_PREFIX"); prefix != "" {
-		config.RootNamespace = []string{prefix}
+		config.Namespace = []string{prefix}
 	}
 	return config
 }
 
 func Example() {
 	// This sends all events received from Redis to the default pubsub.
-	redisPubSub := redis.WrapPubSub(events.DefaultPubSub(), ttnredis.Config{
+	redisPubSub := redis.WrapPubSub(events.DefaultPubSub(), config.Redis{
 		// Config here...
 	})
 	// Replace the default pubsub so that we will now publish to Redis.

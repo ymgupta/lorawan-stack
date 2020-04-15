@@ -49,7 +49,7 @@ func TestPeers(t *testing.T) {
 	var c *component.Component
 
 	config := &component.Config{
-		ServiceBase: config.ServiceBase{Cluster: cluster.Config{
+		ServiceBase: config.ServiceBase{Cluster: config.Cluster{
 			Name:          "test-cluster",
 			NetworkServer: lis.Addr().String(),
 			TLS:           false,

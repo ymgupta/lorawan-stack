@@ -41,6 +41,8 @@ import {
   mayViewApplicationDevices,
 } from '../../lib/feature-checks'
 
+import style from './devices-table.styl'
+
 const headers = [
   {
     name: 'ids.device_id',
@@ -75,6 +77,7 @@ const headers = [
 )
 @withFeatureRequirement(mayViewApplicationDevices)
 @withRequest(({ getDeviceTemplateFormats }) => getDeviceTemplateFormats())
+@bind
 class DevicesTable extends React.Component {
   static propTypes = {
     appId: PropTypes.string.isRequired,
@@ -95,7 +98,6 @@ class DevicesTable extends React.Component {
     this.getDevicesList = filters => getDevicesList(props.appId, filters, ['name'])
   }
 
-  @bind
   baseDataSelector(state) {
     const { mayCreateDevices } = this.props
     return {
@@ -108,14 +110,17 @@ class DevicesTable extends React.Component {
   }
 
   get importButton() {
-    const { mayCreateDevices, appId } = this.props
+    const { deviceTemplateFormats, mayCreateDevices, appId } = this.props
+    const canBulkCreate = Object.keys(deviceTemplateFormats).length !== 0
 
     return (
       mayCreateDevices && (
         <Button.Link
+          className={style.importDevices}
           message={sharedMessages.importDevices}
           icon="import_devices"
           to={`/applications/${appId}/devices/import`}
+          disabled={!canBulkCreate}
         />
       )
     )

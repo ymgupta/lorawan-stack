@@ -19,7 +19,6 @@ import (
 	"reflect"
 
 	"go.thethings.network/lorawan-stack/pkg/cluster"
-	"go.thethings.network/lorawan-stack/pkg/rpcclient"
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -85,7 +84,7 @@ func NewGRPCServerPeer(ctx context.Context, srv interface{}, registrators ...int
 			reflect.ValueOf(srv),
 		})
 	}
-	conn, err := rpcserver.StartLoopback(ctx, grpcSrv, rpcclient.DefaultDialOptions(ctx)...)
+	conn, err := rpcserver.StartLoopback(ctx, grpcSrv)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,9 @@ syntax = "proto3";
 
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/field_mask.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
@@ -50,8 +52,6 @@ message Session {
   uint32 last_conf_f_cnt_down = 7;
   // Time when the session started. Network Server only.
   google.protobuf.Timestamp started_at = 8 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
-  // Queued Application downlink messages. Stored in Application Server and Network Server.
-  repeated ApplicationDownlink queued_application_downlinks = 9;
 }
 
 // MACParameters represent the parameters of the device's MAC layer (active or desired).
@@ -323,7 +323,6 @@ message MACState {
     JoinRequest request = 2 [(gogoproto.nullable) = false, (validate.rules).message.required = true];
     // Network session keys associated with the join.
     SessionKeys keys = 3 [(gogoproto.nullable) = false, (validate.rules).message.required = true];
-    repeated string correlation_ids = 4 [(gogoproto.customname) = "CorrelationIDs", (validate.rules).repeated.items.string.max_len = 100];
   }
   // Queued join-accept.
   // Set each time a (re-)join request accept is received from Join Server and removed each time a downlink is scheduled.
@@ -342,9 +341,6 @@ message MACState {
   // Recent data downlink messages sorted by time.
   // The number of messages stored may depend on configuration.
   repeated DownlinkMessage recent_downlinks = 15;
-
-  // Time when the last network-initiated downlink message was scheduled.
-  google.protobuf.Timestamp last_network_initiated_downlink_at = 16 [(gogoproto.stdtime) = true];
 }
 
 // Power state of the device.
@@ -513,7 +509,6 @@ message EndDevice {
   repeated DownlinkMessage recent_downlinks = 39;
   // Queued Application downlink messages. Stored in Application Server,
   // which sets them on the Network Server.
-  // This field is deprecated and is always set equal to session.queued_application_downlinks.
   repeated ApplicationDownlink queued_application_downlinks = 40;
 
   // The payload formatters for this end device. Stored in Application Server.

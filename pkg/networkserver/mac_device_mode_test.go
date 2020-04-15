@@ -98,7 +98,6 @@ func TestHandleDeviceModeInd(t *testing.T) {
 				evtReceiveDeviceModeIndication.BindData(&ttnpb.MACCommand_DeviceModeInd{
 					Class: ttnpb.CLASS_C,
 				}),
-				evtClassCSwitch.BindData(ttnpb.CLASS_A),
 				evtEnqueueDeviceModeConfirmation.BindData(&ttnpb.MACCommand_DeviceModeConf{
 					Class: ttnpb.CLASS_C,
 				}),
@@ -138,7 +137,6 @@ func TestHandleDeviceModeInd(t *testing.T) {
 				evtReceiveDeviceModeIndication.BindData(&ttnpb.MACCommand_DeviceModeInd{
 					Class: ttnpb.CLASS_A,
 				}),
-				evtClassASwitch.BindData(ttnpb.CLASS_C),
 				evtEnqueueDeviceModeConfirmation.BindData(&ttnpb.MACCommand_DeviceModeConf{
 					Class: ttnpb.CLASS_A,
 				}),

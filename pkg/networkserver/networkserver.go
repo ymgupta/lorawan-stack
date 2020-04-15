@@ -18,9 +18,11 @@ package networkserver
 import (
 	"context"
 	"crypto/tls"
+	"hash/fnv"
 	"sync"
 	"time"
 
+	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
@@ -41,20 +43,34 @@ const (
 
 	// fOptsCapacity is the maximum length of FOpts in bytes.
 	fOptsCapacity = 15
-
-	// infrastructureDelay represents a time interval Network Server uses as a buffer to account for infrastructure delay.
-	infrastructureDelay = time.Second
-
-	// networkInitiatedDownlinkInterval is the minimum time.Duration passed before a network-initiated(e.g. Class B or C) downlink following an arbitrary downlink.
-	networkInitiatedDownlinkInterval = time.Second
 )
 
-// windowDurationFunc is a function, which is used by Network Server to determine the duration of deduplication and cooldown windows.
-type windowDurationFunc func(ctx context.Context) time.Duration
+// windowEndFunc is a function, which is used by Network Server to determine the end of deduplication and cooldown windows.
+type windowEndFunc func(ctx context.Context, up *ttnpb.UplinkMessage) <-chan time.Time
 
-// makeWindowEndAfterFunc returns a windowDurationFunc, which always returns d.
-func makeWindowDurationFunc(d time.Duration) windowDurationFunc {
-	return func(ctx context.Context) time.Duration { return d }
+// makeWindowEndAfterFunc returns a windowEndFunc, which closes
+// the returned channel after at least duration d after up.ServerTime or if the context is done.
+func makeWindowEndAfterFunc(d time.Duration) windowEndFunc {
+	return func(ctx context.Context, up *ttnpb.UplinkMessage) <-chan time.Time {
+		ch := make(chan time.Time, 1)
+
+		now := timeNow()
+		if up.ReceivedAt.IsZero() {
+			up.ReceivedAt = now
+		}
+
+		end := up.ReceivedAt.Add(d)
+		if end.Before(now) {
+			ch <- end
+			return ch
+		}
+
+		go func() {
+			time.Sleep(timeUntil(up.ReceivedAt.Add(d)))
+			ch <- end
+		}()
+		return ch
+	}
 }
 
 // newDevAddrFunc is a function, which is used by Network Server to derive new DevAddrs.
@@ -102,17 +118,20 @@ type NetworkServer struct {
 	applicationServers *sync.Map // string -> *applicationUpStream
 	applicationUplinks ApplicationUplinkQueue
 
+	metadataAccumulators *sync.Map // uint64 -> *metadataAccumulator
+
+	metadataAccumulatorPool *sync.Pool
+	hashPool                *sync.Pool
+
 	downlinkTasks      DownlinkTaskQueue
 	downlinkPriorities DownlinkPriorities
 
-	deduplicationWindow windowDurationFunc
-	collectionWindow    windowDurationFunc
+	deduplicationDone windowEndFunc
+	collectionDone    windowEndFunc
 
 	defaultMACSettings ttnpb.MACSettings
 
 	interopClient InteropClient
-
-	uplinkDeduplicator UplinkDeduplicator
 
 	deviceKEKLabel string
 }
@@ -131,8 +150,6 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 		return nil, errInvalidConfiguration.WithCause(errors.New("CooldownWindow must be greater than 0"))
 	case conf.DownlinkTasks == nil:
 		return nil, errInvalidConfiguration.WithCause(errors.New("DownlinkTasks is not specified"))
-	case conf.UplinkDeduplicator == nil:
-		return nil, errInvalidConfiguration.WithCause(errors.New("UplinkDeduplicator is not specified"))
 	}
 
 	devAddrPrefixes := conf.DevAddrPrefixes
@@ -170,21 +187,53 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	}
 
 	ns := &NetworkServer{
-		Component:           c,
-		ctx:                 ctx,
-		netID:               conf.NetID,
-		newDevAddr:          makeNewDevAddrFunc(devAddrPrefixes...),
-		applicationServers:  &sync.Map{},
-		applicationUplinks:  conf.ApplicationUplinks,
-		deduplicationWindow: makeWindowDurationFunc(conf.DeduplicationWindow),
-		collectionWindow:    makeWindowDurationFunc(conf.DeduplicationWindow + conf.CooldownWindow),
-		devices:             wrapDeviceRegistryWithDeprecatedFields(conf.Devices, deprecatedDeviceFields...),
-		downlinkTasks:       conf.DownlinkTasks,
-		downlinkPriorities:  downlinkPriorities,
-		defaultMACSettings:  conf.DefaultMACSettings.Parse(),
-		interopClient:       interopCl,
-		uplinkDeduplicator:  conf.UplinkDeduplicator,
-		deviceKEKLabel:      conf.DeviceKEKLabel,
+		Component:            c,
+		ctx:                  ctx,
+		netID:                conf.NetID,
+		newDevAddr:           makeNewDevAddrFunc(devAddrPrefixes...),
+		applicationServers:   &sync.Map{},
+		applicationUplinks:   conf.ApplicationUplinks,
+		deduplicationDone:    makeWindowEndAfterFunc(conf.DeduplicationWindow),
+		collectionDone:       makeWindowEndAfterFunc(conf.DeduplicationWindow + conf.CooldownWindow),
+		devices:              conf.Devices,
+		downlinkTasks:        conf.DownlinkTasks,
+		metadataAccumulators: &sync.Map{},
+		metadataAccumulatorPool: &sync.Pool{
+			New: func() interface{} {
+				return &metadataAccumulator{}
+			},
+		},
+		hashPool: &sync.Pool{
+			New: func() interface{} {
+				return fnv.New64a()
+			},
+		},
+		downlinkPriorities: downlinkPriorities,
+		defaultMACSettings: ttnpb.MACSettings{
+			ClassBTimeout:         conf.DefaultMACSettings.ClassBTimeout,
+			ClassCTimeout:         conf.DefaultMACSettings.ClassCTimeout,
+			StatusTimePeriodicity: conf.DefaultMACSettings.StatusTimePeriodicity,
+		},
+		interopClient:  interopCl,
+		deviceKEKLabel: conf.DeviceKEKLabel,
+	}
+	if conf.DefaultMACSettings.ADRMargin != nil {
+		ns.defaultMACSettings.ADRMargin = &pbtypes.FloatValue{Value: *conf.DefaultMACSettings.ADRMargin}
+	}
+	if conf.DefaultMACSettings.DesiredRx1Delay != nil {
+		ns.defaultMACSettings.DesiredRx1Delay = &ttnpb.RxDelayValue{Value: *conf.DefaultMACSettings.DesiredRx1Delay}
+	}
+	if conf.DefaultMACSettings.DesiredMaxDutyCycle != nil {
+		ns.defaultMACSettings.DesiredMaxDutyCycle = &ttnpb.AggregatedDutyCycleValue{Value: *conf.DefaultMACSettings.DesiredMaxDutyCycle}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckLimitExponent != nil {
+		ns.defaultMACSettings.DesiredADRAckLimitExponent = &ttnpb.ADRAckLimitExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckLimitExponent}
+	}
+	if conf.DefaultMACSettings.DesiredADRAckDelayExponent != nil {
+		ns.defaultMACSettings.DesiredADRAckDelayExponent = &ttnpb.ADRAckDelayExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckDelayExponent}
+	}
+	if conf.DefaultMACSettings.StatusCountPeriodicity != nil {
+		ns.defaultMACSettings.StatusCountPeriodicity = &pbtypes.UInt32Value{Value: *conf.DefaultMACSettings.StatusCountPeriodicity}
 	}
 
 	if len(opts) == 0 {

@@ -84,23 +84,6 @@ func (m *Session) ValidateFields(paths ...string) error {
 				}
 			}
 
-		case "queued_application_downlinks":
-
-			for idx, item := range m.GetQueuedApplicationDownlinks() {
-				_, _ = idx, item
-
-				if v, ok := interface{}(item).(interface{ ValidateFields(...string) error }); ok {
-					if err := v.ValidateFields(subs...); err != nil {
-						return SessionValidationError{
-							field:  fmt.Sprintf("queued_application_downlinks[%v]", idx),
-							reason: "embedded message failed validation",
-							cause:  err,
-						}
-					}
-				}
-
-			}
-
 		default:
 			return SessionValidationError{
 				field:  name,
@@ -1525,18 +1508,6 @@ func (m *MACState) ValidateFields(paths ...string) error {
 					}
 				}
 
-			}
-
-		case "last_network_initiated_downlink_at":
-
-			if v, ok := interface{}(m.GetLastNetworkInitiatedDownlinkAt()).(interface{ ValidateFields(...string) error }); ok {
-				if err := v.ValidateFields(subs...); err != nil {
-					return MACStateValidationError{
-						field:  "last_network_initiated_downlink_at",
-						reason: "embedded message failed validation",
-						cause:  err,
-					}
-				}
 			}
 
 		default:
@@ -3648,20 +3619,6 @@ func (m *MACState_JoinAccept) ValidateFields(paths ...string) error {
 						cause:  err,
 					}
 				}
-			}
-
-		case "correlation_ids":
-
-			for idx, item := range m.GetCorrelationIDs() {
-				_, _ = idx, item
-
-				if utf8.RuneCountInString(item) > 100 {
-					return MACState_JoinAcceptValidationError{
-						field:  fmt.Sprintf("correlation_ids[%v]", idx),
-						reason: "value length must be at most 100 runes",
-					}
-				}
-
 			}
 
 		default:

@@ -53,7 +53,7 @@ func deviceNeedsLinkADRReq(dev *ttnpb.EndDevice) bool {
 	return false
 }
 
-func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, defaults ttnpb.MACSettings, phy band.Band) (macCommandEnqueueState, error) {
+func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, phy band.Band) (macCommandEnqueueState, error) {
 	if !deviceNeedsLinkADRReq(dev) {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
@@ -66,18 +66,14 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
 			MaxUpLen:   maxUpLen,
-		}, errCorruptedMACState.New()
+		}, errCorruptedMACState
 	}
 
-	currentChs := make([]bool, phy.MaxUplinkChannels)
-	for i, ch := range dev.MACState.CurrentParameters.Channels {
-		currentChs[i] = ch.GetEnableUplink()
-	}
 	desiredChs := make([]bool, phy.MaxUplinkChannels)
 	for i, ch := range dev.MACState.DesiredParameters.Channels {
 		desiredChs[i] = ch.GetEnableUplink()
 	}
-	desiredMasks, err := phy.GenerateChMasks(currentChs, desiredChs)
+	desiredMasks, err := phy.GenerateChMasks(desiredChs)
 	if err != nil {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
@@ -89,16 +85,7 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
 			MaxUpLen:   maxUpLen,
-		}, errCorruptedMACState.New()
-	}
-
-	drIdx := dev.MACState.DesiredParameters.ADRDataRateIndex
-	if dev.MACState.LoRaWANVersion.HasNoChangeDataRateIndex() && (!deviceUseADR(dev, defaults) || dev.MACState.CurrentParameters.ADRDataRateIndex == dev.MACState.DesiredParameters.ADRDataRateIndex) {
-		drIdx = ttnpb.DATA_RATE_15
-	}
-	txPowerIdx := dev.MACState.DesiredParameters.ADRTxPowerIndex
-	if dev.MACState.LoRaWANVersion.HasNoChangeTXPowerIndex() && (!deviceUseADR(dev, defaults) || dev.MACState.CurrentParameters.ADRTxPowerIndex == dev.MACState.DesiredParameters.ADRTxPowerIndex) {
-		txPowerIdx = 15
+		}, errCorruptedMACState
 	}
 
 	var st macCommandEnqueueState
@@ -118,9 +105,9 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 		cmds := make([]*ttnpb.MACCommand, 0, len(desiredMasks))
 		for i, m := range desiredMasks {
 			req := &ttnpb.MACCommand_LinkADRReq{
-				DataRateIndex:      drIdx,
+				DataRateIndex:      dev.MACState.DesiredParameters.ADRDataRateIndex,
 				NbTrans:            dev.MACState.DesiredParameters.ADRNbTrans,
-				TxPowerIndex:       txPowerIdx,
+				TxPowerIndex:       dev.MACState.DesiredParameters.ADRTxPowerIndex,
 				ChannelMaskControl: uint32(m.Cntl),
 				ChannelMask:        desiredMasks[i].Mask[:],
 			}
@@ -141,7 +128,7 @@ func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, ma
 
 func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACCommand_LinkADRAns, dupCount uint, fps *frequencyplans.Store) ([]events.DefinitionDataClosure, error) {
 	if pld == nil {
-		return nil, errNoPayload.New()
+		return nil, errNoPayload
 	}
 
 	handler := handleMACResponseBlock
@@ -150,7 +137,7 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 	}
 
 	if (dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) < 0 || dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) >= 0) && dupCount != 0 {
-		return nil, errInvalidPayload.New()
+		return nil, errInvalidPayload
 	}
 
 	evt := evtReceiveLinkADRAccept
@@ -168,7 +155,7 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 	var req *ttnpb.MACCommand_LinkADRReq
 	dev.MACState.PendingRequests, err = handler(ttnpb.CID_LINK_ADR, func(cmd *ttnpb.MACCommand) error {
 		if dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_0_2) >= 0 && dev.MACState.LoRaWANVersion.Compare(ttnpb.MAC_V1_1) < 0 && n > dupCount+1 {
-			return errInvalidPayload.New()
+			return errInvalidPayload
 		}
 		n++
 

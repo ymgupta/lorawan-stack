@@ -21,12 +21,6 @@
             "schema": {
               "$ref": "#/definitions/v3Applications"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -100,12 +94,6 @@
             "schema": {
               "$ref": "#/definitions/v3Application"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -138,12 +126,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Application"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -179,12 +161,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKeys"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -224,12 +200,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -262,12 +232,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKey"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -308,12 +272,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -345,12 +303,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -398,12 +350,6 @@
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -450,12 +396,6 @@
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -501,12 +441,6 @@
             "schema": {
               "$ref": "#/definitions/v3Collaborators"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -546,12 +480,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -583,12 +511,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevices"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -648,12 +570,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -708,12 +624,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -738,12 +648,6 @@
             "schema": {
               "$ref": "#/definitions/v3Rights"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -767,12 +671,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -805,12 +703,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -849,12 +741,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -921,12 +807,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -981,12 +861,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationDownlinks"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1040,12 +914,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPackages"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1102,12 +970,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationLink"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1142,12 +1004,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationLink"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1181,12 +1037,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1210,12 +1060,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationLinkStats"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1241,12 +1085,6 @@
             "schema": {
               "$ref": "#/definitions/v3MQTTConnectionInfo"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1270,12 +1108,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPackageAssociation"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1322,12 +1154,6 @@
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1359,12 +1185,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1403,12 +1223,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1475,12 +1289,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1519,12 +1327,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1562,12 +1364,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1629,12 +1425,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPackageAssociations"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1717,12 +1507,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationPackageAssociation"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1795,12 +1579,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationPubSubFormats"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -1816,12 +1594,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPubSubs"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1858,12 +1630,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1893,12 +1659,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPubSub"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -1941,12 +1701,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationPubSub"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -1978,12 +1732,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationPubSub"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2023,12 +1771,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhookFormats"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -2044,12 +1786,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhookTemplates"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2079,12 +1815,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhookTemplate"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2121,12 +1851,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhooks"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2162,12 +1886,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2197,12 +1915,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhook"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2245,12 +1957,6 @@
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhook"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2282,12 +1988,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ApplicationWebhook"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2327,12 +2027,6 @@
             "schema": {
               "$ref": "#/definitions/v3AuthInfoResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -2348,12 +2042,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Clients"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2428,12 +2116,6 @@
             "schema": {
               "$ref": "#/definitions/v3Client"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2465,12 +2147,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Client"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2506,12 +2182,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2558,12 +2228,6 @@
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2608,12 +2272,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2660,12 +2318,6 @@
             "schema": {
               "$ref": "#/definitions/v3Collaborators"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2704,12 +2356,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2742,12 +2388,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2772,12 +2412,6 @@
             "schema": {
               "$ref": "#/definitions/v3Rights"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2801,12 +2435,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3ListFrequencyPlansResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2834,12 +2462,6 @@
             "schema": {
               "$ref": "#/definitions/v3ContactInfoValidation"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -2853,12 +2475,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2875,12 +2491,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2914,12 +2524,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -2943,12 +2547,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDeviceIdentifiers"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -2985,12 +2583,6 @@
               },
               "title": "Stream result of v3EndDeviceTemplate"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3017,12 +2609,6 @@
             "schema": {
               "$ref": "#/definitions/v3EndDeviceTemplateFormats"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -3047,12 +2633,6 @@
                 }
               },
               "title": "Stream result of v3Event"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3079,12 +2659,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Gateways"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3159,12 +2733,6 @@
             "schema": {
               "$ref": "#/definitions/v3Gateway"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3196,12 +2764,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Gateway"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3245,12 +2807,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKeys"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3298,12 +2854,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3335,12 +2885,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKey"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3381,12 +2925,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3425,12 +2963,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3485,12 +3017,6 @@
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3543,12 +3069,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3603,12 +3123,6 @@
             "schema": {
               "$ref": "#/definitions/v3Collaborators"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3655,12 +3169,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3692,12 +3200,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3731,12 +3233,6 @@
             "schema": {
               "$ref": "#/definitions/v3Rights"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3768,12 +3264,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GatewayConnectionStats"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3807,12 +3297,6 @@
             "schema": {
               "$ref": "#/definitions/v3MQTTConnectionInfo"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3844,12 +3328,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3MQTTConnectionInfo"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3883,12 +3361,6 @@
             "schema": {
               "$ref": "#/definitions/v3Invitations"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3921,12 +3393,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -3948,12 +3414,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Invitation"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -3980,12 +3440,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4050,12 +3504,6 @@
               },
               "title": "Stream result of v3EndDevice"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4088,12 +3536,6 @@
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4125,12 +3567,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4169,12 +3605,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4241,12 +3671,6 @@
             "schema": {
               "$ref": "#/definitions/v3JoinEUIPrefixes"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -4262,12 +3686,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4323,12 +3741,6 @@
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4360,12 +3772,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4404,12 +3810,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevice"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4476,12 +3876,6 @@
             "schema": {
               "$ref": "#/definitions/v3GenerateDevAddrResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -4497,12 +3891,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Organizations"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4578,12 +3966,6 @@
             "schema": {
               "$ref": "#/definitions/v3Applications"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4656,12 +4038,6 @@
             "schema": {
               "$ref": "#/definitions/v3Application"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4694,12 +4070,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Clients"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4772,12 +4142,6 @@
             "schema": {
               "$ref": "#/definitions/v3Client"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4810,12 +4174,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Gateways"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -4888,12 +4246,6 @@
             "schema": {
               "$ref": "#/definitions/v3Gateway"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4927,12 +4279,6 @@
             "schema": {
               "$ref": "#/definitions/v3Organization"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -4965,12 +4311,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Organization"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5007,12 +4347,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKeys"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5053,12 +4387,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5091,12 +4419,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKey"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5138,12 +4460,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5175,12 +4491,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5221,12 +4531,6 @@
             "schema": {
               "$ref": "#/definitions/v3GetCollaboratorResponse"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5265,12 +4569,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Collaborators"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5311,12 +4609,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5350,12 +4642,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5381,12 +4667,6 @@
             "schema": {
               "$ref": "#/definitions/v3Rights"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5411,12 +4691,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3GenerateQRCodeResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5444,12 +4718,6 @@
             "schema": {
               "$ref": "#/definitions/v3QRCodeFormats"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "tags": [
@@ -5465,12 +4733,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3QRCodeFormat"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5495,12 +4757,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Applications"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5574,12 +4830,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3EndDevices"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5681,12 +4931,6 @@
             "schema": {
               "$ref": "#/definitions/v3Clients"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5759,12 +5003,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Gateways"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5839,12 +5077,6 @@
             "schema": {
               "$ref": "#/definitions/v3Organizations"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -5917,12 +5149,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Users"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -5997,12 +5223,6 @@
             "schema": {
               "$ref": "#/definitions/v3Users"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6053,12 +5273,6 @@
             "schema": {
               "$ref": "#/definitions/v3User"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6085,12 +5299,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Applications"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6164,12 +5372,6 @@
             "schema": {
               "$ref": "#/definitions/v3Application"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6202,12 +5404,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Clients"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6280,12 +5476,6 @@
             "schema": {
               "$ref": "#/definitions/v3Client"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6318,12 +5508,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Gateways"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6396,12 +5580,6 @@
             "schema": {
               "$ref": "#/definitions/v3Gateway"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6434,12 +5612,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Organizations"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6512,12 +5684,6 @@
             "schema": {
               "$ref": "#/definitions/v3Organization"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6551,12 +5717,6 @@
             "schema": {
               "$ref": "#/definitions/v3User"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6589,12 +5749,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3User"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6638,12 +5792,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKeys"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6691,12 +5839,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6729,12 +5871,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3APIKey"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6776,12 +5912,6 @@
             "schema": {
               "$ref": "#/definitions/v3APIKey"
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6820,12 +5950,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3OAuthClientAuthorizations"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6882,12 +6006,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -6925,12 +6043,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3OAuthAccessTokens"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -6993,12 +6105,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -7043,12 +6149,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -7081,12 +6181,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3UserSessions"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -7143,12 +6237,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -7187,12 +6275,6 @@
             "schema": {
               "properties": {}
             }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
-            }
           }
         },
         "parameters": [
@@ -7217,12 +6299,6 @@
             "description": "A successful response.",
             "schema": {
               "properties": {}
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -7255,12 +6331,6 @@
             "description": "A successful response.",
             "schema": {
               "$ref": "#/definitions/v3Rights"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response",
-            "schema": {
-              "$ref": "#/definitions/runtimeError"
             }
           }
         },
@@ -7870,12 +6940,6 @@
         "keys": {
           "$ref": "#/definitions/v3SessionKeys",
           "description": "Network session keys associated with the join."
-        },
-        "correlation_ids": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
         }
       }
     },
@@ -8055,7 +7119,7 @@
           "description": "The set of field mask paths."
         }
       },
-      "description": "paths: \"f.a\"\n    paths: \"f.b.d\"\n\nHere `f` represents a field in some root message, `a` and `b`\nfields in the message found in `f`, and `d` a field found in the\nmessage in `f.b`.\n\nField masks are used to specify a subset of fields that should be\nreturned by a get operation or modified by an update operation.\nField masks also have a custom JSON encoding (see below).\n\n# Field Masks in Projections\n\nWhen used in the context of a projection, a response message or\nsub-message is filtered by the API to only contain those fields as\nspecified in the mask. For example, if the mask in the previous\nexample is applied to a response message as follows:\n\n    f {\n      a : 22\n      b {\n        d : 1\n        x : 2\n      }\n      y : 13\n    }\n    z: 8\n\nThe result will not contain specific values for fields x,y and z\n(their value will be set to the default, and omitted in proto text\noutput):\n\n\n    f {\n      a : 22\n      b {\n        d : 1\n      }\n    }\n\nA repeated field is not allowed except at the last position of a\npaths string.\n\nIf a FieldMask object is not present in a get operation, the\noperation applies to all fields (as if a FieldMask of all fields\nhad been specified).\n\nNote that a field mask does not necessarily apply to the\ntop-level response message. In case of a REST get operation, the\nfield mask applies directly to the response, but in case of a REST\nlist operation, the mask instead applies to each individual message\nin the returned resource list. In case of a REST custom method,\nother definitions may be used. Where the mask applies will be\nclearly documented together with its declaration in the API.  In\nany case, the effect on the returned resource/resources is required\nbehavior for APIs.\n\n# Field Masks in Update Operations\n\nA field mask in update operations specifies which fields of the\ntargeted resource are going to be updated. The API is required\nto only change the values of the fields as specified in the mask\nand leave the others untouched. If a resource is passed in to\ndescribe the updated values, the API ignores the values of all\nfields not covered by the mask.\n\nIf a repeated field is specified for an update operation, new values will\nbe appended to the existing repeated field in the target resource. Note that\na repeated field is only allowed in the last position of a `paths` string.\n\nIf a sub-message is specified in the last position of the field mask for an\nupdate operation, then new value will be merged into the existing sub-message\nin the target resource.\n\nFor example, given the target message:\n\n    f {\n      b {\n        d: 1\n        x: 2\n      }\n      c: [1]\n    }\n\nAnd an update message:\n\n    f {\n      b {\n        d: 10\n      }\n      c: [2]\n    }\n\nthen if the field mask is:\n\n paths: [\"f.b\", \"f.c\"]\n\nthen the result will be:\n\n    f {\n      b {\n        d: 10\n        x: 2\n      }\n      c: [1, 2]\n    }\n\nAn implementation may provide options to override this default behavior for\nrepeated and message fields.\n\nIn order to reset a field's value to the default, the field must\nbe in the mask and set to the default value in the provided resource.\nHence, in order to reset all fields of a resource, provide a default\ninstance of the resource and set all fields in the mask, or do\nnot provide a mask as described below.\n\nIf a field mask is not present on update, the operation applies to\nall fields (as if a field mask of all fields has been specified).\nNote that in the presence of schema evolution, this may mean that\nfields the client does not know and has therefore not filled into\nthe request will be reset to their default. If this is unwanted\nbehavior, a specific service may require a client to always specify\na field mask, producing an error if not.\n\nAs with get operations, the location of the resource which\ndescribes the updated values in the request message depends on the\noperation kind. In any case, the effect of the field mask is\nrequired to be honored by the API.\n\n## Considerations for HTTP REST\n\nThe HTTP kind of an update operation which uses a field mask must\nbe set to PATCH instead of PUT in order to satisfy HTTP semantics\n(PUT must only be used for full updates).\n\n# JSON Encoding of Field Masks\n\nIn JSON, a field mask is encoded as a single string where paths are\nseparated by a comma. Fields name in each path are converted\nto/from lower-camel naming conventions.\n\nAs an example, consider the following message declarations:\n\n    message Profile {\n      User user = 1;\n      Photo photo = 2;\n    }\n    message User {\n      string display_name = 1;\n      string address = 2;\n    }\n\nIn proto a field mask for `Profile` may look as such:\n\n    mask {\n      paths: \"user.display_name\"\n      paths: \"photo\"\n    }\n\nIn JSON, the same mask is represented as below:\n\n    {\n      mask: \"user.displayName,photo\"\n    }\n\n# Field Masks and Oneof Fields\n\nField masks treat fields in oneofs just as regular fields. Consider the\nfollowing message:\n\n    message SampleMessage {\n      oneof test_oneof {\n        string name = 4;\n        SubMessage sub_message = 9;\n      }\n    }\n\nThe field mask can be:\n\n    mask {\n      paths: \"name\"\n    }\n\nOr:\n\n    mask {\n      paths: \"sub_message\"\n    }\n\nNote that oneof type names (\"test_oneof\" in this case) cannot be used in\npaths.\n\n## Field Mask Verification\n\nThe implementation of any API method which has a FieldMask type field in the\nrequest should verify the included field paths, and return an\n`INVALID_ARGUMENT` error if any path is unmappable.",
+      "description": "paths: \"f.a\"\n    paths: \"f.b.d\"\n\nHere `f` represents a field in some root message, `a` and `b`\nfields in the message found in `f`, and `d` a field found in the\nmessage in `f.b`.\n\nField masks are used to specify a subset of fields that should be\nreturned by a get operation or modified by an update operation.\nField masks also have a custom JSON encoding (see below).\n\n# Field Masks in Projections\n\nWhen used in the context of a projection, a response message or\nsub-message is filtered by the API to only contain those fields as\nspecified in the mask. For example, if the mask in the previous\nexample is applied to a response message as follows:\n\n    f {\n      a : 22\n      b {\n        d : 1\n        x : 2\n      }\n      y : 13\n    }\n    z: 8\n\nThe result will not contain specific values for fields x,y and z\n(their value will be set to the default, and omitted in proto text\noutput):\n\n\n    f {\n      a : 22\n      b {\n        d : 1\n      }\n    }\n\nA repeated field is not allowed except at the last position of a\npaths string.\n\nIf a FieldMask object is not present in a get operation, the\noperation applies to all fields (as if a FieldMask of all fields\nhad been specified).\n\nNote that a field mask does not necessarily apply to the\ntop-level response message. In case of a REST get operation, the\nfield mask applies directly to the response, but in case of a REST\nlist operation, the mask instead applies to each individual message\nin the returned resource list. In case of a REST custom method,\nother definitions may be used. Where the mask applies will be\nclearly documented together with its declaration in the API.  In\nany case, the effect on the returned resource/resources is required\nbehavior for APIs.\n\n# Field Masks in Update Operations\n\nA field mask in update operations specifies which fields of the\ntargeted resource are going to be updated. The API is required\nto only change the values of the fields as specified in the mask\nand leave the others untouched. If a resource is passed in to\ndescribe the updated values, the API ignores the values of all\nfields not covered by the mask.\n\nIf a repeated field is specified for an update operation, new values will\nbe appended to the existing repeated field in the target resource. Note that\na repeated field is only allowed in the last position of a `paths` string.\n\nIf a sub-message is specified in the last position of the field mask for an\nupdate operation, then new value will be merged into the existing sub-message\nin the target resource.\n\nFor example, given the target message:\n\n    f {\n      b {\n        d: 1\n        x: 2\n      }\n      c: [1]\n    }\n\nAnd an update message:\n\n    f {\n      b {\n        d: 10\n      }\n      c: [2]\n    }\n\nthen if the field mask is:\n\n paths: [\"f.b\", \"f.c\"]\n\nthen the result will be:\n\n    f {\n      b {\n        d: 10\n        x: 2\n      }\n      c: [1, 2]\n    }\n\nAn implementation may provide options to override this default behavior for\nrepeated and message fields.\n\nIn order to reset a field's value to the default, the field must\nbe in the mask and set to the default value in the provided resource.\nHence, in order to reset all fields of a resource, provide a default\ninstance of the resource and set all fields in the mask, or do\nnot provide a mask as described below.\n\nIf a field mask is not present on update, the operation applies to\nall fields (as if a field mask of all fields has been specified).\nNote that in the presence of schema evolution, this may mean that\nfields the client does not know and has therefore not filled into\nthe request will be reset to their default. If this is unwanted\nbehavior, a specific service may require a client to always specify\na field mask, producing an error if not.\n\nAs with get operations, the location of the resource which\ndescribes the updated values in the request message depends on the\noperation kind. In any case, the effect of the field mask is\nrequired to be honored by the API.\n\n## Considerations for HTTP REST\n\nThe HTTP kind of an update operation which uses a field mask must\nbe set to PATCH instead of PUT in order to satisfy HTTP semantics\n(PUT must only be used for full updates).\n\n# JSON Encoding of Field Masks\n\nIn JSON, a field mask is encoded as a single string where paths are\nseparated by a comma. Fields name in each path are converted\nto/from lower-camel naming conventions.\n\nAs an example, consider the following message declarations:\n\n    message Profile {\n      User user = 1;\n      Photo photo = 2;\n    }\n    message User {\n      string display_name = 1;\n      string address = 2;\n    }\n\nIn proto a field mask for `Profile` may look as such:\n\n    mask {\n      paths: \"user.display_name\"\n      paths: \"photo\"\n    }\n\nIn JSON, the same mask is represented as below:\n\n    {\n      mask: \"user.displayName,photo\"\n    }\n\n# Field Masks and Oneof Fields\n\nField masks treat fields in oneofs just as regular fields. Consider the\nfollowing message:\n\n    message SampleMessage {\n      oneof test_oneof {\n        string name = 4;\n        SubMessage sub_message = 9;\n      }\n    }\n\nThe field mask can be:\n\n    mask {\n      paths: \"name\"\n    }\n\nOr:\n\n    mask {\n      paths: \"sub_message\"\n    }\n\nNote that oneof type names (\"test_oneof\" in this case) cannot be used in\npaths.\n\n## Field Mask Verification\n\nThe implementation of any API method which has a FieldMask type field in the\nrequest should verify the included field paths, and return an\n`INVALID_ARGUMENT` error if any path is duplicated or unmappable.",
       "title": "`FieldMask` represents a set of symbolic field paths, for example:"
     },
     "protobufNullValue": {
@@ -8065,27 +7129,6 @@
       ],
       "default": "NULL_VALUE",
       "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
-    },
-    "runtimeError": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "string"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "message": {
-          "type": "string"
-        },
-        "details": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/protobufAny"
-          }
-        }
-      }
     },
     "runtimeStreamError": {
       "type": "object",
@@ -8738,10 +7781,6 @@
           "type": "integer",
           "format": "int64",
           "description": "The last AFCntDown of the current session.\nThis field is only present if the skip_payload_crypto field of the EndDevice\nis true.\nCan be used with app_s_key to encrypt downlink payloads."
-        },
-        "confirmed": {
-          "type": "boolean",
-          "format": "boolean"
         }
       }
     },
@@ -9885,7 +8924,7 @@
           "items": {
             "$ref": "#/definitions/v3ApplicationDownlink"
           },
-          "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server.\nThis field is deprecated and is always set equal to session.queued_application_downlinks."
+          "description": "Queued Application downlink messages. Stored in Application Server,\nwhich sets them on the Network Server."
         },
         "formatters": {
           "$ref": "#/definitions/v3MessagePayloadFormatters",
@@ -10301,11 +9340,6 @@
         "schedule_anytime_delay": {
           "type": "string",
           "description": "Adjust the time that GS schedules class C messages in advance. This is useful for gateways that have a known high latency backhaul, like 3G and satellite."
-        },
-        "update_location_from_status": {
-          "type": "boolean",
-          "format": "boolean",
-          "title": "update the location of this gateway from status messages"
         }
       },
       "description": "Gateway is the message that defines a gateway on the network."
@@ -11290,11 +10324,6 @@
             "$ref": "#/definitions/v3DownlinkMessage"
           },
           "description": "Recent data downlink messages sorted by time.\nThe number of messages stored may depend on configuration."
-        },
-        "last_network_initiated_downlink_at": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Time when the last network-initiated downlink message was scheduled."
         }
       },
       "description": "MACState represents the state of MAC layer of the device.\nMACState is reset on each join for OTAA or ResetInd for ABP devices.\nThis is used internally by the Network Server and is read only."
@@ -11307,8 +10336,7 @@
         "MAC_V1_0_1",
         "MAC_V1_0_2",
         "MAC_V1_1",
-        "MAC_V1_0_3",
-        "MAC_V1_0_4"
+        "MAC_V1_0_3"
       ],
       "default": "MAC_UNKNOWN"
     },
@@ -11427,9 +10455,6 @@
       "properties": {
         "user_ids": {
           "$ref": "#/definitions/v3UserIdentifiers"
-        },
-        "user_session_id": {
-          "type": "string"
         },
         "client_ids": {
           "$ref": "#/definitions/v3ClientIdentifiers"
@@ -12053,13 +11078,6 @@
           "type": "string",
           "format": "date-time",
           "description": "Time when the session started. Network Server only."
-        },
-        "queued_application_downlinks": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v3ApplicationDownlink"
-          },
-          "description": "Queued Application downlink messages. Stored in Application Server and Network Server."
         }
       }
     },

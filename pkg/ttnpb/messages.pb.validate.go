@@ -682,8 +682,6 @@ func (m *ApplicationUplink) ValidateFields(paths ...string) error {
 
 		case "last_a_f_cnt_down":
 			// no validation rules for LastAFCntDown
-		case "confirmed":
-			// no validation rules for Confirmed
 		default:
 			return ApplicationUplinkValidationError{
 				field:  name,

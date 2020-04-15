@@ -154,10 +154,8 @@ export default class GatewayGeneralSettings extends React.Component {
       location_public,
       status_public,
       schedule_downlink_late,
-      update_location_from_status,
       auto_update,
       update_channel,
-      schedule_anytime_delay,
     } = gateway
 
     const initialValues = {
@@ -170,10 +168,8 @@ export default class GatewayGeneralSettings extends React.Component {
       location_public,
       status_public,
       schedule_downlink_late,
-      update_location_from_status,
       auto_update,
       update_channel,
-      schedule_anytime_delay,
     }
 
     return (

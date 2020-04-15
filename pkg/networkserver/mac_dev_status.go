@@ -30,8 +30,8 @@ var (
 )
 
 const (
-	DefaultStatusCountPeriodicity uint32 = 200
-	DefaultStatusTimePeriodicity         = 24 * time.Hour
+	DefaultStatusCountPeriodicity uint32 = 20
+	DefaultStatusTimePeriodicity         = time.Hour
 )
 
 func deviceStatusCountPeriodicity(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings) uint32 {
@@ -68,7 +68,7 @@ func deviceNeedsDevStatusReqAt(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings)
 	return dev.LastDevStatusReceivedAt.Add(tp).UTC(), true
 }
 
-func deviceNeedsDevStatusReq(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings, scheduleAt time.Time) bool {
+func deviceNeedsDevStatusReq(dev *ttnpb.EndDevice, scheduleAt time.Time, defaults ttnpb.MACSettings) bool {
 	if dev.MACState == nil {
 		return false
 	}
@@ -76,11 +76,11 @@ func deviceNeedsDevStatusReq(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings, s
 	cp := deviceStatusCountPeriodicity(dev, defaults)
 	return (cp != 0 || timeBound) && dev.LastDevStatusReceivedAt == nil ||
 		cp != 0 && dev.MACState.LastDevStatusFCntUp+cp <= dev.Session.LastFCntUp ||
-		timeBound && !timedAt.After(scheduleAt)
+		timeBound && timedAt.Before(timeNow())
 }
 
-func enqueueDevStatusReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, defaults ttnpb.MACSettings, scheduleAt time.Time) macCommandEnqueueState {
-	if !deviceNeedsDevStatusReq(dev, defaults, scheduleAt) {
+func enqueueDevStatusReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, scheduleAt time.Time, defaults ttnpb.MACSettings) macCommandEnqueueState {
+	if !deviceNeedsDevStatusReq(dev, scheduleAt, defaults) {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
 			MaxUpLen:   maxUpLen,
@@ -108,7 +108,7 @@ func enqueueDevStatusReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, 
 
 func handleDevStatusAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACCommand_DevStatusAns, fCntUp uint32, recvAt time.Time) ([]events.DefinitionDataClosure, error) {
 	if pld == nil {
-		return nil, errNoPayload.New()
+		return nil, errNoPayload
 	}
 
 	var err error

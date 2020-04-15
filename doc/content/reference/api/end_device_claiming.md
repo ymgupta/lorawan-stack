@@ -1,6 +1,7 @@
 ---
 title: "End Device Claiming APIs"
 description: ""
+weight: 8
 ---
 
 ## The `EndDeviceClaimingServer` service

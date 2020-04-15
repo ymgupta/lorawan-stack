@@ -11,7 +11,7 @@ import (
 )
 
 func (dst *GatewayBrand) SetFields(src *GatewayBrand, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "id":
 			if len(subs) > 0 {
@@ -61,7 +61,7 @@ func (dst *GatewayBrand) SetFields(src *GatewayBrand, paths ...string) error {
 }
 
 func (dst *GatewayModel) SetFields(src *GatewayModel, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "brand_id":
 			if len(subs) > 0 {
@@ -102,7 +102,7 @@ func (dst *GatewayModel) SetFields(src *GatewayModel, paths ...string) error {
 }
 
 func (dst *GatewayVersionIdentifiers) SetFields(src *GatewayVersionIdentifiers, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "brand_id":
 			if len(subs) > 0 {
@@ -153,7 +153,7 @@ func (dst *GatewayVersionIdentifiers) SetFields(src *GatewayVersionIdentifiers, 
 }
 
 func (dst *GatewayRadio) SetFields(src *GatewayRadio, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "enable":
 			if len(subs) > 0 {
@@ -229,7 +229,7 @@ func (dst *GatewayRadio) SetFields(src *GatewayRadio, paths ...string) error {
 }
 
 func (dst *GatewayVersion) SetFields(src *GatewayVersion, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "ids":
 			if len(subs) > 0 {
@@ -286,7 +286,7 @@ func (dst *GatewayVersion) SetFields(src *GatewayVersion, paths ...string) error
 }
 
 func (dst *Gateway) SetFields(src *Gateway, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "ids":
 			if len(subs) > 0 {
@@ -499,16 +499,6 @@ func (dst *Gateway) SetFields(src *Gateway, paths ...string) error {
 			} else {
 				dst.ScheduleAnytimeDelay = nil
 			}
-		case "update_location_from_status":
-			if len(subs) > 0 {
-				return fmt.Errorf("'update_location_from_status' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.UpdateLocationFromStatus = src.UpdateLocationFromStatus
-			} else {
-				var zero bool
-				dst.UpdateLocationFromStatus = zero
-			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -518,7 +508,7 @@ func (dst *Gateway) SetFields(src *Gateway, paths ...string) error {
 }
 
 func (dst *Gateways) SetFields(src *Gateways, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateways":
 			if len(subs) > 0 {
@@ -538,7 +528,7 @@ func (dst *Gateways) SetFields(src *Gateways, paths ...string) error {
 }
 
 func (dst *GetGatewayRequest) SetFields(src *GetGatewayRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -577,7 +567,7 @@ func (dst *GetGatewayRequest) SetFields(src *GetGatewayRequest, paths ...string)
 }
 
 func (dst *GetGatewayIdentifiersForEUIRequest) SetFields(src *GetGatewayIdentifiersForEUIRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "eui":
 			if len(subs) > 0 {
@@ -598,7 +588,7 @@ func (dst *GetGatewayIdentifiersForEUIRequest) SetFields(src *GetGatewayIdentifi
 }
 
 func (dst *ListGatewaysRequest) SetFields(src *ListGatewaysRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "collaborator":
 			if len(subs) > 0 {
@@ -674,7 +664,7 @@ func (dst *ListGatewaysRequest) SetFields(src *ListGatewaysRequest, paths ...str
 }
 
 func (dst *CreateGatewayRequest) SetFields(src *CreateGatewayRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway":
 			if len(subs) > 0 {
@@ -721,7 +711,7 @@ func (dst *CreateGatewayRequest) SetFields(src *CreateGatewayRequest, paths ...s
 }
 
 func (dst *UpdateGatewayRequest) SetFields(src *UpdateGatewayRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway":
 			if len(subs) > 0 {
@@ -760,7 +750,7 @@ func (dst *UpdateGatewayRequest) SetFields(src *UpdateGatewayRequest, paths ...s
 }
 
 func (dst *ListGatewayAPIKeysRequest) SetFields(src *ListGatewayAPIKeysRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -809,7 +799,7 @@ func (dst *ListGatewayAPIKeysRequest) SetFields(src *ListGatewayAPIKeysRequest, 
 }
 
 func (dst *GetGatewayAPIKeyRequest) SetFields(src *GetGatewayAPIKeyRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -848,7 +838,7 @@ func (dst *GetGatewayAPIKeyRequest) SetFields(src *GetGatewayAPIKeyRequest, path
 }
 
 func (dst *CreateGatewayAPIKeyRequest) SetFields(src *CreateGatewayAPIKeyRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -896,7 +886,7 @@ func (dst *CreateGatewayAPIKeyRequest) SetFields(src *CreateGatewayAPIKeyRequest
 }
 
 func (dst *UpdateGatewayAPIKeyRequest) SetFields(src *UpdateGatewayAPIKeyRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -943,7 +933,7 @@ func (dst *UpdateGatewayAPIKeyRequest) SetFields(src *UpdateGatewayAPIKeyRequest
 }
 
 func (dst *ListGatewayCollaboratorsRequest) SetFields(src *ListGatewayCollaboratorsRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -992,7 +982,7 @@ func (dst *ListGatewayCollaboratorsRequest) SetFields(src *ListGatewayCollaborat
 }
 
 func (dst *GetGatewayCollaboratorRequest) SetFields(src *GetGatewayCollaboratorRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -1039,7 +1029,7 @@ func (dst *GetGatewayCollaboratorRequest) SetFields(src *GetGatewayCollaboratorR
 }
 
 func (dst *SetGatewayCollaboratorRequest) SetFields(src *SetGatewayCollaboratorRequest, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gateway_ids":
 			if len(subs) > 0 {
@@ -1086,7 +1076,7 @@ func (dst *SetGatewayCollaboratorRequest) SetFields(src *SetGatewayCollaboratorR
 }
 
 func (dst *GatewayAntenna) SetFields(src *GatewayAntenna, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "gain":
 			if len(subs) > 0 {
@@ -1134,7 +1124,7 @@ func (dst *GatewayAntenna) SetFields(src *GatewayAntenna, paths ...string) error
 }
 
 func (dst *GatewayStatus) SetFields(src *GatewayStatus, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "time":
 			if len(subs) > 0 {
@@ -1210,7 +1200,7 @@ func (dst *GatewayStatus) SetFields(src *GatewayStatus, paths ...string) error {
 }
 
 func (dst *GatewayConnectionStats) SetFields(src *GatewayConnectionStats, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "connected_at":
 			if len(subs) > 0 {
@@ -1337,7 +1327,7 @@ func (dst *GatewayConnectionStats) SetFields(src *GatewayConnectionStats, paths 
 }
 
 func (dst *GatewayRadio_TxConfiguration) SetFields(src *GatewayRadio_TxConfiguration, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "min_frequency":
 			if len(subs) > 0 {
@@ -1378,7 +1368,7 @@ func (dst *GatewayRadio_TxConfiguration) SetFields(src *GatewayRadio_TxConfigura
 }
 
 func (dst *GatewayConnectionStats_RoundTripTimes) SetFields(src *GatewayConnectionStats_RoundTripTimes, paths ...string) error {
-	for name, subs := range _processPaths(paths) {
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
 		switch name {
 		case "min":
 			if len(subs) > 0 {

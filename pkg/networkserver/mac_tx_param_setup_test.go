@@ -35,7 +35,7 @@ func TestNeedsTxParamSetupReq(t *testing.T) {
 	}
 	var tcs []TestCase
 
-	ForEachBand(t, func(makeBandName func(parts ...string) string, phy band.Band, _ ttnpb.PHYVersion) {
+	ForEachBand(t, func(makeBandName func(parts ...string) string, phy band.Band) {
 		tcs = append(tcs,
 			TestCase{
 				Name:        makeBandName("no MAC state"),

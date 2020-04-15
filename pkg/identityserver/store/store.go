@@ -18,10 +18,8 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"path/filepath"
 	"regexp"
-	"runtime/debug"
 	"runtime/trace"
 	"strings"
 	"time"
@@ -95,9 +93,8 @@ var (
 var uniqueViolationRegex = regexp.MustCompile(`duplicate key value \(([^)]+)\)=\(([^)]+)\)`)
 
 func convertError(err error) error {
-	switch err {
-	case nil, context.Canceled, context.DeadlineExceeded:
-		return err
+	if err == nil {
+		return nil
 	}
 	if ttnErr, ok := errors.From(err); ok {
 		return ttnErr
@@ -166,29 +163,19 @@ func Initialize(db *gorm.DB) error {
 	return nil
 }
 
-// ErrTransactionRecovered is returned when a panic is caught from a SQL transaction.
-var ErrTransactionRecovered = errors.DefineInternal("transaction_recovered", "Internal Server Error")
-
 // Transact executes f in a db transaction.
 func Transact(ctx context.Context, db *gorm.DB, f func(db *gorm.DB) error) (err error) {
 	defer trace.StartRegion(ctx, "database transaction").End()
 	tx := db.Begin()
-	if tx.Error != nil {
-		return convertError(tx.Error)
-	}
 	defer func() {
 		if p := recover(); p != nil {
-			fmt.Fprintln(os.Stderr, p)
-			os.Stderr.Write(debug.Stack())
-			if pErr, ok := p.(error); ok {
-				switch pErr {
-				case context.Canceled, context.DeadlineExceeded:
-					err = pErr
-				default:
-					err = ErrTransactionRecovered.WithCause(pErr)
-				}
-			} else {
-				err = ErrTransactionRecovered.WithAttributes("panic", p)
+			switch p := p.(type) {
+			case error:
+				err = p
+			case string:
+				err = errors.New(p)
+			default:
+				panic(p)
 			}
 		}
 		if err != nil {
@@ -276,37 +263,34 @@ type logger struct {
 
 // Print implements the gorm.logger interface.
 func (l logger) Print(v ...interface{}) {
-	if len(v) < 3 {
+	if len(v) <= 2 {
 		l.Error(fmt.Sprint(v...))
 		return
 	}
-	logger := l.Interface
-	if source, ok := v[1].(string); ok {
-		logger = logger.WithField("source", filepath.Base(source))
-	} else {
-		l.Error(fmt.Sprint(v...))
-		return
-	}
+	path := filepath.Base(v[1].(string))
+	logger := l.WithField("source", path)
 	switch v[0] {
-	case "log", "error":
+	case "log": // log, typically errors.
+		if len(v) < 3 {
+			return
+		}
 		if err, ok := v[2].(error); ok {
 			err = convertError(err)
 			if errors.IsAlreadyExists(err) {
 				return // no problem.
 			}
-			logger.WithError(err).Error("Database error")
-			return
+			logger.WithError(err).Warn("Database error")
+		} else {
+			logger.Warn(fmt.Sprint(v[2:]...))
 		}
-		logger.Error(fmt.Sprint(v[2:]...))
-		return
-	case "sql":
+	case "sql": // slog, sql debug.
 		if len(v) != 6 {
 			return
 		}
 		duration, _ := v[2].(time.Duration)
-		query, _ := v[3].(string)
-		values, _ := v[4].([]interface{})
-		rows, _ := v[5].(int64)
+		query := v[3].(string)
+		values := v[4].([]interface{})
+		rows := v[5].(int64)
 		logger.WithFields(log.Fields(
 			"duration", duration,
 			"query", query,

@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import bind from 'autobind-decorator'
 
 import PropTypes from '../../../lib/prop-types'
-import { getApplicationId, getDeviceId, combineDeviceIds } from '../../../lib/selectors/id'
+import { getApplicationId, getDeviceId } from '../../../lib/selectors/id'
 import EventsSubscription from '../../containers/events-subscription'
 
 import { clearDeviceEventsStream, startDeviceEventsStream } from '../../store/actions/devices'
@@ -57,11 +57,10 @@ class DeviceEvents extends React.Component {
 
     const devId = getDeviceId(devIds)
     const appId = getApplicationId(devIds)
-    const combinedDeviceId = combineDeviceIds(appId, devId)
 
     return (
       <EventsSubscription
-        id={combinedDeviceId}
+        id={devId}
         widget={widget}
         eventsSelector={selectDeviceEvents}
         statusSelector={selectDeviceEventsStatus}

@@ -76,20 +76,20 @@ func (conf RouterConfig) MarshalJSON() ([]byte, error) {
 func GetRouterConfig(bandID string, fps map[string]*frequencyplans.FrequencyPlan, isProd bool, dlTime time.Time) (RouterConfig, error) {
 	for _, fp := range fps {
 		if err := fp.Validate(); err != nil {
-			return RouterConfig{}, errFrequencyPlan.New()
+			return RouterConfig{}, errFrequencyPlan
 		}
 	}
 	conf := RouterConfig{}
 	conf.JoinEUI = nil
 	conf.NetID = nil
 
-	phy, err := band.GetByID(bandID)
+	band, err := band.GetByID(bandID)
 	if err != nil {
-		return RouterConfig{}, errFrequencyPlan.New()
+		return RouterConfig{}, errFrequencyPlan
 	}
-	s := strings.Split(phy.ID, "_")
+	s := strings.Split(band.ID, "_")
 	if len(s) < 2 {
-		return RouterConfig{}, errFrequencyPlan.New()
+		return RouterConfig{}, errFrequencyPlan
 	}
 	conf.Region = fmt.Sprintf("%s%s", s[0], s[1])
 
@@ -103,7 +103,7 @@ func GetRouterConfig(bandID string, fps map[string]*frequencyplans.FrequencyPlan
 
 	drs, err := getDataRatesFromBandID(bandID)
 	if err != nil {
-		return RouterConfig{}, errFrequencyPlan.New()
+		return RouterConfig{}, errFrequencyPlan
 	}
 	conf.DataRates = drs
 
@@ -135,7 +135,7 @@ func GetRouterConfig(bandID string, fps map[string]*frequencyplans.FrequencyPlan
 
 // getDataRatesFromBandID parses the available data rates from the band into DataRates.
 func getDataRatesFromBandID(id string) (DataRates, error) {
-	phy, err := band.GetByID(id)
+	band, err := band.GetByID(id)
 	if err != nil {
 		return DataRates{}, err
 	}
@@ -148,7 +148,7 @@ func getDataRatesFromBandID(id string) (DataRates, error) {
 		dr[2] = 0
 	}
 
-	for i, dr := range phy.DataRates {
+	for i, dr := range band.DataRates {
 		if loraDR := dr.Rate.GetLoRa(); loraDR != nil {
 			loraDR.GetSpreadingFactor()
 			drs[i][0] = int(loraDR.GetSpreadingFactor())
@@ -166,7 +166,7 @@ func getMinMaxFrequencies(fps map[string]*frequencyplans.FrequencyPlan) (uint64,
 	min = math.MaxUint64
 	for _, fp := range fps {
 		if len(fp.Radios) == 0 {
-			return 0, 0, errFrequencyPlan.New()
+			return 0, 0, errFrequencyPlan
 		}
 		if fp.Radios[0].TxConfiguration.MinFrequency < min {
 			min = fp.Radios[0].TxConfiguration.MinFrequency

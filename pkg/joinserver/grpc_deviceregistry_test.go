@@ -129,7 +129,7 @@ func TestDeviceRegistryGet(t *testing.T) {
 				})
 				a.So(devID, should.Equal, unregisteredDeviceID)
 				a.So(paths, should.HaveSameElementsDeep, []string{"ids"})
-				return nil, errNotFound.New()
+				return nil, errNotFound
 			},
 			DeviceRequest: &ttnpb.GetEndDeviceRequest{
 				EndDeviceIdentifiers: ttnpb.EndDeviceIdentifiers{
@@ -951,7 +951,7 @@ func TestDeviceRegistryDelete(t *testing.T) {
 				})
 				a.So(devID, should.Equal, unregisteredDeviceID)
 				a.So(paths, should.BeNil)
-				return nil, errNotFound.New()
+				return nil, errNotFound
 			},
 			ErrorAssertion: func(t *testing.T, err error) bool {
 				a := assertions.New(t)

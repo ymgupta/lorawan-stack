@@ -1,6 +1,7 @@
 ---
 title: "Getting Started"
 description: ""
+weight: 10
 ---
 
 This is a guide for setting up a private LoRaWAN network server using {{% tts %}} for LoRaWAN.

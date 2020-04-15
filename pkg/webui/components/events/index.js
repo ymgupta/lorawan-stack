@@ -59,14 +59,13 @@ class Events extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     const { paused } = this.state
-    const { events, emitterId, onClear, limit, error } = this.props
+    const { events, emitterId, onClear, limit } = this.props
 
     if (
       emitterId !== nextProps.emitterId ||
       limit !== nextProps.limit ||
       onClear !== nextProps.onClear ||
-      paused !== nextState.paused ||
-      error !== nextProps.error
+      paused !== nextState.paused
     ) {
       return true
     }
@@ -88,7 +87,7 @@ class Events extends React.Component {
   }
 
   renderEvent(event) {
-    const { component: Component, type } = getEventComponentByName(event)
+    const { component: Component, type } = getEventComponentByName(event.name)
 
     return (
       <List.Item className={style.listItem}>

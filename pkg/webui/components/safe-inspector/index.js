@@ -58,26 +58,22 @@ export class SafeInspector extends Component {
   static propTypes = {
     /** The classname to be applied **/
     className: PropTypes.string,
-    /** The data to be displayed */
+    /** Whether to hide the copy popup click and just display checkmark */
     data: PropTypes.string.isRequired,
-    /** Whether the component should resize when its data is truncated */
+    /** The data to be displayed */
     disableResize: PropTypes.bool,
+    /** Whether the component should resize when its data is truncated */
     /** Whether the data can be hidden (like passwords) */
     hideable: PropTypes.bool,
-    /** Whether the data is initially visible */
     initiallyVisible: PropTypes.bool,
-    /** Utility functions passed via react-intl hoc **/
+    /** Whether the data is initially visible */
     intl: PropTypes.shape({
       formatMessage: PropTypes.func,
     }).isRequired,
+    /** Utility functions passed via react-intl hoc **/
     /** Whether the data is in byte format */
     isBytes: PropTypes.bool,
-    /** Whether to hide the copy action */
-    noCopy: PropTypes.bool,
-    /** Whether to hide the copy popup click and just display checkmark */
     noCopyPopup: PropTypes.bool,
-    /** Whether to hide the data transform action */
-    noTransform: PropTypes.bool,
     /** Whether a smaller style should be rendered (useful for display in tables) */
     small: PropTypes.bool,
   }
@@ -90,8 +86,6 @@ export class SafeInspector extends Component {
     initiallyVisible: false,
     isBytes: true,
     small: false,
-    noTransform: false,
-    noCopy: false,
   }
 
   constructor(props) {
@@ -154,11 +148,7 @@ export class SafeInspector extends Component {
 
   componentDidMount() {
     const { disableResize } = this.props
-
-    if (this.copyElem && this.copyElem.current) {
-      new clipboard(this.copyElem.current)
-    }
-
+    new clipboard(this.copyElem.current)
     if (!disableResize) {
       window.addEventListener('resize', this.handleWindowResize)
       this.checkTruncateState()
@@ -196,17 +186,7 @@ export class SafeInspector extends Component {
   render() {
     const { hidden, byteStyle, msb, copied, copyIcon } = this.state
 
-    const {
-      className,
-      data,
-      isBytes,
-      hideable,
-      small,
-      intl,
-      noCopyPopup,
-      noCopy,
-      noTransform,
-    } = this.props
+    const { className, data, isBytes, hideable, small, intl, noCopyPopup } = this.props
 
     let formattedData = isBytes ? data.toUpperCase() : data
     let display = formattedData
@@ -257,7 +237,7 @@ export class SafeInspector extends Component {
               </button>
             </React.Fragment>
           )}
-          {!noTransform && !hidden && isBytes && (
+          {!hidden && isBytes && (
             <button
               title={intl.formatMessage(m.arrayFormatting)}
               className={style.buttonTransform}
@@ -266,29 +246,27 @@ export class SafeInspector extends Component {
               <Icon className={style.buttonIcon} small icon="code" />
             </button>
           )}
-          {!noCopy && (
-            <button
-              title={intl.formatMessage(m.copyClipboard)}
-              className={style.buttonCopy}
+          <button
+            title={intl.formatMessage(m.copyClipboard)}
+            className={style.buttonCopy}
+            onClick={this.handleCopyClick}
+            data-clipboard-text={formattedData}
+            ref={this.copyElem}
+          >
+            <Icon
+              className={copyButtonStyle}
               onClick={this.handleCopyClick}
-              data-clipboard-text={formattedData}
-              ref={this.copyElem}
-            >
-              <Icon
-                className={copyButtonStyle}
-                onClick={this.handleCopyClick}
-                small
-                icon={copyIcon}
+              small
+              icon={copyIcon}
+            />
+            {copied && !noCopyPopup && (
+              <Message
+                content={m.copied}
+                onAnimationEnd={this.handleCopyAnimationEnd}
+                className={style.copyConfirm}
               />
-              {copied && !noCopyPopup && (
-                <Message
-                  content={m.copied}
-                  onAnimationEnd={this.handleCopyAnimationEnd}
-                  className={style.copyConfirm}
-                />
-              )}
-            </button>
-          )}
+            )}
+          </button>
           {hideable && (
             <button
               title={intl.formatMessage(m.toggleVisibility)}

@@ -77,15 +77,14 @@ PropTypes.events = PropTypes.arrayOf(PropTypes.event)
 PropTypes.gateway = PropTypes.shape({
   antennas: PropTypes.Array,
   ids: PropTypes.shape({
-    gateway_id: PropTypes.string,
+    gateway_id: PropTypes.string.isRequired,
   }).isRequired,
   name: PropTypes.string,
   description: PropTypes.string,
   created_at: PropTypes.string,
   updated_at: PropTypes.string,
-  frequency_plan_id: PropTypes.string,
+  frequency_plan_id: PropTypes.string.isRequired,
   gateway_server_address: PropTypes.string,
-  schedule_anytime_delay: PropTypes.string,
 })
 
 PropTypes.gatewayStats = PropTypes.shape({
@@ -248,11 +247,5 @@ PropTypes.webhook = PropTypes.shape({
   updated_at: PropTypes.string,
 })
 PropTypes.webhooks = PropTypes.arrayOf(PropTypes.webhook)
-PropTypes.webhookTemplate = PropTypes.shape({
-  ids: PropTypes.shape({
-    template_id: PropTypes.string.isRequired,
-  }).isRequired,
-})
-PropTypes.webhookTemplates = PropTypes.arrayOf(PropTypes.webhookTemplate)
 
 export default PropTypes

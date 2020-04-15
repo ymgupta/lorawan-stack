@@ -77,7 +77,7 @@ import PropTypes from '../../../lib/prop-types'
   dispatch => ({
     stopStream: id => dispatch(stopApplicationEventsStream(id)),
     loadData: id => {
-      dispatch(getApplication(id, 'name,description,attributes'))
+      dispatch(getApplication(id, 'name,description'))
       dispatch(getApplicationsRightsList(id))
     },
   }),
@@ -100,8 +100,8 @@ export default class Application extends React.Component {
     application: PropTypes.application.isRequired,
     env: PropTypes.env,
     match: PropTypes.match.isRequired,
-    rights: PropTypes.rights.isRequired,
     stopStream: PropTypes.func.isRequired,
+    rights: PropTypes.rights.isRequired,
   }
 
   static defaultProps = {

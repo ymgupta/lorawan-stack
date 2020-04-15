@@ -1,7 +1,9 @@
 ---
 title: "Interoperability Repository"
 description: ""
+weight: 20
 ---
+
 
 {{% tts %}} expects the root of interoperability repository to contain `config.yml`, which contains various interoperablity configuration options.
 

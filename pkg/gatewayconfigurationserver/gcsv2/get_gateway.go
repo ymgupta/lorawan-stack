@@ -103,7 +103,7 @@ func (s *Server) handleGetGateway(c echo.Context) error {
 	case "key":
 		keyAttr, ok := gateway.Attributes["key"]
 		if !ok || md.AuthValue != keyAttr {
-			return errUnauthenticated.New()
+			return errUnauthenticated
 		}
 	default:
 		gateway = gateway.PublicSafe()

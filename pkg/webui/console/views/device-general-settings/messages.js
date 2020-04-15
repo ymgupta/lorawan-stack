@@ -34,8 +34,6 @@ const messages = defineMessages({
   activationModeUnknown: 'Activation mode unknown because Network Server is not available',
   notInCluster: 'Not registered in this cluster',
   updateSuccess: 'The end device has been updated successfully',
-  keysResetWarning:
-    "You're not authorized to view the end device keys. However, overwriting is allowed.",
 })
 
 export default messages

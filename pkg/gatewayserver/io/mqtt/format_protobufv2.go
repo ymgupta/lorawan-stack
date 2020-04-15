@@ -15,7 +15,6 @@
 package mqtt
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 	"time"
@@ -69,7 +68,7 @@ type protobufv2 struct {
 func (protobufv2) FromDownlink(down *ttnpb.DownlinkMessage, _ ttnpb.GatewayIdentifiers) ([]byte, error) {
 	settings := down.GetScheduled()
 	if settings == nil {
-		return nil, errNotScheduled.New()
+		return nil, errNotScheduled
 	}
 	lorawan := &ttnpbv2.LoRaWANTxConfiguration{}
 	if pld, ok := down.GetPayload().GetPayload().(*ttnpb.Message_MACPayload); ok && pld != nil {
@@ -84,7 +83,7 @@ func (protobufv2) FromDownlink(down *ttnpb.DownlinkMessage, _ ttnpb.GatewayIdent
 		lorawan.Modulation = ttnpbv2.Modulation_FSK
 		lorawan.BitRate = dr.FSK.BitRate
 	default:
-		return nil, errModulation.New()
+		return nil, errModulation
 	}
 
 	v2downlink := &ttnpbv2.DownlinkMessage{
@@ -111,7 +110,7 @@ func (protobufv2) ToUplink(message []byte, ids ttnpb.GatewayIdentifiers) (*ttnpb
 	}
 
 	if v2uplink.ProtocolMetadata.LoRaWAN == nil {
-		return nil, errLoRaWANMetadata.New()
+		return nil, errLoRaWANMetadata
 	}
 	lorawanMetadata := v2uplink.ProtocolMetadata.LoRaWAN
 	gwMetadata := v2uplink.GatewayMetadata
@@ -121,7 +120,6 @@ func (protobufv2) ToUplink(message []byte, ids ttnpb.GatewayIdentifiers) (*ttnpb
 
 	settings := ttnpb.TxSettings{
 		Frequency: gwMetadata.Frequency,
-		Timestamp: gwMetadata.Timestamp,
 	}
 	switch lorawanMetadata.Modulation {
 	case ttnpbv2.Modulation_LORA:
@@ -129,7 +127,7 @@ func (protobufv2) ToUplink(message []byte, ids ttnpb.GatewayIdentifiers) (*ttnpb
 		if !ok {
 			return nil, errFrequencyPlan.WithAttributes("frequency_plan", lorawanMetadata.FrequencyPlan)
 		}
-		phy, err := band.GetByID(bandID)
+		band, err := band.GetByID(bandID)
 		if err != nil {
 			return nil, err
 		}
@@ -139,10 +137,10 @@ func (protobufv2) ToUplink(message []byte, ids ttnpb.GatewayIdentifiers) (*ttnpb
 		if err != nil {
 			return nil, err
 		}
-		for bandDRIndex, bandDR := range phy.DataRates {
+		for bandDRIndex, bandDR := range band.DataRates {
 			if bandDR.Rate.Equal(loraDr.DataRate) {
 				found = true
-				drIndex = bandDRIndex
+				drIndex = ttnpb.DataRateIndex(bandDRIndex)
 				break
 			}
 		}
@@ -254,12 +252,10 @@ func (protobufv2) ToStatus(message []byte, _ ttnpb.GatewayIdentifiers) (*ttnpb.G
 }
 
 func (protobufv2) ToTxAck(message []byte, _ ttnpb.GatewayIdentifiers) (*ttnpb.TxAcknowledgment, error) {
-	return nil, errNotSupported.New()
+	return nil, errNotSupported
 }
 
-// NewProtobufV2 returns a format that uses the legacy The Things Stack V2 Protocol Buffers marshaling and unmarshaling.
-func NewProtobufV2(ctx context.Context) Format {
-	return &protobufv2{
-		Layout: topics.NewV2(ctx),
-	}
+// ProtobufV2 is a format that uses the legacy The Things Stack V2 Protocol Buffers marshaling and unmarshaling.
+var ProtobufV2 Format = &protobufv2{
+	Layout: topics.V2,
 }

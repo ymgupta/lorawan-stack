@@ -68,10 +68,10 @@ var (
 
 func (f *memoryFirewall) Filter(packet encoding.Packet) error {
 	if packet.GatewayEUI == nil {
-		return errNoEUI.New()
+		return errNoEUI
 	}
 	if packet.GatewayAddr == nil {
-		return errNoAddress.New()
+		return errNoAddress
 	}
 	now := time.Now().UTC()
 	eui := *packet.GatewayEUI

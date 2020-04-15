@@ -20,7 +20,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/mohae/deepcopy"
 	"go.thethings.network/lorawan-stack/pkg/band"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/errorcontext"
@@ -88,9 +87,6 @@ type Connection struct {
 	downCh   chan *ttnpb.DownlinkMessage
 	statusCh chan *ttnpb.GatewayStatus
 	txAckCh  chan *ttnpb.TxAcknowledgment
-
-	statsChangedCh chan struct{}
-	locCh          chan struct{}
 }
 
 var (
@@ -117,7 +113,7 @@ func NewConnection(ctx context.Context, frontend Frontend, gateway *ttnpb.Gatewa
 
 	if len(gateway.FrequencyPlanIDs) > 0 {
 		if gateway.FrequencyPlanIDs[0] != fp0ID {
-			return nil, errInconsistentFrequencyPlans.New()
+			return nil, errInconsistentFrequencyPlans
 		}
 		for i := 1; i < len(gateway.FrequencyPlanIDs); i++ {
 			fpn, err := fps.GetByID(gateway.FrequencyPlanIDs[i])
@@ -125,7 +121,7 @@ func NewConnection(ctx context.Context, frontend Frontend, gateway *ttnpb.Gatewa
 				return nil, err
 			}
 			if fpn.BandID != fp0.BandID {
-				return nil, errFrequencyPlansNotFromSameBand.New()
+				return nil, errFrequencyPlansNotFromSameBand
 			}
 			gatewayFPs[gateway.FrequencyPlanIDs[i]] = fpn
 		}
@@ -151,10 +147,7 @@ func NewConnection(ctx context.Context, frontend Frontend, gateway *ttnpb.Gatewa
 		downCh:      make(chan *ttnpb.DownlinkMessage, bufferSize),
 		statusCh:    make(chan *ttnpb.GatewayStatus, bufferSize),
 		txAckCh:     make(chan *ttnpb.TxAcknowledgment, bufferSize),
-		locCh:       make(chan struct{}, 1),
 		connectTime: time.Now().UnixNano(),
-
-		statsChangedCh: make(chan struct{}, 1),
 	}, nil
 }
 
@@ -226,9 +219,8 @@ func (c *Connection) HandleUp(up *ttnpb.UplinkMessage) error {
 	case c.upCh <- msg:
 		atomic.AddUint64(&c.uplinks, 1)
 		atomic.StoreInt64(&c.lastUplinkTime, up.ReceivedAt.UnixNano())
-		c.notifyStatsChanged()
 	default:
-		return errBufferFull.New()
+		return errBufferFull
 	}
 	return nil
 }
@@ -239,18 +231,10 @@ func (c *Connection) HandleStatus(status *ttnpb.GatewayStatus) error {
 	case <-c.ctx.Done():
 		return c.ctx.Err()
 	case c.statusCh <- status:
-		c.lastStatus.Store(deepcopy.Copy(status))
+		c.lastStatus.Store(status)
 		atomic.StoreInt64(&c.lastStatusTime, time.Now().UnixNano())
-		c.notifyStatsChanged()
-
-		if len(status.AntennaLocations) > 0 && c.gateway.UpdateLocationFromStatus {
-			select {
-			case c.locCh <- struct{}{}:
-			default:
-			}
-		}
 	default:
-		return errBufferFull.New()
+		return errBufferFull
 	}
 	return nil
 }
@@ -261,18 +245,14 @@ func (c *Connection) HandleTxAck(ack *ttnpb.TxAcknowledgment) error {
 	case <-c.ctx.Done():
 		return c.ctx.Err()
 	case c.txAckCh <- ack:
-		c.notifyStatsChanged()
 	default:
-		return errBufferFull.New()
+		return errBufferFull
 	}
 	return nil
 }
 
 // RecordRTT records the given round-trip time.
-func (c *Connection) RecordRTT(d time.Duration) {
-	c.rtts.Record(d)
-	c.notifyStatsChanged()
-}
+func (c *Connection) RecordRTT(d time.Duration) { c.rtts.Record(d) }
 
 var (
 	errNotAllowed       = errors.DefineFailedPrecondition("not_allowed", "downlink not allowed")
@@ -314,10 +294,8 @@ func (c *Connection) SendDown(msg *ttnpb.DownlinkMessage) error {
 	case c.downCh <- msg:
 		atomic.AddUint64(&c.downlinks, 1)
 		atomic.StoreInt64(&c.lastDownlinkTime, time.Now().UnixNano())
-
-		c.notifyStatsChanged()
 	default:
-		return errBufferFull.New()
+		return errBufferFull
 	}
 	return nil
 }
@@ -331,11 +309,11 @@ var (
 // This method returns an error if the downlink message is not a Tx request.
 func (c *Connection) ScheduleDown(path *ttnpb.DownlinkPath, msg *ttnpb.DownlinkMessage) (time.Duration, error) {
 	if c.gateway.DownlinkPathConstraint == ttnpb.DOWNLINK_PATH_CONSTRAINT_NEVER {
-		return 0, errNotAllowed.New()
+		return 0, errNotAllowed
 	}
 	request := msg.GetRequest()
 	if request == nil {
-		return 0, errNotTxRequest.New()
+		return 0, errNotTxRequest
 	}
 	var delay time.Duration
 
@@ -357,13 +335,13 @@ func (c *Connection) ScheduleDown(path *ttnpb.DownlinkPath, msg *ttnpb.DownlinkM
 				return 0, errFrequencyPlanNotConfigured.WithCause(err).WithAttributes("id", request.FrequencyPlanID)
 			}
 			if fp.BandID != c.bandID {
-				return 0, errFrequencyPlansNotFromSameBand.New()
+				return 0, errFrequencyPlansNotFromSameBand
 			}
 		}
 	} else {
 		// Backwards compatibility. If there's no FrequencyPlanID in the TxRequest, then there must be only one Frequency Plan configured.
 		if len(c.gatewayFPs) != 1 {
-			return 0, errNoFrequencyPlanIDInTxRequest.New()
+			return 0, errNoFrequencyPlanIDInTxRequest
 		}
 		for _, v := range c.gatewayFPs {
 			fp = v
@@ -401,12 +379,12 @@ func (c *Connection) ScheduleDown(path *ttnpb.DownlinkPath, msg *ttnpb.DownlinkM
 			"data_rate_index", rx.dataRateIndex,
 		))
 		logger.Debug("Attempt to schedule downlink in receive window")
-		dr, ok := phy.DataRates[rx.dataRateIndex]
-		if !ok {
+		dataRate := phy.DataRates[rx.dataRateIndex].Rate
+		if dataRate == (ttnpb.DataRate{}) {
 			return 0, errDataRate.WithAttributes("index", rx.dataRateIndex)
 		}
 		// The maximum payload size is MACPayload only; for PHYPayload take MHDR (1 byte) and MIC (4 bytes) into account.
-		maxPHYLength := dr.MaxMACPayloadSize(fp.DwellTime.GetDownlinks()) + 5
+		maxPHYLength := phy.DataRates[rx.dataRateIndex].DefaultMaxSize.PayloadSize(fp.DwellTime.GetDownlinks()) + 5
 		if len(msg.RawPayload) > int(maxPHYLength) {
 			return 0, errTooLong.WithAttributes(
 				"payload_length", len(msg.RawPayload),
@@ -435,8 +413,8 @@ func (c *Connection) ScheduleDown(path *ttnpb.DownlinkPath, msg *ttnpb.DownlinkM
 		if int(ids.AntennaIndex) < len(c.gateway.Antennas) {
 			settings.Downlink.TxPower -= c.gateway.Antennas[ids.AntennaIndex].Gain
 		}
-		settings.DataRate = dr.Rate
-		if lora := dr.Rate.GetLoRa(); lora != nil {
+		settings.DataRate = dataRate
+		if dr := dataRate.GetLoRa(); dr != nil {
 			settings.CodingRate = phy.LoRaCodingRate
 			settings.Downlink.InvertPolarization = true
 		}
@@ -445,12 +423,12 @@ func (c *Connection) ScheduleDown(path *ttnpb.DownlinkPath, msg *ttnpb.DownlinkM
 		case ttnpb.CLASS_A:
 			f = c.scheduler.ScheduleAt
 			if request.Rx1Delay == ttnpb.RX_DELAY_0 {
-				return 0, errNoRxDelay.New()
+				return 0, errNoRxDelay
 			}
 			settings.Timestamp = uplinkTimestamp + uint32((time.Duration(request.Rx1Delay)*time.Second+rx.delay)/time.Microsecond)
 		case ttnpb.CLASS_B:
 			if request.AbsoluteTime == nil {
-				return 0, errNoAbsoluteTime.New()
+				return 0, errNoAbsoluteTime
 			}
 			if !c.scheduler.IsGatewayTimeSynced() {
 				rxErrs = append(rxErrs, errNoGPSSync)
@@ -530,16 +508,6 @@ func (c *Connection) TxAck() <-chan *ttnpb.TxAcknowledgment {
 	return c.txAckCh
 }
 
-// StatsChanged returns the stats changed channel.
-func (c *Connection) StatsChanged() <-chan struct{} {
-	return c.statsChangedCh
-}
-
-// LocationChanged returns the location updates channel.
-func (c *Connection) LocationChanged() <-chan struct{} {
-	return c.locCh
-}
-
 // ConnectTime returns the time the gateway connected.
 func (c *Connection) ConnectTime() time.Time { return time.Unix(0, c.connectTime) }
 
@@ -574,36 +542,6 @@ func (c *Connection) RTTStats() (min, max, median time.Duration, count int) {
 	return c.rtts.Stats()
 }
 
-// Stats collects and returns the gateway connection statistics.
-func (c *Connection) Stats() *ttnpb.GatewayConnectionStats {
-	stats := &ttnpb.GatewayConnectionStats{}
-	ct := c.ConnectTime()
-	stats.ConnectedAt = &ct
-	stats.Protocol = c.Frontend().Protocol()
-	if s, t, ok := c.StatusStats(); ok {
-		stats.LastStatusReceivedAt = &t
-		stats.LastStatus = s
-	}
-	if c, t, ok := c.UpStats(); ok {
-		stats.LastUplinkReceivedAt = &t
-		stats.UplinkCount = c
-	}
-	if c, t, ok := c.DownStats(); ok {
-		stats.LastDownlinkReceivedAt = &t
-		stats.DownlinkCount = c
-	}
-	if min, max, median, count := c.RTTStats(); count > 0 {
-		stats.RoundTripTimes = &ttnpb.GatewayConnectionStats_RoundTripTimes{
-			Min:    min,
-			Max:    max,
-			Median: median,
-			Count:  uint32(count),
-		}
-	}
-
-	return stats
-}
-
 // FrequencyPlans returns the frequency plans for the gateway.
 func (c *Connection) FrequencyPlans() map[string]*frequencyplans.FrequencyPlan { return c.gatewayFPs }
 
@@ -621,11 +559,4 @@ func (c *Connection) SyncWithGatewayConcentrator(timestamp uint32, server time.T
 // This method returns false if the clock is not synced with the server.
 func (c *Connection) TimeFromTimestampTime(timestamp uint32) (scheduling.ConcentratorTime, bool) {
 	return c.scheduler.TimeFromTimestampTime(timestamp)
-}
-
-func (c *Connection) notifyStatsChanged() {
-	select {
-	case c.statsChangedCh <- struct{}{}:
-	default:
-	}
 }

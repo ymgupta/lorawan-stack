@@ -29,7 +29,7 @@ type microchip struct{}
 func (p *microchip) UniqueID(entry *pbtypes.Struct) (string, error) {
 	sn := entry.Fields["uniqueId"].GetStringValue()
 	if sn == "" {
-		return "", errEntry.New()
+		return "", errEntry
 	}
 	return strings.ToUpper(sn), nil
 }

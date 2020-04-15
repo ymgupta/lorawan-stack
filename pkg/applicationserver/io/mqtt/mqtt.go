@@ -73,9 +73,7 @@ func (s *srv) accept() error {
 			ctx := log.NewContextWithFields(s.ctx, log.Fields("remote_addr", mqttConn.RemoteAddr().String()))
 			conn := &connection{server: s.server, mqtt: mqttConn, format: s.format}
 			if err := conn.setup(ctx); err != nil {
-				if err != stdio.EOF {
-					log.FromContext(ctx).WithError(err).Warn("Failed to setup connection")
-				}
+				log.FromContext(ctx).WithError(err).Warn("Failed to setup connection")
 				mqttConn.Close()
 				return
 			}
@@ -283,7 +281,7 @@ func (c *connection) Subscribe(info *auth.Info, requestedTopic string, requested
 	access := info.Metadata.(topicAccess)
 	accepted, ok := c.format.AcceptedTopic(access.appUID, topic.Split(requestedTopic))
 	if !ok {
-		return "", 0, errNotAuthorized.New()
+		return "", 0, errNotAuthorized
 	}
 	acceptedTopic = topic.Join(accepted)
 	acceptedQoS = requestedQoS

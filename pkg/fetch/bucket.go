@@ -32,7 +32,7 @@ type bucketFetcher struct {
 
 func (f *bucketFetcher) File(pathElements ...string) ([]byte, error) {
 	if len(pathElements) == 0 {
-		return nil, errFilenameNotSpecified.New()
+		return nil, errFilenameNotSpecified
 	}
 
 	start := time.Now()

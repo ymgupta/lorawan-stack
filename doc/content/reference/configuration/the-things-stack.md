@@ -1,7 +1,7 @@
 ---
-title: "General Options"
+title: "Generic Server Options"
 description: ""
-weight: -1
+weight: 1
 ---
 
 ## Global Options

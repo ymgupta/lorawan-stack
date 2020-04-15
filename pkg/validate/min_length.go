@@ -33,7 +33,7 @@ var (
 func MinLength(length int) validateFn { // nolint: golint, returns unexported type on purpose
 	return func(v interface{}) error {
 		if v == nil {
-			return errNil.New()
+			return errNil
 		}
 
 		typ := reflect.TypeOf(v)

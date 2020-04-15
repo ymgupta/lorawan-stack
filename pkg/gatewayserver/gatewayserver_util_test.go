@@ -66,7 +66,7 @@ func startMockIS(ctx context.Context) (*mockIS, string) {
 	return is, lis.Addr().String()
 }
 
-func (is *mockIS) add(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string, locationPublic bool, updateLocationFromStatus bool) {
+func (is *mockIS) add(ctx context.Context, ids ttnpb.GatewayIdentifiers, key string, locationPublic bool) {
 	uid := unique.ID(ctx, ids)
 	is.gateways[uid] = &ttnpb.Gateway{
 		GatewayIdentifiers: ids,
@@ -79,8 +79,7 @@ func (is *mockIS) add(ctx context.Context, ids ttnpb.GatewayIdentifiers, key str
 				},
 			},
 		},
-		LocationPublic:           locationPublic,
-		UpdateLocationFromStatus: updateLocationFromStatus,
+		LocationPublic: locationPublic,
 	}
 	if key != "" {
 		is.gatewayAuths[uid] = []string{fmt.Sprintf("Bearer %v", key)}
@@ -93,19 +92,8 @@ func (is *mockIS) Get(ctx context.Context, req *ttnpb.GetGatewayRequest) (*ttnpb
 	uid := unique.ID(ctx, req.GatewayIdentifiers)
 	gtw, ok := is.gateways[uid]
 	if !ok {
-		return nil, errNotFound.New()
+		return nil, errNotFound
 	}
-	return gtw, nil
-}
-
-func (is *mockIS) Update(ctx context.Context, req *ttnpb.UpdateGatewayRequest) (*ttnpb.Gateway, error) {
-	uid := unique.ID(ctx, req.Gateway.GatewayIdentifiers)
-	gtw, ok := is.gateways[uid]
-	if !ok {
-		return nil, errNotFound.New()
-	}
-	// Just update antennas
-	gtw.Antennas = req.Antennas
 	return gtw, nil
 }
 
@@ -116,7 +104,7 @@ func (is *mockIS) GetIdentifiersForEUI(ctx context.Context, req *ttnpb.GetGatewa
 			EUI:       &registeredGatewayEUI,
 		}, nil
 	}
-	return nil, errNotFound.New()
+	return nil, errNotFound
 }
 
 func (is *mockIS) ListRights(ctx context.Context, ids *ttnpb.GatewayIdentifiers) (res *ttnpb.Rights, err error) {

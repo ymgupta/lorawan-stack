@@ -41,10 +41,8 @@ export const extractDeviceIdFromCombinedId = function(combinedId) {
   return combinedId
 }
 export const getCombinedDeviceId = function(device = {}) {
-  const appId =
-    getByPath(device, 'ids.application_ids.application_id') ||
-    getByPath(device, 'application_ids.application_id')
-  const devId = getDeviceId(device)
+  const appId = getByPath(device, 'ids.application_ids.application_id')
+  const devId = getByPath(device, 'ids.device_id')
   return combineDeviceIds(appId, devId)
 }
 
@@ -96,13 +94,6 @@ export const getEntityId = function(entity) {
 
 export const getWebhookId = function(webhook = {}) {
   return getByPath(webhook, 'ids.webhook_id')
-}
-
-export const getWebhookTemplateId = function(webhookTemplate = {}) {
-  return (
-    getByPath(webhookTemplate, 'ids.template_id') ||
-    getByPath(webhookTemplate, 'template_ids.template_id')
-  )
 }
 
 export const getPubsubId = function(pubsub = {}) {
