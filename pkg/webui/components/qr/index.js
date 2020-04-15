@@ -61,7 +61,7 @@ export default class QR extends React.Component {
 
     if (qr && qr.data !== value) {
       this.setState({ value: qr.data })
-      onChange(qr.data)
+      onChange(qr.data, true)
     }
   }
 
