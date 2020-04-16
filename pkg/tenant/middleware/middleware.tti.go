@@ -16,7 +16,7 @@ import (
 
 var (
 	errMissingTenantID = errors.DefineInvalidArgument("missing_tenant_id", "missing tenant ID")
-	errTenantNotActive = errors.DefinePermissionDenied("tenant_not_active", "tenant is not active", "state")
+	errTenantNotActive = errors.DefineFailedPrecondition("tenant_not_active", "tenant is not active", "state")
 )
 
 // tenantID parses the tenant ID from the given value.
