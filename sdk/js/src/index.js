@@ -51,7 +51,7 @@ class TtnLw {
     this.Ns = new Ns(this.api.Ns)
     this.Organizations = new Organizations(this.api)
     this.Users = new Users(this.api)
-    this.DeviceClaim = new DeviceClaim(this.api, { proxy, stackConfig })
+    this.DeviceClaim = new DeviceClaim(this.api, { proxy, stackConfig: stackConfiguration })
     this.Auth = new Auth(this.api.EntityAccess)
 
     this.subscribe = EventHandler.subscribe

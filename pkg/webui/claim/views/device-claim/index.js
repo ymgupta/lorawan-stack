@@ -48,7 +48,7 @@ export default class DeviceClaim extends Component {
   handleSubmit = async values => {
     const { appId } = this.props
     const { qrCode, ...attributes } = values
-    const claim = await api.deviceClaim.claim(values.qrCode, appId)
+    const claim = await api.deviceClaim.claim(appId, qrCode)
     return await api.device.update(appId, claim.device_id, {
       attributes,
     })

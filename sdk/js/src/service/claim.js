@@ -25,12 +25,19 @@ class DeviceClaim {
   }
 
   // Claim
-  async claim(qrCode, applicationId) {
+  async claim(
+    applicationId,
+    qrCode,
+    targetNetworkServerAddress = this._stackConfig.nsHost,
+    targetApplicationServerAddress = this._stackConfig.asHost,
+  ) {
     const payload = {
       qr_code: btoa(qrCode),
       target_application_ids: {
         application_id: applicationId,
       },
+      targetNetworkServerAddress,
+      targetApplicationServerAddress,
     }
 
     const response = await this._api.EndDeviceClaimingServer.Claim(undefined, payload)

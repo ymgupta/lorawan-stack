@@ -23,6 +23,8 @@ const stackConfig = selectStackConfig()
 const appRoot = selectApplicationRootPath()
 
 const stack = {
+  ns: stackConfig.ns.enabled ? stackConfig.ns.base_url : undefined,
+  as: stackConfig.as.enabled ? stackConfig.as.base_url : undefined,
   is: stackConfig.is.enabled ? stackConfig.is.base_url : undefined,
   dcs: stackConfig.dcs.enabled ? stackConfig.dcs.base_url : undefined,
 }
