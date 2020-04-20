@@ -9,18 +9,11 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
 const (
-	managerAttributeValue       = "stripe"
-	customerIDAttribute         = "stripe-customer-id"
-	planIDAttribute             = "stripe-plan-id"
-	subscriptionIDAttribute     = "stripe-subscription-id"
-	subscriptionItemIDAttribute = "stripe-subscription-item-id"
-
 	tenantIDAttribute         = "tenant-id"
 	maxApplicationsAttribute  = "max-applications"
 	maxClientsAttribute       = "max-clients"
@@ -109,13 +102,6 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		TenantIdentifiers: *ids,
 		Name:              customer.Name,
 		Description:       customer.Description,
-		Attributes: map[string]string{
-			backend.ManagedByTenantAttribute: managerAttributeValue,
-			customerIDAttribute:              customer.ID,
-			planIDAttribute:                  subscriptionItem.Plan.ID,
-			subscriptionIDAttribute:          sub.ID,
-			subscriptionItemIDAttribute:      subscriptionItem.ID,
-		},
 		ContactInfo: []*ttnpb.ContactInfo{
 			{
 				ContactType:   ttnpb.CONTACT_TYPE_BILLING,
@@ -125,6 +111,16 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 			},
 		},
 		State: ttnpb.STATE_APPROVED,
+		Billing: &ttipb.Billing{
+			Provider: &ttipb.Billing_Stripe_{
+				Stripe: &ttipb.Billing_Stripe{
+					CustomerID:         customer.ID,
+					PlanID:             subscriptionItem.Plan.ID,
+					SubscriptionID:     sub.ID,
+					SubscriptionItemID: subscriptionItem.ID,
+				},
+			},
+		},
 	}
 
 	err = s.addTenantLimits(&tnt, sub)
@@ -134,7 +130,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 
 	tntFieldMask := types.FieldMask{
 		Paths: []string{
-			"attributes",
+			"billing",
 			"contact_info",
 			"description",
 			"max_applications",
@@ -157,15 +153,11 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	}
 
 	if tntExists {
-		manager, ok := existingTnt.Attributes[backend.ManagedByTenantAttribute]
-		if !ok || manager != managerAttributeValue {
+		billing := existingTnt.Billing.GetStripe()
+		if billing == nil {
 			return errTenantNotManaged.New()
 		}
-		customerID, ok := existingTnt.Attributes[customerIDAttribute]
-		if !ok {
-			return errNoTenantAttribute.WithAttributes("attribute", customerIDAttribute)
-		}
-		if customerID != customer.ID {
+		if billing.CustomerID != customer.ID {
 			return errCustomerIDMismatch.New()
 		}
 

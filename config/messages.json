@@ -7010,15 +7010,6 @@
       "file": "stripe.tti.go"
     }
   },
-  "error:pkg/tenantbillingserver/stripe:no_tenant_attribute": {
-    "translations": {
-      "en": "no tenant attribute `{attribute}` available"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
-    }
-  },
   "error:pkg/tenantbillingserver/stripe:no_tenant_id": {
     "translations": {
       "en": "no tenant ID set"

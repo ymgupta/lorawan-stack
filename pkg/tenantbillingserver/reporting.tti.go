@@ -33,7 +33,7 @@ func (tbs *TenantBillingServer) collectAndReport(ctx context.Context) error {
 	)
 	for {
 		res, err := registry.List(ctx, &ttipb.ListTenantsRequest{
-			FieldMask: pbtypes.FieldMask{Paths: []string{"ids", "attributes", "state"}},
+			FieldMask: pbtypes.FieldMask{Paths: []string{"ids", "billing", "state"}},
 			Limit:     uint32(tenantsPageSize),
 			Page:      uint32(tenantsPage),
 		}, creds)
