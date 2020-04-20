@@ -189,6 +189,31 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 					dst.Configuration = nil
 				}
 			}
+		case "billing":
+			if len(subs) > 0 {
+				var newDst, newSrc *Billing
+				if (src == nil || src.Billing == nil) && dst.Billing == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.Billing
+				}
+				if dst.Billing != nil {
+					newDst = dst.Billing
+				} else {
+					newDst = &Billing{}
+					dst.Billing = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Billing = src.Billing
+				} else {
+					dst.Billing = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)

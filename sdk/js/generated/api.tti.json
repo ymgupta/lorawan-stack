@@ -62,6 +62,124 @@
       "services": []
     },
     {
+      "name": "lorawan-stack/api/tti/billing.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "Billing",
+          "longName": "Billing",
+          "fullName": "tti.lorawan.v3.Billing",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "stripe",
+              "description": "",
+              "label": "",
+              "type": "Stripe",
+              "longType": "Billing.Stripe",
+              "fullType": "tti.lorawan.v3.Billing.Stripe",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Stripe",
+          "longName": "Billing.Stripe",
+          "fullName": "tti.lorawan.v3.Billing.Stripe",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "customer_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.min_len",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "name": "plan_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.min_len",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "name": "subscription_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.min_len",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            {
+              "name": "subscription_item_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.min_len",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
       "name": "lorawan-stack/api/tti/configuration.proto",
       "description": "",
       "package": "tti.lorawan.v3",
@@ -1443,6 +1561,16 @@
               "type": "Configuration",
               "longType": "Configuration",
               "fullType": "tti.lorawan.v3.Configuration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "billing",
+              "description": "",
+              "label": "",
+              "type": "Billing",
+              "longType": "Billing",
+              "fullType": "tti.lorawan.v3.Billing",
               "ismap": false,
               "defaultValue": ""
             }

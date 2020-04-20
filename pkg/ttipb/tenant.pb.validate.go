@@ -252,6 +252,18 @@ func (m *Tenant) ValidateFields(paths ...string) error {
 				}
 			}
 
+		case "billing":
+
+			if v, ok := interface{}(m.GetBilling()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "billing",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return TenantValidationError{
 				field:  name,

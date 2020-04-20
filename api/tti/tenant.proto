@@ -13,6 +13,7 @@ import "google/protobuf/wrappers.proto";
 import "lorawan-stack/api/user.proto";
 import "lorawan-stack/api/contact_info.proto";
 import "lorawan-stack/api/enums.proto";
+import "lorawan-stack/api/tti/billing.proto";
 import "lorawan-stack/api/tti/configuration.proto";
 import "lorawan-stack/api/tti/identifiers.proto";
 
@@ -49,6 +50,7 @@ message Tenant {
   google.protobuf.Struct capabilities = 9 [(gogoproto.nullable) = false];
 
   Configuration configuration = 16;
+  Billing billing = 17;
 }
 
 message Tenants {
