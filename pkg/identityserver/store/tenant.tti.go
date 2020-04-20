@@ -7,6 +7,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm/dialects/postgres"
+	"go.thethings.network/lorawan-stack/pkg/jsonpb"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
@@ -32,6 +33,7 @@ type Tenant struct {
 	MaxUsers         *WrappedUint64
 
 	Configuration postgres.Jsonb
+	Billing       postgres.Jsonb
 }
 
 func init() {
@@ -82,6 +84,7 @@ func init() {
 // fieldmask path to column name in tenants table.
 var tenantColumnNames = map[string][]string{
 	attributesField:       {},
+	billingField:          {billingField},
 	contactInfoField:      {},
 	nameField:             {nameField},
 	descriptionField:      {descriptionField},
@@ -121,6 +124,20 @@ func (tnt Tenant) toPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) error {
 			return err
 		}
 	}
+	if ttnpb.HasAnyField(ttnpb.TopLevelFields(fieldMask.Paths), billingField) {
+		if len(tnt.Billing.RawMessage) > 0 {
+			var billing ttipb.Billing
+			if err := jsonpb.TTN().Unmarshal(tnt.Billing.RawMessage, &billing); err != nil {
+				return err
+			}
+			pb.Billing = &billing
+		} else {
+			pb.Billing = nil
+		}
+		if err := pb.SetFields(pb, fieldMask.Paths...); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -154,6 +171,22 @@ func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns
 			return nil, err
 		}
 		columns = append(columns, configurationField)
+	}
+	if ttnpb.HasAnyField(ttnpb.TopLevelFields(fieldMask.Paths), billingField) {
+		var billing ttipb.Billing
+		if len(tnt.Billing.RawMessage) > 0 {
+			if err = jsonpb.TTN().Unmarshal(tnt.Billing.RawMessage, &billing); err != nil {
+				return nil, err
+			}
+		}
+		tmp := &ttipb.Tenant{Billing: &billing}
+		if err := tmp.SetFields(pb, fieldMask.Paths...); err != nil {
+			return nil, err
+		}
+		if tnt.Billing.RawMessage, err = jsonpb.TTN().Marshal(tmp.Billing); err != nil {
+			return nil, err
+		}
+		columns = append(columns, billingField)
 	}
 	return
 }
