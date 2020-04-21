@@ -29,6 +29,8 @@ type UIConfig struct {
 type StackConfig struct {
 	IS  webui.APIConfig `json:"is" name:"is"`
 	DCS webui.APIConfig `json:"dcs" name:"dcs"`
+	NS  webui.APIConfig `json:"ns" name:"ns"`
+	AS  webui.APIConfig `json:"as" name:"as"`
 }
 
 // FrontendConfig is the configuration for the Device Claiming Server frontend.
