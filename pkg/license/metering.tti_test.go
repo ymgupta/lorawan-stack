@@ -10,7 +10,7 @@ import (
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
-	"go.thethings.network/lorawan-stack/pkg/license"
+	. "go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -86,10 +86,10 @@ func TestMetering(t *testing.T) {
 	}
 	mockReporter := &mockReporter{}
 
-	_, err := license.NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{}, mockCluster)
+	_, err := NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{}, mockCluster)
 	a.So(err, should.NotBeNil)
 
-	_, err = license.NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{
+	_, err = NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{
 		Metering: &ttipb.MeteringConfiguration_AWS_{
 			AWS: &ttipb.MeteringConfiguration_AWS{},
 		},
@@ -97,7 +97,7 @@ func TestMetering(t *testing.T) {
 	a.So(err, should.BeNil)
 
 	tenMinutes := 10 * time.Minute
-	s, err := license.NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{
+	s, err := NewMeteringSetup(ctx, &ttipb.MeteringConfiguration{
 		Metering: &ttipb.MeteringConfiguration_Prometheus_{
 			Prometheus: &ttipb.MeteringConfiguration_Prometheus{},
 		},
