@@ -36,7 +36,7 @@ retryAttempt:
 			ProductCode: aws.String(r.config.GetSKU()),
 			Timestamp:   aws.Time(time.Now()),
 		}
-		request.UsageDimension, request.UsageQuantity = computeUsage(data)
+		request.UsageDimension, request.UsageQuantity = ComputeUsage(data)
 		_, err = r.service.MeterUsageWithContext(ctx, request)
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
@@ -63,7 +63,8 @@ func New(config *ttipb.MeteringConfiguration_AWS) (*Reporter, error) {
 	}, nil
 }
 
-func computeUsage(data *ttipb.MeteringData) (*string, *int64) {
+// ComputeUsage computes usage.
+func ComputeUsage(data *ttipb.MeteringData) (*string, *int64) {
 	var endDeviceCount int64
 	for _, tenant := range data.GetTenants() {
 		endDeviceCount += int64(tenant.GetTotals().GetEndDevices())
