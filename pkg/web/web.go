@@ -31,9 +31,11 @@ import (
 	echomiddleware "github.com/labstack/echo/v4/middleware"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
+	licensemiddleware "go.thethings.network/lorawan-stack/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
+	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
 	"go.thethings.network/lorawan-stack/pkg/web/cookie"
 	"go.thethings.network/lorawan-stack/pkg/webhandlers"
 	"go.thethings.network/lorawan-stack/pkg/webmiddleware"
@@ -194,8 +196,8 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	router := root.NewRoute().Subrouter()
 	router.Use(
 		mux.MiddlewareFunc(webmiddleware.Redirect(redirectConfig)),
-		// mux.MiddlewareFunc(licensemiddleware.Middleware),
-		// mux.MiddlewareFunc(tenantmiddleware.Middleware(options.tenant)),
+		mux.MiddlewareFunc(licensemiddleware.Middleware),
+		mux.MiddlewareFunc(tenantmiddleware.Middleware(options.tenant)),
 	)
 
 	apiRouter := mux.NewRouter()
