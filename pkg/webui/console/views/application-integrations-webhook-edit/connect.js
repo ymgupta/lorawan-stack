@@ -15,16 +15,20 @@
 import { connect } from 'react-redux'
 import { replace } from 'connected-react-router'
 
-import withRequest from '../../../lib/components/with-request'
+import withRequest from '@ttn-lw/lib/components/with-request'
+
+import { getWebhookTemplateId } from '@ttn-lw/lib/selectors/id'
+
+import { getWebhook, updateWebhook } from '@console/store/actions/webhooks'
+import { attachPromise } from '@console/store/actions/lib'
 
 import {
   selectSelectedWebhook,
   selectWebhookFetching,
   selectWebhookError,
-} from '../../store/selectors/webhooks'
-import { selectSelectedApplicationId } from '../../store/selectors/applications'
-import { getWebhook, updateWebhook } from '../../store/actions/webhooks'
-import { attachPromise } from '../../store/actions/lib'
+} from '@console/store/selectors/webhooks'
+import { selectSelectedApplicationId } from '@console/store/selectors/applications'
+import { selectWebhookTemplateById } from '@console/store/selectors/webhook-templates'
 
 const webhookEntitySelector = [
   'base_url',
@@ -39,14 +43,23 @@ const webhookEntitySelector = [
   'downlink_failed',
   'downlink_queued',
   'location_solved',
+  'template_ids',
 ]
 
-const mapStateToProps = state => ({
-  appId: selectSelectedApplicationId(state),
-  webhook: selectSelectedWebhook(state),
-  fetching: selectWebhookFetching(state),
-  error: selectWebhookError(state),
-})
+const mapStateToProps = state => {
+  const webhook = selectSelectedWebhook(state)
+  const webhookTemplateId = getWebhookTemplateId(webhook)
+  const webhookTemplate = Boolean(webhookTemplateId)
+    ? selectWebhookTemplateById(state, webhookTemplateId)
+    : undefined
+  return {
+    appId: selectSelectedApplicationId(state),
+    webhook,
+    webhookTemplate,
+    fetching: selectWebhookFetching(state),
+    error: selectWebhookError(state),
+  }
+}
 
 const promisifiedUpdateWebhook = attachPromise(updateWebhook)
 const mapDispatchToProps = (dispatch, { match }) => {

@@ -17,11 +17,14 @@ import bind from 'autobind-decorator'
 import classnames from 'classnames'
 import { getIn } from 'formik'
 
-import from from '../../../lib/from'
-import Icon from '../../icon'
-import Message from '../../../lib/components/message'
+import Icon from '@ttn-lw/components/icon'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import from from '@ttn-lw/lib/from'
+import PropTypes from '@ttn-lw/lib/prop-types'
+
 import FormContext from '../context'
-import PropTypes from '../../../lib/prop-types'
 
 import style from './field.styl'
 
@@ -65,8 +68,10 @@ class FormField extends React.Component {
       }),
     ]).isRequired,
     description: PropTypes.message,
+    disabled: PropTypes.bool,
     name: PropTypes.string.isRequired,
     onChange: PropTypes.func,
+    readOnly: PropTypes.bool,
     required: PropTypes.bool,
     title: PropTypes.message.isRequired,
     warning: PropTypes.message,
@@ -74,9 +79,11 @@ class FormField extends React.Component {
 
   static defaultProps = {
     className: undefined,
+    disabled: false,
     onChange: () => null,
     warning: '',
     description: '',
+    readOnly: false,
     required: false,
   }
 
@@ -110,7 +117,7 @@ class FormField extends React.Component {
     const { name, onChange } = this.props
     const { setFieldValue, setFieldTouched } = this.context
 
-    // check if the value is react's synthetic event
+    // Check if the value is react's synthetic event.
     const newValue = this.extractValue(value)
 
     setFieldValue(name, newValue)
@@ -161,11 +168,11 @@ class FormField extends React.Component {
 
     const fieldMessage = showError ? (
       <div className={style.messages}>
-        <Err error={fieldError} />
+        <Err content={fieldError} title={title} />
       </div>
     ) : showWarning ? (
       <div className={style.messages}>
-        <Err warning={warning} />
+        <Err content={warning} title={title} warning />
       </div>
     ) : showDescription ? (
       <Message className={style.description} content={description} />
@@ -212,14 +219,9 @@ class FormField extends React.Component {
   }
 }
 
-const Err = function(props) {
-  const { error, warning, name, className } = props
-
-  const content = error || warning || ''
-  const contentValues = content.values || {}
-
+const Err = ({ content, error, warning, title, className }) => {
   const icon = error ? 'error' : 'warning'
-
+  const contentValues = content.values || {}
   const classname = classnames(style.message, className, {
     [style.show]: content && content !== '',
     [style.hide]: !content || content === '',
@@ -227,18 +229,37 @@ const Err = function(props) {
     [style.warn]: warning,
   })
 
+  if (title) {
+    contentValues.field = <Message content={title} className={style.name} key={title.id || title} />
+  }
+
   return (
     <div className={classname}>
       <Icon icon={icon} className={style.icon} />
-      <Message
-        content={content.format || content.error_description || content.message || content}
-        values={{
-          ...contentValues,
-          name: <Message content={name} className={style.name} />,
-        }}
-      />
+      <Message content={content.message || content} values={contentValues} />
     </div>
   )
+}
+
+Err.propTypes = {
+  className: PropTypes.string,
+  content: PropTypes.oneOfType([
+    PropTypes.error,
+    PropTypes.shape({
+      message: PropTypes.error.isRequired,
+      values: PropTypes.shape({}).isRequired,
+    }),
+  ]).isRequired,
+  error: PropTypes.bool,
+  title: PropTypes.message,
+  warning: PropTypes.bool,
+}
+
+Err.defaultProps = {
+  className: undefined,
+  title: undefined,
+  warning: false,
+  error: true,
 }
 
 export default FormField

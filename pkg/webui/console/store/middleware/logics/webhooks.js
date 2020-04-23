@@ -12,9 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as webhooks from '../../actions/webhooks'
+import api from '@console/api'
 
-import api from '../../../api'
+import * as webhooks from '@console/store/actions/webhooks'
+import * as webhookFormats from '@console/store/actions/webhook-formats'
+import * as webhookTemplates from '@console/store/actions/webhook-templates'
+
 import createRequestLogic from './lib'
 
 const getWebhookLogic = createRequestLogic({
@@ -31,8 +34,11 @@ const getWebhookLogic = createRequestLogic({
 const getWebhooksLogic = createRequestLogic({
   type: webhooks.GET_WEBHOOKS_LIST,
   async process({ action }) {
-    const { appId } = action.payload
-    const res = await api.application.webhooks.list(appId)
+    const {
+      payload: { appId },
+      meta: { selector },
+    } = action
+    const res = await api.application.webhooks.list(appId, selector)
     return { entities: res.webhooks, totalCount: res.totalCount }
   },
 })
@@ -46,4 +52,40 @@ const updateWebhookLogic = createRequestLogic({
   },
 })
 
-export default [getWebhookLogic, getWebhooksLogic, updateWebhookLogic]
+const getWebhookFormatsLogic = createRequestLogic({
+  type: webhookFormats.GET_WEBHOOK_FORMATS,
+  async process() {
+    const { formats } = await api.application.webhooks.getFormats()
+    return formats
+  },
+})
+
+const getWebhookTemplateLogic = createRequestLogic({
+  type: webhookTemplates.GET_WEBHOOK_TEMPLATE,
+  async process({ action }) {
+    const { id } = action.payload
+    const { selector } = action.meta
+    const template = await api.application.webhooks.getTemplate(id, selector)
+
+    return template
+  },
+})
+
+const getWebhookTemplatesLogic = createRequestLogic({
+  type: webhookTemplates.LIST_WEBHOOK_TEMPLATES,
+  async process({ action }) {
+    const { selector } = action.meta
+    const { templates } = await api.application.webhooks.listTemplates(selector)
+
+    return templates
+  },
+})
+
+export default [
+  getWebhookLogic,
+  getWebhooksLogic,
+  updateWebhookLogic,
+  getWebhookFormatsLogic,
+  getWebhookTemplateLogic,
+  getWebhookTemplatesLogic,
+]

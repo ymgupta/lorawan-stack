@@ -17,18 +17,25 @@ import { defineMessages } from 'react-intl'
 import * as Yup from 'yup'
 import bind from 'autobind-decorator'
 
-import Form from '../../../components/form'
-import Input from '../../../components/input'
-import SubmitBar from '../../../components/submit-bar'
-import SubmitButton from '../../../components/submit-button'
-import Notification from '../../../components/notification'
-import Message from '../../../lib/components/message'
-import KeyValueMap from '../../../components/key-value-map'
-import ModalButton from '../../../components/button/modal-button'
-import WebhookFormatSelector from '../../containers/webhook-formats-select'
-import sharedMessages from '../../../lib/shared-messages'
-import { id as webhookIdRegexp, apiKey as webhookAPIKeyRegexp } from '../../lib/regexp'
-import PropTypes from '../../../lib/prop-types'
+import Form from '@ttn-lw/components/form'
+import Input from '@ttn-lw/components/input'
+import SubmitBar from '@ttn-lw/components/submit-bar'
+import SubmitButton from '@ttn-lw/components/submit-button'
+import Notification from '@ttn-lw/components/notification'
+import KeyValueMap from '@ttn-lw/components/key-value-map'
+import ModalButton from '@ttn-lw/components/button/modal-button'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import WebhookTemplateInfo from '@console/components/webhook-template-info'
+
+import WebhookFormatSelector from '@console/containers/webhook-formats-select'
+
+import { url as urlRegexp } from '@ttn-lw/lib/regexp'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
+
+import { id as webhookIdRegexp, apiKey as webhookAPIKeyRegexp } from '@console/lib/regexp'
 
 import { mapWebhookToFormValues, mapFormValuesToWebhook, blankValues } from './mapping'
 
@@ -37,18 +44,19 @@ const pathPlaceholder = '/path/to/webhook'
 const m = defineMessages({
   idPlaceholder: 'my-new-webhook',
   messageInfo:
-    'For each enabled message type, you can set an optional path that will be appended to the base URL.',
+    'For each enabled message type, an optional path can be defined which will be appended to the base URL',
   deleteWebhook: 'Delete Webhook',
   modalWarning:
-    'Are you sure you want to delete webhook "{webhookId}"? Deleting a webhook cannot be undone!',
+    'Are you sure you want to delete webhook "{webhookId}"? Deleting a webhook cannot be undone.',
   headers: 'Headers',
   headersKeyPlaceholder: 'Authorization',
   headersValuePlaceholder: 'Bearer my-auth-token',
   headersAdd: 'Add header entry',
   headersValidateRequired: 'All header entry values are required. Please remove empty entries.',
-  downlinkAPIKey: 'Downlink API Key',
+  downlinkAPIKey: 'Downlink API key',
   downlinkAPIKeyDesc:
-    'The API Key will be provided to the endpoint using the X-Downlink-Apikey header',
+    'The API key will be provided to the endpoint using the "X-Downlink-Apikey" header',
+  templateInformation: 'Template information',
 })
 
 const headerCheck = headers =>
@@ -59,18 +67,17 @@ const headerCheck = headers =>
 const validationSchema = Yup.object().shape({
   webhook_id: Yup.string()
     .matches(webhookIdRegexp, sharedMessages.validateIdFormat)
-    .min(2, sharedMessages.validateTooShort)
-    .max(25, sharedMessages.validateTooLong)
+    .min(2, Yup.passValues(sharedMessages.validateTooShort))
+    .max(25, Yup.passValues(sharedMessages.validateTooLong))
     .required(sharedMessages.validateRequired),
   format: Yup.string().required(sharedMessages.validateRequired),
   headers: Yup.array().test('has no empty string values', m.headersValidateRequired, headerCheck),
   base_url: Yup.string()
-    .url(sharedMessages.validateUrl)
+    .matches(urlRegexp, sharedMessages.validateUrl)
     .required(sharedMessages.validateRequired),
-  downlink_api_key: Yup.string().matches(webhookAPIKeyRegexp, sharedMessages.validateFormat),
+  downlink_api_key: Yup.string().matches(webhookAPIKeyRegexp, sharedMessages.validateApiKey),
 })
 
-@bind
 export default class WebhookForm extends Component {
   static propTypes = {
     appId: PropTypes.string,
@@ -86,6 +93,7 @@ export default class WebhookForm extends Component {
     onSubmitFailure: PropTypes.func,
     onSubmitSuccess: PropTypes.func.isRequired,
     update: PropTypes.bool.isRequired,
+    webhookTemplate: PropTypes.webhookTemplate,
   }
 
   static defaultProps = {
@@ -95,18 +103,16 @@ export default class WebhookForm extends Component {
     onDeleteFailure: () => null,
     onDeleteSuccess: () => null,
     onDelete: () => null,
+    webhookTemplate: undefined,
   }
 
-  constructor(props) {
-    super(props)
-
-    this.form = React.createRef()
-  }
+  form = React.createRef()
 
   state = {
     error: '',
   }
 
+  @bind
   async handleSubmit(values, { setSubmitting, resetForm }) {
     const { appId, onSubmit, onSubmitSuccess, onSubmitFailure } = this.props
     const webhook = mapFormValuesToWebhook(values, appId)
@@ -126,6 +132,7 @@ export default class WebhookForm extends Component {
     }
   }
 
+  @bind
   async handleDelete() {
     const { onDelete, onDeleteSuccess, onDeleteFailure } = this.props
     try {
@@ -139,7 +146,7 @@ export default class WebhookForm extends Component {
   }
 
   render() {
-    const { update, initialWebhookValue } = this.props
+    const { update, initialWebhookValue, webhookTemplate } = this.props
     const { error } = this.state
     let initialValues = blankValues
     if (update && initialWebhookValue) {
@@ -147,127 +154,130 @@ export default class WebhookForm extends Component {
     }
 
     return (
-      <Form
-        onSubmit={this.handleSubmit}
-        validationSchema={validationSchema}
-        initialValues={initialValues}
-        error={error}
-        formikRef={this.form}
-      >
-        <Message component="h4" content={sharedMessages.generalInformation} />
-        <Form.Field
-          name="webhook_id"
-          title={sharedMessages.webhookId}
-          placeholder={m.idPlaceholder}
-          component={Input}
-          required
-          autoFocus
-          disabled={update}
-        />
-        <WebhookFormatSelector horizontal name="format" required />
-        <Form.Field
-          name="headers"
-          title={m.headers}
-          keyPlaceholder={m.headersKeyPlaceholder}
-          valuePlaceholder={m.headersValuePlaceholder}
-          addMessage={m.headersAdd}
-          component={KeyValueMap}
-        />
-        <Form.Field
-          name="base_url"
-          title={sharedMessages.webhookBaseUrl}
-          placeholder="http://example.com/webhooks"
-          component={Input}
-          required
-        />
-        <Form.Field
-          name="downlink_api_key"
-          title={m.downlinkAPIKey}
-          component={Input}
-          description={m.downlinkAPIKeyDesc}
-          code
-        />
-        <Message component="h4" content={sharedMessages.messageTypes} />
-        <Notification info content={m.messageInfo} small />
-        <Form.Field
-          name="uplink_message"
-          type="toggled-input"
-          title={sharedMessages.uplinkMessage}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="join_accept"
-          type="toggled-input"
-          title={sharedMessages.joinAccept}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="downlink_ack"
-          type="toggled-input"
-          title={sharedMessages.downlinkAck}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="downlink_nack"
-          type="toggled-input"
-          title={sharedMessages.downlinkNack}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="downlink_sent"
-          type="toggled-input"
-          title={sharedMessages.downlinkSent}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="downlink_failed"
-          type="toggled-input"
-          title={sharedMessages.downlinkFailed}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="downlink_queued"
-          type="toggled-input"
-          title={sharedMessages.downlinkQueued}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <Form.Field
-          name="location_solved"
-          type="toggled-input"
-          title={sharedMessages.locationSolved}
-          placeholder={pathPlaceholder}
-          component={Input.Toggled}
-        />
-        <SubmitBar>
-          <Form.Submit
-            component={SubmitButton}
-            message={update ? sharedMessages.saveChanges : sharedMessages.addWebhook}
+      <>
+        {Boolean(webhookTemplate) && <WebhookTemplateInfo webhookTemplate={webhookTemplate} />}
+        <Form
+          onSubmit={this.handleSubmit}
+          validationSchema={validationSchema}
+          initialValues={initialValues}
+          error={error}
+          formikRef={this.form}
+        >
+          <Message component="h4" content={sharedMessages.generalSettings} />
+          <Form.Field
+            name="webhook_id"
+            title={sharedMessages.webhookId}
+            placeholder={m.idPlaceholder}
+            component={Input}
+            required
+            autoFocus
+            disabled={update}
           />
-          {update && (
-            <ModalButton
-              type="button"
-              icon="delete"
-              danger
-              naked
-              message={m.deleteWebhook}
-              modalData={{
-                message: {
-                  values: { webhookId: initialWebhookValue.ids.webhook_id },
-                  ...m.modalWarning,
-                },
-              }}
-              onApprove={this.handleDelete}
+          <WebhookFormatSelector horizontal name="format" required />
+          <Form.Field
+            name="headers"
+            title={m.headers}
+            keyPlaceholder={m.headersKeyPlaceholder}
+            valuePlaceholder={m.headersValuePlaceholder}
+            addMessage={m.headersAdd}
+            component={KeyValueMap}
+          />
+          <Form.Field
+            name="base_url"
+            title={sharedMessages.webhookBaseUrl}
+            placeholder="https://example.com/webhooks"
+            component={Input}
+            required
+          />
+          <Form.Field
+            name="downlink_api_key"
+            title={m.downlinkAPIKey}
+            component={Input}
+            description={m.downlinkAPIKeyDesc}
+            code
+          />
+          <Message component="h4" content={sharedMessages.messageTypes} />
+          <Notification info content={m.messageInfo} small />
+          <Form.Field
+            name="uplink_message"
+            type="toggled-input"
+            title={sharedMessages.uplinkMessage}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="join_accept"
+            type="toggled-input"
+            title={sharedMessages.joinAccept}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="downlink_ack"
+            type="toggled-input"
+            title={sharedMessages.downlinkAck}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="downlink_nack"
+            type="toggled-input"
+            title={sharedMessages.downlinkNack}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="downlink_sent"
+            type="toggled-input"
+            title={sharedMessages.downlinkSent}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="downlink_failed"
+            type="toggled-input"
+            title={sharedMessages.downlinkFailed}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="downlink_queued"
+            type="toggled-input"
+            title={sharedMessages.downlinkQueued}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <Form.Field
+            name="location_solved"
+            type="toggled-input"
+            title={sharedMessages.locationSolved}
+            placeholder={pathPlaceholder}
+            component={Input.Toggled}
+          />
+          <SubmitBar>
+            <Form.Submit
+              component={SubmitButton}
+              message={update ? sharedMessages.saveChanges : sharedMessages.addWebhook}
             />
-          )}
-        </SubmitBar>
-      </Form>
+            {update && (
+              <ModalButton
+                type="button"
+                icon="delete"
+                danger
+                naked
+                message={m.deleteWebhook}
+                modalData={{
+                  message: {
+                    values: { webhookId: initialWebhookValue.ids.webhook_id },
+                    ...m.modalWarning,
+                  },
+                }}
+                onApprove={this.handleDelete}
+              />
+            )}
+          </SubmitBar>
+        </Form>
+      </>
     )
   }
 }

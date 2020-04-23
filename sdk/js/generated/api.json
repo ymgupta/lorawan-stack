@@ -4603,6 +4603,16 @@
               "defaultValue": ""
             },
             {
+              "name": "logout_redirect_uris",
+              "description": "The allowed logout redirect URIs against which client initiated logout\nrequests are checked. If the authorization request does not pass a redirect\nURI, the first one from this list is taken.",
+              "label": "repeated",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
               "name": "state",
               "description": "The reviewing state of the client.\nThis field can only be modified by admins.",
               "label": "",
@@ -8924,6 +8934,24 @@
                   {
                     "name": "message.required",
                     "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "correlation_ids",
+              "description": "",
+              "label": "repeated",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "repeated.items.string.max_len",
+                    "value": 100
                   }
                 ]
               }
@@ -19422,6 +19450,16 @@
               "type": "uint32",
               "longType": "uint32",
               "fullType": "uint32",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "confirmed",
+              "description": "next: 12",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }

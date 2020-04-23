@@ -15,9 +15,12 @@
 import React from 'react'
 import classnames from 'classnames'
 
-import PropTypes from '../../lib/prop-types'
-import Message from '../../lib/components/message'
-import Icon from '../icon'
+import Icon from '@ttn-lw/components/icon'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
+
 import Tab from './tab'
 
 import style from './tabs.styl'
@@ -25,21 +28,23 @@ import style from './tabs.styl'
 const Tabs = function({ className, active, tabs, onTabChange, divider, narrow }) {
   return (
     <ul className={classnames(className, style.tabs, { [style.divider]: divider })}>
-      {tabs.map(function(tab, index) {
+      {tabs.map(function({ name, disabled, narrow: nrw, link, exact, icon, title, hidden }, index) {
         return (
-          <Tab
-            key={index}
-            active={tab.name === active}
-            name={tab.name}
-            disabled={tab.disabled}
-            onClick={onTabChange}
-            narrow={tab.narrow || narrow}
-            link={tab.link}
-            exact={tab.exact}
-          >
-            {tab.icon && <Icon icon={tab.icon} className={style.icon} />}
-            <Message content={tab.title} />
-          </Tab>
+          !Boolean(hidden) && (
+            <Tab
+              key={index}
+              active={name === active}
+              name={name}
+              disabled={disabled}
+              onClick={onTabChange}
+              narrow={nrw || narrow}
+              link={link}
+              exact={exact}
+            >
+              {icon && <Icon icon={icon} className={style.icon} />}
+              <Message content={title} />
+            </Tab>
+          )
         )
       })}
     </ul>
@@ -47,17 +52,17 @@ const Tabs = function({ className, active, tabs, onTabChange, divider, narrow })
 }
 
 Tabs.propTypes = {
-  /** The name of the active tab */
+  /** The name of the active tab. */
   active: PropTypes.string,
   className: PropTypes.string,
-  /** Flag specifying whether the tab should render a bottom divider */
+  /** Flag specifying whether the tab should render a bottom divider. */
   divider: PropTypes.bool,
   /**
    * A click handler to be called when the selected tab changes. Passes
    * the name of the new active tab as an argument.
    */
   narrow: PropTypes.bool,
-  /** A list of tabs */
+  /** A list of tabs. */
   onTabChange: PropTypes.func,
   tabs: PropTypes.arrayOf(
     PropTypes.shape({
@@ -65,6 +70,7 @@ Tabs.propTypes = {
       name: PropTypes.string.isRequired,
       icon: PropTypes.string,
       disabled: PropTypes.bool,
+      hidden: PropTypes.bool,
     }),
   ).isRequired,
 }

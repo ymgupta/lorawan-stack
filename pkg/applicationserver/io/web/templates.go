@@ -29,16 +29,25 @@ import (
 
 const yamlFetchErrorCache = 1 * time.Minute
 
-// TemplatesConfig defines the configuration for the webhook templates registry.
-type TemplatesConfig struct {
-	Static      map[string][]byte `name:"-"`
-	Directory   string            `name:"directory" description:"Retrieve the webhook templates from the filesystem"`
-	URL         string            `name:"url" description:"Retrieve the webhook templates from a web server"`
-	LogoBaseURL string            `name:"logo-base-url" description:"The base URL for the logo storage"`
+type noopTemplateStore struct {
 }
 
-// TemplateStore contains the webhook templates.
-type TemplateStore struct {
+var (
+	errTemplateNotFound = errors.DefineNotFound("template_not_found", "template `{template_id}` not found")
+)
+
+// GetTemplate implements TemplateStore.
+func (ts *noopTemplateStore) GetTemplate(ctx context.Context, req *ttnpb.GetApplicationWebhookTemplateRequest) (*ttnpb.ApplicationWebhookTemplate, error) {
+	return nil, errTemplateNotFound.WithAttributes("template_id", req.TemplateID)
+}
+
+// ListTemplates implements TemplateStore.
+func (ts *noopTemplateStore) ListTemplates(ctx context.Context, req *ttnpb.ListApplicationWebhookTemplatesRequest) (*ttnpb.ApplicationWebhookTemplates, error) {
+	return &ttnpb.ApplicationWebhookTemplates{}, nil
+}
+
+// templateStore implements TemplateStore using an underlying fetcher.
+type templateStore struct {
 	fetcher fetch.Interface
 	baseURL *url.URL
 
@@ -51,37 +60,8 @@ type TemplateStore struct {
 	templatesMu sync.Mutex
 }
 
-// NewTemplateStore returns a new *web.TemplateStore based on the configuration.
-// If no stores are provided, this method returns nil.
-func (c TemplatesConfig) NewTemplateStore() (*TemplateStore, error) {
-	var fetcher fetch.Interface
-	switch {
-	case c.Static != nil:
-		fetcher = fetch.NewMemFetcher(c.Static)
-	case c.Directory != "":
-		fetcher = fetch.FromFilesystem(c.Directory)
-	case c.URL != "":
-		var err error
-		fetcher, err = fetch.FromHTTP(c.URL, true)
-		if err != nil {
-			return nil, err
-		}
-	default:
-		return nil, nil
-	}
-	baseURL, err := url.Parse(c.LogoBaseURL)
-	if err != nil {
-		return nil, err
-	}
-	return &TemplateStore{
-		fetcher:   fetcher,
-		baseURL:   baseURL,
-		templates: make(map[string]queryResult),
-	}, nil
-}
-
 // prependBaseURL prepends the base URL and the template ID to the LogoURL, if it is available.
-func (ts *TemplateStore) prependBaseURL(template *ttnpb.ApplicationWebhookTemplate) error {
+func (ts *templateStore) prependBaseURL(template *ttnpb.ApplicationWebhookTemplate) error {
 	if template.LogoURL == "" {
 		return nil
 	}
@@ -93,8 +73,8 @@ func (ts *TemplateStore) prependBaseURL(template *ttnpb.ApplicationWebhookTempla
 	return nil
 }
 
-// GetTemplate returns the template with the given identifiers.
-func (ts *TemplateStore) GetTemplate(ctx context.Context, req *ttnpb.GetApplicationWebhookTemplateRequest) (*ttnpb.ApplicationWebhookTemplate, error) {
+// GetTemplate implements the TemplateStore interface.
+func (ts *templateStore) GetTemplate(ctx context.Context, req *ttnpb.GetApplicationWebhookTemplateRequest) (*ttnpb.ApplicationWebhookTemplate, error) {
 	template, err := ts.getTemplate(req.ApplicationWebhookTemplateIdentifiers)
 	if err != nil {
 		return nil, err
@@ -110,8 +90,8 @@ func (ts *TemplateStore) GetTemplate(ctx context.Context, req *ttnpb.GetApplicat
 	return template, nil
 }
 
-// ListTemplates returns the available templates.
-func (ts *TemplateStore) ListTemplates(ctx context.Context, req *ttnpb.ListApplicationWebhookTemplatesRequest) (*ttnpb.ApplicationWebhookTemplates, error) {
+// ListTemplates implements the TemplateStore interface.
+func (ts *templateStore) ListTemplates(ctx context.Context, req *ttnpb.ListApplicationWebhookTemplatesRequest) (*ttnpb.ApplicationWebhookTemplates, error) {
 	ids, err := ts.getAllTemplateIDs()
 	if err != nil {
 		return nil, err
@@ -152,7 +132,7 @@ var (
 	errParseFile   = errors.DefineCorruption("parse_file", "could not parse file")
 )
 
-func (ts *TemplateStore) allTemplateIDs() (ids []string, err error) {
+func (ts *templateStore) allTemplateIDs() (ids []string, err error) {
 	data, err := ts.fetcher.File("templates.yml")
 	if err != nil {
 		return nil, errFetchFailed.WithCause(err)
@@ -164,7 +144,7 @@ func (ts *TemplateStore) allTemplateIDs() (ids []string, err error) {
 	return ids, nil
 }
 
-func (ts *TemplateStore) getAllTemplateIDs() ([]string, error) {
+func (ts *templateStore) getAllTemplateIDs() ([]string, error) {
 	ts.templateIDsMu.Lock()
 	defer ts.templateIDsMu.Unlock()
 	if ts.templateIDs != nil {
@@ -182,7 +162,7 @@ func (ts *TemplateStore) getAllTemplateIDs() ([]string, error) {
 	return ids, err
 }
 
-func (ts *TemplateStore) template(ids ttnpb.ApplicationWebhookTemplateIdentifiers) (*ttnpb.ApplicationWebhookTemplate, error) {
+func (ts *templateStore) template(ids ttnpb.ApplicationWebhookTemplateIdentifiers) (*ttnpb.ApplicationWebhookTemplate, error) {
 	data, err := ts.fetcher.File(fmt.Sprintf("%s.yml", ids.TemplateID))
 	if err != nil {
 		return nil, errFetchFailed.WithCause(err)
@@ -195,7 +175,7 @@ func (ts *TemplateStore) template(ids ttnpb.ApplicationWebhookTemplateIdentifier
 	return template.toPB(), nil
 }
 
-func (ts *TemplateStore) getTemplate(ids ttnpb.ApplicationWebhookTemplateIdentifiers) (t *ttnpb.ApplicationWebhookTemplate, err error) {
+func (ts *templateStore) getTemplate(ids ttnpb.ApplicationWebhookTemplateIdentifiers) (t *ttnpb.ApplicationWebhookTemplate, err error) {
 	ts.templatesMu.Lock()
 	defer ts.templatesMu.Unlock()
 	if cached, ok := ts.templates[ids.TemplateID]; ok && cached.err == nil && time.Since(cached.time) < yamlFetchErrorCache {

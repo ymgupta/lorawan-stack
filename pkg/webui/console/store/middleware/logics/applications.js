@@ -12,13 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as applications from '../../actions/applications'
-import * as link from '../../actions/link'
-import * as webhookFormats from '../../actions/webhook-formats'
-import * as pubsubFormats from '../../actions/pubsub-formats'
+import api from '@console/api'
 
-import api from '../../../api'
-import { isNotFoundError } from '../../../../lib/errors/utils'
+import { isNotFoundError } from '@ttn-lw/lib/errors/utils'
+
+import * as applications from '@console/store/actions/applications'
+import * as link from '@console/store/actions/link'
+
 import createRequestLogic from './lib'
 import createEventsConnectLogics from './events'
 
@@ -128,22 +128,6 @@ const getApplicationLinkLogic = createRequestLogic({
   },
 })
 
-const getWebhookFormatsLogic = createRequestLogic({
-  type: webhookFormats.GET_WEBHOOK_FORMATS,
-  async process() {
-    const { formats } = await api.application.webhooks.getFormats()
-    return formats
-  },
-})
-
-const getPubsubFormatsLogic = createRequestLogic({
-  type: pubsubFormats.GET_PUBSUB_FORMATS,
-  async process() {
-    const { formats } = await api.application.pubsubs.getFormats()
-    return formats
-  },
-})
-
 export default [
   getApplicationLogic,
   getApplicationDeviceCountLogic,
@@ -151,8 +135,6 @@ export default [
   deleteApplicationLogic,
   getApplicationsLogic,
   getApplicationsRightsLogic,
-  getWebhookFormatsLogic,
-  getPubsubFormatsLogic,
   getApplicationLinkLogic,
   ...createEventsConnectLogics(
     applications.SHARED_NAME,

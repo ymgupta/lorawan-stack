@@ -104,25 +104,6 @@ func WithTLSConfig(tlsConfig *tls.Config) Option {
 	})
 }
 
-// Config represents clustering configuration.
-type Config struct {
-	DiscoveryMode     string   `name:"discovery-mode" description:"Peer discovery mode (DNS)"`
-	Join              []string `name:"join" description:"Addresses of cluster peers to join"`
-	Name              string   `name:"name" description:"Name of the current cluster peer (default: $HOSTNAME)"`
-	Address           string   `name:"address" description:"Address to use for cluster communication"`
-	IdentityServer    string   `name:"identity-server" description:"Address for the Identity Server"`
-	GatewayServer     string   `name:"gateway-server" description:"Address for the Gateway Server"`
-	NetworkServer     string   `name:"network-server" description:"Address for the Network Server"`
-	ApplicationServer string   `name:"application-server" description:"Address for the Application Server"`
-	JoinServer        string   `name:"join-server" description:"Address for the Join Server"`
-	CryptoServer      string   `name:"crypto-server" description:"Address for the Crypto Server"`
-	PacketBrokerAgent string   `name:"packet-broker-agent" description:"Address of the Packet Broker Agent"`
-	TLS               bool     `name:"tls" description:"Do cluster gRPC over TLS"`
-	Keys              []string `name:"keys" description:"Keys used to communicate between components of the cluster. The first one will be used by the cluster to identify itself"`
-
-	Claim ClaimRegistryConfig `name:"claim"`
-}
-
 // CustomNew allows you to replace the clustering implementation. New will call CustomNew if not nil.
 var CustomNew func(ctx context.Context, config *Config, options ...Option) (Cluster, error)
 

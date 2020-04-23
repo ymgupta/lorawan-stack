@@ -7926,6 +7926,12 @@
         "keys": {
           "$ref": "#/definitions/v3SessionKeys",
           "description": "Network session keys associated with the join."
+        },
+        "correlation_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },
@@ -8791,6 +8797,10 @@
           "type": "integer",
           "format": "int64",
           "description": "The last AFCntDown of the current session.\nThis field is only present if the skip_payload_crypto field of the EndDevice\nis true.\nCan be used with app_s_key to encrypt downlink payloads."
+        },
+        "confirmed": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },
@@ -9203,6 +9213,13 @@
             "type": "string"
           },
           "description": "The allowed redirect URIs against which authorization requests are checked.\nIf the authorization request does not pass a redirect URI, the first one\nfrom this list is taken."
+        },
+        "logout_redirect_uris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The allowed logout redirect URIs against which client initiated logout\nrequests are checked. If the authorization request does not pass a redirect\nURI, the first one from this list is taken."
         },
         "state": {
           "$ref": "#/definitions/v3State",

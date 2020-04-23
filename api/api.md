@@ -1452,6 +1452,7 @@ An OAuth client on the network.
 | `contact_info` | [`ContactInfo`](#ttn.lorawan.v3.ContactInfo) | repeated |  |
 | `secret` | [`string`](#string) |  | The client secret is only visible to collaborators of the client. |
 | `redirect_uris` | [`string`](#string) | repeated | The allowed redirect URIs against which authorization requests are checked. If the authorization request does not pass a redirect URI, the first one from this list is taken. |
+| `logout_redirect_uris` | [`string`](#string) | repeated | The allowed logout redirect URIs against which client initiated logout requests are checked. If the authorization request does not pass a redirect URI, the first one from this list is taken. |
 | `state` | [`State`](#ttn.lorawan.v3.State) |  | The reviewing state of the client. This field can only be modified by admins. |
 | `skip_authorization` | [`bool`](#bool) |  | If set, the authorization page will be skipped. This field can only be modified by admins. |
 | `endorsed` | [`bool`](#bool) |  | If set, the authorization page will show endorsement. This field can only be modified by admins. |
@@ -2285,6 +2286,7 @@ This is used internally by the Network Server and is read only.
 | `payload` | [`bytes`](#bytes) |  | Payload of the join-accept received from Join Server. |
 | `request` | [`JoinRequest`](#ttn.lorawan.v3.JoinRequest) |  | JoinRequest sent to Join Server. |
 | `keys` | [`SessionKeys`](#ttn.lorawan.v3.SessionKeys) |  | Network session keys associated with the join. |
+| `correlation_ids` | [`string`](#string) | repeated |  |
 
 #### Field Rules
 
@@ -2293,6 +2295,7 @@ This is used internally by the Network Server and is read only.
 | `payload` | <p>`bytes.min_len`: `17`</p><p>`bytes.max_len`: `33`</p> |
 | `request` | <p>`message.required`: `true`</p> |
 | `keys` | <p>`message.required`: `true`</p> |
+| `correlation_ids` | <p>`repeated.items.string.max_len`: `100`</p> |
 
 ### <a name="ttn.lorawan.v3.Session">Message `Session`</a>
 
@@ -4775,6 +4778,7 @@ The UplinkMessageProcessor service processes uplink messages.
 | `received_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  | Server time when the Network Server received the message. |
 | `app_s_key` | [`KeyEnvelope`](#ttn.lorawan.v3.KeyEnvelope) |  | The AppSKey of the current session. This field is only present if the skip_payload_crypto field of the EndDevice is true. Can be used to decrypt uplink payloads and encrypt downlink payloads. |
 | `last_a_f_cnt_down` | [`uint32`](#uint32) |  | The last AFCntDown of the current session. This field is only present if the skip_payload_crypto field of the EndDevice is true. Can be used with app_s_key to encrypt downlink payloads. |
+| `confirmed` | [`bool`](#bool) |  | next: 12 |
 
 #### Field Rules
 

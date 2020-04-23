@@ -13,7 +13,8 @@
 // limitations under the License.
 
 import originalPropTypes from 'prop-types'
-import { components } from '../constants/components'
+
+import { components } from '@ttn-lw/constants/components'
 
 const PropTypes = { ...originalPropTypes }
 
@@ -64,7 +65,7 @@ PropTypes.link = PropTypes.shape({
   hidden: PropTypes.bool,
 })
 
-// Entities and entity-related prop-types
+// Entities and entity-related prop-types.
 
 PropTypes.event = PropTypes.shape({
   name: PropTypes.string.isRequired,
@@ -248,5 +249,11 @@ PropTypes.webhook = PropTypes.shape({
   updated_at: PropTypes.string,
 })
 PropTypes.webhooks = PropTypes.arrayOf(PropTypes.webhook)
+PropTypes.webhookTemplate = PropTypes.shape({
+  ids: PropTypes.shape({
+    template_id: PropTypes.string.isRequired,
+  }).isRequired,
+})
+PropTypes.webhookTemplates = PropTypes.arrayOf(PropTypes.webhookTemplate)
 
 export default PropTypes

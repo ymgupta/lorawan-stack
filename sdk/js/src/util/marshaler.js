@@ -18,7 +18,7 @@
 import traverse from 'traverse'
 import queryString from 'query-string'
 
-/** Class used to marshal data shapes. Currently a stub. */
+/** Class used to marshal data shapes. */
 class Marshaler {
   static options(options) {
     if (Object.keys(options).length === 0) {
@@ -49,7 +49,7 @@ class Marshaler {
     return res
   }
 
-  static payloadListResponse(entity, { data = {}, headers = {} }, transform) {
+  static payloadListResponse(entity, { data = {}, headers = {} }) {
     const list = data[entity]
 
     if (!list) {
@@ -62,12 +62,10 @@ class Marshaler {
       return { [entity]: list, totalCount: list.length }
     }
 
-    const transformedList = transform ? list.map(transform) : list
-
-    return { [entity]: transformedList, totalCount }
+    return { [entity]: list, totalCount }
   }
 
-  static payloadSingleResponse(response, transform) {
+  static payloadSingleResponse(response) {
     if (typeof response !== 'object') {
       throw new Error(`Invalid response type: ${typeof response}`)
     }
@@ -76,39 +74,40 @@ class Marshaler {
     }
 
     const entity = response.data || response
-    return transform ? transform(entity) : entity
+
+    return entity
   }
 
-  static unwrapRights(result, transform) {
-    return this.payloadListResponse('rights', result, transform)
+  static unwrapRights(result) {
+    return this.payloadListResponse('rights', result)
   }
 
-  static unwrapApplications(result, transform) {
-    return this.payloadListResponse('applications', result, transform)
+  static unwrapApplications(result) {
+    return this.payloadListResponse('applications', result)
   }
 
-  static unwrapApplication(result, transform) {
-    return this.payloadSingleResponse(result, transform)
+  static unwrapApplication(result) {
+    return this.payloadSingleResponse(result)
   }
 
-  static unwrapDevices(result, transform) {
-    return this.payloadListResponse('end_devices', result, transform)
+  static unwrapDevices(result) {
+    return this.payloadListResponse('end_devices', result)
   }
 
-  static unwrapDevice(result, transform) {
-    return this.payloadSingleResponse(result, transform)
+  static unwrapDevice(result) {
+    return this.payloadSingleResponse(result)
   }
 
-  static unwrapGateways(result, transform) {
-    return this.payloadListResponse('gateways', result, transform)
+  static unwrapGateways(result) {
+    return this.payloadListResponse('gateways', result)
   }
 
-  static unwrapGateway(result, transform) {
-    return this.payloadSingleResponse(result, transform)
+  static unwrapGateway(result) {
+    return this.payloadSingleResponse(result)
   }
 
-  static unwrapUser(result, transform) {
-    return this.payloadSingleResponse(result, transform)
+  static unwrapUser(result) {
+    return this.payloadSingleResponse(result)
   }
 
   static fieldMaskFromPatch(patch, whitelist, remaps) {
@@ -152,9 +151,11 @@ class Marshaler {
     return paths
   }
 
-  /** This function will convert a paths object to a proper field mask.
-   * @param {Object} paths - The raw field mask as array and/or string.
-   * @returns {Object} The field mask object ready to be attached to a request.
+  /**
+   * This function will convert a paths object to a proper field mask.
+   *
+   * @param {object} paths - The raw field mask as array and/or string.
+   * @returns {object} The field mask object ready to be attached to a request.
    */
   static pathsToFieldMask(paths) {
     if (!paths) {
@@ -163,10 +164,12 @@ class Marshaler {
     return { field_mask: { paths: paths.map(e => e.join('.')) } }
   }
 
-  /** This function will convert a selector parameter and convert it to a
+  /**
+   * This function will convert a selector parameter and convert it to a
    * streamlined array of paths.
-   * @param {Object} selector - The raw selector passed by the user
-   * @returns {Object} The field mask object ready to be attached to a request.
+   *
+   * @param {object} selector - The raw selector passed by the user.
+   * @returns {object} The field mask object ready to be attached to a request.
    */
   static selectorToPaths(selector) {
     if (typeof selector === 'string') {
@@ -178,10 +181,12 @@ class Marshaler {
     return selector
   }
 
-  /** This function will convert a selector parameter and convert it to a
+  /**
+   * This function will convert a selector parameter and convert it to a
    * proper field mask object, ready to be passed to the API.
-   * @param {Object} selector - The raw selector passed by the user
-   * @returns {Object} The field mask object ready to be attached to a request.
+   *
+   * @param {object} selector - The raw selector passed by the user.
+   * @returns {object} The field mask object ready to be attached to a request.
    */
   static selectorToFieldMask(selector) {
     return this.pathsToFieldMask(this.selectorToPaths(selector))
