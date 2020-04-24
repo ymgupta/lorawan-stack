@@ -17,28 +17,32 @@ import * as Yup from 'yup'
 import { defineMessages } from 'react-intl'
 import bind from 'autobind-decorator'
 
-import Form from '../../../components/form'
-import DeviceTemplateFormatSelect from '../../containers/device-template-format-select'
-import FileInput from '../../../components/file-input'
-import Checkbox from '../../../components/checkbox'
-import SubmitBar from '../../../components/submit-bar'
-import SubmitButton from '../../../components/submit-button'
-import sharedMessages from '../../../lib/shared-messages'
-import Message from '../../../lib/components/message'
-import PropTypes from '../../../lib/prop-types'
-import { dict as componentDict } from '../../../constants/components'
+import { dict as componentDict } from '@ttn-lw/constants/components'
+
+import Form from '@ttn-lw/components/form'
+import FileInput from '@ttn-lw/components/file-input'
+import Checkbox from '@ttn-lw/components/checkbox'
+import SubmitBar from '@ttn-lw/components/submit-bar'
+import SubmitButton from '@ttn-lw/components/submit-button'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import DeviceTemplateFormatSelect from '@console/containers/device-template-format-select'
+
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
 import style from './device-import-form.styl'
 
 const m = defineMessages({
-  fileImport: 'File Import',
+  fileImport: 'File import',
   file: 'File',
-  formatInfo: 'Format Information',
-  createDevices: 'Create Devices',
+  formatInfo: 'Format information',
+  createDevices: 'Create end devices',
   selectAFile: 'Please select a template file',
   fileInfoPlaceholder: 'Please select a template format',
   claimAuthCode: 'Set claim authentication code',
-  targetedComponents: 'Targeted Components',
+  targetedComponents: 'Targeted components',
 })
 
 const validationSchema = Yup.object({
@@ -60,14 +64,28 @@ export default class DeviceBulkCreateForm extends Component {
       format_id: PropTypes.string,
       data: PropTypes.string,
       set_claim_auth_code: PropTypes.bool,
+      components: PropTypes.shape({
+        is: PropTypes.bool,
+        ns: PropTypes.bool,
+        js: PropTypes.bool,
+        as: PropTypes.bool,
+      }),
     }).isRequired,
     onSubmit: PropTypes.func.isRequired,
   }
 
-  state = {
-    allowedFileExtensions: undefined,
-    formatDescription: undefined,
-    formatSelected: false,
+  constructor(props) {
+    super(props)
+
+    const { initialValues } = props
+
+    this.state = {
+      allowedFileExtensions: undefined,
+      formatDescription: undefined,
+      formatSelected: false,
+      jsSelected: Boolean(initialValues.components.js),
+    }
+    this.formRef = React.createRef()
   }
 
   @bind
@@ -82,11 +100,31 @@ export default class DeviceBulkCreateForm extends Component {
     this.setState(newState)
   }
 
+  @bind
+  handleComponentChange(value) {
+    const { jsSelected } = this.state
+    const { state } = this.formRef.current
+    const { js } = value
+
+    if (js !== jsSelected) {
+      this.setState({ jsSelected: js }, () => {
+        if (state.values.set_claim_auth_code) {
+          const { setFieldValue } = this.formRef.current
+
+          // `claim_authentication_code` is stored in JS, so if the JS option is
+          // not selected we dont want to include it in the payload.
+          setFieldValue('set_claim_auth_code', false)
+        }
+      })
+    }
+  }
+
   render() {
     const { initialValues, onSubmit, components } = this.props
-    const { allowedFileExtensions, formatSelected, formatDescription } = this.state
+    const { allowedFileExtensions, formatSelected, formatDescription, jsSelected } = this.state
     return (
       <Form
+        formikRef={this.formRef}
         onSubmit={onSubmit}
         validationSchema={validationSchema}
         submitEnabledWhenInvalid
@@ -107,6 +145,7 @@ export default class DeviceBulkCreateForm extends Component {
           required
         />
         <Form.Field
+          onChange={this.handleComponentChange}
           component={Checkbox.Group}
           name="components"
           title={m.targetedComponents}
@@ -124,7 +163,7 @@ export default class DeviceBulkCreateForm extends Component {
           ))}
         </Form.Field>
         <Form.Field
-          disabled={!formatSelected}
+          disabled={!formatSelected || !jsSelected}
           title={m.claimAuthCode}
           component={Checkbox}
           name="set_claim_auth_code"

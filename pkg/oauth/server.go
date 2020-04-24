@@ -60,29 +60,6 @@ type Store interface {
 	store.OAuthStore
 }
 
-// UIConfig is the combined configuration for the OAuth UI.
-type UIConfig struct {
-	webui.TemplateData `name:",squash"`
-	FrontendConfig     `name:",squash"`
-}
-
-// StackConfig is the configuration of the stack components.
-type StackConfig struct {
-	IS webui.APIConfig `json:"is" name:"is"`
-}
-
-// FrontendConfig is the configuration for the OAuth frontend.
-type FrontendConfig struct {
-	Language    string `json:"language" name:"-"`
-	StackConfig `json:"stack_config" name:",squash"`
-}
-
-// Config is the configuration for the OAuth server.
-type Config struct {
-	Mount string   `name:"mount" description:"Path on the server where the OAuth server will be served"`
-	UI    UIConfig `name:"ui"`
-}
-
 // NewServer returns a new OAuth server on top of the given store.
 func NewServer(ctx context.Context, store Store, config Config) Server {
 	s := &server{
@@ -253,13 +230,16 @@ func (s *server) RegisterRoutes(server *web.Server) {
 		TokenLookup: "form:csrf",
 	}))
 	page.GET("/login", webui.Template.Handler, s.redirectToNext)
+	page.GET("/logout", s.ClientLogout)
 	page.GET("/authorize", s.Authorize(webui.Template.Handler), s.redirectToLogin)
 	page.POST("/authorize", s.Authorize(webui.Template.Handler), s.redirectToLogin)
 
 	if s.config.Mount != "" && s.config.Mount != "/" {
-		group.GET("", webui.Template.Handler, middleware.CSRF())
+		group.GET("", webui.Template.Handler, s.redirectToLogin)
+	} else {
+		server.GET(s.config.Mount, webui.Template.Handler, s.redirectToLogin)
 	}
-	group.GET("/*", webui.Template.Handler, middleware.CSRF())
+	group.GET("/*", webui.Template.Handler, s.redirectToLogin)
 
 	// No CSRF here:
 	group.GET("/code", webui.Template.Handler)

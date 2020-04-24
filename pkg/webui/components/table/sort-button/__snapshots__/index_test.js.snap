@@ -7,7 +7,12 @@ exports[`SortButton is active is in ascending direction should match snapshot 1`
   type="button"
 >
   <Message
+    capitalize={false}
     content="test-title"
+    firstToLower={false}
+    firstToUpper={false}
+    lowercase={false}
+    uppercase={false}
   />
   <Icon
     className="icon"
@@ -27,7 +32,12 @@ exports[`SortButton is active is in descending direction should match snapshot 1
   type="button"
 >
   <Message
+    capitalize={false}
     content="test-title"
+    firstToLower={false}
+    firstToUpper={false}
+    lowercase={false}
+    uppercase={false}
   />
   <Icon
     className="icon"
@@ -47,7 +57,12 @@ exports[`SortButton is not active should match snapshot 1`] = `
   type="button"
 >
   <Message
+    capitalize={false}
     content="test-title"
+    firstToLower={false}
+    firstToUpper={false}
+    lowercase={false}
+    uppercase={false}
   />
   <Icon
     className="icon"

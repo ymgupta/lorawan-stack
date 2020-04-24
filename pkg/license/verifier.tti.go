@@ -82,7 +82,8 @@ func NewVerifier(public []byte) (SignatureVerifier, error) {
 	}
 }
 
-func mustRegisterKey(id string, pub []byte) {
+// MustRegisterKey adds a verifier from the public key.
+func MustRegisterKey(id string, pub []byte) {
 	kv, err := NewVerifier(pub)
 	if err != nil {
 		panic(err)

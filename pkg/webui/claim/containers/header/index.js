@@ -17,14 +17,13 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import bind from 'autobind-decorator'
 
-import PropTypes from '../../../lib/prop-types'
-import sharedMessages from '../../../lib/shared-messages'
-import HeaderComponent from '../../../components/header'
-import NavigationBar from '../../../components/navigation/bar'
-import Dropdown from '../../../components/dropdown'
-
-import { logout } from '../../store/actions/user'
-import { selectUser } from '../../store/selectors/user'
+import HeaderComponent from '@ttn-lw/components/header'
+import NavigationBar from '@ttn-lw/components/navigation/bar'
+import Dropdown from '@ttn-lw/components/dropdown'
+import PropTypes from '@ttn-lw/lib/prop-types'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import { logout } from '@claim/store/actions/user'
+import { selectUser } from '@claim/store/selectors/user'
 
 @withRouter
 @connect(
@@ -37,15 +36,15 @@ import { selectUser } from '../../store/selectors/user'
 @bind
 class Header extends Component {
   static propTypes = {
-    /** A handler for when the user clicks the logout button */
+    /** A handler for when the user clicks the logout button. */
     handleLogout: PropTypes.func.isRequired,
-    /** A handler for when the user used the search input */
+    /** A handler for when the user used the search input. */
     handleSearchRequest: PropTypes.func,
-    /** A flag identifying whether the header should display the search input */
+    /** A flag identifying whether the header should display the search input. */
     searchable: PropTypes.bool,
     /**
      * The User object, retrieved from the API. If it is `undefined`, then the
-     * guest header is rendered
+     * guest header is rendered.
      */
     user: PropTypes.user,
   }

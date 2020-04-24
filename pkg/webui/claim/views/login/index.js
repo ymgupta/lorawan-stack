@@ -20,11 +20,11 @@ import { defineMessages } from 'react-intl'
 import { Redirect } from 'react-router-dom'
 import { Container, Row, Col } from 'react-grid-system'
 
-import { withEnv } from '../../../lib/components/env'
-import Button from '../../../components/button'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import sharedMessages from '../../../lib/shared-messages'
-import Message from '../../../lib/components/message'
+import Button from '@ttn-lw/components/button'
+import { withEnv } from '@ttn-lw/lib/components/env'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import Message from '@ttn-lw/lib/components/message'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
 
 import style from './login.styl'
 
@@ -48,7 +48,7 @@ export default class Login extends React.PureComponent {
     const { next } = Query.parse(location.search)
     const redirectAppend = next ? `?next=${next}` : ''
 
-    // dont show the login page if the user is already logged in
+    // Dont show the login page if the user is already logged in.
     if (Boolean(user)) {
       return <Redirect to="/" />
     }

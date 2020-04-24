@@ -14,30 +14,51 @@
 
 import React from 'react'
 import { FormattedMessage } from 'react-intl'
+import classnames from 'classnames'
 
-import { warn } from '../../log'
-import PropTypes from '../../prop-types'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
-const warned = {}
-const warning = function(message) {
-  if (!warned[message]) {
-    warned[message] = true
-    warn(`Message is not translated: "${message}"`)
+import style from './message.styl'
+
+const renderContent = (content, component, props) => {
+  let Component = component
+  if (!Boolean(component)) {
+    if (Boolean(props.className)) {
+      Component = 'span'
+    } else {
+      Component = React.Fragment
+    }
   }
+
+  if (Boolean(component) || Boolean(props.className)) {
+    return <Component {...props}>{content}</Component>
+  }
+
+  return content
 }
 
-const Message = function({ content, values = {}, component: Component = 'span', ...rest }) {
-  if (!content && content !== 0) {
-    return null
-  }
+const Message = function({
+  content,
+  values = {},
+  component,
+  lowercase,
+  uppercase,
+  firstToUpper,
+  firstToLower,
+  capitalize,
+  className,
+  ...rest
+}) {
+  const cls = classnames(className, {
+    [style.lowercase]: lowercase,
+    [style.uppercase]: uppercase,
+    [style.firstToUpper]: firstToUpper,
+    [style.firstToLower]: firstToLower,
+    [style.capitalize]: capitalize,
+  })
 
-  if (React.isValidElement(content)) {
-    return content
-  }
-
-  if (typeof content === 'string' || typeof content === 'number') {
-    warning(content)
-    return <Component {...rest}>{content}</Component>
+  if (cls) {
+    rest.className = cls
   }
 
   let vals = values
@@ -45,18 +66,27 @@ const Message = function({ content, values = {}, component: Component = 'span', 
     vals = content.values
   }
 
-  if (content.id) {
-    return (
-      <FormattedMessage {...content} values={vals}>
-        {(...children) => <Component {...rest}>{children}</Component>}
-      </FormattedMessage>
-    )
+  if (typeof content === 'string' || typeof content === 'number') {
+    return renderContent(content, component, rest)
   }
 
-  return null
+  return (
+    <FormattedMessage {...content} values={vals}>
+      {(...children) => renderContent(children, component, rest)}
+    </FormattedMessage>
+  )
 }
 
 Message.propTypes = {
+  /** Flag specifying whether the message should be capitalized. */
+  capitalize: PropTypes.bool,
+  /** The className to be attached to the container. */
+  className: PropTypes.string,
+  /**
+   * The wrapping element component can also be set explicitly (defaults to
+   * span). This can be useful to avoid unnecessary wrapping.
+   */
+  component: PropTypes.node,
   /**
    * The translatable message, should be an object (with `id` or
    * `defaultMessage` key). Additionally the content can contain a `values` key,
@@ -64,14 +94,39 @@ Message.propTypes = {
    * but output a warning. If a a valid dom/react element is passed it will be
    * passed through without any modifications.
    */
-  content: PropTypes.message,
-  /** Values can also be given as a separate property (will have precedence) */
-  values: PropTypes.object,
-  /**
-   * The wrapping element component can also be set explicitly
-   * (defaults to span). This can be useful to avoid unnecessary wrapping.
+  content: PropTypes.message.isRequired,
+  /** Flag specifying whether the first letter of the message should be
+   * transformed to lowercase.
    */
-  component: PropTypes.node,
+  firstToLower: PropTypes.bool,
+  /**
+   * Flag specifying whether the first letter of the message should be
+   * transformed to uppercase.
+   */
+  firstToUpper: PropTypes.bool,
+  /**
+   * Flag specifying whether the the message should be transformed to
+   * lowercase.
+   */
+  lowercase: PropTypes.bool,
+  /**
+   * Flag specifying whether the the message should be transformed to
+   * uppercase.
+   */
+  uppercase: PropTypes.bool,
+  /** Values can also be given as a separate property (will have precedence). */
+  values: PropTypes.shape({}),
+}
+
+Message.defaultProps = {
+  capitalize: false,
+  className: undefined,
+  component: undefined,
+  firstToLower: false,
+  firstToUpper: false,
+  lowercase: false,
+  uppercase: false,
+  values: undefined,
 }
 
 export default Message

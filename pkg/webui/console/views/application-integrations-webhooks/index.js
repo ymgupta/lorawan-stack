@@ -16,24 +16,65 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
 
-import sharedMessages from '../../../lib/shared-messages'
-import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
-import { withBreadcrumb } from '../../../components/breadcrumbs/context'
-import ErrorView from '../../../lib/components/error-view'
-import SubViewError from '../error/sub-view'
-import ApplicationWebhooksList from '../application-integrations-webhooks-list'
-import ApplicationWebhookAdd from '../application-integrations-webhook-add'
-import ApplicationWebhookEdit from '../application-integrations-webhook-edit'
-import withFeatureRequirement from '../../lib/components/with-feature-requirement'
+import Breadcrumb from '@ttn-lw/components/breadcrumbs/breadcrumb'
+import { withBreadcrumb } from '@ttn-lw/components/breadcrumbs/context'
 
-import { mayViewApplicationEvents } from '../../lib/feature-checks'
-import { selectSelectedApplicationId } from '../../store/selectors/applications'
-import PropTypes from '../../../lib/prop-types'
+import ErrorView from '@ttn-lw/lib/components/error-view'
+import withRequest from '@ttn-lw/lib/components/with-request'
 
-@connect(state => ({ appId: selectSelectedApplicationId(state) }))
+import withFeatureRequirement from '@console/lib/components/with-feature-requirement'
+
+import ApplicationWebhookChoose from '@console/views/application-integrations-webhook-add-choose'
+import ApplicationWebhookEdit from '@console/views/application-integrations-webhook-edit'
+import ApplicationWebhookAdd from '@console/views/application-integrations-webhook-add'
+import ApplicationWebhooksList from '@console/views/application-integrations-webhooks-list'
+import SubViewError from '@console/views/error/sub-view'
+
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
+
+import { mayViewApplicationEvents } from '@console/lib/feature-checks'
+
+import { listWebhookTemplates } from '@console/store/actions/webhook-templates'
+
+import { selectSelectedApplicationId } from '@console/store/selectors/applications'
+import {
+  selectWebhookTemplates,
+  selectWebhookTemplatesFetching,
+  selectWebhookTemplatesError,
+} from '@console/store/selectors/webhook-templates'
+
+const selector = [
+  'description',
+  'logo_url',
+  'info_url',
+  'documentation_url',
+  'fields',
+  'format',
+  'headers',
+  'create_downlink_api_key',
+  'base_url',
+  'uplink_message',
+]
+
+@connect(
+  state => ({
+    appId: selectSelectedApplicationId(state),
+    webhookTemplates: selectWebhookTemplates(state),
+    fetching: selectWebhookTemplatesFetching(state),
+    error: selectWebhookTemplatesError(state),
+  }),
+  {
+    listWebhookTemplates,
+  },
+)
 @withFeatureRequirement(mayViewApplicationEvents, {
   redirect: ({ appId }) => `/applications/${appId}`,
 })
+@withRequest(
+  ({ listWebhookTemplates }) => listWebhookTemplates(selector),
+  ({ webhookTemplates, fetching }) => fetching || !Boolean(webhookTemplates),
+)
 @withBreadcrumb('apps.single.integrations.webhooks', ({ appId }) => (
   <Breadcrumb
     path={`/applications/${appId}/integrations/webhooks`}
@@ -53,7 +94,8 @@ export default class ApplicationWebhooks extends React.Component {
         <Switch>
           <Route exact path={`${match.path}`} component={ApplicationWebhooksList} />
           <Route exact path={`${match.path}/add`} component={ApplicationWebhookAdd} />
-          <Route path={`${match.path}/:webhookId`} component={ApplicationWebhookEdit} />
+          <Route exact path={`${match.path}/:webhookId`} component={ApplicationWebhookEdit} />
+          <Route path={`${match.path}/add/template`} component={ApplicationWebhookChoose} />
         </Switch>
       </ErrorView>
     )

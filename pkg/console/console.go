@@ -28,37 +28,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/webui"
 )
 
-// UIConfig is the combined configuration for the Console UI.
-type UIConfig struct {
-	webui.TemplateData `name:",squash"`
-	FrontendConfig     `name:",squash"`
-}
-
-// StackConfig is the configuration of the stack components.
-type StackConfig struct {
-	IS   webui.APIConfig `json:"is" name:"is"`
-	GS   webui.APIConfig `json:"gs" name:"gs"`
-	NS   webui.APIConfig `json:"ns" name:"ns"`
-	AS   webui.APIConfig `json:"as" name:"as"`
-	JS   webui.APIConfig `json:"js" name:"js"`
-	EDTC webui.APIConfig `json:"edtc" name:"edtc"`
-	QRG  webui.APIConfig `json:"qrg" name:"qrg"`
-}
-
-// FrontendConfig is the configuration for the Console frontend.
-type FrontendConfig struct {
-	Language    string `json:"language" name:"-"`
-	SupportLink string `json:"support_link" name:"support-link" description:"The URI that the support button will point to"`
-	StackConfig `json:"stack_config" name:",squash"`
-}
-
-// Config is the configuration for the Console.
-type Config struct {
-	OAuth oauthclient.Config `name:"oauth"`
-	Mount string             `name:"mount" description:"Path on the server where the Console will be served"`
-	UI    UIConfig           `name:"ui"`
-}
-
 // Console is the Console component.
 type Console struct {
 	*component.Component
@@ -142,21 +111,22 @@ func (console *Console) RegisterRoutes(server *web.Server) {
 		web_errors.ErrorMiddleware(map[string]web_errors.ErrorRenderer{
 			"text/html": webui.Template,
 		}),
+		middleware.CSRFWithConfig(middleware.CSRFConfig{
+			CookieName: "_console_csrf",
+			CookiePath: console.config.Mount,
+		}),
 	)
 
-	api := group.Group("/api", middleware.CSRF())
-	api.GET("/auth/token", console.oc.HandleToken)
-	api.POST("/auth/logout", console.oc.HandleLogout)
+	api := group.Group("/api/auth")
+	api.GET("/token", console.oc.HandleToken)
+	api.POST("/logout", console.oc.HandleLogout)
 
-	page := group.Group("", middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "form:csrf",
-	}))
-	page.GET("/oauth/callback", console.oc.HandleCallback)
+	group.GET("/oauth/callback", console.oc.HandleCallback)
 
 	group.GET("/login/ttn-stack", console.oc.HandleLogin)
 
 	if console.config.Mount != "" && console.config.Mount != "/" {
-		group.GET("", webui.Template.Handler, middleware.CSRF())
+		group.GET("", webui.Template.Handler)
 	}
-	group.GET("/*", webui.Template.Handler, middleware.CSRF())
+	group.GET("/*", webui.Template.Handler)
 }

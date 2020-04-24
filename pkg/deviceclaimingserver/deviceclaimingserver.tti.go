@@ -42,7 +42,7 @@ type FrontendConfig struct {
 // Config is the configuration for the Device Claiming Server.
 type Config struct {
 	OAuth                  oauthclient.Config            `name:"oauth"`
-	Mount                  string                        `name:"mount" description:"Path on the server where the Console will be served"`
+	Mount                  string                        `name:"mount" description:"Path on the server where the Device Claiming App will be served"`
 	UI                     UIConfig                      `name:"ui"`
 	AuthorizedApplications AuthorizedApplicationRegistry `name:"-"`
 }
@@ -155,23 +155,24 @@ func (dcs *DeviceClaimingServer) RegisterRoutes(server *web.Server) {
 		web_errors.ErrorMiddleware(map[string]web_errors.ErrorRenderer{
 			"text/html": webui.Template,
 		}),
+		middleware.CSRFWithConfig(middleware.CSRFConfig{
+			CookieName: "_claim_csrf",
+			CookiePath: dcs.config.Mount,
+		}),
 	)
 
-	api := group.Group("/api", middleware.CSRF())
-	api.GET("/auth/token", dcs.oc.HandleToken)
-	api.POST("/auth/logout", dcs.oc.HandleLogout)
+	api := group.Group("/api/auth")
+	api.GET("/token", dcs.oc.HandleToken)
+	api.POST("/logout", dcs.oc.HandleLogout)
 
-	page := group.Group("", middleware.CSRFWithConfig(middleware.CSRFConfig{
-		TokenLookup: "form:csrf",
-	}))
-	page.GET("/oauth/callback", dcs.oc.HandleCallback)
+	group.GET("/oauth/callback", dcs.oc.HandleCallback)
 
 	group.GET("/login/ttn-stack", dcs.oc.HandleLogin)
 
 	if dcs.config.Mount != "" && dcs.config.Mount != "/" {
-		group.GET("", webui.Template.Handler, middleware.CSRF())
+		group.GET("", webui.Template.Handler)
 	}
-	group.GET("/*", webui.Template.Handler, middleware.CSRF())
+	group.GET("/*", webui.Template.Handler)
 }
 
 // WithTenantRegistry overrides the Device Claiming Server's tenant registry.

@@ -1,12 +1,13 @@
 // Copyright © 2019 The Things Industries B.V.
 
-package awsmetrics
+package awsmetrics_test
 
 import (
 	"fmt"
 	"testing"
 
 	"github.com/smartystreets/assertions"
+	. "go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
@@ -66,7 +67,7 @@ func TestComputeUsage(t *testing.T) {
 		t.Run(fmt.Sprintf("%dEndDevices", tc.deviceCount), func(t *testing.T) {
 			a := assertions.New(t)
 
-			dimension, quantity := computeUsage(&ttipb.MeteringData{
+			dimension, quantity := ComputeUsage(&ttipb.MeteringData{
 				Tenants: []*ttipb.MeteringData_TenantMeteringData{
 					{
 						Totals: &ttipb.TenantRegistryTotals{

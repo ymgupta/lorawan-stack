@@ -1,4 +1,4 @@
-// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
+// Copyright © 2020 The Things Network Foundation, The Things Industries B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as user from '../../actions/user'
-import api from '../../../api'
-import * as accessToken from '../../../lib/access-token'
+import api from '@console/api'
+
+import { isUnauthenticatedError } from '@ttn-lw/lib/errors/utils'
+
+import * as accessToken from '@console/lib/access-token'
+
+import * as user from '@console/store/actions/user'
+
 import createRequestLogic from './lib'
 
 export default [
@@ -22,11 +27,19 @@ export default [
     type: user.LOGOUT,
     async process() {
       try {
-        await api.console.logout()
-      } finally {
+        const response = await api.console.logout()
+        window.location = response.data.op_logout_uri
         accessToken.clear()
+      } catch (err) {
+        if (isUnauthenticatedError(err)) {
+          accessToken.clear()
+          // If there was an unauthenticated error, the access token is not
+          // valid. Reloading will then initiate the auth flow.
+          window.location.reload()
+        } else {
+          throw err
+        }
       }
-      return true
     },
   }),
 ]

@@ -15,12 +15,15 @@
 import React from 'react'
 import classnames from 'classnames'
 import { defineMessages } from 'react-intl'
-import { Link } from 'react-router-dom'
-import PropTypes from '../../lib/prop-types'
 
-import Message from '../../lib/components/message'
-import Button from '../../components/button'
-import OfflineStatus from '../../containers/offline-status'
+import Button from '@ttn-lw/components/button'
+import Link from '@ttn-lw/components/link'
+
+import OfflineStatus from '@ttn-lw/containers/offline-status'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
 
 import style from './footer.styl'
 
@@ -36,15 +39,15 @@ const Footer = function({ className, links, supportLink }) {
         <span className={style.claim}>
           <Message content={m.footer} /> –{' '}
         </span>
-        <a className={style.link} href="https://www.thethingsindustries.com">
+        <Link.Anchor secondary className={style.link} href="https://www.thethingsindustries.com">
           The Things Industries
-        </a>
+        </Link.Anchor>
       </div>
       <div>
         {links.map((item, key) => (
-          <Link key={key} className={style.link} to={item.link}>
+          <Link.Anchor secondary key={key} className={style.link} href={item.link}>
             <Message content={item.title} />
-          </Link>
+          </Link.Anchor>
         ))}
         <OfflineStatus showOfflineOnly showWarnings />
         <span className={style.version}>v{process.env.VERSION}</span>
@@ -62,12 +65,13 @@ const Footer = function({ className, links, supportLink }) {
 }
 
 Footer.propTypes = {
-  /** The classname to be applied to the footer */
+  /** The classname to be applied to the footer. */
   className: PropTypes.string,
   /**
-   * A list of links to be displayed in the footer component
-   * @param {(string|Object)} title - The title of the link
-   * @param {string} link - The link url
+   * A list of links to be displayed in the footer component.
+   *
+   * @param {(string|object)} title - The title of the link.
+   * @param {string} link - The link url.
    */
   links: PropTypes.arrayOf(
     PropTypes.shape({
@@ -75,7 +79,7 @@ Footer.propTypes = {
       link: PropTypes.string.isRequired,
     }),
   ),
-  /** Optional link for a support button */
+  /** Optional link for a support button. */
   supportLink: PropTypes.string,
 }
 

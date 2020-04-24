@@ -16,35 +16,44 @@ import React from 'react'
 import { connect } from 'react-redux'
 import { Switch, Route } from 'react-router'
 
-import sharedMessages from '../../../lib/shared-messages'
-import { withBreadcrumb } from '../../../components/breadcrumbs/context'
-import EntityTitleSection from '../../components/entity-title-section'
-import Breadcrumb from '../../../components/breadcrumbs/breadcrumb'
-import Tabs from '../../../components/tabs'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import withRequest from '../../../lib/components/with-request'
-import withEnv from '../../../lib/components/env'
-import NotFoundRoute from '../../../lib/components/not-found-route'
+import { withBreadcrumb } from '@ttn-lw/components/breadcrumbs/context'
+import Breadcrumb from '@ttn-lw/components/breadcrumbs/breadcrumb'
+import Tabs from '@ttn-lw/components/tabs'
 
-import DeviceOverview from '../device-overview'
-import DeviceData from '../device-data'
-import DeviceGeneralSettings from '../device-general-settings'
-import DeviceLocation from '../device-location'
-import DevicePayloadFormatters from '../device-payload-formatters'
-import DeviceClaimAuthenticationCode from '../device-claim-authentication-code'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import withRequest from '@ttn-lw/lib/components/with-request'
+import withEnv from '@ttn-lw/lib/components/env'
+import NotFoundRoute from '@ttn-lw/lib/components/not-found-route'
 
-import { getDevice, stopDeviceEventsStream } from '../../store/actions/devices'
-import { selectSelectedApplicationId } from '../../store/selectors/applications'
+import EntityTitleSection from '@console/components/entity-title-section'
+
+import DeviceData from '@console/views/device-data'
+import DeviceGeneralSettings from '@console/views/device-general-settings'
+import DeviceMessages from '@console/views/device-messages'
+import DeviceLocation from '@console/views/device-location'
+import DevicePayloadFormatters from '@console/views/device-payload-formatters'
+import DeviceClaimAuthenticationCode from '@console/views/device-claim-authentication-code'
+import DeviceOverview from '@console/views/device-overview'
+
+import getHostnameFromUrl from '@ttn-lw/lib/host-from-url'
+import PropTypes from '@ttn-lw/lib/prop-types'
+import { selectJsConfig, selectAsConfig } from '@ttn-lw/lib/selectors/env'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+
+import {
+  mayReadApplicationDeviceKeys,
+  mayScheduleDownlinks,
+  checkFromState,
+} from '@console/lib/feature-checks'
+
+import { getDevice, stopDeviceEventsStream } from '@console/store/actions/devices'
+
 import {
   selectSelectedDevice,
   selectDeviceFetching,
   selectDeviceError,
-} from '../../store/selectors/devices'
-import { selectJsConfig, selectAsConfig } from '../../../lib/selectors/env'
-
-import { mayReadApplicationDeviceKeys } from '../../lib/feature-checks'
-import PropTypes from '../../../lib/prop-types'
-import getHostnameFromUrl from '../../../lib/host-from-url'
+} from '@console/store/selectors/devices'
+import { selectSelectedApplicationId } from '@console/store/selectors/applications'
 
 import style from './device.styl'
 
@@ -58,9 +67,8 @@ import style from './device.styl'
       devId,
       appId,
       device,
-      mayReadKeys: mayReadApplicationDeviceKeys.check(
-        mayReadApplicationDeviceKeys.rightsSelector(state),
-      ),
+      mayReadKeys: checkFromState(mayReadApplicationDeviceKeys, state),
+      mayScheduleDownlinks: checkFromState(mayScheduleDownlinks, state),
       fetching: selectDeviceFetching(state),
       error: selectDeviceError(state),
     }
@@ -122,6 +130,7 @@ export default class Device extends React.Component {
     env: PropTypes.env,
     location: PropTypes.location.isRequired,
     match: PropTypes.match.isRequired,
+    mayScheduleDownlinks: PropTypes.bool.isRequired,
     stopStream: PropTypes.func.isRequired,
   }
 
@@ -151,6 +160,7 @@ export default class Device extends React.Component {
         application_server_address,
       },
       env: { siteName },
+      mayScheduleDownlinks,
     } = this.props
 
     const jsConfig = selectJsConfig()
@@ -165,7 +175,7 @@ export default class Device extends React.Component {
 
     const basePath = `/applications/${appId}/devices/${devId}`
 
-    // Prevent default redirect to uplink when tab is already open
+    // Prevent default redirect to uplink when tab is already open.
     const payloadFormattersLink = pathname.startsWith(`${basePath}/payload-formatters`)
       ? pathname
       : `${basePath}/payload-formatters`
@@ -173,19 +183,25 @@ export default class Device extends React.Component {
     const tabs = [
       { title: sharedMessages.overview, name: 'overview', link: basePath },
       { title: sharedMessages.data, name: 'data', link: `${basePath}/data` },
+      {
+        title: sharedMessages.messages,
+        name: 'messages',
+        link: `${basePath}/messages`,
+        hidden: !mayScheduleDownlinks,
+      },
       { title: sharedMessages.location, name: 'location', link: `${basePath}/location` },
       {
         title: sharedMessages.payloadFormatters,
         name: 'develop',
         link: payloadFormattersLink,
         exact: false,
-        disabled: !hasAs,
+        hidden: !hasAs,
       },
       {
         title: sharedMessages.claiming,
         name: 'claim-auth-code',
         link: `${basePath}/claim-auth-code`,
-        disabled: !hasJs,
+        hidden: !hasJs,
       },
       {
         title: sharedMessages.generalSettings,
@@ -204,6 +220,7 @@ export default class Device extends React.Component {
         <Switch>
           <Route exact path={basePath} component={DeviceOverview} />
           <Route exact path={`${basePath}/data`} component={DeviceData} />
+          <Route exact path={`${basePath}/messages`} component={DeviceMessages} />
           <Route exact path={`${basePath}/location`} component={DeviceLocation} />
           <Route exact path={`${basePath}/general-settings`} component={DeviceGeneralSettings} />
           {hasAs && (
