@@ -119,6 +119,7 @@ script:
         GOARCH=$RUN_GOARCH $MAGE go:coveralls
       else
         GOARCH=$RUN_GOARCH $MAGE go:test
+      fi
     fi
   - if [[ "$RUNTYPE" == "go.test" ]]; then $MAGE go:testBinaries; fi
   - if [[ "$RUNTYPE" == "release" ]]; then $MAGE version:files; fi
@@ -145,6 +146,7 @@ after_success:
       else
         GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
         docker push $DOCKER_IMAGE_DEV:$TRAVIS_COMMIT
+      fi
     fi
 deploy:
   - provider: pages
