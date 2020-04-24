@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import { createLogic } from 'redux-logic'
-import { isUnauthenticatedError } from '@ttn-lw/lib/errors/utils'
-import * as user from '@claim/store/actions/user'
+
+import * as Sentry from '@sentry/browser'
+
+import { error } from '@ttn-lw/lib/log'
+import { isUnauthenticatedError, isInvalidArgumentError, isUnknown } from '@ttn-lw/lib/errors/utils'
 
 const getResultActionFromType = function(typeString, status) {
   if (typeString instanceof Array) {
@@ -32,8 +35,8 @@ const getResultActionFromType = function(typeString, status) {
  * as result action dispatch automatically.
  *
  * @param {object} options - The logic options (to be passed to `createLogic()`).
- * @param {(string\|function)} successType - The success action type or action creator.
- * @param {(string\|function)} failType - The fail action type or action creator.
+ * @param {(string|Function)} successType - The success action type or action creator.
+ * @param {(string|Function)} failType - The fail action type or action creator.
  * @returns {object} The `redux-logic` (decorated) logic.
  */
 const createRequestLogic = function(
@@ -74,11 +77,17 @@ const createRequestLogic = function(
           _resolve(res)
         }
       } catch (e) {
+        error(e) // Log the error if in development mode.
+
         if (isUnauthenticatedError(e)) {
-          // If there was an unauthenticated error, log the user out.
-          dispatch(user.logoutSuccess())
+          // If there was an unauthenticated error, the access token is not
+          // valid. Reloading will then initiate the auth flow.
+          window.location.reload()
         } else {
-          // Otherweise, dispatch the fail action.
+          // Otherwise, dispatch the fail action and report it to Sentry.
+          if (isUnknown(e) || isInvalidArgumentError(e)) {
+            Sentry.captureException(failAction(e))
+          }
           dispatch(failAction(e))
         }
 

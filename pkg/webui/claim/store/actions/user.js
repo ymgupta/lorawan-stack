@@ -14,15 +14,17 @@
 
 import { createRequestActions } from './lib'
 
-export const GET_USER_ME = 'GET_OAUTH_USER_ME'
-export const GET_USER_ME_SUCCESS = 'GET_OAUTH_USER_SUCCESS_ME'
-export const GET_USER_ME_FAILURE = 'GET_OAUTH_USER_FAILURE_ME'
+export const GET_USER_ME_BASE = 'GET_USER_ME'
+export const [
+  { request: GET_USER_ME, success: GET_USER_ME_SUCCESS, failure: GET_USER_ME_FAILURE },
+  { request: getUserMe, success: getUserMeSuccess, failure: getUserMeFailure },
+] = createRequestActions(GET_USER_ME_BASE)
 
-export const getUserMe = () => ({ type: GET_USER_ME })
-
-export const getUserMeSuccess = user => ({ type: GET_USER_ME_SUCCESS, user })
-
-export const getUserMeFailure = error => ({ type: GET_USER_ME_FAILURE, error })
+export const GET_USER_RIGHTS_BASE = 'GET_USER_RIGHTS'
+export const [
+  { request: GET_USER_RIGHTS, success: GET_USER_RIGHTS_SUCCESS, failure: GET_USER_RIGHTS_FAILURE },
+  { request: getUserRights, success: getUserRightsSuccess, failure: getUserRightsFailure },
+] = createRequestActions(GET_USER_RIGHTS_BASE)
 
 export const LOGOUT_BASE = 'LOGOUT'
 export const [

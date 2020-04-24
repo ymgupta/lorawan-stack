@@ -47,8 +47,25 @@ export default {
     token() {
       return instance.get(`${appRoot}/api/auth/token`)
     },
-    logout() {
-      return instance.post(`${appRoot}/api/auth/logout`)
+    async logout() {
+      let csrf = getCookieValue('_claim_csrf')
+
+      if (!csrf) {
+        // If the csrf token has been deleted, we likely have some outside
+        // manipulation of the cookies. We can try to regain the cookie by
+        // making an AJAX request to the current location.
+        await axios.get(window.location)
+        csrf = getCookieValue('_claim_csrf')
+
+        if (!csrf) {
+          // If we still could not retrieve the cookie, throw an error.
+          throw new Error('Could not retrieve the csrf token')
+        }
+      }
+
+      return instance.post(`${appRoot}/api/auth/logout`, undefined, {
+        headers: { 'X-CSRF-Token': csrf },
+      })
     },
   },
   clients: {
