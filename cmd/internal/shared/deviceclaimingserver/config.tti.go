@@ -13,6 +13,7 @@ import (
 var DefaultDeviceClaimingServerConfig = deviceclaimingserver.Config{
 	OAuth: oauthclient.Config{
 		AuthorizeURL: shared.DefaultOAuthPublicURL + "/authorize",
+		LogoutURL:    shared.DefaultOAuthPublicURL + "/logout",
 		TokenURL:     shared.DefaultOAuthPublicURL + "/token",
 		ClientID:     "device-claiming",
 		ClientSecret: "device-claiming",
