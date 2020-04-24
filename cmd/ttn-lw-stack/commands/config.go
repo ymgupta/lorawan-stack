@@ -81,7 +81,6 @@ var DefaultConfig = Config{
 	CS:          shared_cryptoserver.DefaultCryptoServerConfig,
 	TBS:         shared_tenantbillingserver.DefaultTenantBillingServerConfig,
 	QRG:         shared_qrcodegenerator.DefaultQRCodeGeneratorConfig,
-	PBA:         shared_packetbrokeragent.DefaultPacketBrokerAgentConfig,
 }
 
 func init() {
