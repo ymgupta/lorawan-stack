@@ -306,7 +306,7 @@ var startCommand = &cobra.Command{
 
 		if start.PacketBrokerAgent || startDefault {
 			logger.Info("Setting up Packet Broker Agent")
-			pba, err := packetbrokeragent.New(c, &config.PBA)
+			pba, err := packetbrokeragent.New(c, &config.PBA, packetbrokeragent.WithTenancyContextFiller())
 			if err != nil {
 				return shared.ErrInitializePacketBrokerAgent.WithCause(err)
 			}
