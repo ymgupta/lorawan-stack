@@ -1,4 +1,4 @@
-// Copyright © 2020 The Things Network Foundation, The Things Industries B.V.
+// Copyright © 2019 The Things Network Foundation, The Things Industries B.V.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,20 +15,8 @@
 package shared
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
+	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
 )
 
-// DefaultPacketBrokerAgentConfig is the default configuration for the Packet Broker Agent.
-var DefaultPacketBrokerAgentConfig = packetbrokeragent.Config{
-	HomeNetwork: packetbrokeragent.HomeNetworkConfig{
-		WorkerPool: packetbrokeragent.WorkerPoolConfig{
-			Limit: 4096,
-		},
-		BlacklistForwarder: true,
-	},
-	Forwarder: packetbrokeragent.ForwarderConfig{
-		WorkerPool: packetbrokeragent.WorkerPoolConfig{
-			Limit: 1024,
-		},
-	},
-}
+// DefaultQRCodeGeneratorConfig is the default configuration for the QR Code Generator.
+var DefaultQRCodeGeneratorConfig = qrcodegenerator.Config{}
