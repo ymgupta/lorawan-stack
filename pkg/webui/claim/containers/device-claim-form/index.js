@@ -18,22 +18,22 @@ import * as Yup from 'yup'
 import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
 
-import Form from '../../../components/form'
-import Input from '../../../components/input'
-import SubmitButton from '../../../components/submit-button'
-import SubmitBar from '../../../components/submit-bar'
-import QR from '../../../components/qr'
-import withRequest from '../../../lib/components/with-request'
+import Form from '@ttn-lw/components/form'
+import Input from '@ttn-lw/components/input'
+import SubmitButton from '@ttn-lw/components/submit-button'
+import SubmitBar from '@ttn-lw/components/submit-bar'
+import QR from '@ttn-lw/components/qr'
+import withRequest from '@ttn-lw/lib/components/with-request'
 
-import sharedMessages from '../../../lib/shared-messages'
-import errorMessages from '../../../lib/errors/error-messages'
-import PropTypes from '../../../lib/prop-types'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import errorMessages from '@ttn-lw/lib/errors/error-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
+import { readQr } from '@claim/lib/qr'
+import { getApplication } from '@claim/store/actions/applications'
 import {
   selectApplicationById,
   selectApplicationFetching,
-} from '../../store/selectors/applications'
-import { getApplication } from '../../store/actions/applications'
-import { readQr } from '../../lib/qr'
+} from '@claim/store/selectors/applications'
 
 import style from './device-claim-form.styl'
 
@@ -90,7 +90,7 @@ export default class DeviceClaimForm extends Component {
       application: { attributes },
     } = this.props
 
-    // return form inputs from application attributes.
+    // Return form inputs from application attributes.
     return Object.keys(attributes).map(key => {
       return <Form.Field title={key} name={key} type="text" component={Input} key={key} />
     })

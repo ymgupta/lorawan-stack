@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { GET_APPS_LIST_BASE, GET_APP_BASE } from '../actions/applications'
+import { GET_APPS_LIST_BASE, GET_APP_BASE } from '@claim/store/actions/applications'
 
 import {
   createPaginationIdsSelectorByEntity,

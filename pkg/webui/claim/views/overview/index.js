@@ -14,14 +14,14 @@
 
 import React, { Component } from 'react'
 import { Row, Col, Container } from 'react-grid-system'
-import PropTypes from '../../../lib/prop-types'
+import PAGE_SIZES from '@claim/constants/page-sizes'
+import Notification from '@ttn-lw/components/notification'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import ApplicationsTable from '@claim/containers/applications-table'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
-import sharedMessages from '../../../lib/shared-messages'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import Notification from '../../../components/notification'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
 
-import ApplicationsTable from '../../containers/applications-table'
-import PAGE_SIZES from '../../constants/page-sizes'
 import style from './overview.styl'
 
 export default class Overview extends Component {

@@ -18,17 +18,16 @@ import { ConnectedRouter } from 'connected-react-router'
 
 import { Route, Switch } from 'react-router-dom'
 
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import { withEnv } from '../../../lib/components/env'
-import ErrorView from '../../../lib/components/error-view'
-import Header from '../../containers/header'
-import dev from '../../../lib/dev'
-
-import Footer from '../../../components/footer'
-import Login from '../login'
-import FullViewError from '../error'
-import Landing from '../landing'
-import { ToastContainer } from '../../../components/toast'
+import Footer from '@ttn-lw/components/footer'
+import { ToastContainer } from '@ttn-lw/components/toast'
+import ErrorView from '@ttn-lw/lib/components/error-view'
+import { withEnv } from '@ttn-lw/lib/components/env'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import Header from '@claim/containers/header'
+import Landing from '@claim/views/landing'
+import Login from '@claim/views/login'
+import FullViewError from '@claim/views/error'
+import dev from '@ttn-lw/lib/dev'
 
 import style from './app.styl'
 
@@ -61,7 +60,7 @@ class ClaimApp extends React.Component {
             <main className={style.main}>
               <div className={style.content}>
                 <Switch>
-                  {/* routes for registration, privacy policy, other public pages */}
+                  {/* Routes for registration, privacy policy, other public pages. */}
                   <Route path="/login" component={Login} />
                   <Route path="/" component={Landing} />
                 </Switch>

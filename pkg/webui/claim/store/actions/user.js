@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { createRequestActions } from './lib'
+
 export const GET_USER_ME = 'GET_OAUTH_USER_ME'
 export const GET_USER_ME_SUCCESS = 'GET_OAUTH_USER_SUCCESS_ME'
 export const GET_USER_ME_FAILURE = 'GET_OAUTH_USER_FAILURE_ME'

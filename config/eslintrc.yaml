@@ -19,7 +19,7 @@ settings:
     - sdk
   import/resolver:
     webpack:
-      config: './config/webpack.config.babel.js'
+      config: './config/webpack.config.tti.babel.js'
 
 env:
   node: true
@@ -50,10 +50,10 @@ rules:
       - sibling
       - index
       pathGroups:
-      - pattern: "\\@{ttn-lw,console,oauth}/constants"
+      - pattern: "\\@{ttn-lw,console,oauth,claim}/constants"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/api"
+      - pattern: "\\@{console,oauth,claim}/api"
         group: internal
         position: after
       - pattern: "\\@ttn-lw/components/**"
@@ -65,34 +65,34 @@ rules:
       - pattern: "\\@ttn-lw/lib/components/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/components/**"
+      - pattern: "\\@{console,oauth,claim}/components/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/containers/**"
+      - pattern: "\\@{console,oauth,claim}/containers/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/lib/components/**"
+      - pattern: "\\@{console,oauth,claim}/lib/components/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/views/**"
+      - pattern: "\\@{console,oauth,claim}/views/**"
         group: internal
         position: after
       - pattern: "\\@ttn-lw/lib/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/lib/**"
+      - pattern: "\\@{console,oauth,claim}/lib/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/store/actions/**"
+      - pattern: "\\@{console,oauth,claim}/store/actions/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/store/reducers/**"
+      - pattern: "\\@{console,oauth,claim}/store/reducers/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/store/selectors/**"
+      - pattern: "\\@{console,oauth,claim}/store/selectors/**"
         group: internal
         position: after
-      - pattern: "\\@{console,oauth}/store/middleware/**"
+      - pattern: "\\@{console,oauth,claim}/store/middleware/**"
         group: internal
         position: after
       - pattern: "(\\@assets/**|\\@ttn-lw/styles/**)"

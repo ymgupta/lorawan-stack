@@ -140,7 +140,8 @@
       "^\\@ttn-lw(.*)": "<rootDir>/pkg/webui$1",
       "^\\@console(.*)": "<rootDir>/pkg/webui/console$1",
       "^\\@oauth(.*)": "<rootDir>/pkg/webui/oauth$1",
-      "^\\@assets(.*)": "<rootDir>/pkg/webuiassets$1"
+      "^\\@assets(.*)": "<rootDir>/pkg/webuiassets$1",
+      "^\\@claim(.*)": "<rootDir>/pkg/webui/claim$1"
     }
   },
   "eslintConfig": {

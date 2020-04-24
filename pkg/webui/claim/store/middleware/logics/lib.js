@@ -13,8 +13,8 @@
 // limitations under the License.
 
 import { createLogic } from 'redux-logic'
-import * as user from '../../actions/user'
-import { isUnauthenticatedError } from '../../../../lib/errors/utils'
+import { isUnauthenticatedError } from '@ttn-lw/lib/errors/utils'
+import * as user from '@claim/store/actions/user'
 
 const getResultActionFromType = function(typeString, status) {
   if (typeString instanceof Array) {
@@ -29,11 +29,12 @@ const getResultActionFromType = function(typeString, status) {
 
 /**
  * Logic creator for request logics, it will handle promise resolution, as well
- * as result action dispatch automatically
- * @param {Object} options - The logic options (to be passed to `createLogic()`)
- * @param {(string\|function)} successType - The success action type or action creator
- * @param {(string\|function)} failType - The fail action type or action creator
- * @returns {Object} The `redux-logic` (decorated) logic
+ * as result action dispatch automatically.
+ *
+ * @param {object} options - The logic options (to be passed to `createLogic()`).
+ * @param {(string\|function)} successType - The success action type or action creator.
+ * @param {(string\|function)} failType - The fail action type or action creator.
+ * @returns {object} The `redux-logic` (decorated) logic.
  */
 const createRequestLogic = function(
   options,
@@ -62,10 +63,10 @@ const createRequestLogic = function(
       try {
         const res = await options.process(deps, dispatch)
 
-        // After successful request, dispatch success action
+        // After successful request, dispatch success action.
         dispatch(successAction(res))
 
-        // If we have a promise attached, resolve it
+        // If we have a promise attached, resolve it.
         if (promiseAttached) {
           const {
             meta: { _resolve },
@@ -74,14 +75,14 @@ const createRequestLogic = function(
         }
       } catch (e) {
         if (isUnauthenticatedError(e)) {
-          // If there was an unauthenticated error, log the user out
+          // If there was an unauthenticated error, log the user out.
           dispatch(user.logoutSuccess())
         } else {
-          // Otherweise, dispatch the fail action
+          // Otherweise, dispatch the fail action.
           dispatch(failAction(e))
         }
 
-        // If we have a promise attached, reject it
+        // If we have a promise attached, reject it.
         if (promiseAttached) {
           const {
             meta: { _reject },

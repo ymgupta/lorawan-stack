@@ -15,24 +15,23 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-grid-system'
 
-import Button from '../../../components/button'
-import Message from '../../../lib/components/message'
-import ErrorMessage from '../../../lib/components/error-message'
-import { withEnv } from '../../../lib/components/env'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import Footer from '../../../components/footer'
-import sharedMessages from '../../../lib/shared-messages'
-import errorMessages from '../../../lib/errors/error-messages'
-
-import Header from '../../containers/header'
+import Button from '@ttn-lw/components/button'
+import Footer from '@ttn-lw/components/footer'
+import Message from '@ttn-lw/lib/components/message'
+import ErrorMessage from '@ttn-lw/lib/components/error-message'
+import { withEnv } from '@ttn-lw/lib/components/env'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import Header from '@claim/containers/header'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import errorMessages from '@ttn-lw/lib/errors/error-messages'
 
 import {
   httpStatusCode,
   isUnknown as isUnknownError,
   isNotFoundError,
-} from '../../../lib/errors/utils'
+} from '@ttn-lw/lib/errors/utils'
 
-import statusCodeMessages from '../../../lib/errors/status-code-messages'
+import statusCodeMessages from '@ttn-lw/lib/errors/status-code-messages'
 
 import style from './error.styl'
 

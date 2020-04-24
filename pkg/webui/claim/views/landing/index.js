@@ -15,11 +15,11 @@
 import React from 'react'
 import { Switch, Route } from 'react-router-dom'
 
-import WithAuth from '../../../lib/components/with-auth'
-import Overview from '../overview'
-import { FullViewErrorInner } from '../error'
+import WithAuth from '@ttn-lw/lib/components/with-auth'
+import Overview from '@claim/views/overview'
+import { FullViewErrorInner } from '@claim/views/error'
 
-import DeviceClaim from '../device-claim'
+import DeviceClaim from '@claim/views/device-claim'
 
 import style from './landing.styl'
 
