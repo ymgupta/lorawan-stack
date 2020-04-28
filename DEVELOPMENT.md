@@ -161,7 +161,7 @@ For development purposes, the frontend can be run using `webpack-dev-server`. Af
 
 ```bash
 $ export NODE_ENV=development
-$ ./mage js:serve
+$ ./mage js:serveTTI
 ```
 
 The development server runs on `http://localhost:8080` and will proxy all api calls to port `1885`. The serve command watches any changes inside `pkg/webui` and refreshes automatically.
