@@ -170,6 +170,8 @@ The development server runs on `http://localhost:8080` and will proxy all api ca
 
 In order to set up The Things Stack to support running the frontend via `webpack-dev-server`, the following environment setup is needed:
 
+Console and Accounts
+
 ```bash
 NODE_ENV="development"
 TTN_LW_LOG_LEVEL="debug"
@@ -181,6 +183,18 @@ TTN_LW_CONSOLE_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
 TTN_LW_IS_OAUTH_UI_CANONICAL_URL="http://localhost:8080/oauth"
 TTN_LW_IS_EMAIL_NETWORK_IDENTITY_SERVER_URL="http://localhost:8080/oauth.js"
 TTN_LW_CONSOLE_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
+```
+
+Device claiming
+
+```bash
+TTN_LW_DCS_UI_JS_FILE="libs.bundle.js claim.js"
+TTN_LW_DCS_OAUTH_AUTHORIZE_URL="http://localhost:8080/oauth/authorize"
+TTN_LW_DCS_UI_CANONICAL_URL="http://localhost:8080/claim"
+TTN_LW_DCS_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
+TTN_LW_DCS_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
+TTN_LW_DCS_UI_IS_BASE_URL="http://localhost:8080/api/v3"
+TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
 ```
 
 ## Code Style
