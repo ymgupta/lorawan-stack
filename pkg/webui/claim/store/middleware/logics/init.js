@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as user from '../../actions/user'
-import * as init from '../../actions/init'
-import api from '../../../api'
-import * as accessToken from '../../../lib/access-token'
+import api from '@claim/api'
+import * as accessToken from '@claim/lib/access-token'
+import * as user from '@claim/store/actions/user'
+import * as init from '@claim/store/actions/init'
 import createRequestLogic from './lib'
 
 const claimAppLogic = createRequestLogic({
@@ -24,9 +24,9 @@ const claimAppLogic = createRequestLogic({
     dispatch(user.getUserMe())
 
     try {
-      // there is no way to retrieve the current user directly
+      // There is no way to retrieve the current user directly
       // within the device claiming app, so first get the authentication info
-      // and only afterwards fetch the user
+      // and only afterwards fetch the user.
       const info = await api.users.authInfo()
       const userId = info.data.oauth_access_token.user_ids.user_id
       const result = await api.users.get(userId)

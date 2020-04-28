@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as applications from '../../actions/applications'
+import api from '@claim/api'
+import * as applications from '@claim/store/actions/applications'
 
-import api from '../../../api'
 import createRequestLogic from './lib'
 
 const getApplicationLogic = createRequestLogic({

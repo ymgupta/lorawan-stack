@@ -17,9 +17,10 @@ import { Link as RouterLink } from 'react-router-dom'
 import classnames from 'classnames'
 import { injectIntl } from 'react-intl'
 
-import PropTypes from '../../lib/prop-types'
-import { withEnv } from '../../lib/components/env'
-import { url as urlPattern } from '../../lib/regexp'
+import { withEnv } from '@ttn-lw/lib/components/env'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
+import { url as urlPattern } from '@ttn-lw/lib/regexp'
 
 import style from './link.styl'
 
@@ -45,17 +46,24 @@ const Link = function(props) {
     showVisited,
     intl,
     onClick,
+    secondary,
+    primary,
   } = props
 
   const formattedTitle = formatTitle(title, titleValues, intl.formatMessage)
+  const classNames = classnames(style.link, className, {
+    [style.linkVisited]: showVisited,
+    [style.primary]: primary,
+    [style.secondary]: secondary,
+  })
+
+  if (disabled) {
+    return <span className={classnames(classNames, style.disabled)}>{children}</span>
+  }
 
   return (
     <RouterLink
-      className={
-        className
-          ? classnames(className, { [style.disabled]: disabled })
-          : classnames(style.link, { [style.linkVisited]: showVisited, [style.disabled]: disabled })
-      }
+      className={classNames}
       id={id}
       title={formattedTitle}
       replace={replace}
@@ -76,7 +84,10 @@ Link.propTypes = {
   intl: PropTypes.shape({
     formatMessage: PropTypes.func,
   }).isRequired,
+  onClick: PropTypes.func,
+  primary: PropTypes.bool,
   replace: PropTypes.bool,
+  secondary: PropTypes.bool,
   showVisited: PropTypes.bool,
   target: PropTypes.string,
   title: PropTypes.message,
@@ -97,8 +108,11 @@ Link.defaultProps = {
   className: undefined,
   disabled: false,
   id: undefined,
+  onClick: () => null,
+  primary: false,
   showVisited: false,
   replace: false,
+  secondary: false,
   target: undefined,
   title: undefined,
   titleValues: undefined,
@@ -116,15 +130,25 @@ const AnchorLink = function(props) {
     children,
     showVisited,
     intl,
+    secondary,
+    primary,
+    disabled,
   } = props
 
   const formattedTitle = formatTitle(title, titleValues, intl.formatMessage)
+  const classNames = classnames(style.link, className, {
+    [style.linkVisited]: showVisited,
+    [style.primary]: primary,
+    [style.secondary]: secondary,
+  })
+
+  if (disabled) {
+    return <span className={classnames(classNames, style.disabled)}>{children}</span>
+  }
 
   return (
     <a
-      className={
-        className ? className : classnames(style.link, { [style.linkVisited]: showVisited })
-      }
+      className={classNames}
       title={formattedTitle}
       id={id}
       href={href}
@@ -154,7 +178,7 @@ Link.Anchor = injectIntl(AnchorLink)
 const BaseAnchorLink = function({ env, href, ...rest }) {
   const { appRoot } = env
 
-  // Prevent prefixing proper URLs
+  // Prevent prefixing proper URLs.
   const path = href.match(urlPattern) ? href : appRoot + href
 
   return <Link.Anchor href={path} {...rest} />

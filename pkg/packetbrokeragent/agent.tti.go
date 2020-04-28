@@ -5,27 +5,17 @@ package packetbrokeragent
 import (
 	"context"
 
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
-// DevAddrTenantIdentifier provides the tenant identifiers based on a DevAddr.
-type DevAddrTenantIdentifier interface {
-	TenantIDByDevAddr(context.Context, types.DevAddr) (ttipb.TenantIdentifiers, error)
-}
-
 // WithTenancyContextFiller returns an Option that fills the tenant context.
-func WithTenancyContextFiller(id DevAddrTenantIdentifier) Option {
-	return WithEndDeviceIdentifiersContextFiller(func(parent context.Context, ids ttnpb.EndDeviceIdentifiers) (context.Context, error) {
-		if ids.DevAddr == nil {
-			return parent, nil
+func WithTenancyContextFiller() Option {
+	return WithTenantContextFiller(func(parent context.Context, tenantID string) (context.Context, error) {
+		if tenantID == "" {
+			tenantID = cluster.PacketBrokerTenantID.TenantID
 		}
-		tntID, err := id.TenantIDByDevAddr(parent, *ids.DevAddr)
-		if err != nil {
-			return nil, err
-		}
-		return tenant.NewContext(parent, tntID), nil
+		return tenant.NewContext(parent, ttipb.TenantIdentifiers{TenantID: tenantID}), nil
 	})
 }

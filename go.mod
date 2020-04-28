@@ -59,7 +59,7 @@ require (
 	github.com/golang/gddo v0.0.0-20200310004957-95ce5a452273
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 	github.com/golang/protobuf v1.3.5
-	github.com/goreleaser/goreleaser v0.129.0
+	github.com/goreleaser/goreleaser v0.132.0
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/websocket v1.4.1
 	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
@@ -110,19 +110,18 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stripe/stripe-go v70.5.0+incompatible
 	go.opencensus.io v0.22.3
-	go.packetbroker.org/api v1.0.2
+	go.packetbroker.org/api/v3 v3.0.0
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.19.0
 	gocloud.dev/pubsub/natspubsub v0.19.0
 	golang.org/x/crypto v0.0.0-20200317142112-1b76d66859c6
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
-	golang.org/x/sys v0.0.0-20200317113312-5766fd39f98d // indirect
 	golang.org/x/tools v0.0.0-20200318132943-540150da7399
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	google.golang.org/api v0.20.0
-	google.golang.org/genproto v0.0.0-20200318110522-7735f76e9fa5
+	google.golang.org/genproto v0.0.0-20200401122417-09ab7b7031d2
 	google.golang.org/grpc v1.28.0
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.0.0-00010101000000-000000000000 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect

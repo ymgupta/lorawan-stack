@@ -18,31 +18,37 @@ import { push } from 'connected-react-router'
 import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
 
-import CodeEditor from '../../../components/code-editor'
-import ProgressBar from '../../../components/progress-bar'
-import { selectSelectedApplicationId } from '../../store/selectors/applications'
-import { selectNsConfig, selectJsConfig, selectAsConfig } from '../../../lib/selectors/env'
-import DeviceImportForm from '../../components/device-import-form'
-import SubmitBar from '../../../components/submit-bar'
-import Button from '../../../components/button'
-import Notification from '../../../components/notification'
-import api from '../../api'
-import PropTypes from '../../../lib/prop-types'
-import Message from '../../../lib/components/message'
-import Status from '../../../components/status'
-import randomByteString from '../../lib/random-bytes'
+import api from '@console/api'
+
+import CodeEditor from '@ttn-lw/components/code-editor'
+import ProgressBar from '@ttn-lw/components/progress-bar'
+import SubmitBar from '@ttn-lw/components/submit-bar'
+import Button from '@ttn-lw/components/button'
+import ErrorNotification from '@ttn-lw/components/error-notification'
+import Status from '@ttn-lw/components/status'
+
+import Message from '@ttn-lw/lib/components/message'
+
+import DeviceImportForm from '@console/components/device-import-form'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
+import { selectNsConfig, selectJsConfig, selectAsConfig } from '@ttn-lw/lib/selectors/env'
+
+import randomByteString from '@console/lib/random-bytes'
+
+import { selectSelectedApplicationId } from '@console/store/selectors/applications'
 
 import style from './device-importer.styl'
 
 const m = defineMessages({
   proceed: 'Proceed',
   retry: 'Retry',
-  converting: 'Converting Templates…',
-  creating: 'Creating devices…',
+  converting: 'Converting templates…',
+  creating: 'Creating end devices…',
   operationInProgress: 'Operation in progress',
   operationHalted: 'Operation halted',
   operationFinished: 'Operation finished',
-  errorTitle: 'Could not complete operation',
+  errorTitle: 'There was an error and the operation could not be completed',
 })
 
 const initialState = {
@@ -61,7 +67,7 @@ const statusMap = {
 }
 
 @connect(
-  function(state) {
+  state => {
     const asConfig = selectAsConfig()
     const nsConfig = selectNsConfig()
     const jsConfig = selectJsConfig()
@@ -127,66 +133,63 @@ export default class DeviceImporter extends Component {
   @bind
   async handleSubmit(values) {
     const { appId, jsConfig, nsConfig, asConfig } = this.props
-    const { format_id, data, set_claim_auth_code, components } = values
-    const componentArray = Object.keys(components).filter(c => components[c])
+    const {
+      format_id,
+      data,
+      set_claim_auth_code,
+      components: { js: jsSelected, as: asSelected, ns: nsSelected },
+    } = values
 
     try {
-      // Start template conversion
+      // Start template conversion.
       this.setState({ step: 'conversion', status: 'processing' })
-      this.appendToLog('Converting device templates…')
+      this.appendToLog('Converting end device templates…')
       const templateStream = await api.deviceTemplates.convert(format_id, data)
-      const devices = await new Promise(
-        function(resolve, reject) {
-          const chunks = []
+      const devices = await new Promise((resolve, reject) => {
+        const chunks = []
 
-          templateStream.on(
-            'chunk',
-            function(message) {
-              this.appendToLog(message)
-              chunks.push(message)
-            }.bind(this),
-          )
-          templateStream.on('error', reject)
-          templateStream.on('close', () => resolve(chunks))
-        }.bind(this),
-      )
+        templateStream.on('chunk', message => {
+          this.appendToLog(message)
+          chunks.push(message)
+        })
+        templateStream.on('error', reject)
+        templateStream.on('close', () => resolve(chunks))
+      })
 
-      // Apply default values
+      // Apply default values.
       for (const deviceAndFieldMask of devices) {
         const { end_device: device, field_mask } = deviceAndFieldMask
-        if (set_claim_auth_code) {
+        if (set_claim_auth_code && jsSelected) {
           device.claim_authentication_code = { value: randomByteString(4 * 2) }
           field_mask.paths.push('claim_authentication_code')
         }
-        if (device.supports_join && !device.join_server_address && jsConfig.enabled) {
+        if (device.supports_join && !device.join_server_address && jsConfig.enabled && jsSelected) {
           device.join_server_address = new URL(jsConfig.base_url).hostname
           field_mask.paths.push('join_server_address')
         }
-        if (!device.application_server_address && asConfig.enabled) {
-          device.network_server_address = new URL(nsConfig.base_url).hostname
+        if (!device.application_server_address && asConfig.enabled && asSelected) {
+          device.application_server_address = new URL(asConfig.base_url).hostname
           field_mask.paths.push('application_server_address')
         }
-        if (!device.network_server_address && nsConfig.enabled) {
-          device.application_server_address = new URL(asConfig.base_url).hostname
+        if (!device.network_server_address && nsConfig.enabled && nsSelected) {
+          device.network_server_address = new URL(nsConfig.base_url).hostname
           field_mask.paths.push('network_server_address')
         }
       }
 
-      // Start batch device creation
+      // Start batch device creation.
       this.setState({
         step: 'creation',
         totalDevices: devices.length,
       })
-      this.appendToLog('Creating devices…')
-      const createStream = api.device.bulkCreate(appId, devices, componentArray)
+      this.appendToLog('Creating end devices…')
+      const createStream = api.device.bulkCreate(appId, devices)
 
-      await new Promise(
-        function(resolve, reject) {
-          createStream.on('chunk', this.handleCreationProgress)
-          createStream.on('error', reject)
-          createStream.on('close', resolve)
-        }.bind(this),
-      )
+      await new Promise((resolve, reject) => {
+        createStream.on('chunk', this.handleCreationProgress)
+        createStream.on('error', reject)
+        createStream.on('close', resolve)
+      })
 
       this.setState({ status: 'finished' })
     } catch (error) {
@@ -210,6 +213,7 @@ export default class DeviceImporter extends Component {
     } else if (status === 'finished') {
       statusMessage = m.operationFinished
     }
+
     return (
       <div>
         <Message className={style.title} component="h4" content={operationMessage} />
@@ -229,7 +233,7 @@ export default class DeviceImporter extends Component {
             />
           </React.Fragment>
         ) : (
-          <Notification small error={error} title={m.errorTitle} />
+          <ErrorNotification small content={error} title={m.errorTitle} />
         )}
         <CodeEditor
           className={style.logOutput}

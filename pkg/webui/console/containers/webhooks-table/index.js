@@ -16,20 +16,25 @@ import React from 'react'
 import { defineMessages } from 'react-intl'
 import bind from 'autobind-decorator'
 
-import FetchTable from '../fetch-table'
-import Message from '../../../lib/components/message'
+import Message from '@ttn-lw/lib/components/message'
 
-import sharedMessages from '../../../lib/shared-messages'
-import PropTypes from '../../../lib/prop-types'
+import FetchTable from '@console/containers/fetch-table'
 
-import { getWebhooksList } from '../../../console/store/actions/webhooks'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
+
+import { getWebhooksList } from '@console/store/actions/webhooks'
+
 import {
   selectWebhooks,
   selectWebhooksTotalCount,
   selectWebhooksFetching,
-} from '../../../console/store/selectors/webhooks'
+} from '@console/store/selectors/webhooks'
+
+import style from './webhooks-table.styl'
 
 const m = defineMessages({
+  templateId: 'Template ID',
   format: 'Format',
   baseUrl: 'Base URL',
 })
@@ -38,17 +43,23 @@ const headers = [
   {
     name: 'ids.webhook_id',
     displayName: sharedMessages.id,
-    width: 35,
-  },
-  {
-    name: 'format',
-    displayName: m.format,
-    width: 20,
+    width: 40,
   },
   {
     name: 'base_url',
     displayName: m.baseUrl,
-    width: 25,
+    width: 37,
+  },
+  {
+    name: 'template_ids.template_id',
+    displayName: m.templateId,
+    width: 15,
+    render: value => value || <Message className={style.none} content={sharedMessages.none} />,
+  },
+  {
+    name: 'format',
+    displayName: m.format,
+    width: 8,
   },
 ]
 
@@ -62,7 +73,7 @@ export default class WebhooksTable extends React.Component {
     super(props)
 
     const { appId } = props
-    this.getWebhooksList = () => getWebhooksList(appId)
+    this.getWebhooksList = () => getWebhooksList(appId, ['template_ids'])
   }
 
   baseDataSelector(state) {

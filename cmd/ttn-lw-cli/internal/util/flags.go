@@ -61,6 +61,14 @@ func NormalizeFlags(f *pflag.FlagSet, name string) pflag.NormalizedName {
 }
 
 func SelectFieldMask(cmdFlags *pflag.FlagSet, fieldMaskFlags ...*pflag.FlagSet) (paths []string) {
+	if all, _ := cmdFlags.GetBool("all"); all {
+		for _, fieldMaskFlags := range fieldMaskFlags {
+			fieldMaskFlags.VisitAll(func(flag *pflag.Flag) {
+				paths = append(paths, toUnderscore.Replace(flag.Name))
+			})
+		}
+		return
+	}
 	cmdFlags.Visit(func(flag *pflag.Flag) {
 		flagName := toUnderscore.Replace(flag.Name)
 		for _, fieldMaskFlags := range fieldMaskFlags {
@@ -169,15 +177,12 @@ func enumValues(t reflect.Type) []string {
 		valueMap := make(map[string]int32)
 		implementsStringer := t.Implements(reflect.TypeOf((*fmt.Stringer)(nil)).Elem())
 		for s, v := range proto.EnumValueMap(fmt.Sprintf("ttn.lorawan.v3.%s", t.Name())) {
+			valueMap[s] = v
 			if implementsStringer {
 				// If the enum implements Stringer, then the String might be different than the official name.
 				rv := reflect.New(t).Elem()
 				rv.SetInt(int64(v))
-				s := rv.Interface().(fmt.Stringer).String()
-				valueMap[s] = v
-			} else {
-				// Otherwise we use the official name.
-				valueMap[s] = v
+				valueMap[rv.Interface().(fmt.Stringer).String()] = v
 			}
 		}
 		values := make([]string, 0, len(valueMap))
@@ -263,6 +268,7 @@ func addField(fs *pflag.FlagSet, name string, t reflect.Type, maskOnly bool) {
 			for value := range proto.EnumValueMap(enumType) {
 				values = append(values, value)
 			}
+			sort.Strings(values)
 			fs.String(name, "", strings.Join(values, "|"))
 			return
 
@@ -672,4 +678,11 @@ func setField(rv reflect.Value, path []string, v reflect.Value) error {
 		}
 	}
 	return fmt.Errorf("unknown field")
+}
+
+// SelectAllFlagSet returns a flagset with the --all flag
+func SelectAllFlagSet(what string) *pflag.FlagSet {
+	flagSet := &pflag.FlagSet{}
+	flagSet.Bool("all", false, fmt.Sprintf("select all %s fields", what))
+	return flagSet
 }

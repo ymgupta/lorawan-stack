@@ -15,17 +15,17 @@
 import React, { Component } from 'react'
 import bind from 'autobind-decorator'
 
-import sharedMessages from '../../../lib/shared-messages'
-import Message from '../../../lib/components/message'
-import FetchTable from '../fetch-table'
+import Message from '@ttn-lw/lib/components/message'
+import FetchTable from '@claim/containers/fetch-table'
 
-import { getApplicationsList } from '../../store/actions/applications'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import { getApplicationsList } from '@claim/store/actions/applications'
 import {
   selectApplications,
   selectApplicationsTotalCount,
   selectApplicationsFetching,
   selectApplicationsError,
-} from '../../store/selectors/applications'
+} from '@claim/store/selectors/applications'
 
 const headers = [
   {

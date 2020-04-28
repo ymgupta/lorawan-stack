@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -109,12 +110,53 @@ func TestHandleUplink(t *testing.T) {
 		}
 	}
 
+	makeJoinSetDevice := func(getDevice *ttnpb.EndDevice, decodedMsg *ttnpb.UplinkMessage, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse) *ttnpb.EndDevice {
+		keys := CopySessionKeys(&joinResp.SessionKeys)
+		keys.AppSKey = nil
+
+		macState := test.Must(NewMACState(getDevice, frequencyplans.NewStore(test.FrequencyPlansFetcher), ttnpb.MACSettings{})).(*ttnpb.MACState)
+		macState.RxWindowsAvailable = true
+		macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
+			Keys:    *keys,
+			Payload: joinResp.RawPayload,
+			Request: *joinReq,
+		}
+		setDevice := CopyEndDevice(getDevice)
+		setDevice.RecentUplinks = AppendRecentUplink(setDevice.RecentUplinks, decodedMsg, RecentUplinkCount)
+		setDevice.PendingMACState = macState
+		return setDevice
+	}
+
 	filterEndDevice := func(dev *ttnpb.EndDevice, paths ...string) *ttnpb.EndDevice {
 		dev, err := ttnpb.FilterGetEndDevice(dev, paths...)
 		if err != nil {
 			panic(fmt.Errorf("failed to filter device: %w", err))
 		}
 		return dev
+	}
+
+	eventRPCErrorEqual := func(a, b events.Event) bool {
+		if test.EventEqual(a, b) {
+			return true
+		}
+		aErr, aOk := a.Data().(errors.Interface)
+		bErr, bOk := b.Data().(errors.Interface)
+		if !aOk || !bOk || !errors.Resemble(aErr, bErr) {
+			return false
+		}
+		ap, err := events.Proto(a)
+		if err != nil {
+			return false
+		}
+		bp, err := events.Proto(b)
+		if err != nil {
+			return false
+		}
+		ap.Time = time.Time{}
+		bp.Time = time.Time{}
+		ap.Data = nil
+		bp.Data = nil
+		return reflect.DeepEqual(ap, bp)
 	}
 
 	assertHandleUplinkResponse := func(ctx context.Context, handleUplinkErrCh <-chan error, expectedErr error) bool {
@@ -171,13 +213,6 @@ func TestHandleUplink(t *testing.T) {
 				Error:    err,
 			},
 		)
-	}
-	assertPublishMergeMetadata := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers, mds ...*ttnpb.RxMetadata) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			return a.So(ev, should.ResembleEvent, EvtMergeMetadata(expectedCtx, expectedIDs, len(mds)))
-		}), should.BeTrue)
 	}
 	assertDownlinkTaskAdd := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers, expectedStartAt time.Time, replace bool, err error) bool {
 		t := test.MustTFromContext(ctx)
@@ -309,7 +344,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 			})
 	}
-	assertJoinApplicationUp := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, setDevice *ttnpb.EndDevice, recvAt time.Time, err error) bool {
+	assertJoinApplicationUp := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, setDevice *ttnpb.EndDevice, joinResp *ttnpb.JoinResponse, recvAt time.Time, err error) bool {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
@@ -329,10 +364,10 @@ func TestHandleUplink(t *testing.T) {
 						EndDeviceIdentifiers: ids,
 						Up: &ttnpb.ApplicationUp_JoinAccept{
 							JoinAccept: &ttnpb.ApplicationJoinAccept{
-								AppSKey:              setDevice.PendingMACState.QueuedJoinAccept.Keys.AppSKey,
+								AppSKey:              joinResp.AppSKey,
 								InvalidatedDownlinks: queue,
 								ReceivedAt:           recvAt,
-								SessionKeyID:         setDevice.PendingMACState.QueuedJoinAccept.Keys.SessionKeyID,
+								SessionKeyID:         joinResp.SessionKeyID,
 							},
 						},
 					},
@@ -340,7 +375,7 @@ func TestHandleUplink(t *testing.T) {
 			)
 		}, err)
 	}
-	assertJoinDeduplicateSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, dev *ttnpb.EndDevice, ok bool, err error) (context.Context, bool) {
+	assertJoinDeduplicateSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex, dev *ttnpb.EndDevice, ok bool, err error) (context.Context, bool) {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
@@ -348,16 +383,17 @@ func TestHandleUplink(t *testing.T) {
 		if !a.So(getOk, should.BeTrue) {
 			return nil, false
 		}
+		*msg = *WithMatchedUplinkSettings(msg, chIdx, drIdx)
 		msg.ReceivedAt = clock.Now()
 		msg.CorrelationIDs = events.CorrelationIDsFromContext(getCtx)
-		clock.Add(time.Nanosecond)
+		clock.Set(msg.ReceivedAt.Add(DeduplicationWindow))
 		return getCtx, assertDeduplicateUplink(ctx, env, getCtx, msg, ok, err)
 	}
-	assertJoinGetPeerSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, dev *ttnpb.EndDevice, peer cluster.Peer, err error) (context.Context, bool) {
+	assertJoinGetPeerSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex, dev *ttnpb.EndDevice, peer cluster.Peer, err error) (context.Context, bool) {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
-		getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, msg, dev, true, nil)
+		getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, msg, chIdx, drIdx, dev, true, nil)
 		if !a.So(ok, should.BeTrue) {
 			return nil, false
 		}
@@ -374,59 +410,33 @@ func TestHandleUplink(t *testing.T) {
 			},
 		)
 	}
-	assertJoinClusterLocalSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, dev *ttnpb.EndDevice, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse, err error) (context.Context, time.Time, bool) {
+	assertJoinClusterLocalSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex, dev *ttnpb.EndDevice, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse, err error) (context.Context, bool) {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
-		getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, msg, dev, true, nil)
+		getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, msg, chIdx, drIdx, dev, true, nil)
 		if !a.So(ok, should.BeTrue) {
-			return nil, time.Time{}, false
+			return nil, false
 		}
 		joinReq.CorrelationIDs = msg.CorrelationIDs
-		return getCtx, clock.Add(time.Nanosecond), assertClusterLocalJoin(ctx, env, getCtx, dev.EndDeviceIdentifiers, joinReq, joinResp, err)
+		return getCtx, assertClusterLocalJoin(ctx, env, getCtx, dev.EndDeviceIdentifiers, joinReq, joinResp, err)
 	}
-	assertJoinInteropSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, peerNotFound bool, msg *ttnpb.UplinkMessage, dev *ttnpb.EndDevice, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse, err error) (context.Context, time.Time, bool) {
+	assertJoinInteropSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, peerNotFound bool, msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex, dev *ttnpb.EndDevice, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse, err error) (context.Context, bool) {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
 		var getCtx context.Context
 		var ok bool
 		if peerNotFound {
-			getCtx, ok = assertJoinGetPeerSequence(ctx, env, clock, msg, dev, nil, ErrTestNotFound)
+			getCtx, ok = assertJoinGetPeerSequence(ctx, env, clock, msg, chIdx, drIdx, dev, nil, ErrTestNotFound)
 			joinReq.CorrelationIDs = msg.CorrelationIDs
 		} else {
-			getCtx, _, ok = assertJoinClusterLocalSequence(ctx, env, clock, msg, dev, joinReq, nil, ErrTestNotFound)
+			getCtx, ok = assertJoinClusterLocalSequence(ctx, env, clock, msg, chIdx, drIdx, dev, joinReq, nil, ErrTestNotFound)
 		}
 		if !a.So(ok, should.BeTrue) {
-			return nil, time.Time{}, false
+			return nil, false
 		}
-		return getCtx, clock.Add(time.Nanosecond), assertInteropJoin(ctx, env, getCtx, joinReq, joinResp, err)
-	}
-	assertPublishForwardJoinRequest := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			return a.So(ev, should.ResembleEvent, EvtForwardJoinRequest(expectedCtx, expectedIDs, nil))
-		}), should.BeTrue)
-	}
-	assertPublishDropJoinRequestLocalError := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers, expectedErr error) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			return a.So(ev, should.ResembleEvent, EvtDropJoinRequest(expectedCtx, expectedIDs, expectedErr))
-		}), should.BeTrue)
-	}
-	assertPublishDropJoinRequestRPCError := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers, expectedErr error) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			err, ok := ev.Data().(errors.Interface)
-			return AllTrue(
-				a.So(ok, should.BeTrue),
-				a.So(err, should.EqualErrorOrDefinition, expectedErr),
-				a.So(ev, should.ResembleEvent, EvtDropJoinRequest(expectedCtx, expectedIDs, err)),
-			)
-		}), should.BeTrue)
+		return getCtx, assertInteropJoin(ctx, env, getCtx, joinReq, joinResp, err)
 	}
 
 	assertDataRangeByAddr := func(ctx context.Context, env TestEnvironment, upCIDs []string, err error, getDevices ...*ttnpb.EndDevice) ([]context.Context, bool) {
@@ -461,7 +471,7 @@ func TestHandleUplink(t *testing.T) {
 			err,
 		)
 	}
-	assertDataDeduplicateSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, devs []*ttnpb.EndDevice, idx int, ok bool, err error) (context.Context, bool) {
+	assertDataDeduplicateSequence := func(ctx context.Context, env TestEnvironment, clock *test.MockClock, msg *ttnpb.UplinkMessage, chIdx uint8, drIdx ttnpb.DataRateIndex, devs []*ttnpb.EndDevice, idx int, ok bool, err error) (context.Context, bool) {
 		t := test.MustTFromContext(ctx)
 		t.Helper()
 		a := assertions.New(t)
@@ -470,9 +480,10 @@ func TestHandleUplink(t *testing.T) {
 			return nil, false
 		}
 		rangeCtx := rangeCtxs[idx]
+		*msg = *WithMatchedUplinkSettings(msg, chIdx, drIdx)
 		msg.ReceivedAt = clock.Now()
 		msg.CorrelationIDs = events.CorrelationIDsFromContext(rangeCtx)
-		clock.Add(time.Nanosecond)
+		clock.Set(msg.ReceivedAt.Add(DeduplicationWindow))
 		return rangeCtx, assertDeduplicateUplink(ctx, env, rangeCtx, msg, ok, err)
 	}
 	assertDataSetByID := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, getDevice, setDevice *ttnpb.EndDevice, expectedSets []string, expectedErr error, err error) (context.Context, bool) {
@@ -519,6 +530,7 @@ func TestHandleUplink(t *testing.T) {
 						EndDeviceIdentifiers: setDevice.EndDeviceIdentifiers,
 						Up: &ttnpb.ApplicationUp_UplinkMessage{
 							UplinkMessage: &ttnpb.ApplicationUplink{
+								Confirmed:    msg.Payload.MType == ttnpb.MType_CONFIRMED_UP,
 								FCnt:         macPayload.FCnt,
 								FPort:        macPayload.FPort,
 								FRMPayload:   macPayload.FRMPayload,
@@ -533,32 +545,6 @@ func TestHandleUplink(t *testing.T) {
 			)
 		}, err)
 	}
-	assertPublishDropDataUplink := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers, expectedErr error) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			return a.So(ev, should.ResembleEvent, EvtDropDataUplink(expectedCtx, expectedIDs, expectedErr))
-		}), should.BeTrue)
-	}
-	assertPublishDefinitionDataClosures := func(ctx context.Context, env TestEnvironment, expectedEvs []events.DefinitionDataClosure, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequests(ctx, env.Events, len(expectedEvs), func(evs ...events.Event) bool {
-			for i, expectedEv := range expectedEvs {
-				if !a.So(evs[i], should.ResembleEvent, expectedEv(expectedCtx, expectedIDs)) {
-					return false
-				}
-			}
-			return true
-		}), should.BeTrue)
-	}
-	assertPublishForwardDataUplink := func(ctx context.Context, env TestEnvironment, expectedCtx context.Context, expectedIDs ttnpb.EndDeviceIdentifiers) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
-		return a.So(test.AssertEventPubSubPublishRequest(ctx, env.Events, func(ev events.Event) bool {
-			return a.So(ev, should.ResembleEvent, EvtForwardDataUplink(expectedCtx, expectedIDs, nil))
-		}), should.BeTrue)
-	}
 
 	uplinkValidationErr, ok := errors.From((&ttnpb.UplinkMessage{}).ValidateFields())
 	if !ok {
@@ -566,14 +552,8 @@ func TestHandleUplink(t *testing.T) {
 	}
 	invalidUplinkSettingsErr := uplinkValidationErr.WithAttributes("field", "settings")
 
-	makeChDRName := func(chIdx int, drIdx ttnpb.DataRateIndex, parts ...string) string {
+	makeChDRName := func(chIdx uint8, drIdx ttnpb.DataRateIndex, parts ...string) string {
 		return MakeTestCaseName(append(parts, fmt.Sprintf("Channel:%d", chIdx), fmt.Sprintf("DR:%d", drIdx))...)
-	}
-	withMatchedUplinkSettings := func(chIdx int, drIdx ttnpb.DataRateIndex, msg *ttnpb.UplinkMessage) *ttnpb.UplinkMessage {
-		msg = CopyUplinkMessage(msg)
-		msg.Settings.DataRateIndex = drIdx
-		msg.DeviceChannelIndex = uint32(chIdx)
-		return msg
 	}
 
 	type TestCase struct {
@@ -619,7 +599,7 @@ func TestHandleUplink(t *testing.T) {
 				return
 			}
 
-			chIdx := len(phy.UplinkChannels) - 1
+			chIdx := uint8(len(phy.UplinkChannels) - 1)
 			ch := phy.UplinkChannels[chIdx]
 			drIdx := ch.MaxDataRate
 			dr := phy.DataRates[drIdx].Rate
@@ -657,6 +637,35 @@ func TestHandleUplink(t *testing.T) {
 							RxMetadata: uplinkMDs,
 							Settings:   MakeUplinkSettings(dr, ch.Frequency),
 						}), ErrUnsupportedLoRaWANVersion.WithAttributes("version", uint32(1))), should.BeTrue)
+					},
+				},
+				TestCase{
+					Name: makeName("FOpts non-empty for FPort 0 uplink"),
+					Handler: func(ctx context.Context, env TestEnvironment, clock *test.MockClock, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
+						return assertions.New(test.MustTFromContext(ctx)).So(assertHandleUplinkResponse(ctx, handle(ctx, &ttnpb.UplinkMessage{
+							RawPayload: []byte{
+								/* MHDR */
+								0b010_000_00,
+								/* MACPayload */
+								/** FHDR **/
+								/*** DevAddr ***/
+								0xff, 0xff, 0xff, 0x42,
+								/*** FCtrl ***/
+								0xb2,
+								/*** FCnt ***/
+								0x42, 0xff,
+								/*** FOpts ***/
+								0xfe, 0xff,
+								/** FPort **/
+								0x0,
+								/** FRMPayload **/
+								0xfe, 0xff,
+								/* MIC */
+								0x03, 0x02, 0x01, 0x00,
+							},
+							RxMetadata: uplinkMDs,
+							Settings:   MakeUplinkSettings(dr, ch.Frequency),
+						}), ErrInvalidPayload), should.BeTrue)
 					},
 				},
 				TestCase{
@@ -737,7 +746,7 @@ func TestHandleUplink(t *testing.T) {
 				}
 			}
 
-			chIdx := len(phy.UplinkChannels) - 1
+			chIdx := uint8(len(phy.UplinkChannels) - 1)
 			ch := phy.UplinkChannels[chIdx]
 			drIdx := ch.MaxDataRate
 			dr := phy.DataRates[drIdx].Rate
@@ -745,20 +754,6 @@ func TestHandleUplink(t *testing.T) {
 			makeNsJsJoinRequest := func(devAddr *types.DevAddr, correlationIDs ...string) *ttnpb.JoinRequest {
 				return MakeNsJsJoinRequest(macVersion, phyVersion, fp, devAddr, ttnpb.RX_DELAY_3, 0, ttnpb.DATA_RATE_2, correlationIDs...)
 			}
-			makeJoinSetDevice := func(getDevice *ttnpb.EndDevice, decodedMsg *ttnpb.UplinkMessage, joinReq *ttnpb.JoinRequest, joinResp *ttnpb.JoinResponse) *ttnpb.EndDevice {
-				macState := test.Must(NewMACState(getDevice, frequencyplans.NewStore(test.FrequencyPlansFetcher), ttnpb.MACSettings{})).(*ttnpb.MACState)
-				macState.RxWindowsAvailable = true
-				macState.QueuedJoinAccept = &ttnpb.MACState_JoinAccept{
-					Keys:    joinResp.SessionKeys,
-					Payload: joinResp.RawPayload,
-					Request: *joinReq,
-				}
-				setDevice := CopyEndDevice(getDevice)
-				setDevice.RecentUplinks = AppendRecentUplink(setDevice.RecentUplinks, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RecentUplinkCount)
-				setDevice.PendingMACState = macState
-				return setDevice
-			}
-
 			makeJoinRequest := func(decodePayload bool) *ttnpb.UplinkMessage {
 				return MakeJoinRequest(decodePayload, dr, ch.Frequency, uplinkMDs...)
 			}
@@ -783,7 +778,7 @@ func TestHandleUplink(t *testing.T) {
 					},
 				},
 				TestCase{
-					Name: makeJoinName("Get ABP device", "Deduplication fail"),
+					Name: makeJoinName("Get ABP device"),
 					Handler: func(ctx context.Context, env TestEnvironment, clock *test.MockClock, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
 						t := test.MustTFromContext(ctx)
 						a := assertions.New(t)
@@ -792,12 +787,17 @@ func TestHandleUplink(t *testing.T) {
 						getDevice := makeJoinDevice(clock)
 						getDevice.SupportsJoin = false
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), false, ErrTestInternal)
-							return AllTrue(
+							getCtx, ok := assertJoinGetByEUI(ctx, env, msg.CorrelationIDs, getDevice, nil)
+							decodedMsg.ReceivedAt = clock.Now()
+							decodedMsg.CorrelationIDs = events.CorrelationIDsFromContext(getCtx)
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
-							)
-						}, ErrTestInternal), should.BeTrue)
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrABPJoinRequest),
+								),
+							), should.BeTrue)
+						}, nil), should.BeTrue)
 					},
 				},
 				TestCase{
@@ -809,27 +809,15 @@ func TestHandleUplink(t *testing.T) {
 						decodedMsg := makeJoinRequest(true)
 						getDevice := makeJoinDevice(clock)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), false, ErrTestInternal)
-							return AllTrue(
+							getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, false, ErrTestInternal)
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
-							)
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
+							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
-					},
-				},
-				TestCase{
-					Name: makeJoinName("Get ABP device", "Duplicate uplink"),
-					Handler: func(ctx context.Context, env TestEnvironment, clock *test.MockClock, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
-						t := test.MustTFromContext(ctx)
-						a := assertions.New(t)
-						msg := makeJoinRequest(false)
-						decodedMsg := makeJoinRequest(true)
-						getDevice := makeJoinDevice(clock)
-						getDevice.SupportsJoin = false
-						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							_, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), false, nil)
-							return ok
-						}, nil), should.BeTrue)
 					},
 				},
 				TestCase{
@@ -841,27 +829,15 @@ func TestHandleUplink(t *testing.T) {
 						decodedMsg := makeJoinRequest(true)
 						getDevice := makeJoinDevice(clock)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							_, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), false, nil)
-							return ok
-						}, nil), should.BeTrue)
-					},
-				},
-				TestCase{
-					Name: makeJoinName("Get ABP device", "First uplink"),
-					Handler: func(ctx context.Context, env TestEnvironment, clock *test.MockClock, handle func(context.Context, *ttnpb.UplinkMessage) <-chan error) bool {
-						t := test.MustTFromContext(ctx)
-						a := assertions.New(t)
-						msg := makeJoinRequest(false)
-						decodedMsg := makeJoinRequest(true)
-						getDevice := makeJoinDevice(clock)
-						getDevice.SupportsJoin = false
-						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), true, nil)
-							return AllTrue(
+							getCtx, ok := assertJoinDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, false, nil)
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrABPJoinRequest),
-							)
-						}, ErrABPJoinRequest), should.BeTrue)
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrDuplicate),
+								),
+							), should.BeTrue)
+						}, nil), should.BeTrue)
 					},
 				},
 				TestCase{
@@ -872,12 +848,20 @@ func TestHandleUplink(t *testing.T) {
 						msg := makeJoinRequest(false)
 						decodedMsg := makeJoinRequest(true)
 						getDevice := makeJoinDevice(clock)
+						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), makeNsJsJoinRequest(nil), nil, ErrTestInternal)
-							return AllTrue(
+							getCtx, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, joinReq, nil, ErrTestInternal)
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestRPCError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
-							)
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventsFunc, eventRPCErrorEqual,
+									EvtClusterJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
+							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
 					},
 				},
@@ -889,12 +873,20 @@ func TestHandleUplink(t *testing.T) {
 						msg := makeJoinRequest(false)
 						decodedMsg := makeJoinRequest(true)
 						getDevice := makeJoinDevice(clock)
+						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinInteropSequence(ctx, env, clock, true, decodedMsg, CopyEndDevice(getDevice), makeNsJsJoinRequest(nil), nil, ErrTestInternal)
-							return AllTrue(
+							getCtx, ok := assertJoinInteropSequence(ctx, env, clock, true, decodedMsg, chIdx, drIdx, getDevice, joinReq, nil, ErrTestInternal)
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestRPCError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
-							)
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtInteropJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventsFunc, eventRPCErrorEqual,
+									EvtInteropJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
+							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
 					},
 				},
@@ -916,30 +908,34 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(true)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
-							if !a.So(AllTrue(
+							getCtx, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
+							return a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
-							), should.BeTrue) {
-								return false
-							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), nil, ErrTestInternal), should.BeTrue) {
-								return true
-							}
-							return a.So(AllTrue(AssertDeviceRegistrySetByID(ctx, env.DeviceRegistry.SetByID, func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, gets []string, f func(context.Context, *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) bool {
-								return AllTrue(
-									a.So(ctx, should.HaveParentContextOrEqual, getCtx),
-									a.So(appID, should.Resemble, AppID),
-									a.So(devID, should.Resemble, DevID),
-									a.So(gets, should.HaveSameElementsDeep, joinSetByIDGetPaths),
-								)
-							}, func(context.Context) DeviceRegistrySetByIDResponse {
-								return DeviceRegistrySetByIDResponse{
-									Error: ErrTestInternal,
-								}
-							}),
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventFunc, eventRPCErrorEqual, EvtClusterJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestNotFound)),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtInteropJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtInteropJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, nil, ErrTestInternal),
+								AssertDeviceRegistrySetByID(ctx, env.DeviceRegistry.SetByID, func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, gets []string, f func(context.Context, *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) bool {
+									return AllTrue(
+										a.So(ctx, should.HaveParentContextOrEqual, getCtx),
+										a.So(appID, should.Resemble, AppID),
+										a.So(devID, should.Resemble, DevID),
+										a.So(gets, should.HaveSameElementsDeep, joinSetByIDGetPaths),
+									)
+								}, func(context.Context) DeviceRegistrySetByIDResponse {
+									return DeviceRegistrySetByIDResponse{
+										Error: ErrTestInternal,
+									}
+								}),
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
 							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
 					},
@@ -964,22 +960,29 @@ func TestHandleUplink(t *testing.T) {
 						innerErr := ErrOutdatedData
 						registryErr := ErrTestInternal.WithCause(innerErr)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventFunc, eventRPCErrorEqual, EvtClusterJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestNotFound)),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtInteropJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtInteropJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, nil, ErrTestInternal),
 							), should.BeTrue) {
 								return false
 							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), nil, ErrTestInternal), should.BeTrue) {
-								return true
-							}
 							_, ok = assertJoinSetByID(ctx, env, getCtx, nil, nil, innerErr, registryErr)
-							return AllTrue(
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, registryErr),
-							)
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, registryErr),
+								),
+							), should.BeTrue)
 						}, registryErr), should.BeTrue)
 					},
 				},
@@ -1001,22 +1004,29 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(true)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventFunc, eventRPCErrorEqual, EvtClusterJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestNotFound)),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtInteropJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtInteropJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, nil, ErrTestInternal),
 							), should.BeTrue) {
 								return false
 							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), nil, ErrTestInternal), should.BeTrue) {
-								return true
-							}
 							_, ok = assertJoinSetByID(ctx, env, getCtx, getDevice, makeJoinSetDevice(getDevice, decodedMsg, joinReq, joinResp), nil, ErrTestInternal)
-							return AllTrue(
+							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
-							)
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
+							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
 					},
 				},
@@ -1038,23 +1048,33 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(true)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, joinRespRecvAt, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinInteropSequence(ctx, env, clock, false, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+								),
+								a.So(env.Events, should.ReceiveEventFunc, eventRPCErrorEqual, EvtClusterJoinFail(getCtx, getDevice.EndDeviceIdentifiers, ErrTestNotFound)),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtInteropJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtInteropJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, nil, ErrTestInternal),
 							), should.BeTrue) {
 								return false
 							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), nil, ErrTestInternal), should.BeTrue) {
-								return true
-							}
+							joinRespRecvAt := clock.Now()
+							clock.Add(time.Nanosecond)
 							setDevice := makeJoinSetDevice(getDevice, decodedMsg, joinReq, joinResp)
 							setCtx, ok := assertJoinSetByID(ctx, env, getCtx, getDevice, setDevice, nil, nil)
 							return AllTrue(
 								ok,
 								assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+phy.JoinAcceptDelay1-joinReq.RxDelay.Duration()/2-NSScheduleWindow()), true, nil),
-								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinRespRecvAt, nil),
+								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinResp, joinRespRecvAt, nil),
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtProcessJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+								),
 							)
 						}, nil), should.BeTrue)
 					},
@@ -1076,25 +1096,30 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(false)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, joinRespRecvAt, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtClusterJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, RxMetadata[:], nil),
 							), should.BeTrue) {
 								return false
 							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RxMetadata[:], nil), should.BeTrue) {
-								return true
-							}
+							joinRespRecvAt := clock.Now()
+							clock.Add(time.Nanosecond)
 							decodedMsg.RxMetadata = RxMetadata[:]
 							setDevice := makeJoinSetDevice(getDevice, decodedMsg, joinReq, joinResp)
 							setCtx, ok := assertJoinSetByID(ctx, env, getCtx, getDevice, setDevice, nil, nil)
 							return a.So(AllTrue(
 								ok,
 								assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+phy.JoinAcceptDelay1-joinReq.RxDelay.Duration()/2-NSScheduleWindow()), true, ErrTestInternal),
-								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinRespRecvAt, ErrTestInternal),
-								assertPublishMergeMetadata(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, RxMetadata[:]...),
+								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinResp, joinRespRecvAt, ErrTestInternal),
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtProcessJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+								),
 							), should.BeTrue)
 						}, nil), should.BeTrue)
 					},
@@ -1125,25 +1150,30 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(false)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, joinRespRecvAt, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtClusterJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, RxMetadata[:], nil),
 							), should.BeTrue) {
 								return false
 							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RxMetadata[:], nil), should.BeTrue) {
-								return true
-							}
+							joinRespRecvAt := clock.Now()
+							clock.Add(time.Nanosecond)
 							decodedMsg.RxMetadata = RxMetadata[:]
 							setDevice := makeJoinSetDevice(getDevice, decodedMsg, joinReq, joinResp)
 							setCtx, ok := assertJoinSetByID(ctx, env, getCtx, getDevice, setDevice, nil, nil)
 							return a.So(AllTrue(
 								ok,
 								assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+phy.JoinAcceptDelay1-joinReq.RxDelay.Duration()/2-NSScheduleWindow()), true, nil),
-								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinRespRecvAt, ErrTestInternal),
-								assertPublishMergeMetadata(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, RxMetadata[:]...),
+								assertJoinApplicationUp(ctx, env, setCtx, setDevice, joinResp, joinRespRecvAt, ErrTestInternal),
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtProcessJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+								),
 							), should.BeTrue)
 						}, nil), should.BeTrue)
 					},
@@ -1159,23 +1189,26 @@ func TestHandleUplink(t *testing.T) {
 						joinResp := makeJoinResponse(false)
 						joinReq := makeNsJsJoinRequest(nil)
 						return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-							getCtx, _, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, CopyEndDevice(getDevice), joinReq, joinResp, nil)
+							getCtx, ok := assertJoinClusterLocalSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, getDevice, joinReq, joinResp, nil)
 							if !a.So(AllTrue(
 								ok,
-								assertPublishForwardJoinRequest(ctx, env, getCtx, getDevice.EndDeviceIdentifiers),
+								a.So(env.Events, should.ReceiveEventsResembling,
+									EvtReceiveJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, decodedMsg),
+									EvtClusterJoinAttempt(getCtx, getDevice.EndDeviceIdentifiers, joinReq),
+									EvtClusterJoinSuccess(getCtx, getDevice.EndDeviceIdentifiers, JoinResponseWithoutKeys(joinResp)),
+								),
+								assertAccumulatedMetadata(ctx, env, getCtx, decodedMsg, RxMetadata[:], nil),
 							), should.BeTrue) {
 								return false
-							}
-							clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-							if !a.So(assertAccumulatedMetadata(ctx, env, getCtx, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RxMetadata[:], nil), should.BeTrue) {
-								return true
 							}
 							decodedMsg.RxMetadata = RxMetadata[:]
 							setDevice := makeJoinSetDevice(getDevice, decodedMsg, joinReq, joinResp)
 							_, ok = assertJoinSetByID(ctx, env, getCtx, getDevice, setDevice, nil, ErrTestInternal)
 							return a.So(AllTrue(
 								ok,
-								assertPublishDropJoinRequestLocalError(ctx, env, getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								a.So(env.Events, should.ReceiveEventResembling,
+									EvtDropJoinRequest(getCtx, getDevice.EndDeviceIdentifiers, ErrTestInternal),
+								),
 							), should.BeTrue)
 						}, ErrTestInternal), should.BeTrue)
 					},
@@ -1287,7 +1320,7 @@ func TestHandleUplink(t *testing.T) {
 			phyVersion := ttnpb.PHY_V1_1_REV_B
 			fp := test.Must(frequencyplans.NewStore(test.FrequencyPlansFetcher).GetByID(fpID)).(*frequencyplans.FrequencyPlan)
 			phy := test.Must(test.Must(band.GetByID(fp.BandID)).(band.Band).Version(phyVersion)).(band.Band)
-			chIdx := len(phy.UplinkChannels) - 1
+			chIdx := uint8(len(phy.UplinkChannels) - 1)
 			ch := phy.UplinkChannels[chIdx]
 			drIdx := ch.MaxDataRate
 			dr := phy.DataRates[drIdx].Rate
@@ -1351,7 +1384,7 @@ func TestHandleUplink(t *testing.T) {
 			for _, confirmed := range [2]bool{true, false} {
 				confirmed := confirmed
 				makeDataUplink := func(decodePayload bool, adr bool, frmPayload []byte) *ttnpb.UplinkMessage {
-					return MakeDataUplink(macVersion, decodePayload, confirmed, ttnpb.FCtrl{ADR: adr}, FCnt, 0, FPort, frmPayload, []byte{0x02}, dr, drIdx, ch.Frequency, uint8(chIdx), time.Time{}, uplinkMDs...)
+					return MakeDataUplink(macVersion, decodePayload, confirmed, DevAddr, ttnpb.FCtrl{ADR: adr}, FCnt, 0, FPort, frmPayload, []byte{0x02}, dr, drIdx, ch.Frequency, chIdx, uplinkMDs...)
 				}
 				dataSetByIDSetPaths := [...]string{
 					"mac_state",
@@ -1361,17 +1394,24 @@ func TestHandleUplink(t *testing.T) {
 					"recent_uplinks",
 					"session",
 				}
-				makeDataSetDevice := func(getDevice *ttnpb.EndDevice, decodedMsg *ttnpb.UplinkMessage) (*ttnpb.EndDevice, []events.DefinitionDataClosure) {
+				makeDataSetDevice := func(ctx context.Context, getDevice *ttnpb.EndDevice, decodedMsg *ttnpb.UplinkMessage) (*ttnpb.EndDevice, []events.DefinitionDataClosure) {
 					setDevice := CopyEndDevice(getDevice)
 					setDevice.MACState.QueuedResponses = nil
 					evs := test.Must(HandleLinkCheckReq(test.Context(), setDevice, decodedMsg)).([]events.DefinitionDataClosure)
-					setDevice.MACState.RecentUplinks = AppendRecentUplink(setDevice.MACState.RecentUplinks, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RecentUplinkCount)
+					setDevice.MACState.RecentUplinks = AppendRecentUplink(setDevice.MACState.RecentUplinks, WithMatchedUplinkSettings(decodedMsg, chIdx, drIdx), RecentUplinkCount)
 					setDevice.MACState.RxWindowsAvailable = true
-					setDevice.RecentUplinks = AppendRecentUplink(setDevice.RecentUplinks, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), RecentUplinkCount)
+					setDevice.RecentUplinks = AppendRecentUplink(setDevice.RecentUplinks, WithMatchedUplinkSettings(decodedMsg, chIdx, drIdx), RecentUplinkCount)
 					setDevice.Session.LastFCntUp = FCnt
+					if !decodedMsg.Payload.GetMACPayload().ADR {
+						setDevice.MACState.CurrentParameters.ADRDataRateIndex = ttnpb.DATA_RATE_0
+						setDevice.MACState.CurrentParameters.ADRTxPowerIndex = 0
+					}
+					setDevice.MACState.DesiredParameters.ADRDataRateIndex = setDevice.MACState.CurrentParameters.ADRDataRateIndex
+					setDevice.MACState.DesiredParameters.ADRTxPowerIndex = setDevice.MACState.CurrentParameters.ADRTxPowerIndex
+					setDevice.MACState.DesiredParameters.ADRNbTrans = setDevice.MACState.CurrentParameters.ADRNbTrans
 					if decodedMsg.Payload.GetMACPayload().ADR {
-						setDevice.RecentADRUplinks = AppendRecentUplink(setDevice.RecentADRUplinks, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), OptimalADRUplinkCount)
-						test.Must(nil, AdaptDataRate(setDevice, phy, ttnpb.MACSettings{}))
+						setDevice.RecentADRUplinks = AppendRecentUplink(setDevice.RecentADRUplinks, WithMatchedUplinkSettings(decodedMsg, chIdx, drIdx), OptimalADRUplinkCount)
+						test.Must(nil, AdaptDataRate(ctx, setDevice, phy, ttnpb.MACSettings{}))
 					}
 					return setDevice, evs
 				}
@@ -1476,10 +1516,13 @@ func TestHandleUplink(t *testing.T) {
 								decodedMsg := conf.MakeDataUplink(true)
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, false, ErrTestInternal)
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, false, ErrTestInternal)
 									return a.So(AllTrue(
 										ok,
-										assertPublishDropDataUplink(ctx, env, rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, ErrTestInternal),
+										a.So(env.Events, should.ReceiveEventsResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+											EvtDropDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, ErrTestInternal),
+										),
 									), should.BeTrue)
 								}, ErrTestInternal), should.BeTrue)
 							},
@@ -1493,8 +1536,14 @@ func TestHandleUplink(t *testing.T) {
 								decodedMsg := conf.MakeDataUplink(true)
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									_, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, false, nil)
-									return a.So(ok, should.BeTrue)
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, false, nil)
+									return a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventsResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+											EvtDropDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, ErrDuplicate),
+										),
+									), should.BeTrue)
 								}, nil), should.BeTrue)
 							},
 						},
@@ -1507,12 +1556,12 @@ func TestHandleUplink(t *testing.T) {
 								decodedMsg := conf.MakeDataUplink(true)
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
-										return false
-									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
 									return a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
 										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, nil, ErrTestInternal),
 										AssertDeviceRegistrySetByID(ctx, env.DeviceRegistry.SetByID, func(ctx context.Context, appID ttnpb.ApplicationIdentifiers, devID string, gets []string, f func(context.Context, *ttnpb.EndDevice) (*ttnpb.EndDevice, []string, error)) bool {
 											return AllTrue(
@@ -1526,7 +1575,9 @@ func TestHandleUplink(t *testing.T) {
 												Error: ErrTestInternal,
 											}
 										}),
-										assertPublishDropDataUplink(ctx, env, rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, ErrTestInternal),
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtDropDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, ErrTestInternal),
+										),
 									), should.BeTrue)
 								}, ErrTestInternal), should.BeTrue)
 							},
@@ -1542,18 +1593,23 @@ func TestHandleUplink(t *testing.T) {
 								innerErr := ErrOutdatedData
 								registryErr := ErrTestInternal.WithCause(innerErr)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
+									if !a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
+										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil),
+									), should.BeTrue) {
 										return false
 									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-									if !a.So(assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil), should.BeTrue) {
-										return false
-									}
+									decodedMsg.RxMetadata = RxMetadata[:]
 									_, ok = assertDataSetByID(ctx, env, rangeCtx, nil, nil, nil, innerErr, registryErr)
 									return a.So(AllTrue(
 										ok,
-										assertPublishDropDataUplink(ctx, env, rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, registryErr),
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtDropDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, registryErr),
+										),
 									), should.BeTrue)
 								}, registryErr), should.BeTrue)
 							},
@@ -1569,12 +1625,14 @@ func TestHandleUplink(t *testing.T) {
 								innerErr := ErrOutdatedData.WithCause(ErrDeviceNotFound)
 								registryErr := ErrTestInternal.WithCause(innerErr)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
-										return false
-									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-									if !a.So(assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil), should.BeTrue) {
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
+									if !a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
+										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil),
+									), should.BeTrue) {
 										return false
 									}
 									decodedMsg.RxMetadata = RxMetadata[:]
@@ -1585,7 +1643,9 @@ func TestHandleUplink(t *testing.T) {
 									_, ok = assertDataSetByID(ctx, env, rangeCtx, getDevice, nil, nil, innerErr, registryErr)
 									return a.So(AllTrue(
 										ok,
-										assertPublishDropDataUplink(ctx, env, rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, registryErr),
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtDropDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, registryErr),
+										),
 									), should.BeTrue)
 								}, registryErr), should.BeTrue)
 							},
@@ -1599,22 +1659,27 @@ func TestHandleUplink(t *testing.T) {
 								decodedMsg := conf.MakeDataUplink(true)
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
-										return false
-									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-									if !a.So(assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, nil, ErrTestInternal), should.BeTrue) {
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
+									if !a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
+										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, nil, ErrTestInternal),
+									), should.BeTrue) {
 										return false
 									}
 									getDevice := CopyEndDevice(rangeDevices[matchIdx])
-									setDevice, macEvs := makeDataSetDevice(getDevice, decodedMsg)
+									setDevice, macEvs := makeDataSetDevice(ctx, getDevice, decodedMsg)
 									setCtx, ok := assertDataSetByID(ctx, env, rangeCtx, getDevice, setDevice, dataSetByIDSetPaths[:], nil, nil)
 									return a.So(AllTrue(
 										ok,
 										assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+Rx1Delay.Duration()/2-NSScheduleWindow()), true, ErrTestInternal),
-										assertDataApplicationUp(ctx, env, setCtx, setDevice, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), ErrTestInternal),
-										assertPublishDefinitionDataClosures(ctx, env, macEvs, setCtx, setDevice.EndDeviceIdentifiers),
+										assertDataApplicationUp(ctx, env, setCtx, setDevice, decodedMsg, ErrTestInternal),
+										a.So(env.Events, should.ReceiveEventsResembling,
+											events.ApplyDefinitionDataClosures(setCtx, setDevice.EndDeviceIdentifiers, macEvs...),
+											EvtProcessDataUplink(setCtx, setDevice.EndDeviceIdentifiers, decodedMsg),
+										),
 									), should.BeTrue)
 								}, nil), should.BeTrue)
 							},
@@ -1628,26 +1693,29 @@ func TestHandleUplink(t *testing.T) {
 								decodedMsg := conf.MakeDataUplink(true)
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
-										return false
-									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-									if !a.So(assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil), should.BeTrue) {
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
+									if !a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
+										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil),
+									), should.BeTrue) {
 										return false
 									}
 									decodedMsg.RxMetadata = RxMetadata[:]
 									getDevice := CopyEndDevice(rangeDevices[matchIdx])
 									getDevice.UpdatedAt = clock.Now()
-									setDevice, macEvs := makeDataSetDevice(getDevice, decodedMsg)
+									setDevice, macEvs := makeDataSetDevice(ctx, getDevice, decodedMsg)
 									setCtx, ok := assertDataSetByID(ctx, env, rangeCtx, getDevice, setDevice, dataSetByIDSetPaths[:], nil, nil)
 									return a.So(AllTrue(
 										ok,
 										assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+Rx1Delay.Duration()/2-NSScheduleWindow()), true, nil),
-										assertDataApplicationUp(ctx, env, setCtx, setDevice, withMatchedUplinkSettings(chIdx, drIdx, decodedMsg), nil),
-										assertPublishMergeMetadata(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, RxMetadata[:]...),
-										assertPublishDefinitionDataClosures(ctx, env, macEvs, setCtx, setDevice.EndDeviceIdentifiers),
-										assertPublishForwardDataUplink(ctx, env, setCtx, setDevice.EndDeviceIdentifiers),
+										assertDataApplicationUp(ctx, env, setCtx, setDevice, WithMatchedUplinkSettings(decodedMsg, chIdx, drIdx), nil),
+										a.So(env.Events, should.ReceiveEventsResembling,
+											events.ApplyDefinitionDataClosures(setCtx, setDevice.EndDeviceIdentifiers, macEvs...),
+											EvtProcessDataUplink(setCtx, setDevice.EndDeviceIdentifiers, decodedMsg),
+										),
 									), should.BeTrue)
 								}, nil), should.BeTrue)
 							},
@@ -1662,25 +1730,29 @@ func TestHandleUplink(t *testing.T) {
 								rangeDevices := makeDataRangeDevices(clock, true, true)
 								prevMsg := CopyUplinkMessage(decodedMsg)
 								prevMsg.ReceivedAt = clock.Now()
-								rangeDevice, _ := makeDataSetDevice(rangeDevices[matchIdx], prevMsg)
+								rangeDevice, _ := makeDataSetDevice(ctx, rangeDevices[matchIdx], prevMsg)
 								rangeDevices[matchIdx] = rangeDevice
 								return a.So(assertHandleUplink(ctx, handle, msg, func() bool {
-									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, rangeDevices, matchIdx, true, nil)
-									if !a.So(ok, should.BeTrue) {
-										return false
-									}
-									clock.Set(decodedMsg.ReceivedAt.Add(DeduplicationWindow))
-									if !a.So(assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil), should.BeTrue) {
+									rangeCtx, ok := assertDataDeduplicateSequence(ctx, env, clock, decodedMsg, chIdx, drIdx, rangeDevices, matchIdx, true, nil)
+									if !a.So(AllTrue(
+										ok,
+										a.So(env.Events, should.ReceiveEventResembling,
+											EvtReceiveDataUplink(rangeCtx, rangeDevices[matchIdx].EndDeviceIdentifiers, decodedMsg),
+										),
+										assertAccumulatedMetadata(ctx, env, rangeCtx, decodedMsg, RxMetadata[:], nil),
+									), should.BeTrue) {
 										return false
 									}
 									decodedMsg.RxMetadata = RxMetadata[:]
-									setDevice, macEvs := makeDataSetDevice(rangeDevice, decodedMsg)
+									setDevice, macEvs := makeDataSetDevice(ctx, rangeDevice, decodedMsg)
 									setCtx, ok := assertDataSetByID(ctx, env, rangeCtx, rangeDevice, setDevice, dataSetByIDSetPaths[:], nil, nil)
 									return a.So(AllTrue(
 										ok,
 										assertDownlinkTaskAdd(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, decodedMsg.ReceivedAt.Add(-InfrastructureDelay/2+Rx1Delay.Duration()/2-NSScheduleWindow()), true, ErrTestInternal),
-										assertPublishMergeMetadata(ctx, env, setCtx, setDevice.EndDeviceIdentifiers, RxMetadata[:]...),
-										assertPublishDefinitionDataClosures(ctx, env, macEvs, setCtx, setDevice.EndDeviceIdentifiers),
+										a.So(env.Events, should.ReceiveEventsResembling,
+											events.ApplyDefinitionDataClosures(setCtx, setDevice.EndDeviceIdentifiers, macEvs...),
+											EvtProcessDataUplink(setCtx, setDevice.EndDeviceIdentifiers, decodedMsg),
+										),
 									), should.BeTrue)
 								}, nil), should.BeTrue)
 							},

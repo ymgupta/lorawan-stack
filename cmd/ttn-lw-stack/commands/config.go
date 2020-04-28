@@ -28,6 +28,7 @@ import (
 	shared_joinserver "go.thethings.network/lorawan-stack/cmd/internal/shared/joinserver"
 	shared_networkserver "go.thethings.network/lorawan-stack/cmd/internal/shared/networkserver"
 	shared_packetbrokeragent "go.thethings.network/lorawan-stack/cmd/internal/shared/packetbrokeragent"
+	shared_qrcodegenerator "go.thethings.network/lorawan-stack/cmd/internal/shared/qrcodegenerator"
 	shared_tenantbillingserver "go.thethings.network/lorawan-stack/cmd/internal/shared/tenantbillingserver"
 	"go.thethings.network/lorawan-stack/pkg/applicationserver"
 	conf "go.thethings.network/lorawan-stack/pkg/config"
@@ -79,6 +80,7 @@ var DefaultConfig = Config{
 	DCS:         shared_deviceclaimingserver.DefaultDeviceClaimingServerConfig,
 	CS:          shared_cryptoserver.DefaultCryptoServerConfig,
 	TBS:         shared_tenantbillingserver.DefaultTenantBillingServerConfig,
+	QRG:         shared_qrcodegenerator.DefaultQRCodeGeneratorConfig,
 }
 
 func init() {

@@ -17,13 +17,13 @@ import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import bind from 'autobind-decorator'
 import classnames from 'classnames'
-import PropTypes from '../../../lib/prop-types'
+import Tabular from '@ttn-lw/components/table'
+import Tabs from '@ttn-lw/components/tabs'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
-import debounce from '../../../lib/debounce'
+import debounce from '@ttn-lw/lib/debounce'
 
-import sharedMessages from '../../../lib/shared-messages'
-import Tabular from '../../../components/table'
-import Tabs from '../../../components/tabs'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
 
 import style from './fetch-table.styl'
 
@@ -168,7 +168,7 @@ class FetchTable extends Component {
 
     let itemIndex = index
     if (handlesPagination) {
-      const pageNr = page - 1 // switch to 0-based pagination
+      const pageNr = page - 1 // Switch to 0-based pagination.
       itemIndex += pageSize * pageNr
     }
     const entityPath = items[itemIndex].ids.application_id

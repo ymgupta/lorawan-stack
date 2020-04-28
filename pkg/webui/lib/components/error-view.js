@@ -14,8 +14,9 @@
 
 import React from 'react'
 import { withRouter } from 'react-router-dom'
+import * as Sentry from '@sentry/browser'
 
-import PropTypes from '../../lib/prop-types'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
 @withRouter
 class ErrorView extends React.Component {
@@ -36,13 +37,17 @@ class ErrorView extends React.Component {
     this.unlisten()
   }
 
-  componentDidCatch(error) {
-    this.setState({
-      hasCaught: true,
-      error,
+  componentDidCatch(error, errorInfo) {
+    Sentry.withScope(scope => {
+      scope.setExtras(errorInfo)
+      Sentry.captureException(error)
+      this.setState({
+        hasCaught: true,
+        error,
+      })
     })
 
-    // Clear the error when the route changes (e.g. user clicking a link)
+    // Clear the error when the route changes (e.g. user clicking a link).
     const { history } = this.props
     this.unlisten = history.listen((location, action) => {
       if (this.state.hasCaught) {

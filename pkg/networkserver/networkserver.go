@@ -21,7 +21,6 @@ import (
 	"sync"
 	"time"
 
-	pbtypes "github.com/gogo/protobuf/types"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
@@ -46,6 +45,13 @@ const (
 
 	// infrastructureDelay represents a time interval Network Server uses as a buffer to account for infrastructure delay.
 	infrastructureDelay = time.Second
+
+	// peeringScheduleDelay is the schedule delay used for scheduling downlink via peering.
+	// The schedule delay is used to estimate the transmission time, which is used as the minimum time for a subsequent transmission.
+	//
+	// When scheduling downlink to a cluster Gateway Server, the schedule delay is reported by the Gateway Server and is accurate.
+	// When scheduling downlink via peering, the schedule delay is unknown, and should be sufficiently high to avoid conflicts.
+	peeringScheduleDelay = infrastructureDelay + 4*time.Second
 
 	// networkInitiatedDownlinkInterval is the minimum time.Duration passed before a network-initiated(e.g. Class B or C) downlink following an arbitrary downlink.
 	networkInitiatedDownlinkInterval = time.Second
@@ -197,32 +203,10 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 		devices:             wrapDeviceRegistryWithDeprecatedFields(conf.Devices, deprecatedDeviceFields...),
 		downlinkTasks:       conf.DownlinkTasks,
 		downlinkPriorities:  downlinkPriorities,
-		defaultMACSettings: ttnpb.MACSettings{
-			ClassBTimeout:         conf.DefaultMACSettings.ClassBTimeout,
-			ClassCTimeout:         conf.DefaultMACSettings.ClassCTimeout,
-			StatusTimePeriodicity: conf.DefaultMACSettings.StatusTimePeriodicity,
-		},
-		interopClient:      interopCl,
-		uplinkDeduplicator: conf.UplinkDeduplicator,
-		deviceKEKLabel:     conf.DeviceKEKLabel,
-	}
-	if conf.DefaultMACSettings.ADRMargin != nil {
-		ns.defaultMACSettings.ADRMargin = &pbtypes.FloatValue{Value: *conf.DefaultMACSettings.ADRMargin}
-	}
-	if conf.DefaultMACSettings.DesiredRx1Delay != nil {
-		ns.defaultMACSettings.DesiredRx1Delay = &ttnpb.RxDelayValue{Value: *conf.DefaultMACSettings.DesiredRx1Delay}
-	}
-	if conf.DefaultMACSettings.DesiredMaxDutyCycle != nil {
-		ns.defaultMACSettings.DesiredMaxDutyCycle = &ttnpb.AggregatedDutyCycleValue{Value: *conf.DefaultMACSettings.DesiredMaxDutyCycle}
-	}
-	if conf.DefaultMACSettings.DesiredADRAckLimitExponent != nil {
-		ns.defaultMACSettings.DesiredADRAckLimitExponent = &ttnpb.ADRAckLimitExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckLimitExponent}
-	}
-	if conf.DefaultMACSettings.DesiredADRAckDelayExponent != nil {
-		ns.defaultMACSettings.DesiredADRAckDelayExponent = &ttnpb.ADRAckDelayExponentValue{Value: *conf.DefaultMACSettings.DesiredADRAckDelayExponent}
-	}
-	if conf.DefaultMACSettings.StatusCountPeriodicity != nil {
-		ns.defaultMACSettings.StatusCountPeriodicity = &pbtypes.UInt32Value{Value: *conf.DefaultMACSettings.StatusCountPeriodicity}
+		defaultMACSettings:  conf.DefaultMACSettings.Parse(),
+		interopClient:       interopCl,
+		uplinkDeduplicator:  conf.UplinkDeduplicator,
+		deviceKEKLabel:      conf.DeviceKEKLabel,
 	}
 
 	if len(opts) == 0 {

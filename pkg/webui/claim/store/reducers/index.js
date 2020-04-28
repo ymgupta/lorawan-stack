@@ -15,8 +15,8 @@
 import { combineReducers } from 'redux'
 import { connectRouter } from 'connected-react-router'
 
-import { SHARED_NAME_SINGLE as APPLICATION_SHARED_NAME } from '../actions/applications'
-import { getApplicationId } from '../../../lib/selectors/id'
+import { getApplicationId } from '@ttn-lw/lib/selectors/id'
+import { SHARED_NAME_SINGLE as APPLICATION_SHARED_NAME } from '@claim/store/actions/applications'
 import user from './user'
 import init from './init'
 import applications from './applications'

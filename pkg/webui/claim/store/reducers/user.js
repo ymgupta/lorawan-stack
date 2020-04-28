@@ -13,61 +13,48 @@
 // limitations under the License.
 
 import {
-  GET_USER_ME,
   GET_USER_ME_SUCCESS,
   GET_USER_ME_FAILURE,
-  LOGOUT,
-  LOGOUT_SUCCESS,
+  GET_USER_ME,
   LOGOUT_FAILURE,
-} from '../actions/user'
+  GET_USER_RIGHTS_SUCCESS,
+} from '@claim/store/actions/user'
 
 const defaultState = {
-  fetching: false,
   user: undefined,
-  error: false,
+  error: undefined,
 }
 
-const user = function(state = defaultState, action) {
-  switch (action.type) {
+const user = function(state = defaultState, { type, payload }) {
+  switch (type) {
     case GET_USER_ME:
       return {
         ...state,
-        fetching: true,
         user: undefined,
-        error: false,
+        error: undefined,
       }
+
     case GET_USER_ME_SUCCESS:
       return {
         ...state,
-        fetching: false,
-        user: action.user,
-        error: false,
+        user: payload,
+        error: undefined,
       }
     case GET_USER_ME_FAILURE:
       return {
         ...state,
-        fetching: false,
         user: undefined,
-        error: action.error,
+        error: payload,
       }
-    case LOGOUT:
+    case GET_USER_RIGHTS_SUCCESS:
       return {
         ...state,
-        fetching: true,
-        error: false,
-      }
-    case LOGOUT_SUCCESS:
-      return {
-        ...state,
-        user: undefined,
-        fetching: false,
-        error: false,
+        rights: payload,
       }
     case LOGOUT_FAILURE:
       return {
         ...state,
-        fetching: false,
-        error: action.error,
+        error: payload,
       }
     default:
       return state

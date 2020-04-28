@@ -12,22 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import api from '../api'
+import api from '@claim/api'
 
 export default async function() {
   const storedToken = localStorage.accessToken ? JSON.parse(localStorage.accessToken) : undefined
   let token
 
   if (!storedToken || Date.parse(storedToken.expiry) < Date.now()) {
-    // If we don't have a token stored or it's expired, we want to retrieve it
+    // If we don't have a token stored or it's expired, we want to retrieve it.
     const response = await api.claim.token()
     token = response.data
   } else {
-    // If we have a stored token and its valid, we want to use it
+    // If we have a stored token and its valid, we want to use it.
     return storedToken
   }
 
-  // We want to make sure the stored token is the correct one
+  // We want to make sure the stored token is the correct one.
   if (!storedToken || storedToken.access_token !== token.access_token) {
     localStorage.setItem('accessToken', JSON.stringify(token))
   }

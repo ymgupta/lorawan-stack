@@ -16,13 +16,14 @@ import {
   GET_USER_ME_SUCCESS,
   GET_USER_ME_FAILURE,
   GET_USER_ME,
-  LOGOUT_SUCCESS,
+  LOGOUT_FAILURE,
   GET_USER_RIGHTS_SUCCESS,
-} from '../actions/user'
+} from '@console/store/actions/user'
 
 const defaultState = {
   user: undefined,
   error: undefined,
+  rights: undefined,
 }
 
 const user = function(state = defaultState, { type, payload }) {
@@ -51,11 +52,10 @@ const user = function(state = defaultState, { type, payload }) {
         ...state,
         rights: payload,
       }
-    case LOGOUT_SUCCESS:
+    case LOGOUT_FAILURE:
       return {
         ...state,
-        user: undefined,
-        authInfo: undefined,
+        error: payload,
       }
     default:
       return state

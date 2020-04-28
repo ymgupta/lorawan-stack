@@ -13,12 +13,15 @@
 // limitations under the License.
 
 import axios from 'axios'
+
 import TTN from 'ttn-lw'
 
-import token from '../lib/access-token'
-import getCookieValue from '../../lib/cookie'
-import { selectStackConfig, selectApplicationRootPath } from '../../lib/selectors/env'
-import toast from '../../components/toast'
+import toast from '@ttn-lw/components/toast'
+
+import getCookieValue from '@ttn-lw/lib/cookie'
+import { selectStackConfig, selectApplicationRootPath } from '@ttn-lw/lib/selectors/env'
+
+import tokenCreator from '@console/lib/access-token'
 
 const stackConfig = selectStackConfig()
 const appRoot = selectApplicationRootPath()
@@ -35,25 +38,9 @@ const stack = {
 
 const isBaseUrl = stackConfig.is.base_url
 
-const ttnClient = new TTN(token, {
-  stackConfig: stack,
-  connectionType: 'http',
-  proxy: false,
-})
-
 const csrf = getCookieValue('_csrf')
 const instance = axios.create({
   headers: { 'X-CSRF-Token': csrf },
-})
-
-// Forward header warnings to the toast message queue
-ttnClient.subscribe('warning', payload => {
-  toast({
-    title: 'Warning',
-    type: toast.types.WARNING,
-    message: payload,
-    preventConsecutive: true,
-  })
 })
 
 instance.interceptors.response.use(
@@ -68,13 +55,48 @@ instance.interceptors.response.use(
   },
 )
 
+const token = tokenCreator(() => instance.get(`${appRoot}/api/auth/token`))
+
+const ttnClient = new TTN(token, {
+  stackConfig: stack,
+  connectionType: 'http',
+  proxy: false,
+})
+
+// Forward header warnings to the toast message queue.
+ttnClient.subscribe('warning', payload => {
+  toast({
+    title: 'Warning',
+    type: toast.types.WARNING,
+    message: payload,
+    preventConsecutive: true,
+  })
+})
+
 export default {
   console: {
     token() {
       return instance.get(`${appRoot}/api/auth/token`)
     },
-    logout() {
-      return instance.post(`${appRoot}/api/auth/logout`)
+    async logout() {
+      let csrf = getCookieValue('_console_csrf')
+
+      if (!csrf) {
+        // If the csrf token has been deleted, we likely have some outside
+        // manipulation of the cookies. We can try to regain the cookie by
+        // making an AJAX request to the current location.
+        await axios.get(window.location)
+        csrf = getCookieValue('_console_csrf')
+
+        if (!csrf) {
+          // If we still could not retrieve the cookie, throw an error.
+          throw new Error('Could not retrieve the csrf token')
+        }
+      }
+
+      return instance.post(`${appRoot}/api/auth/logout`, undefined, {
+        headers: { 'X-CSRF-Token': csrf },
+      })
     },
   },
   clients: {
@@ -139,6 +161,12 @@ export default {
       update: ttnClient.Applications.Webhooks.updateById.bind(ttnClient.Applications.Webhooks),
       delete: ttnClient.Applications.Webhooks.deleteById.bind(ttnClient.Applications.Webhooks),
       getFormats: ttnClient.Applications.Webhooks.getFormats.bind(ttnClient.Applications.Webhooks),
+      listTemplates: ttnClient.Applications.Webhooks.listTemplates.bind(
+        ttnClient.Applications.Webhooks,
+      ),
+      getTemplate: ttnClient.Applications.Webhooks.getTemplate.bind(
+        ttnClient.Applications.Webhooks,
+      ),
     },
     pubsubs: {
       list: ttnClient.Applications.PubSubs.getAll.bind(ttnClient.Applications.PubSubs),
@@ -170,6 +198,17 @@ export default {
   gateways: {
     list: ttnClient.Gateways.getAll.bind(ttnClient.Gateways),
     search: ttnClient.Gateways.search.bind(ttnClient.Gateways),
+  },
+  downlinkQueue: {
+    list: ttnClient.Applications.Devices.DownlinkQueue.list.bind(
+      ttnClient.Applications.Devices.DownlinkQueue,
+    ),
+    replace: ttnClient.Applications.Devices.DownlinkQueue.replace.bind(
+      ttnClient.Applications.Devices.DownlinkQueue,
+    ),
+    push: ttnClient.Applications.Devices.DownlinkQueue.push.bind(
+      ttnClient.Applications.Devices.DownlinkQueue,
+    ),
   },
   gateway: {
     get: ttnClient.Gateways.getById.bind(ttnClient.Gateways),

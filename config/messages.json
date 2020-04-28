@@ -2006,6 +2006,15 @@
       "file": "webhooks.go"
     }
   },
+  "error:pkg/applicationserver/io/web:template_not_found": {
+    "translations": {
+      "en": "template `{template_id}` not found"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/web",
+      "file": "templates.go"
+    }
+  },
   "error:pkg/applicationserver/io/web:webhook_not_found": {
     "translations": {
       "en": "webhook not found"
@@ -4472,6 +4481,15 @@
       "file": "membership_store.go"
     }
   },
+  "error:pkg/identityserver/store:migration_not_found": {
+    "translations": {
+      "en": "migration not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
   "error:pkg/identityserver/store:multiple_application_ids": {
     "translations": {
       "en": "can not list devices for multiple application IDs"
@@ -6020,6 +6038,15 @@
       "file": "config.go"
     }
   },
+  "error:pkg/networkserver:duplicate": {
+    "translations": {
+      "en": "uplink is a duplicate"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "errors.go"
+    }
+  },
   "error:pkg/networkserver:empty_session": {
     "translations": {
       "en": "session in empty"
@@ -6353,6 +6380,15 @@
       "file": "server.go"
     }
   },
+  "error:pkg/oauth:invalid_logout_redirect_uri": {
+    "translations": {
+      "en": "the redirect URI did not match the one(s) defined in the client"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.go"
+    }
+  },
   "error:pkg/oauth:invalid_redirect_uri": {
     "translations": {
       "en": "invalid redirect URI"
@@ -6378,6 +6414,15 @@
     "description": {
       "package": "pkg/oauth",
       "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:missing_param_access_token_id": {
+    "translations": {
+      "en": "access token ID was not provided"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.go"
     }
   },
   "error:pkg/oauth:no_access_token": {
@@ -6479,6 +6524,15 @@
       "file": "translation.go"
     }
   },
+  "error:pkg/packetbrokeragent:downlink_path": {
+    "translations": {
+      "en": "invalid uplink token downlink path"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
   "error:pkg/packetbrokeragent:forwarder_disabled": {
     "translations": {
       "en": "Forwarder is disabled"
@@ -6486,6 +6540,24 @@
     "description": {
       "package": "pkg/packetbrokeragent",
       "file": "grpc_gspba.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:home_network_disabled": {
+    "translations": {
+      "en": "Home Network is disabled"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "grpc_nspba.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:invalid_rx1_delay": {
+    "translations": {
+      "en": "invalid Rx1 delay"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
     }
   },
   "error:pkg/packetbrokeragent:message_identifiers": {
@@ -6506,6 +6578,15 @@
       "file": "agent.go"
     }
   },
+  "error:pkg/packetbrokeragent:no_downlink_paths": {
+    "translations": {
+      "en": "no downlink paths"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
   "error:pkg/packetbrokeragent:no_phy_payload": {
     "translations": {
       "en": "no PHYPayload in message"
@@ -6513,6 +6594,15 @@
     "description": {
       "package": "pkg/packetbrokeragent",
       "file": "encryption.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:no_request": {
+    "translations": {
+      "en": "downlink message is not a transmission request"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
     }
   },
   "error:pkg/packetbrokeragent:no_tls_certificate": {
@@ -6524,6 +6614,15 @@
       "file": "config.go"
     }
   },
+  "error:pkg/packetbrokeragent:token_key": {
+    "translations": {
+      "en": "invalid token key"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "agent.go"
+    }
+  },
   "error:pkg/packetbrokeragent:unknown_band": {
     "translations": {
       "en": "unknown band `{band_id}`"
@@ -6533,9 +6632,27 @@
       "file": "translation.go"
     }
   },
+  "error:pkg/packetbrokeragent:unknown_class": {
+    "translations": {
+      "en": "unknown class `{class}`"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
   "error:pkg/packetbrokeragent:unknown_data_rate": {
     "translations": {
       "en": "unknown data rate in region `{region}`"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:unknown_priority": {
+    "translations": {
+      "en": "unknown priority `{priority}`"
     },
     "description": {
       "package": "pkg/packetbrokeragent",
@@ -6554,6 +6671,24 @@
   "error:pkg/packetbrokeragent:unsupported_m_type": {
     "translations": {
       "en": "unsupported LoRaWAN MType `{m_type}`"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:unwrap_gateway_uplink_token": {
+    "translations": {
+      "en": "unwrap gateway uplink token"
+    },
+    "description": {
+      "package": "pkg/packetbrokeragent",
+      "file": "translation.go"
+    }
+  },
+  "error:pkg/packetbrokeragent:wrap_gateway_uplink_token": {
+    "translations": {
+      "en": "wrap gateway uplink token"
     },
     "description": {
       "package": "pkg/packetbrokeragent",
@@ -8108,7 +8243,7 @@
       "file": "observability.go"
     }
   },
-  "event:ns.application.begin_link": {
+  "event:ns.application.link.begin": {
     "translations": {
       "en": "begin application link"
     },
@@ -8117,7 +8252,7 @@
       "file": "observability.go"
     }
   },
-  "event:ns.application.end_link": {
+  "event:ns.application.link.end": {
     "translations": {
       "en": "end application link"
     },
@@ -8147,6 +8282,60 @@
   "event:ns.class.switch.c": {
     "translations": {
       "en": "switched to class C"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.data.schedule.attempt": {
+    "translations": {
+      "en": "schedule data downlink for transmission on Gateway Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.data.schedule.fail": {
+    "translations": {
+      "en": "failed to schedule data downlink for transmission on Gateway Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.data.schedule.success": {
+    "translations": {
+      "en": "successfully scheduled data downlink for transmission on Gateway Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.join.schedule.attempt": {
+    "translations": {
+      "en": "schedule join-accept for transmission on Gateway Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.join.schedule.fail": {
+    "translations": {
+      "en": "failed to schedule join-accept for transmission on Gateway Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.down.join.schedule.success": {
+    "translations": {
+      "en": "successfully scheduled join-accept for transmission on Gateway Server"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -8443,7 +8632,7 @@
   },
   "event:ns.mac.proprietary.receive": {
     "translations": {
-      "en": "proprietary MAC command received"
+      "en": "receive proprietary MAC command"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -8578,7 +8767,61 @@
   },
   "event:ns.up.data.forward": {
     "translations": {
-      "en": "forward data message"
+      "en": "forward data message to Application Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.data.process": {
+    "translations": {
+      "en": "successfully processed data message"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.data.receive": {
+    "translations": {
+      "en": "receive data message"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.join.accept.forward": {
+    "translations": {
+      "en": "forward join-accept to Application Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.join.cluster.attempt": {
+    "translations": {
+      "en": "send join-request to cluster-local Join Server"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.join.cluster.fail": {
+    "translations": {
+      "en": "join-request to cluster-local Join Server failed"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "observability.go"
+    }
+  },
+  "event:ns.up.join.cluster.success": {
+    "translations": {
+      "en": "join-request to cluster-local Join Server succeeded"
     },
     "description": {
       "package": "pkg/networkserver",
@@ -8594,54 +8837,45 @@
       "file": "observability.go"
     }
   },
-  "event:ns.up.join.forward": {
+  "event:ns.up.join.interop.attempt": {
     "translations": {
-      "en": "forward join-request"
+      "en": "forward join-request to interoperability Join Server"
     },
     "description": {
       "package": "pkg/networkserver",
       "file": "observability.go"
     }
   },
-  "event:ns.up.merge_metadata": {
+  "event:ns.up.join.interop.fail": {
     "translations": {
-      "en": "merge uplink message metadata"
+      "en": "join-request to interoperability Join Server failed"
     },
     "description": {
       "package": "pkg/networkserver",
       "file": "observability.go"
     }
   },
-  "event:ns.up.receive": {
+  "event:ns.up.join.interop.success": {
     "translations": {
-      "en": "receive uplink message"
+      "en": "join-request to interoperability Join Server succeeded"
     },
     "description": {
       "package": "pkg/networkserver",
       "file": "observability.go"
     }
   },
-  "event:ns.up.receive_duplicate": {
+  "event:ns.up.join.process": {
     "translations": {
-      "en": "receive duplicate uplink message"
+      "en": "successfully processed join-request"
     },
     "description": {
       "package": "pkg/networkserver",
       "file": "observability.go"
     }
   },
-  "event:ns.up.rejoin.drop": {
+  "event:ns.up.join.receive": {
     "translations": {
-      "en": "drop rejoin-request"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "observability.go"
-    }
-  },
-  "event:ns.up.rejoin.forward": {
-    "translations": {
-      "en": "forward rejoin-request"
+      "en": "receive join-request"
     },
     "description": {
       "package": "pkg/networkserver",

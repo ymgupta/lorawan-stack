@@ -9,7 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Console logout is now propagated to the OAuth provider.
+  - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
+  - To set the `logout-redirect-uris` for existing clients, the CLI client can be used, e.g.: `ttn-lw-cli clients update console --logout-redirect-uris "https://localhost:1885/console" --redirect-uris "http://localhost:1885/console"`.
+- Packet Broker Agent to act as Forwarder and Home Network. See `pba` configuration section.
+- JavaScript style guide to our `DEVELOPMENT.md` documentation.
+- Schedule end device downlinks in the Console.
+- Support for repeated `RekeyInd`. (happens when e.g. `RekeyConf` is lost)
+- Validate the `DevAddr` when switching session as a result of receiving `RekeyInd`.
+
 ### Changed
+
+- Conformed JavaScript to new code style guide.
+- Removed login page of the Console (now redirects straight to the OAuth login).
+- Network Server now records `LinkADRReq` rejections and will not retry rejected values.
+- Improved `NewChannelReq`, `DLChannelReq` and `LinkADRReq` efficiency.
 
 ### Deprecated
 
@@ -18,10 +32,68 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Missing target ns and as in parameters in device claiming sdk claim request  
+- Handling of device unsetting the ADR bit in uplink, after ADR has been started.
 
 ### Security
 
-## [3.7.0] (2020-04-02)
+## [3.7.2](2020-04-22)
+
+### Added
+
+- CLI can now dump JSON encoded `grpc_payload` field for unary requests (see `--dump-requests` flag).
+- Template ID column in the webhook table in the Console.
+- Select all field mask paths in CLI get, list and search commands (see `--all` option).
+- Create webhooks via webhook templates in the Console.
+- `ns.up.data.receive` and `ns.up.join.receive` events, which are triggered when respective uplink is received and matched to a device by Network Server.
+- `ns.up.data.forward` and `ns.up.join.accept.forward` events, which are triggered when respective message is forwarded from Network Server to Application Server.
+- `ns.up.join.cluster.attempt` and `ns.up.join.interop.attempt` events, which are triggered when the join-request is sent to respective Join Server by the Network Server.
+- `ns.up.join.cluster.success` and `ns.up.join.interop.success` events, which are triggered when Network Server's join-request is accepted by respective Join Server.
+- `ns.up.join.cluster.fail` and `ns.up.join.interop.fail` events, which are triggered when Network Server's join-request to respective Join Server fails.
+- `ns.up.data.process` and `ns.up.join.accept.process` events, which are triggered when respective message is successfully processed by Network Server.
+- `ns.down.data.schedule.attempt` and `ns.down.join.schedule.attempt` events, which are triggered when Network Server attempts to schedule a respective downlink on Gateway Server.
+- `ns.down.data.schedule.success` and `ns.down.join.schedule.success` events, which are triggered when Network Server successfully schedules a respective downlink on Gateway Server.
+- `ns.down.data.schedule.fail` and `ns.down.join.schedule.fail` events, which are triggered when Network Server fails to schedule a respective downlink on Gateway Server.
+- Specify gRPC port and OAuth server address when generating a CLI config file with `ttn-lw-cli use` (see `--grpc-port` and `--oauth-server-address` options).
+
+### Changed
+
+- Styling improvements to webhook and pubsub table in Console.
+- Gateway location is updated even if no antenna locations had been previously set.
+- Renamed `ns.application.begin_link` event to `ns.application.link.begin`.
+- Renamed `ns.application.end_link` event to `ns.application.link.end`.
+- `ns.up.data.drop` and `ns.up.join.drop` events are now triggered when respective uplink duplicate is dropped by Network Server.
+- Network Server now drops FPort 0 data uplinks with non-empty FOpts.
+- Frontend asset hashes are loaded dynamically from a manifest file instead of being built into the stack binary.
+- Removed `Cache-Control` header for static files.
+- Sort events by `time` in the Console.
+
+### Removed
+
+- `ns.up.merge_metadata` event.
+- `ns.up.receive_duplicate` event.
+- `ns.up.receive` event.
+
+### Fixed
+
+- End device claim display bug when claim dates not set.
+- DeviceModeInd handling for LoRaWAN 1.1 devices.
+- Do not perform unnecessary gateway location updates.
+- Error display on failed end device import in the Console.
+- Update password view not being accessible
+- FOpts encryption and decryption for LoRaWAN 1.1 devices.
+- Application Server returns an error when trying to delete a device that does not exist.
+- Network Server returns an error when trying to delete a device that does not exist.
+- Retrieve LNS Trust without LNS Credentials attribute.
+- Too strict webhook base URL validation in the Console.
+- Webhook and PubSub total count in the Console.
+- DevEUI is set when creating ABP devices via CLI.
+- CLI now shows all supported enum values for LoraWAN fields.
+- Application Server does not crash when retrieving a webhook template that does not exist if no template repository has been configured.
+- Application Server does not crash when listing webhook templates if no template repository has been configured.
+- Error display on failed end device fetching in the Console.
+- Various inconsistencies with Regional Parameters specifications.
+
+## [3.7.0](2020-04-02)
 
 ### Added
 
@@ -51,13 +123,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local CLI and stack config files now properly override global config.
 - Error display on failed end device deletion in the Console.
 
-## [3.6.3] (2020-03-30)
+## [3.6.3](2020-03-30)
 
 ### Fixed
 
--  Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
+- Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
 
-## [3.6.2] (2020-03-19)
+## [3.6.2](2020-03-19)
 
 ### Fixed
 
@@ -73,7 +145,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Admin users that are suspended can no longer create, view or delete other users.
 
-## [3.6.1] (2020-03-13)
+## [3.6.1](2020-03-13)
 
 ### Added
 
@@ -101,7 +173,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changing username and password to be not required in pubsub integration.
 
-## [3.6.0] (2020-02-27)
+## [3.6.0](2020-02-27)
 
 ### Added
 
@@ -128,7 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Returned values not representing the effective state of the devices in Network Server when deprecated field paths are used.
 - Downlink queue operations in Network Server for LoRaWAN 1.1 devices.
 
-## [3.5.3] (2020-02-14)
+## [3.5.3](2020-02-14)
 
 ### Added
 
@@ -151,7 +223,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [3.5.2] (2020-02-06)
+## [3.5.2](2020-02-06)
 
 ### Fixed
 
@@ -159,7 +231,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frequency plan validation in Network Server on device update.
 - Authentication of Basic Station gateways.
 
-## [3.5.1] (2020-01-29)
+## [3.5.1](2020-01-29)
 
 ### Added
 
@@ -173,7 +245,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Crashes on Gateway Server start when traffic flow started while The Things Stack was still starting.
 - Not detecting session change in Application Server when interop Join Server did not provide a `SessionKeyID`.
 
-## [3.5.0] (2020-01-24)
+## [3.5.0](2020-01-24)
 
 ### Added
 
@@ -211,7 +283,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Events processing in the JS SDK.
 - Application Server frontends getting stuck after their associated link is closed.
 
-## [3.4.2] (2020-01-08)
+## [3.4.2](2020-01-08)
 
 ### Added
 
@@ -236,7 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [3.4.1] (2019-12-30)
+## [3.4.1](2019-12-30)
 
 ### Added
 
@@ -253,7 +325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix class A downlink scheduling when an uplink message has been received between the triggering uplink message.
 
-## [3.4.0] (2019-12-24)
+## [3.4.0](2019-12-24)
 
 ### Added
 
@@ -271,7 +343,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix updating and setting of webhook headers in the Console.
 - Fix DevNonce checks for LoRaWAN 1.0.3.
 
-## [3.3.2] (2019-12-04)
+## [3.3.2](2019-12-04)
 
 ### Added
 
@@ -728,7 +800,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.2...HEAD
+[3.7.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...v3.7.2
 [3.7.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.7.0
 [3.6.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.2...v3.6.3
 [3.6.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.1...v3.6.2

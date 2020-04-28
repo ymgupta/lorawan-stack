@@ -145,10 +145,8 @@ var _GsPba_serviceDesc = grpc.ServiceDesc{
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type NsPbaClient interface {
-	// PublishDownlink instructs the Packet Broker Agent to publish a downlink message to Packet Broker Router.
-	// The Packet Broker Agent returns on the first successful message state change from Packet Broker Router;
-	// it does not wait for Packet Broker Router to check the routing policy, nor does it wait for the Home Network to
-	// confirm downlink message reception, downlink path availability or confirmation from the gateway.
+	// PublishDownlink instructs the Packet Broker Agent to publish a downlink
+	// message to Packet Broker Router.
 	PublishDownlink(ctx context.Context, in *DownlinkMessage, opts ...grpc.CallOption) (*types.Empty, error)
 }
 
@@ -171,10 +169,8 @@ func (c *nsPbaClient) PublishDownlink(ctx context.Context, in *DownlinkMessage, 
 
 // NsPbaServer is the server API for NsPba service.
 type NsPbaServer interface {
-	// PublishDownlink instructs the Packet Broker Agent to publish a downlink message to Packet Broker Router.
-	// The Packet Broker Agent returns on the first successful message state change from Packet Broker Router;
-	// it does not wait for Packet Broker Router to check the routing policy, nor does it wait for the Home Network to
-	// confirm downlink message reception, downlink path availability or confirmation from the gateway.
+	// PublishDownlink instructs the Packet Broker Agent to publish a downlink
+	// message to Packet Broker Router.
 	PublishDownlink(context.Context, *DownlinkMessage) (*types.Empty, error)
 }
 

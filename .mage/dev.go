@@ -167,6 +167,9 @@ func (Dev) InitStack() error {
 		"--redirect-uri", "https://localhost:8885/console/oauth/callback",
 		"--redirect-uri", "http://localhost:1885/console/oauth/callback",
 		"--redirect-uri", "/console/oauth/callback",
+		"--logout-redirect-uri", "https://localhost:8885/console",
+		"--logout-redirect-uri", "http://localhost:1885/console",
+		"--logout-redirect-uri", "/console",
 	); err != nil {
 		return err
 	}
@@ -178,6 +181,9 @@ func (Dev) InitStack() error {
 		"--redirect-uri", "https://localhost:8885/claim/oauth/callback",
 		"--redirect-uri", "http://localhost:1885/claim/oauth/callback",
 		"--redirect-uri", "/claim/oauth/callback",
+		"--logout-redirect-uri", "https://localhost:8885/claim",
+		"--logout-redirect-uri", "http://localhost:1885/claim",
+		"--logout-redirect-uri", "/claim",
 	)
 }
 

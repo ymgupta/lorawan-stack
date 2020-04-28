@@ -16,52 +16,33 @@ import React from 'react'
 import { defineMessages } from 'react-intl'
 import bind from 'autobind-decorator'
 
-import FetchTable from '../fetch-table'
-import Message from '../../../lib/components/message'
+import Message from '@ttn-lw/lib/components/message'
 
-import sharedMessages from '../../../lib/shared-messages'
+import FetchTable from '@console/containers/fetch-table'
 
-import { getPubsubsList } from '../../../console/store/actions/pubsubs'
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
+
+import { natsUrl as natsUrlRegexp } from '@console/lib/regexp'
+
+import { getPubsubsList } from '@console/store/actions/pubsubs'
+
 import {
   selectPubsubs,
   selectPubsubsTotalCount,
   selectPubsubsFetching,
-} from '../../../console/store/selectors/pubsubs'
-import { natsUrl as natsUrlRegexp } from '../../lib/regexp'
-import PropTypes from '../../../lib/prop-types'
+} from '@console/store/selectors/pubsubs'
 
 const m = defineMessages({
   format: 'Format',
-  host: 'Server Host',
+  host: 'Server host',
 })
 
 const headers = [
   {
     name: 'ids.pub_sub_id',
     displayName: sharedMessages.id,
-    width: 25,
-  },
-  {
-    getValue(row) {
-      if (row.nats) {
-        return 'NATS'
-      } else if (row.mqtt) {
-        return 'MQTT'
-      }
-      return 'Not set'
-    },
-    displayName: sharedMessages.provider,
-    width: 10,
-  },
-  {
-    name: 'format',
-    displayName: m.format,
-    width: 10,
-  },
-  {
-    name: 'base_topic',
-    displayName: sharedMessages.pubsubBaseTopic,
-    width: 15,
+    width: 40,
   },
   {
     getValue(row) {
@@ -74,7 +55,29 @@ const headers = [
       return ''
     },
     displayName: m.host,
-    width: 40,
+    width: 33,
+  },
+  {
+    name: 'base_topic',
+    displayName: sharedMessages.pubsubBaseTopic,
+    width: 9,
+  },
+  {
+    getValue(row) {
+      if (row.nats) {
+        return 'NATS'
+      } else if (row.mqtt) {
+        return 'MQTT'
+      }
+      return 'Not set'
+    },
+    displayName: sharedMessages.provider,
+    width: 9,
+  },
+  {
+    name: 'format',
+    displayName: m.format,
+    width: 9,
   },
 ]
 

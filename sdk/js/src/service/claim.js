@@ -15,12 +15,11 @@
 import Marshaler from '../util/marshaler'
 
 class DeviceClaim {
-  constructor(api, { stackConfig, proxy = true }) {
+  constructor(api, { stackConfig }) {
     if (!api) {
       throw new Error('Cannot initialize DeviceClaim service without api object.')
     }
     this._api = api
-    this._proxy = proxy
     this._stackConfig = stackConfig
   }
 

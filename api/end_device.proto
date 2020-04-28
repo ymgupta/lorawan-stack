@@ -323,6 +323,7 @@ message MACState {
     JoinRequest request = 2 [(gogoproto.nullable) = false, (validate.rules).message.required = true];
     // Network session keys associated with the join.
     SessionKeys keys = 3 [(gogoproto.nullable) = false, (validate.rules).message.required = true];
+    repeated string correlation_ids = 4 [(gogoproto.customname) = "CorrelationIDs", (validate.rules).repeated.items.string.max_len = 100];
   }
   // Queued join-accept.
   // Set each time a (re-)join request accept is received from Join Server and removed each time a downlink is scheduled.
@@ -344,6 +345,18 @@ message MACState {
 
   // Time when the last network-initiated downlink message was scheduled.
   google.protobuf.Timestamp last_network_initiated_downlink_at = 16 [(gogoproto.stdtime) = true];
+
+  // ADR Data rate index values rejected by the device.
+  // Reset each time `current_parameters.channels` change.
+  // Elements are sorted in ascending order.
+  repeated DataRateIndex rejected_adr_data_rate_indexes = 17 [(gogoproto.customname) = "RejectedADRDataRateIndexes", (validate.rules).repeated.max_items = 15, (validate.rules).repeated.items.enum.defined_only = true];
+
+  // ADR TX output power index values rejected by the device.
+  // Elements are sorted in ascending order.
+  repeated uint32 rejected_adr_tx_power_indexes = 18 [(gogoproto.customname) = "RejectedADRTxPowerIndexes", (validate.rules).repeated.max_items = 15, (validate.rules).repeated.items.uint32.lte = 15];
+
+  // Frequencies rejected by the device.
+  repeated uint64 rejected_frequencies = 19 [(validate.rules).repeated.items.uint64.gte = 100000];
 }
 
 // Power state of the device.

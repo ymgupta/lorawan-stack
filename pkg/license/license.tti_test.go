@@ -1,6 +1,6 @@
 // Copyright © 2019 The Things Industries B.V.
 
-package license
+package license_test
 
 import (
 	"encoding/base64"
@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/smartystreets/assertions"
+	. "go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
@@ -22,7 +23,7 @@ AwEHoUQDQgAEbcZyAkH6QwLCd+rYqTYtIJ+cfn6K8cfJl+YaohBwSYSZxu/hCPOe
 aRlnEgCYSEoIuptQQQCSZt1lelnqMwUw9A==
 -----END EC PRIVATE KEY-----`))
 
-	mustRegisterKey("TestKey", []byte{
+	MustRegisterKey("TestKey", []byte{
 		0x30, 0x59, 0x30, 0x13, 0x06, 0x07, 0x2a, 0x86,
 		0x48, 0xce, 0x3d, 0x02, 0x01, 0x06, 0x08, 0x2a,
 		0x86, 0x48, 0xce, 0x3d, 0x03, 0x01, 0x07, 0x03,

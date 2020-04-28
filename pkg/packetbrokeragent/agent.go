@@ -16,37 +16,41 @@ package packetbrokeragent
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	packetbroker "go.packetbroker.org/api/v1"
+	packetbroker "go.packetbroker.org/api/v3"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/rpcclient"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"gopkg.in/square/go-jose.v2"
 )
 
 const (
-	upstreamBufferSize = 64
+	upstreamBufferSize   = 1 << 6
+	downstreamBufferSize = 1 << 5
 
-	// messageStateChangeTimeout defines the maximum time to wait for a message state change.
-	messageStateChangeTimeout = 2 * time.Second
+	// publishMessageTimeout defines the timeout for publishing messages.
+	publishMessageTimeout = 3 * time.Second
 )
 
-// EndDeviceIdentifiersContextFiller fills the parent context based on the end device identifiers.
-type EndDeviceIdentifiersContextFiller func(parent context.Context, ids ttnpb.EndDeviceIdentifiers) (context.Context, error)
+// TenantContextFiller fills the parent context based on the tenant ID.
+type TenantContextFiller func(parent context.Context, tenantID string) (context.Context, error)
 
 // Agent implements the Packet Broker Agent component, acting as Home Network.
 //
@@ -55,16 +59,20 @@ type Agent struct {
 	*component.Component
 	ctx context.Context
 
-	dataPlaneAddress  string
-	netID             types.NetID
+	dataPlaneAddress string
+	netID            types.NetID
+	tenantID,
+	clusterID string
+	tlsConfig         TLSConfig
 	forwarderConfig   ForwarderConfig
 	homeNetworkConfig HomeNetworkConfig
 	subscriptionGroup string
 	devAddrPrefixes   []types.DevAddrPrefix
 
-	contextFillers []EndDeviceIdentifiersContextFiller
+	tenantContextFillers []TenantContextFiller
 
-	upstreamCh chan *ttnpb.GatewayUplinkMessage
+	upstreamCh   chan *ttnpb.GatewayUplinkMessage
+	downstreamCh chan *ttnpb.DownlinkMessage
 
 	grpc struct {
 		nsPba ttnpb.NsPbaServer
@@ -75,18 +83,24 @@ type Agent struct {
 // Option configures Agent.
 type Option func(*Agent)
 
-// WithEndDeviceIdentifiersContextFiller returns an Option that appends the given filler to the end device identifiers
+// WithTenantContextFiller returns an Option that appends the given filler to the end device identifiers
 // context fillers.
-func WithEndDeviceIdentifiersContextFiller(filler EndDeviceIdentifiersContextFiller) Option {
+func WithTenantContextFiller(filler TenantContextFiller) Option {
 	return func(a *Agent) {
-		a.contextFillers = append(a.contextFillers, filler)
+		a.tenantContextFillers = append(a.tenantContextFillers, filler)
 	}
 }
 
-var errNetID = errors.DefineFailedPrecondition("net_id", "invalid NetID `{net_id}`")
+var (
+	errNetID    = errors.DefineFailedPrecondition("net_id", "invalid NetID `{net_id}`")
+	errTokenKey = errors.DefineFailedPrecondition("token_key", "invalid token key", "length")
+)
 
 // New returns a new Packet Broker Agent.
 func New(c *component.Component, conf *Config, opts ...Option) (*Agent, error) {
+	ctx := log.NewContextWithField(c.Context(), "namespace", "packetbrokeragent")
+	logger := log.FromContext(ctx)
+
 	var devAddrPrefixes []types.DevAddrPrefix
 	if hn := conf.HomeNetwork; hn.Enable {
 		devAddrPrefixes = append(devAddrPrefixes, hn.DevAddrPrefixes...)
@@ -105,19 +119,50 @@ func New(c *component.Component, conf *Config, opts ...Option) (*Agent, error) {
 
 	a := &Agent{
 		Component: c,
-		ctx:       log.NewContextWithField(c.Context(), "namespace", "packetbroker/agent"),
+		ctx:       ctx,
 
 		dataPlaneAddress:  conf.DataPlaneAddress,
 		netID:             conf.NetID,
+		tenantID:          conf.TenantID,
+		clusterID:         conf.ClusterID,
+		tlsConfig:         conf.TLS,
 		forwarderConfig:   conf.Forwarder,
 		homeNetworkConfig: conf.HomeNetwork,
-		subscriptionGroup: conf.SubscriptionGroup,
 		devAddrPrefixes:   devAddrPrefixes,
 	}
 	if a.forwarderConfig.Enable {
 		a.upstreamCh = make(chan *ttnpb.GatewayUplinkMessage, upstreamBufferSize)
+		if len(a.forwarderConfig.TokenKey) == 0 {
+			a.forwarderConfig.TokenKey = random.Bytes(16)
+			logger.WithField("token_key", hex.EncodeToString(a.forwarderConfig.TokenKey)).Warn("No token key configured, generated a random one")
+		}
+		var (
+			enc jose.ContentEncryption
+			alg jose.KeyAlgorithm
+		)
+		switch l := len(a.forwarderConfig.TokenKey); l {
+		case 16:
+			enc, alg = jose.A128GCM, jose.A128GCMKW
+		case 32:
+			enc, alg = jose.A256GCM, jose.A256GCMKW
+		default:
+			return nil, errTokenKey.WithAttributes("length", l).New()
+		}
+		var err error
+		a.forwarderConfig.TokenEncrypter, err = jose.NewEncrypter(enc, jose.Recipient{
+			Algorithm: alg,
+			Key:       a.forwarderConfig.TokenKey,
+		}, nil)
+		if err != nil {
+			return nil, errTokenKey.WithCause(err)
+		}
 	}
-	a.grpc.nsPba = &ttnpb.UnimplementedNsPbaServer{}
+	if a.homeNetworkConfig.Enable {
+		a.downstreamCh = make(chan *ttnpb.DownlinkMessage, downstreamBufferSize)
+	}
+	a.grpc.nsPba = &nsPbaServer{
+		downstreamCh: a.downstreamCh,
+	}
 	a.grpc.gsPba = &gsPbaServer{
 		upstreamCh: a.upstreamCh,
 	}
@@ -126,13 +171,16 @@ func New(c *component.Component, conf *Config, opts ...Option) (*Agent, error) {
 	}
 
 	if a.forwarderConfig.Enable {
-		c.RegisterTask(c.Context(), "pb_forward_uplink", a.forwardUplink, component.TaskRestartOnFailure, component.TaskBackoffDial...)
+		c.RegisterTask(c.Context(), "pb_publish_uplink", a.publishUplink, component.TaskRestartOnFailure, component.TaskBackoffDial...)
+		c.RegisterTask(c.Context(), "pb_subscribe_downlink", a.subscribeDownlink, component.TaskRestartOnFailure, component.TaskBackoffDial...)
 	}
 	if a.homeNetworkConfig.Enable {
 		c.RegisterTask(c.Context(), "pb_subscribe_uplink", a.subscribeUplink, component.TaskRestartOnFailure, component.TaskBackoffDial...)
+		c.RegisterTask(c.Context(), "pb_publish_downlink", a.publishDownlink, component.TaskRestartOnFailure, component.TaskBackoffDial...)
 	}
 
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.GsPba", cluster.HookName, c.ClusterAuthUnaryHook())
+	hooks.RegisterUnaryHook("/ttn.lorawan.v3.NsPba", cluster.HookName, c.ClusterAuthUnaryHook())
 
 	c.RegisterGRPC(a)
 	return a, nil
@@ -175,19 +223,27 @@ func (a *Agent) dialContext(ctx context.Context, config TLSConfig, target string
 	return grpc.DialContext(ctx, target, opts...)
 }
 
-func (a *Agent) forwardUplink(ctx context.Context) error {
+const (
+	// workerIdleTimeout is the duration after which an idle worker stops to save resources.
+	workerIdleTimeout = (1 << 7) * time.Millisecond
+	// workerBusyTimeout is the duration after which a message is dropped if all workers are busy.
+	workerBusyTimeout = (1 << 6) * time.Millisecond
+)
+
+func (a *Agent) publishUplink(ctx context.Context) error {
 	ctx = log.NewContextWithFields(ctx, log.Fields(
-		"namespace", "packetbroker/agent",
+		"namespace", "packetbrokeragent",
 		"forwarder_net_id", a.netID,
-		"forwarder_id", a.forwarderConfig.ID,
+		"forwarder_id", a.clusterID,
+		"forwarder_tenant_id", a.tenantID,
 	))
 
-	conn, err := a.dialContext(ctx, a.forwarderConfig.TLS, a.dataPlaneAddress)
+	conn, err := a.dialContext(ctx, a.tlsConfig, a.dataPlaneAddress)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:%s", events.NewCorrelationID()))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:up:%s", events.NewCorrelationID()))
 
 	logger := log.FromContext(ctx)
 	logger.Info("Connected as Forwarder")
@@ -207,12 +263,12 @@ func (a *Agent) forwardUplink(ctx context.Context) error {
 			select {
 			case uplinkCh <- msg:
 			default:
-				if atomic.LoadInt32(&workers) < a.forwarderConfig.WorkerPool.MaximumWorkerCount {
+				if int(atomic.LoadInt32(&workers)) < a.forwarderConfig.WorkerPool.Limit {
 					wg.Add(1)
 					atomic.AddInt32(&workers, 1)
 					go func() {
-						if err := a.runForwarder(ctx, conn, uplinkCh); err != nil {
-							logger.WithError(err).Warn("Forwarder stopped")
+						if err := a.runForwarderPublisher(ctx, conn, uplinkCh); err != nil {
+							logger.WithError(err).Warn("Forwarder publisher stopped")
 						}
 						wg.Done()
 						atomic.AddInt32(&workers, -1)
@@ -220,25 +276,25 @@ func (a *Agent) forwardUplink(ctx context.Context) error {
 				}
 				select {
 				case uplinkCh <- msg:
-				case <-time.After(a.forwarderConfig.WorkerPool.BusyTimeout):
-					logger.Warn("Forwarder busy, drop message")
+				case <-time.After(workerBusyTimeout):
+					logger.Warn("Forwarder publisher busy, drop message")
 				}
 			}
 		}
 	}
 }
 
-func (a *Agent) runForwarder(ctx context.Context, conn *grpc.ClientConn, uplinkCh <-chan *ttnpb.GatewayUplinkMessage) error {
+func (a *Agent) runForwarderPublisher(ctx context.Context, conn *grpc.ClientConn, uplinkCh <-chan *ttnpb.GatewayUplinkMessage) error {
 	logger := log.FromContext(ctx)
 	client := packetbroker.NewRouterForwarderDataClient(conn)
 	for {
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(a.forwarderConfig.WorkerPool.IdleTimeout):
+		case <-time.After(workerIdleTimeout):
 			return nil
 		case up := <-uplinkCh:
-			msg, err := toPBUplink(ctx, up)
+			msg, err := toPBUplink(ctx, up, a.forwarderConfig)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to convert outgoing uplink message")
 				continue
@@ -248,40 +304,179 @@ func (a *Agent) runForwarder(ctx context.Context, conn *grpc.ClientConn, uplinkC
 				continue
 			}
 			req := &packetbroker.PublishUplinkMessageRequest{
-				ForwarderNetId: a.netID.MarshalNumber(),
-				ForwarderId:    a.forwarderConfig.ID,
-				Message:        msg,
+				ForwarderNetId:    a.netID.MarshalNumber(),
+				ForwarderId:       a.clusterID,
+				ForwarderTenantId: a.tenantID,
+				Message:           msg,
 			}
-			ctx, cancel := context.WithTimeout(ctx, messageStateChangeTimeout)
-			progress, err := client.Publish(ctx, req)
+			ctx, cancel := context.WithTimeout(ctx, publishMessageTimeout)
+			res, err := client.Publish(ctx, req)
 			if err != nil {
 				logger.WithError(err).Warn("Failed to publish uplink message")
-				cancel()
-				continue
+			} else {
+				logger.WithField("message_id", res.Id).Debug("Published uplink message")
 			}
-			status, err := progress.Recv()
-			if err != nil {
-				if errors.IsDeadlineExceeded(err) {
-					logger.Warn("Wait for message state change timed out")
-				} else {
-					logger.WithError(err).Warn("Failed to receive published uplink message status")
-				}
-				cancel()
-				continue
-			}
-			logger.WithFields(log.Fields(
-				"message_id", status.Id,
-				"state", status.State,
-			)).Debug("Publish uplink message state changed")
 			cancel()
 		}
 	}
 }
 
+func (a *Agent) subscribeDownlink(ctx context.Context) error {
+	ctx = log.NewContextWithFields(ctx, log.Fields(
+		"namespace", "packetbrokeragent",
+		"forwarder_net_id", a.netID,
+		"forwarder_id", a.clusterID,
+		"forwarder_tenant_id", a.tenantID,
+	))
+
+	conn, err := a.dialContext(ctx, a.tlsConfig, a.dataPlaneAddress)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:down:%s", events.NewCorrelationID()))
+
+	client := packetbroker.NewRouterForwarderDataClient(conn)
+	stream, err := client.Subscribe(ctx, &packetbroker.SubscribeForwarderRequest{
+		ForwarderNetId:    a.netID.MarshalNumber(),
+		ForwarderId:       a.clusterID,
+		ForwarderTenantId: a.tenantID,
+		Group:             a.subscriptionGroup,
+	})
+	if err != nil {
+		return err
+	}
+	logger := log.FromContext(ctx)
+	logger.Info("Subscribed as Forwarder")
+
+	downlinkCh := make(chan *packetbroker.RoutedDownlinkMessage)
+	defer close(downlinkCh)
+
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	var workers int32
+
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	for {
+		msg, err := stream.Recv()
+		if err != nil {
+			return err
+		}
+		select {
+		case downlinkCh <- msg:
+		default:
+			if int(atomic.LoadInt32(&workers)) < a.forwarderConfig.WorkerPool.Limit {
+				wg.Add(1)
+				atomic.AddInt32(&workers, 1)
+				go func() {
+					if err := a.handleDownlink(ctx, downlinkCh); err != nil {
+						logger.WithError(err).Warn("Forwarder subscriber stopped")
+					}
+					wg.Done()
+					atomic.AddInt32(&workers, -1)
+				}()
+			}
+			select {
+			case downlinkCh <- msg:
+			case <-time.After(workerBusyTimeout):
+				logger.Warn("Forwarder subscriber busy, drop message")
+			}
+		}
+	}
+}
+
+func (a *Agent) handleDownlink(ctx context.Context, downlinkCh <-chan *packetbroker.RoutedDownlinkMessage) error {
+	logger := log.FromContext(ctx)
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(workerIdleTimeout):
+			return nil
+		case down := <-downlinkCh:
+			if down.Message == nil {
+				continue
+			}
+			ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:downlink:%s", down.Id))
+			var homeNetworkNetID types.NetID
+			homeNetworkNetID.UnmarshalNumber(down.HomeNetworkNetId)
+			ctx = log.NewContextWithFields(ctx, log.Fields(
+				"message_id", down.Id,
+				"from_home_network_net_id", homeNetworkNetID,
+				"from_home_network_tenant_id", down.HomeNetworkNetId,
+			))
+			if err := a.handleDownlinkMessage(ctx, down); err != nil {
+				logger.WithError(err).Debug("Failed to handle incoming downlink message")
+			}
+		}
+	}
+}
+
+func (a *Agent) handleDownlinkMessage(ctx context.Context, down *packetbroker.RoutedDownlinkMessage) error {
+	receivedAt := time.Now()
+	logger := log.FromContext(ctx)
+
+	for _, filler := range a.tenantContextFillers {
+		var err error
+		if ctx, err = filler(ctx, down.ForwarderTenantId); err != nil {
+			logger.WithError(err).Warn("Failed to fill context for incoming downlink message")
+			return err
+		}
+	}
+
+	ids, msg, err := fromPBDownlink(ctx, down.Message, receivedAt, a.forwarderConfig)
+	if err != nil {
+		logger.WithError(err).Warn("Failed to convert incoming uplink message")
+		return err
+	}
+
+	req := msg.GetRequest()
+	pairs := []interface{}{
+		"gateway_uid", unique.ID(ctx, ids),
+		"attempt_rx1", req.Rx1Frequency != 0,
+		"attempt_rx2", req.Rx2Frequency != 0,
+		"downlink_class", req.Class,
+		"downlink_priority", req.Priority,
+		"frequency_plan", req.FrequencyPlanID,
+	}
+	if req.Rx1Frequency != 0 {
+		pairs = append(pairs,
+			"rx1_delay", req.Rx1Delay,
+			"rx1_data_rate", req.Rx1DataRateIndex,
+			"rx1_frequency", req.Rx1Frequency,
+		)
+	}
+	if req.Rx2Frequency != 0 {
+		pairs = append(pairs,
+			"rx2_data_rate", req.Rx2DataRateIndex,
+			"rx2_frequency", req.Rx2Frequency,
+		)
+	}
+	logger = logger.WithFields(log.Fields(pairs...))
+
+	conn, err := a.GetPeerConn(ctx, ttnpb.ClusterRole_GATEWAY_SERVER, ids)
+	if err != nil {
+		return err
+	}
+	res, err := ttnpb.NewNsGsClient(conn).ScheduleDownlink(ctx, msg, a.WithClusterAuth())
+	if err != nil {
+		logger.WithError(err).Warn("Failed to schedule downlink")
+		return err
+	}
+	transmitAt := time.Now().Add(res.Delay)
+	logger.WithFields(log.Fields(
+		"transmission_delay", res.Delay,
+		"transmit_at", transmitAt,
+	)).Debug("Scheduled downlink")
+	return nil
+}
+
 func (a *Agent) getSubscriptionFilters() []*packetbroker.RoutingFilter {
-	devAddrPrefixes := make([]*packetbroker.RoutingFilter_MACPayload_DevAddrPrefix, len(a.devAddrPrefixes))
+	devAddrPrefixes := make([]*packetbroker.DevAddrPrefix, len(a.devAddrPrefixes))
 	for i, p := range a.devAddrPrefixes {
-		devAddrPrefixes[i] = &packetbroker.RoutingFilter_MACPayload_DevAddrPrefix{
+		devAddrPrefixes[i] = &packetbroker.DevAddrPrefix{
 			Value:  p.DevAddr.MarshalNumber(),
 			Length: uint32(p.Length),
 		}
@@ -302,14 +497,14 @@ func (a *Agent) getSubscriptionFilters() []*packetbroker.RoutingFilter {
 			},
 		},
 	}
-	if a.forwarderConfig.Enable {
-		// Add self to blacklist to avoid looping traffic via Packet Broker.
+	if a.forwarderConfig.Enable && a.homeNetworkConfig.BlacklistForwarder {
+		// Blacklist Forwarder to avoid looping traffic via Packet Broker.
 		forwardersBlacklist := &packetbroker.RoutingFilter_ForwarderBlacklist{
 			ForwarderBlacklist: &packetbroker.ForwarderIdentifiers{
 				List: []*packetbroker.ForwarderIdentifier{
 					{
 						NetId:       a.netID.MarshalNumber(),
-						ForwarderId: a.forwarderConfig.ID,
+						ForwarderId: a.clusterID,
 					},
 				},
 			},
@@ -324,22 +519,24 @@ func (a *Agent) getSubscriptionFilters() []*packetbroker.RoutingFilter {
 
 func (a *Agent) subscribeUplink(ctx context.Context) error {
 	ctx = log.NewContextWithFields(ctx, log.Fields(
-		"namespace", "packetbroker/agent",
+		"namespace", "packetbrokeragent",
 		"home_network_net_id", a.netID,
+		"home_network_tenant_id", a.tenantID,
 	))
-	ctx = tenant.NewContext(ctx, cluster.PacketBrokerTenantID)
 
-	conn, err := a.dialContext(ctx, a.homeNetworkConfig.TLS, a.dataPlaneAddress)
+	conn, err := a.dialContext(ctx, a.tlsConfig, a.dataPlaneAddress)
 	if err != nil {
 		return err
 	}
 	defer conn.Close()
-	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:%s", events.NewCorrelationID()))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:up:%s", events.NewCorrelationID()))
 
 	client := packetbroker.NewRouterHomeNetworkDataClient(conn)
 	stream, err := client.Subscribe(ctx, &packetbroker.SubscribeHomeNetworkRequest{
-		HomeNetworkNetId: a.netID.MarshalNumber(),
-		Filters:          a.getSubscriptionFilters(),
+		HomeNetworkNetId:    a.netID.MarshalNumber(),
+		HomeNetworkTenantId: a.tenantID,
+		Filters:             a.getSubscriptionFilters(),
+		Group:               a.subscriptionGroup,
 	})
 	if err != nil {
 		return err
@@ -365,7 +562,7 @@ func (a *Agent) subscribeUplink(ctx context.Context) error {
 		select {
 		case uplinkCh <- msg:
 		default:
-			if atomic.LoadInt32(&workers) < a.homeNetworkConfig.WorkerPool.MaximumWorkerCount {
+			if int(atomic.LoadInt32(&workers)) < a.homeNetworkConfig.WorkerPool.Limit {
 				wg.Add(1)
 				atomic.AddInt32(&workers, 1)
 				go func() {
@@ -378,7 +575,7 @@ func (a *Agent) subscribeUplink(ctx context.Context) error {
 			}
 			select {
 			case uplinkCh <- msg:
-			case <-time.After(a.homeNetworkConfig.WorkerPool.BusyTimeout):
+			case <-time.After(workerBusyTimeout):
 				logger.Warn("Home Network subscriber busy, drop message")
 			}
 		}
@@ -391,20 +588,20 @@ func (a *Agent) handleUplink(ctx context.Context, uplinkCh <-chan *packetbroker.
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case <-time.After(a.homeNetworkConfig.WorkerPool.IdleTimeout):
+		case <-time.After(workerIdleTimeout):
 			return nil
-		case msg := <-uplinkCh:
-			up := msg.Message
-			if up == nil {
+		case up := <-uplinkCh:
+			if up.Message == nil {
 				continue
 			}
-			ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:uplink:%s", msg.Id))
+			ctx := events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:uplink:%s", up.Id))
 			var forwarderNetID types.NetID
-			forwarderNetID.UnmarshalNumber(msg.ForwarderNetId)
+			forwarderNetID.UnmarshalNumber(up.ForwarderNetId)
 			ctx = log.NewContextWithFields(ctx, log.Fields(
-				"message_id", msg.Id,
+				"message_id", up.Id,
 				"from_forwarder_net_id", forwarderNetID,
-				"from_forwarder_id", msg.ForwarderId,
+				"from_forwarder_id", up.ForwarderId,
+				"from_forwarder_tenant_id", up.ForwarderTenantId,
 			))
 			if err := a.handleUplinkMessage(ctx, up); err != nil {
 				logger.WithError(err).Debug("Failed to handle incoming uplink message")
@@ -415,17 +612,17 @@ func (a *Agent) handleUplink(ctx context.Context, uplinkCh <-chan *packetbroker.
 
 var errMessageIdentifiers = errors.DefineFailedPrecondition("message_identifiers", "invalid message identifiers")
 
-func (a *Agent) handleUplinkMessage(ctx context.Context, msg *packetbroker.UplinkMessage) error {
+func (a *Agent) handleUplinkMessage(ctx context.Context, up *packetbroker.RoutedUplinkMessage) error {
 	receivedAt := time.Now()
 	logger := log.FromContext(ctx)
 
-	if err := a.decryptUplink(ctx, msg); err != nil {
+	if err := a.decryptUplink(ctx, up.Message); err != nil {
 		logger.WithError(err).Warn("Failed to decrypt message")
 		return err
 	}
 	logger.Debug("Received uplink message")
 
-	ids, err := lorawan.GetUplinkMessageIdentifiers(msg.PhyPayload.GetPlain())
+	ids, err := lorawan.GetUplinkMessageIdentifiers(up.Message.PhyPayload.GetPlain())
 	if err != nil {
 		return errMessageIdentifiers.New()
 	}
@@ -440,16 +637,16 @@ func (a *Agent) handleUplinkMessage(ctx context.Context, msg *packetbroker.Uplin
 		logger = logger.WithField("dev_addr", *ids.DevAddr)
 	}
 
-	up, err := fromPBUplink(ctx, msg, receivedAt)
+	msg, err := fromPBUplink(ctx, up, receivedAt)
 	if err != nil {
 		logger.WithError(err).Warn("Failed to convert incoming uplink message")
 		return err
 	}
 
-	for _, filler := range a.contextFillers {
+	for _, filler := range a.tenantContextFillers {
 		var err error
-		if ctx, err = filler(ctx, ids); err != nil {
-			logger.WithError(err).Warn("Failed to fill end device identifiers context for incoming uplink message")
+		if ctx, err = filler(ctx, up.HomeNetworkTenantId); err != nil {
+			logger.WithError(err).Warn("Failed to fill context for incoming uplink message")
 			return err
 		}
 	}
@@ -457,6 +654,94 @@ func (a *Agent) handleUplinkMessage(ctx context.Context, msg *packetbroker.Uplin
 	if err != nil {
 		return err
 	}
-	_, err = ttnpb.NewGsNsClient(conn).HandleUplink(ctx, up, a.WithClusterAuth())
+	_, err = ttnpb.NewGsNsClient(conn).HandleUplink(ctx, msg, a.WithClusterAuth())
 	return err
+}
+
+func (a *Agent) publishDownlink(ctx context.Context) error {
+	ctx = log.NewContextWithFields(ctx, log.Fields(
+		"namespace", "packetbrokeragent",
+		"home_network_net_id", a.netID,
+		"home_network_tenant_id", a.tenantID,
+	))
+
+	conn, err := a.dialContext(ctx, a.tlsConfig, a.dataPlaneAddress)
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf("pba:conn:down:%s", events.NewCorrelationID()))
+
+	logger := log.FromContext(ctx)
+	logger.Info("Connected as Home Network")
+
+	downlinkCh := make(chan *ttnpb.DownlinkMessage)
+	defer close(downlinkCh)
+
+	wg := &sync.WaitGroup{}
+	defer wg.Wait()
+	var workers int32
+
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case msg := <-a.downstreamCh:
+			select {
+			case downlinkCh <- msg:
+			default:
+				if int(atomic.LoadInt32(&workers)) < a.homeNetworkConfig.WorkerPool.Limit {
+					wg.Add(1)
+					atomic.AddInt32(&workers, 1)
+					go func() {
+						if err := a.runHomeNetworkPublisher(ctx, conn, downlinkCh); err != nil {
+							logger.WithError(err).Warn("Home Network publisher stopped")
+						}
+						wg.Done()
+						atomic.AddInt32(&workers, -1)
+					}()
+				}
+				select {
+				case downlinkCh <- msg:
+				case <-time.After(workerBusyTimeout):
+					logger.Warn("Home Network publisher busy, drop message")
+				}
+			}
+		}
+	}
+}
+
+func (a *Agent) runHomeNetworkPublisher(ctx context.Context, conn *grpc.ClientConn, downlinkCh <-chan *ttnpb.DownlinkMessage) error {
+	logger := log.FromContext(ctx)
+	client := packetbroker.NewRouterHomeNetworkDataClient(conn)
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(workerIdleTimeout):
+			return nil
+		case down := <-downlinkCh:
+			msg, token, err := toPBDownlink(ctx, down)
+			if err != nil {
+				logger.WithError(err).Warn("Failed to convert outgoing downlink message")
+				continue
+			}
+			req := &packetbroker.PublishDownlinkMessageRequest{
+				HomeNetworkNetId:    a.netID.MarshalNumber(),
+				HomeNetworkTenantId: a.tenantID,
+				ForwarderNetId:      token.ForwarderNetID.MarshalNumber(),
+				ForwarderTenantId:   token.ForwarderTenantID,
+				ForwarderId:         token.ForwarderID,
+				Message:             msg,
+			}
+			ctx, cancel := context.WithTimeout(ctx, publishMessageTimeout)
+			res, err := client.Publish(ctx, req)
+			if err != nil {
+				logger.WithError(err).Warn("Failed to publish downlink message")
+			} else {
+				logger.WithField("message_id", res.Id).Debug("Published downlink message")
+			}
+			cancel()
+		}
+	}
 }

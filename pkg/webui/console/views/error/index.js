@@ -15,26 +15,27 @@
 import React from 'react'
 import { Container, Row, Col } from 'react-grid-system'
 
-import Button from '../../../components/button'
-import Message from '../../../lib/components/message'
-import ErrorMessage from '../../../lib/components/error-message'
-import { withEnv } from '../../../lib/components/env'
-import IntlHelmet from '../../../lib/components/intl-helmet'
-import Footer from '../../../components/footer'
-import sharedMessages from '../../../lib/shared-messages'
-import errorMessages from '../../../lib/errors/error-messages'
+import Button from '@ttn-lw/components/button'
+import Footer from '@ttn-lw/components/footer'
 
-import Header from '../../containers/header'
+import Message from '@ttn-lw/lib/components/message'
+import ErrorMessage from '@ttn-lw/lib/components/error-message'
+import { withEnv } from '@ttn-lw/lib/components/env'
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
 
+import Header from '@console/containers/header'
+
+import sharedMessages from '@ttn-lw/lib/shared-messages'
+import errorMessages from '@ttn-lw/lib/errors/error-messages'
 import {
   httpStatusCode,
   isUnknown as isUnknownError,
   isNotFoundError,
-} from '../../../lib/errors/utils'
+  isFrontend as isFrontendError,
+} from '@ttn-lw/lib/errors/utils'
+import statusCodeMessages from '@ttn-lw/lib/errors/status-code-messages'
+import PropTypes from '@ttn-lw/lib/prop-types'
 
-import statusCodeMessages from '../../../lib/errors/status-code-messages'
-
-import PropTypes from '../../../lib/prop-types'
 import style from './error.styl'
 
 const reload = () => location.reload()
@@ -43,6 +44,7 @@ const FullViewErrorInner = function({ error, env }) {
   const isUnknown = isUnknownError(error)
   const statusCode = httpStatusCode(error)
   const isNotFound = isNotFoundError(error)
+  const isFrontend = isFrontendError(error)
 
   let errorTitleMessage = errorMessages.unknownErrorTitle
   let errorMessageMessage = errorMessages.contactAdministrator
@@ -53,6 +55,25 @@ const FullViewErrorInner = function({ error, env }) {
   }
   if (statusCode) {
     errorTitleMessage = statusCodeMessages[statusCode]
+  }
+  if (isFrontend) {
+    errorMessageMessage = error.errorMessage
+    if (Boolean(error.errorTitle)) {
+      errorTitleMessage = error.errorTitle
+    }
+  }
+
+  let action = undefined
+  if (isNotFound) {
+    action = (
+      <Button.AnchorLink
+        icon="keyboard_arrow_left"
+        message={sharedMessages.takeMeBack}
+        href={env.appRoot}
+      />
+    )
+  } else if (isUnknown) {
+    action = <Button icon="refresh" message={sharedMessages.refreshPage} onClick={reload} />
   }
 
   return (
@@ -67,15 +88,7 @@ const FullViewErrorInner = function({ error, env }) {
               content={errorTitleMessage}
             />
             <ErrorMessage className={style.fullViewErrorSub} content={errorMessageMessage} />
-            {isNotFoundError(error) ? (
-              <Button.AnchorLink
-                icon="keyboard_arrow_left"
-                message={sharedMessages.takeMeBack}
-                href={env.appRoot}
-              />
-            ) : (
-              <Button icon="refresh" message={sharedMessages.refreshPage} onClick={reload} />
-            )}
+            {action}
           </Col>
         </Row>
       </Container>
@@ -89,7 +102,9 @@ const FullViewError = function({ error }) {
   return (
     <div className={style.wrapper}>
       <Header className={style.header} anchored />
-      <FullViewErrorInnerWithEnv error={error} />
+      <div className={style.flexWrapper}>
+        <FullViewErrorInnerWithEnv error={error} />
+      </div>
       <Footer />
     </div>
   )

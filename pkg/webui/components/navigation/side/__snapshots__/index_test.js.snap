@@ -25,8 +25,13 @@ exports[`SideNavigation is flat should match snapshot 1`] = `
       small={false}
     />
     <Message
+      capitalize={false}
       className="message"
       content="test-header-title"
+      firstToLower={false}
+      firstToUpper={false}
+      lowercase={false}
+      uppercase={false}
     />
   </div>
   <div
@@ -47,8 +52,13 @@ exports[`SideNavigation is flat should match snapshot 1`] = `
           small={false}
         />
         <Message
+          capitalize={false}
           className="message"
           content="test-header-title"
+          firstToLower={false}
+          firstToUpper={false}
+          lowercase={false}
+          uppercase={false}
         />
       </div>
       <ContextProvider
@@ -83,7 +93,7 @@ exports[`SideNavigation is flat should match snapshot 1`] = `
       icon="keyboard_arrow_left"
       message={
         Object {
-          "defaultMessage": "Hide Sidebar",
+          "defaultMessage": "Hide sidebar",
           "id": "components.navigation.side.index.hideSidebar",
         }
       }
@@ -120,8 +130,13 @@ exports[`SideNavigation is nested should match snapshot 1`] = `
       small={false}
     />
     <Message
+      capitalize={false}
       className="message"
       content="test-header-title"
+      firstToLower={false}
+      firstToUpper={false}
+      lowercase={false}
+      uppercase={false}
     />
   </div>
   <div
@@ -142,8 +157,13 @@ exports[`SideNavigation is nested should match snapshot 1`] = `
           small={false}
         />
         <Message
+          capitalize={false}
           className="message"
           content="test-header-title"
+          firstToLower={false}
+          firstToUpper={false}
+          lowercase={false}
+          uppercase={false}
         />
       </div>
       <ContextProvider
@@ -195,7 +215,7 @@ exports[`SideNavigation is nested should match snapshot 1`] = `
       icon="keyboard_arrow_left"
       message={
         Object {
-          "defaultMessage": "Hide Sidebar",
+          "defaultMessage": "Hide sidebar",
           "id": "components.navigation.side.index.hideSidebar",
         }
       }
