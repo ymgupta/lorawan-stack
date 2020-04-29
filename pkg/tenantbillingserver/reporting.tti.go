@@ -18,6 +18,9 @@ import (
 var errStripeDisabled = errors.DefineFailedPrecondition("stripe_disabled", "the Stripe billing backend is disabled")
 
 func (tbs *TenantBillingServer) contactBackend(ctx context.Context, tnt *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error {
+	if tnt.Billing == nil {
+		return nil
+	}
 	switch tnt.Billing.Provider.(type) {
 	case *ttipb.Billing_Stripe_:
 		if tbs.backends.stripe == nil {
