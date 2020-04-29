@@ -35,8 +35,8 @@ class DeviceClaim {
       target_application_ids: {
         application_id: applicationId,
       },
-      targetNetworkServerAddress,
-      targetApplicationServerAddress,
+      target_network_server_address: targetNetworkServerAddress,
+      target_application_server_address: targetApplicationServerAddress,
     }
 
     const response = await this._api.EndDeviceClaimingServer.Claim(undefined, payload)
