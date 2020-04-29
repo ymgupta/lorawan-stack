@@ -7,12 +7,26 @@ import (
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
+	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
+
+var errStripeDisabled = errors.DefineFailedPrecondition("stripe_disabled", "the Stripe billing backend is disabled")
+
+func (tbs *TenantBillingServer) contactBackend(ctx context.Context, tnt *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error {
+	switch tnt.Billing.Provider.(type) {
+	case *ttipb.Billing_Stripe_:
+		if tbs.backends.stripe == nil {
+			return errStripeDisabled.New()
+		}
+		return tbs.backends.stripe.Report(ctx, tnt, totals)
+	}
+	return nil
+}
 
 func (tbs *TenantBillingServer) collectAndReport(ctx context.Context) error {
 	cc, err := tbs.GetPeerConn(ctx, ttnpb.ClusterRole_ENTITY_REGISTRY, nil)
@@ -47,12 +61,10 @@ func (tbs *TenantBillingServer) collectAndReport(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			for _, backend := range tbs.backends {
-				err := backend.Report(ctx, tenant, totals)
-				if err != nil {
-					logger.WithError(err).Error("Failed to report metrics to backend")
-					continue
-				}
+			err = tbs.contactBackend(ctx, tenant, totals)
+			if err != nil {
+				logger.WithError(err).Error("Failed to report metrics to backend")
+				continue
 			}
 		}
 		if len(res.Tenants) < tenantsPageSize {

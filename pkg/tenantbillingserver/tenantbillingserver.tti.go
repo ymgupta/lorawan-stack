@@ -23,8 +23,11 @@ type TenantBillingServer struct {
 	*component.Component
 	ctx context.Context
 
-	config   *Config
-	backends []backend.Interface
+	config *Config
+
+	backends struct {
+		stripe backend.Interface
+	}
 }
 
 const (
@@ -65,7 +68,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		if err != nil {
 			return nil, err
 		} else if strp != nil {
-			tbs.backends = append(tbs.backends, strp)
+			tbs.backends.stripe = strp
 			c.RegisterWeb(strp)
 		}
 	}

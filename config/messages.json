@@ -7055,6 +7055,15 @@
       "file": "access.tti.go"
     }
   },
+  "error:pkg/tenantbillingserver:stripe_disabled": {
+    "translations": {
+      "en": "the Stripe billing backend is disabled"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "reporting.tti.go"
+    }
+  },
   "error:pkg/toa:bandwidth": {
     "translations": {
       "en": "invalid bandwidth"
