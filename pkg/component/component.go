@@ -36,6 +36,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/interop"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcserver"
+	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"golang.org/x/crypto/acme/autocert"
 	"google.golang.org/grpc"
@@ -253,6 +254,7 @@ func (c *Component) Start() (err error) {
 	for _, sub := range c.webSubsystems {
 		sub.RegisterRoutes(c.web)
 	}
+	c.web.RootRouter().PathPrefix("/").Handler(c.web.Router())
 
 	c.logger.Debug("Initializing interop server...")
 	for _, sub := range c.interopSubsystems {
@@ -265,8 +267,9 @@ func (c *Component) Start() (err error) {
 			c.logger.WithError(err).Error("Could not start gRPC server")
 			return err
 		}
+		c.web.Prefix(ttnpb.HTTPAPIPrefix + "/").Handler(http.StripPrefix(ttnpb.HTTPAPIPrefix, c.grpc))
+		c.logger.Debug("Started gRPC server")
 	}
-	c.logger.Debug("Started gRPC server")
 
 	c.logger.Debug("Starting web server...")
 	if err = c.listenWeb(); err != nil {
