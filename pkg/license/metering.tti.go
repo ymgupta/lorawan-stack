@@ -12,7 +12,6 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/pkg/license/awsmetrics"
 	"go.thethings.network/lorawan-stack/pkg/license/prometheusmetrics"
-	"go.thethings.network/lorawan-stack/pkg/license/tbsmetrics"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/metrics"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
@@ -167,11 +166,6 @@ func newMeteringSetup(ctx context.Context, config *ttipb.MeteringConfiguration, 
 		}
 	case *ttipb.MeteringConfiguration_Prometheus_:
 		s.reporter, err = prometheusmetrics.New(reporterConfig.Prometheus, metrics.Registry)
-		if err != nil {
-			return nil, err
-		}
-	case *ttipb.MeteringConfiguration_TenantBillingServer_:
-		s.reporter, err = tbsmetrics.New(reporterConfig.TenantBillingServer, cluster)
 		if err != nil {
 			return nil, err
 		}

@@ -6,6 +6,9 @@
 
 - [File `lorawan-stack/api/tti/application_api_key.proto`](#lorawan-stack/api/tti/application_api_key.proto)
   - [Message `ApplicationAPIKey`](#tti.lorawan.v3.ApplicationAPIKey)
+- [File `lorawan-stack/api/tti/billing.proto`](#lorawan-stack/api/tti/billing.proto)
+  - [Message `Billing`](#tti.lorawan.v3.Billing)
+  - [Message `Billing.Stripe`](#tti.lorawan.v3.Billing.Stripe)
 - [File `lorawan-stack/api/tti/configuration.proto`](#lorawan-stack/api/tti/configuration.proto)
   - [Message `Configuration`](#tti.lorawan.v3.Configuration)
   - [Message `Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster)
@@ -29,7 +32,6 @@
   - [Message `MeteringConfiguration`](#tti.lorawan.v3.MeteringConfiguration)
   - [Message `MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS)
   - [Message `MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus)
-  - [Message `MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer)
   - [Message `MeteringData`](#tti.lorawan.v3.MeteringData)
   - [Message `MeteringData.TenantMeteringData`](#tti.lorawan.v3.MeteringData.TenantMeteringData)
 - [File `lorawan-stack/api/tti/tenant.proto`](#lorawan-stack/api/tti/tenant.proto)
@@ -65,6 +67,32 @@
 | ----- | ----------- |
 | `application_ids` | <p>`message.required`: `true`</p> |
 | `api_key` | <p>`string.min_len`: `1`</p> |
+
+## <a name="lorawan-stack/api/tti/billing.proto">File `lorawan-stack/api/tti/billing.proto`</a>
+
+### <a name="tti.lorawan.v3.Billing">Message `Billing`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `stripe` | [`Billing.Stripe`](#tti.lorawan.v3.Billing.Stripe) |  |  |
+
+### <a name="tti.lorawan.v3.Billing.Stripe">Message `Billing.Stripe`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `customer_id` | [`string`](#string) |  |  |
+| `plan_id` | [`string`](#string) |  |  |
+| `subscription_id` | [`string`](#string) |  |  |
+| `subscription_item_id` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `customer_id` | <p>`string.min_len`: `1`</p> |
+| `plan_id` | <p>`string.min_len`: `1`</p> |
+| `subscription_id` | <p>`string.min_len`: `1`</p> |
+| `subscription_item_id` | <p>`string.min_len`: `1`</p> |
 
 ## <a name="lorawan-stack/api/tti/configuration.proto">File `lorawan-stack/api/tti/configuration.proto`</a>
 
@@ -241,7 +269,6 @@
 | `on_success` | [`LicenseUpdate`](#tti.lorawan.v3.LicenseUpdate) |  | How to update the license on success. |
 | `aws` | [`MeteringConfiguration.AWS`](#tti.lorawan.v3.MeteringConfiguration.AWS) |  |  |
 | `prometheus` | [`MeteringConfiguration.Prometheus`](#tti.lorawan.v3.MeteringConfiguration.Prometheus) |  |  |
-| `tenant_billing_server` | [`MeteringConfiguration.TenantBillingServer`](#tti.lorawan.v3.MeteringConfiguration.TenantBillingServer) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.AWS">Message `MeteringConfiguration.AWS`</a>
 
@@ -250,8 +277,6 @@
 | `sku` | [`string`](#string) |  |  |
 
 ### <a name="tti.lorawan.v3.MeteringConfiguration.Prometheus">Message `MeteringConfiguration.Prometheus`</a>
-
-### <a name="tti.lorawan.v3.MeteringConfiguration.TenantBillingServer">Message `MeteringConfiguration.TenantBillingServer`</a>
 
 ### <a name="tti.lorawan.v3.MeteringData">Message `MeteringData`</a>
 
@@ -352,6 +377,7 @@ Tenant is the message that defines a Tenant in the network.
 | `state` | [`ttn.lorawan.v3.State`](#ttn.lorawan.v3.State) |  | The reviewing state of the tenant. This field can only be modified by tenant admins. |
 | `capabilities` | [`google.protobuf.Struct`](#google.protobuf.Struct) |  |  |
 | `configuration` | [`Configuration`](#tti.lorawan.v3.Configuration) |  |  |
+| `billing` | [`Billing`](#tti.lorawan.v3.Billing) |  |  |
 
 #### Field Rules
 

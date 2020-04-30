@@ -11,7 +11,6 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
-	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/backend"
 	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/web"
@@ -32,7 +31,6 @@ var (
 	errNoAPIKey            = errors.DefineInvalidArgument("no_api_key", "no API key provided")
 	errNoEndpointSecretKey = errors.DefineInvalidArgument("no_endpoint_secret_key", "no endpoint secret key provided")
 	errNoPlanIDs           = errors.DefineInvalidArgument("no_plan_ids", "no plan IDs provided")
-	errNoTenantAttribute   = errors.DefineInvalidArgument("no_tenant_attribute", "no tenant attribute `{attribute}` available")
 	errUnknownTenantState  = errors.DefineInternal("unknown_tenant_state", "tenant state `{state}` is unknown")
 )
 
@@ -113,8 +111,8 @@ func WithStripeAPIClient(c *client.API) Option {
 
 // Report updates the Stripe subscription of the tenant if the tenant is managed by Stripe.
 func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb.TenantRegistryTotals) error {
-	manager, ok := tenant.Attributes[backend.ManagedByTenantAttribute]
-	if !ok || manager != managerAttributeValue {
+	billing := tenant.Billing.GetStripe()
+	if billing == nil {
 		return nil
 	}
 
@@ -128,54 +126,32 @@ func (s *Stripe) Report(ctx context.Context, tenant *ttipb.Tenant, totals *ttipb
 		return errUnknownTenantState.WithAttributes("state", tenant.State)
 	}
 
-	planID := tenant.Attributes[planIDAttribute]
-	if planID == "" {
-		return errNoTenantAttribute.WithAttributes("attribute", planIDAttribute)
-	}
-	customerID := tenant.Attributes[customerIDAttribute]
-	if customerID == "" {
-		return errNoTenantAttribute.WithAttributes("attribute", customerIDAttribute)
-	}
-	subscriptionID := tenant.Attributes[subscriptionIDAttribute]
-	if subscriptionID == "" {
-		return errNoTenantAttribute.WithAttributes("attribute", subscriptionIDAttribute)
-	}
-	subscriptionItemID := tenant.Attributes[subscriptionItemIDAttribute]
-	if subscriptionItemID == "" {
-		return errNoTenantAttribute.WithAttributes("attribute", subscriptionItemIDAttribute)
-	}
-
+	quantity := int64(totals.GetEndDevices())
 	logger := log.FromContext(ctx).WithFields(log.Fields(
 		"tenant_id", tenant.TenantID, // The context does not contain a tenant.
-		"plan_id", planID,
-		"customer_id", customerID,
-		"subscription_id", subscriptionID,
-		"subscription_item_id", subscriptionItemID,
+		"plan_id", billing.PlanID,
+		"customer_id", billing.CustomerID,
+		"subscription_id", billing.SubscriptionID,
+		"subscription_item_id", billing.SubscriptionItemID,
+		"quantity", quantity,
 	))
 
-	var quantity int64
-	if _, ok := s.recurringPlanIDs[planID]; ok {
+	if _, ok := s.recurringPlanIDs[billing.PlanID]; ok {
 		// Recurring plans do not need usage records.
-		return nil
-	}
-	if _, ok := s.meteredPlanIDs[planID]; ok {
-		quantity = int64(totals.GetEndDevices())
+	} else if _, ok := s.meteredPlanIDs[billing.PlanID]; ok {
+		params := &stripe.UsageRecordParams{
+			Quantity:         stripe.Int64(quantity),
+			Timestamp:        stripe.Int64(time.Now().UTC().Unix()),
+			SubscriptionItem: stripe.String(billing.SubscriptionItemID),
+			Action:           stripe.String(stripe.UsageRecordActionSet),
+		}
+		if _, err := s.newUsageRecord(params); err != nil {
+			return err
+		}
+		logger.Debug("Usage recorded")
 	} else {
 		logger.Error("Unrecognized plan ID")
-		return nil
 	}
-
-	params := &stripe.UsageRecordParams{
-		Quantity:         stripe.Int64(quantity),
-		Timestamp:        stripe.Int64(time.Now().Unix()),
-		SubscriptionItem: stripe.String(subscriptionItemID),
-		Action:           stripe.String(stripe.UsageRecordActionSet),
-	}
-	if _, err := s.newUsageRecord(params); err != nil {
-		return err
-	}
-	logger.WithField("quantity", quantity).Debug("Usage recorded")
-
 	return nil
 }
 
@@ -202,14 +178,6 @@ func (s *Stripe) getCustomer(id string, params *stripe.CustomerParams) (*stripe.
 		return nil, err
 	}
 	return client.Customers.Get(id, params)
-}
-
-func (s *Stripe) getPlan(id string, params *stripe.PlanParams) (*stripe.Plan, error) {
-	client, err := s.getAPIClient()
-	if err != nil {
-		return nil, err
-	}
-	return client.Plans.Get(id, params)
 }
 
 func (s *Stripe) newUsageRecord(params *stripe.UsageRecordParams) (*stripe.UsageRecord, error) {

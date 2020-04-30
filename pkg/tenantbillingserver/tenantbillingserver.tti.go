@@ -1,4 +1,4 @@
-// Copyright © 2019 The Things Industries B.V.
+// Copyright © 2020 The Things Industries B.V.
 
 package tenantbillingserver
 
@@ -7,6 +7,7 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/pkg/component"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
@@ -22,8 +23,11 @@ type TenantBillingServer struct {
 	*component.Component
 	ctx context.Context
 
-	config   *Config
-	backends []backend.Interface
+	config *Config
+
+	backends struct {
+		stripe backend.Interface
+	}
 }
 
 const (
@@ -32,6 +36,10 @@ const (
 
 // New returns a new Tenant Billing component.
 func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_TENANT_BILLING_SERVER); err != nil {
+		return nil, err
+	}
+
 	tbs := &TenantBillingServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "tenantbillingserver"),
@@ -42,8 +50,12 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		opt(tbs)
 	}
 
-	if err := conf.compileRegex(tbs.ctx); err != nil {
+	if err := tbs.config.compileRegex(tbs.ctx); err != nil {
 		return nil, err
+	}
+
+	if tbs.config.PullInterval != 0 {
+		c.RegisterTask(tbs.ctx, "collect_metering_data", tbs.run, component.TaskRestartOnFailure)
 	}
 
 	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
@@ -56,7 +68,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 		if err != nil {
 			return nil, err
 		} else if strp != nil {
-			tbs.backends = append(tbs.backends, strp)
+			tbs.backends.stripe = strp
 			c.RegisterWeb(strp)
 		}
 	}

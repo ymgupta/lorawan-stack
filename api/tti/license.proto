@@ -87,14 +87,11 @@ message MeteringConfiguration {
   message Prometheus {
 
   }
-  message TenantBillingServer {
-
-  }
   oneof metering {
     AWS aws = 3 [(gogoproto.customname) = "AWS"];
     Prometheus prometheus = 4;
-    TenantBillingServer tenant_billing_server = 5;
   }
+  reserved 5; // Deprecated: tenant_billing_server
 }
 
 message LicenseKey {

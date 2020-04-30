@@ -1,10 +1,11 @@
-// Copyright © 2019 The Things Industries B.V.
+// Copyright © 2020 The Things Industries B.V.
 
 package tenantbillingserver
 
 import (
 	"context"
 	"regexp"
+	"time"
 
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver/stripe"
@@ -16,7 +17,8 @@ type Config struct {
 
 	TenantAdminKey string `name:"tenant-admin-key" description:"Tenant administration authentication key"`
 
-	ReporterAddressRegexps []string `name:"reporter-address-regexps" description:"Regular expressions of addresses that can report metering data"`
+	PullInterval           time.Duration `name:"pull-interval" description:"How frequently to pull the metering data"`
+	ReporterAddressRegexps []string      `name:"reporter-address-regexps" description:"Regular expressions of addresses that can report metering data"`
 	reporterAddressRegexps []*regexp.Regexp
 }
 

@@ -273,6 +273,23 @@
     }
   },
   "definitions": {
+    "BillingStripe": {
+      "type": "object",
+      "properties": {
+        "customer_id": {
+          "type": "string"
+        },
+        "plan_id": {
+          "type": "string"
+        },
+        "subscription_id": {
+          "type": "string"
+        },
+        "subscription_item_id": {
+          "type": "string"
+        }
+      }
+    },
     "ClusterIdentityServer": {
       "type": "object",
       "properties": {
@@ -474,6 +491,14 @@
         }
       }
     },
+    "v3Billing": {
+      "type": "object",
+      "properties": {
+        "stripe": {
+          "$ref": "#/definitions/BillingStripe"
+        }
+      }
+    },
     "v3Configuration": {
       "type": "object",
       "properties": {
@@ -634,6 +659,9 @@
         },
         "configuration": {
           "$ref": "#/definitions/v3Configuration"
+        },
+        "billing": {
+          "$ref": "#/definitions/v3Billing"
         }
       },
       "description": "Tenant is the message that defines a Tenant in the network."

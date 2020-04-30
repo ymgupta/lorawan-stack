@@ -6992,18 +6992,18 @@
       "file": "stripe.tti.go"
     }
   },
-  "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
+  "error:pkg/tenantbillingserver/stripe:no_managed_plan": {
     "translations": {
-      "en": "no plan IDs provided"
+      "en": "no managed plan in the subscription"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
+      "file": "tenants.tti.go"
     }
   },
-  "error:pkg/tenantbillingserver/stripe:no_tenant_attribute": {
+  "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
     "translations": {
-      "en": "no tenant attribute `{attribute}` available"
+      "en": "no plan IDs provided"
     },
     "description": {
       "package": "pkg/tenantbillingserver/stripe",
@@ -7053,6 +7053,15 @@
     "description": {
       "package": "pkg/tenantbillingserver",
       "file": "access.tti.go"
+    }
+  },
+  "error:pkg/tenantbillingserver:stripe_disabled": {
+    "translations": {
+      "en": "the Stripe billing backend is disabled"
+    },
+    "description": {
+      "package": "pkg/tenantbillingserver",
+      "file": "reporting.tti.go"
     }
   },
   "error:pkg/toa:bandwidth": {
