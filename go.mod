@@ -3,7 +3,7 @@ module go.thethings.network/lorawan-stack
 go 1.14
 
 // Use our fork of grpc-gateway.
-replace github.com/grpc-ecosystem/grpc-gateway => github.com/TheThingsIndustries/grpc-gateway v1.14.3-gogo
+replace github.com/grpc-ecosystem/grpc-gateway => github.com/TheThingsIndustries/grpc-gateway v1.14.4-gogo
 
 // Use our fork of otto.
 replace github.com/robertkrimen/otto => github.com/TheThingsIndustries/otto v0.0.0-20181129100957-6ddbbb60554a
@@ -30,8 +30,10 @@ replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.
 replace github.com/nicksnyder/go-i18n => github.com/nicksnyder/go-i18n v1.10.0
 
 require (
-	cloud.google.com/go v0.44.3
-	cloud.google.com/go/datastore v1.0.0
+	cloud.google.com/go v0.56.0
+	cloud.google.com/go/bigquery v1.6.0 // indirect
+	cloud.google.com/go/datastore v1.1.0
+	cloud.google.com/go/storage v1.6.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/Azure/go-autorest/autorest v0.10.0 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2 // indirect
@@ -49,6 +51,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/eclipse/paho.mqtt.golang v1.2.0
 	github.com/envoyproxy/protoc-gen-validate v0.3.0-java
+	github.com/felixge/httpsnoop v1.0.1
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getsentry/sentry-go v0.5.1
 	github.com/go-redis/redis v6.15.7+incompatible
@@ -60,6 +63,8 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 	github.com/golang/protobuf v1.3.5
 	github.com/goreleaser/goreleaser v0.132.0
+	github.com/gorilla/handlers v1.4.2
+	github.com/gorilla/mux v1.7.3
 	github.com/gorilla/securecookie v1.1.1
 	github.com/gorilla/websocket v1.4.1
 	github.com/gotnospirit/makeplural v0.0.0-20180622080156-a5f48d94d976 // indirect
@@ -115,15 +120,14 @@ require (
 	gocloud.dev v0.19.0
 	gocloud.dev/pubsub/natspubsub v0.19.0
 	golang.org/x/crypto v0.0.0-20200317142112-1b76d66859c6
-	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
+	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20200317015054-43a5402ce75a
-	golang.org/x/sys v0.0.0-20200317113312-5766fd39f98d // indirect
-	golang.org/x/tools v0.0.0-20200318132943-540150da7399
+	golang.org/x/tools v0.0.0-20200409170454-77362c5149f0
 	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
-	google.golang.org/api v0.20.0
-	google.golang.org/genproto v0.0.0-20200318110522-7735f76e9fa5
-	google.golang.org/grpc v1.28.0
+	google.golang.org/api v0.21.0
+	google.golang.org/genproto v0.0.0-20200409111301-baae70f3302d
+	google.golang.org/grpc v1.28.1
 	gopkg.in/DATA-DOG/go-sqlmock.v1 v1.0.0-00010101000000-000000000000 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/mail.v2 v2.3.1
