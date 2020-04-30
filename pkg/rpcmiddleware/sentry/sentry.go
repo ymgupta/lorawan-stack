@@ -25,6 +25,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 
 	sentryerrors "go.thethings.network/lorawan-stack/pkg/errors/sentry"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -79,6 +80,11 @@ func reportError(ctx context.Context, method string, err error) {
 		if val := fmt.Sprint(v); len(val) < 64 {
 			errEvent.Tags["tag."+k] = val
 		}
+	}
+
+	// TTES Tags.
+	if tenantID := tenant.FromContext(ctx); !tenantID.IsZero() {
+		errEvent.Tags["tenant-id"] = tenantID.TenantID
 	}
 
 	// Capture the event.

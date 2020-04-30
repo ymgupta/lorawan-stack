@@ -1,0 +1,153 @@
+{
+  "id": "evt_1Fb9NMHOAFOdjMkEihKjvh8k",
+  "object": "event",
+  "api_version": "2019-10-08",
+  "created": 1572888600,
+  "data": {
+    "object": {
+      "id": "sub_G7O9rrQEyB9dgk",
+      "object": "subscription",
+      "application_fee_percent": null,
+      "billing": "send_invoice",
+      "billing_cycle_anchor": 1572888600,
+      "billing_thresholds": null,
+      "cancel_at": null,
+      "cancel_at_period_end": false,
+      "canceled_at": null,
+      "collection_method": "send_invoice",
+      "created": 1572888600,
+      "current_period_end": 1575480600,
+      "current_period_start": 1572888600,
+      "customer": "cus_G7JW3JDioJTVcq",
+      "days_until_due": 30,
+      "default_payment_method": null,
+      "default_source": null,
+      "default_tax_rates": [
+
+      ],
+      "discount": null,
+      "ended_at": null,
+      "invoice_customer_balance_settings": {
+        "consume_applied_balance_on_void": true
+      },
+      "items": {
+        "object": "list",
+        "data": [
+          {
+            "id": "si_G7O9VTXtw5gGVU",
+            "object": "subscription_item",
+            "billing_thresholds": null,
+            "created": 1572888600,
+            "metadata": {
+            },
+            "plan": {
+              "id": "plan_FyH3GcT0Q0s5uc",
+              "object": "plan",
+              "active": true,
+              "aggregate_usage": "last_during_period",
+              "amount": null,
+              "amount_decimal": null,
+              "billing_scheme": "tiered",
+              "created": 1570786443,
+              "currency": "eur",
+              "interval": "month",
+              "interval_count": 1,
+              "livemode": false,
+              "metadata": {
+              },
+              "nickname": "Metered",
+              "product": "prod_FyGd9sqdXAw0Ha",
+              "tiers": [
+                {
+                  "flat_amount": null,
+                  "flat_amount_decimal": null,
+                  "unit_amount": 50,
+                  "unit_amount_decimal": "50",
+                  "up_to": 1000
+                },
+                {
+                  "flat_amount": null,
+                  "flat_amount_decimal": null,
+                  "unit_amount": 40,
+                  "unit_amount_decimal": "40",
+                  "up_to": null
+                }
+              ],
+              "tiers_mode": "graduated",
+              "transform_usage": null,
+              "trial_period_days": null,
+              "usage_type": "metered"
+            },
+            "subscription": "sub_G7O9rrQEyB9dgk",
+            "tax_rates": [
+
+            ]
+          }
+        ],
+        "has_more": false,
+        "total_count": 1,
+        "url": "/v1/subscription_items?subscription=sub_G7O9rrQEyB9dgk"
+      },
+      "latest_invoice": "in_1Fb9NMHOAFOdjMkEeJrXoWNy",
+      "livemode": false,
+      "metadata": {
+      },
+      "next_pending_invoice_item_invoice": null,
+      "pending_invoice_item_interval": null,
+      "pending_setup_intent": null,
+      "plan": {
+        "id": "plan_FyH3GcT0Q0s5uc",
+        "object": "plan",
+        "active": true,
+        "aggregate_usage": "last_during_period",
+        "amount": null,
+        "amount_decimal": null,
+        "billing_scheme": "tiered",
+        "created": 1570786443,
+        "currency": "eur",
+        "interval": "month",
+        "interval_count": 1,
+        "livemode": false,
+        "metadata": {
+        },
+        "nickname": "Metered",
+        "product": "prod_FyGd9sqdXAw0Ha",
+        "tiers": [
+          {
+            "flat_amount": null,
+            "flat_amount_decimal": null,
+            "unit_amount": 50,
+            "unit_amount_decimal": "50",
+            "up_to": 1000
+          },
+          {
+            "flat_amount": null,
+            "flat_amount_decimal": null,
+            "unit_amount": 40,
+            "unit_amount_decimal": "40",
+            "up_to": null
+          }
+        ],
+        "tiers_mode": "graduated",
+        "transform_usage": null,
+        "trial_period_days": null,
+        "usage_type": "metered"
+      },
+      "quantity": 1,
+      "schedule": null,
+      "start": 1572888600,
+      "start_date": 1572888600,
+      "status": "active",
+      "tax_percent": null,
+      "trial_end": null,
+      "trial_start": null
+    }
+  },
+  "livemode": false,
+  "pending_webhooks": 2,
+  "request": {
+    "id": "req_PkYQBT56OusTiR",
+    "idempotency_key": null
+  },
+  "type": "customer.subscription.created"
+}

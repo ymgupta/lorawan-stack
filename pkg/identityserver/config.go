@@ -29,6 +29,7 @@ import (
 // Config for the Identity Server
 type Config struct {
 	DatabaseURI      string `name:"database-uri" description:"Database connection URI"`
+	ReadDatabaseURI  string `name:"read-database-uri" description:"Read-Only Database connection URI"`
 	UserRegistration struct {
 		Invitation struct {
 			Required bool          `name:"required" description:"Require invitations for new users"`
@@ -67,6 +68,7 @@ type Config struct {
 		SMTP         smtp.Config          `name:"smtp"`
 		Templates    emailTemplatesConfig `name:"templates"`
 	} `name:"email"`
+	Tenancy TenancyConfig `name:"tenancy"`
 }
 
 type emailTemplatesConfig struct {

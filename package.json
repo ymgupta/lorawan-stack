@@ -87,6 +87,7 @@
     "history": "^4.9.0",
     "intl": "^1.2.5",
     "intl-pluralrules": "^1.0.3",
+    "jsqr": "^1.2.0",
     "leaflet": "^1.5.1",
     "lodash": "^4.17.15",
     "lottie-web": "^5.5.7",
@@ -114,6 +115,7 @@
     "ttn-lw": "file:sdk/js",
     "url-polyfill": "^1.1.5",
     "url-template": "^2.0.8",
+    "worker-loader": "^2.0.0",
     "yup": "^0.26.6"
   },
   "babel": {
@@ -139,7 +141,8 @@
       "^\\@ttn-lw(.*)": "<rootDir>/pkg/webui$1",
       "^\\@console(.*)": "<rootDir>/pkg/webui/console$1",
       "^\\@oauth(.*)": "<rootDir>/pkg/webui/oauth$1",
-      "^\\@assets(.*)": "<rootDir>/pkg/webui/assets$1"
+      "^\\@assets(.*)": "<rootDir>/pkg/webui/assets$1",
+      "^\\@claim(.*)": "<rootDir>/pkg/webui/claim$1"
     }
   },
   "eslintConfig": {

@@ -25,6 +25,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/auth"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -44,6 +46,15 @@ var (
 				return err
 			}
 			defer db.Close()
+
+			tenantID, err := cmd.Flags().GetString("tenant-id")
+			if err != nil {
+				return err
+			}
+			if tenantID == "" {
+				tenantID = config.Tenancy.DefaultID
+			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
 
 			userID, err := cmd.Flags().GetString("id")
 			if err != nil {
@@ -129,6 +140,8 @@ var (
 )
 
 func init() {
+	createAdminUserCommand.Flags().String("tenant-id", "", "Tenant ID")
+	createAdminUserCommand.Flags().Lookup("tenant-id").Hidden = true
 	createAdminUserCommand.Flags().String("id", "admin", "User ID")
 	createAdminUserCommand.Flags().String("email", "", "Email address")
 	createAdminUserCommand.Flags().String("password", "", "Password")

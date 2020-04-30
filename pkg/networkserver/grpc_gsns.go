@@ -25,6 +25,7 @@ import (
 	pbtypes "github.com/gogo/protobuf/types"
 	clusterauth "go.thethings.network/lorawan-stack/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/pkg/band"
+	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
@@ -32,6 +33,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/frequencyplans"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -867,6 +869,11 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 	if pld.FPort == 0 && len(pld.FOpts) > 0 {
 		log.FromContext(ctx).Warn("FOpts non-empty for FPort 0 uplink, drop")
 		return errInvalidPayload.New()
+	}
+
+	if !ns.enterpriseConfig.SwitchPeeringTenantContext && tenant.FromContext(ctx) == cluster.PacketBrokerTenantID {
+		log.FromContext(ctx).Debug("Drop data uplink with Packet Broker tenant")
+		return errNoTenant.New()
 	}
 
 	var addrMatches []contextualEndDevice

@@ -45,10 +45,14 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/udp"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream/ns"
+	"go.thethings.network/lorawan-stack/pkg/gatewayserver/upstream/packetbroker"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -68,6 +72,8 @@ type GatewayServer struct {
 	forward                   map[string][]types.DevAddrPrefix
 
 	registry ttnpb.GatewayRegistryClient
+
+	tenantRegistry ttipb.TenantRegistryClient
 
 	upstreamHandlers map[string]upstream.Handler
 
@@ -116,6 +122,10 @@ var (
 
 // New returns new *GatewayServer.
 func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServer, err error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_GATEWAY_SERVER); err != nil {
+		return nil, err
+	}
+
 	forward, err := conf.ForwardDevAddrPrefixes()
 	if err != nil {
 		return nil, err
@@ -150,6 +160,8 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 		switch name {
 		case "cluster":
 			handler = ns.NewHandler(gs.Context(), c, prefix)
+		case "packetbroker":
+			handler = packetbroker.NewHandler(gs.Context(), c, prefix)
 		default:
 			return nil, errInvalidUpstreamName.WithAttributes("name", name)
 		}
@@ -325,6 +337,17 @@ func (gs *GatewayServer) FillGatewayContext(ctx context.Context, ids ttnpb.Gatew
 		return nil, ttnpb.GatewayIdentifiers{}, errEmptyIdentifiers.New()
 	}
 	if ids.GatewayID == "" {
+		tenantCtx, err := gs.getContextForGatewayEUI(ctx, *ids.EUI, gs.WithClusterAuth())
+		if err == nil {
+			ctx = tenantCtx
+		} else if errors.IsNotFound(err) {
+			if gs.requireRegisteredGateways {
+				return nil, ttnpb.GatewayIdentifiers{}, errGatewayEUINotRegistered.WithAttributes("eui", *ids.EUI).WithCause(err)
+			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: gs.GetBaseConfig(ctx).Tenancy.DefaultID})
+		} else {
+			return nil, ttnpb.GatewayIdentifiers{}, err
+		}
 		registry, err := gs.getRegistry(ctx, nil)
 		if err != nil {
 			return nil, ttnpb.GatewayIdentifiers{}, err
@@ -675,6 +698,7 @@ func (gs *GatewayServer) updateConnStats(conn connectionEntry) {
 			logger.WithError(err).Error("Failed to delete connection stats")
 		}
 	}()
+
 	for {
 		select {
 		case <-ctx.Done():

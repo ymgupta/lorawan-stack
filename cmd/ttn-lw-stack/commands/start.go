@@ -29,6 +29,9 @@ import (
 	asredis "go.thethings.network/lorawan-stack/pkg/applicationserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/console"
+	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
+	dcsredis "go.thethings.network/lorawan-stack/pkg/deviceclaimingserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/events"
@@ -41,16 +44,18 @@ import (
 	jsredis "go.thethings.network/lorawan-stack/pkg/joinserver/redis"
 	"go.thethings.network/lorawan-stack/pkg/networkserver"
 	nsredis "go.thethings.network/lorawan-stack/pkg/networkserver/redis"
+	"go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
 	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
 	"go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
 	"go.thethings.network/lorawan-stack/pkg/web"
 )
 
 var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
 
 var startCommand = &cobra.Command{
-	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|all]... [flags]",
-	Short: "Start The Things Stack",
+	Use:   "start [is|gs|ns|as|js|console|gcs|dtc|qrg|pba|dcs|cs|tbs|all]... [flags]",
+	Short: "Start The Things Enterprise Stack",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		var start struct {
 			IdentityServer             bool
@@ -62,6 +67,11 @@ var startCommand = &cobra.Command{
 			GatewayConfigurationServer bool
 			DeviceTemplateConverter    bool
 			QRCodeGenerator            bool
+			PacketBrokerAgent          bool
+
+			DeviceClaimingServer bool
+			CryptoServer         bool
+			TenantBillingServer  bool
 		}
 		startDefault := len(args) == 0
 		for _, arg := range args {
@@ -92,6 +102,16 @@ var startCommand = &cobra.Command{
 				start.DeviceTemplateConverter = true
 			case "qrg":
 				start.QRCodeGenerator = true
+			case "pba":
+				start.PacketBrokerAgent = true
+
+			case "cs", "cryptoserver":
+				start.CryptoServer = true
+			case "dcs":
+				start.DeviceClaimingServer = true
+			case "tbs":
+				start.TenantBillingServer = true
+
 			case "all":
 				start.IdentityServer = true
 				start.GatewayServer = true
@@ -102,6 +122,11 @@ var startCommand = &cobra.Command{
 				start.GatewayConfigurationServer = true
 				start.DeviceTemplateConverter = true
 				start.QRCodeGenerator = true
+				start.PacketBrokerAgent = true
+
+				start.DeviceClaimingServer = true
+				start.CryptoServer = true
+				start.TenantBillingServer = true
 			default:
 				return errUnknownComponent.WithAttributes("component", arg)
 			}
@@ -112,6 +137,14 @@ var startCommand = &cobra.Command{
 		var rootRedirect web.Registerer
 
 		var componentOptions []component.Option
+
+		if license != nil {
+			componentOptions = append(componentOptions, component.WithLicense(*license))
+		}
+
+		if config.ServiceBase.Cluster.Claim.Backend == "redis" {
+			config.ServiceBase.Cluster.Claim.Redis = redis.New(config.Cache.Redis.WithNamespace("cluster", "claim"))
+		}
 
 		c, err := component.New(logger, &component.Config{ServiceBase: config.ServiceBase}, componentOptions...)
 		if err != nil {
@@ -269,6 +302,45 @@ var startCommand = &cobra.Command{
 				return shared.ErrInitializeQRCodeGenerator.WithCause(err)
 			}
 			_ = qrg
+		}
+
+		if start.PacketBrokerAgent {
+			logger.Info("Setting up Packet Broker Agent")
+			pba, err := packetbrokeragent.New(c, &config.PBA)
+			if err != nil {
+				return shared.ErrInitializePacketBrokerAgent.WithCause(err)
+			}
+			_ = pba
+		}
+
+		if start.CryptoServer {
+			logger.Info("Setting up Crypto Server")
+			cryptoserver, err := cryptoserver.New(c, &config.CS)
+			if err != nil {
+				return shared.ErrInitializeCryptoServer.WithCause(err)
+			}
+			_ = cryptoserver
+		}
+
+		if start.TenantBillingServer || startDefault {
+			logger.Info("Setting up Tenant Billing Server")
+			tbs, err := tenantbillingserver.New(c, &config.TBS)
+			if err != nil {
+				return shared.ErrInitializeTenantBillingServer.WithCause(err)
+			}
+			_ = tbs
+		}
+
+		if start.DeviceClaimingServer || startDefault {
+			logger.Info("Setting up Device Claiming Server")
+			config.DCS.AuthorizedApplications = &dcsredis.AuthorizedApplicationRegistry{
+				Redis: redis.New(config.Redis.WithNamespace("dcs", "applications", "authorized")),
+			}
+			dcs, err := deviceclaimingserver.New(c, &config.DCS)
+			if err != nil {
+				return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
+			}
+			_ = dcs
 		}
 
 		if rootRedirect != nil {

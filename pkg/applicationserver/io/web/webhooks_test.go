@@ -34,6 +34,7 @@ import (
 	componenttest "go.thethings.network/lorawan-stack/pkg/component/test"
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
@@ -338,9 +339,9 @@ func TestWebhooks(t *testing.T) {
 								a.So(req.Header.Get("Content-Type"), should.Equal, "application/json")
 								a.So(req.Header.Get("X-Downlink-Apikey"), should.Equal, "foo.secret")
 								a.So(req.Header.Get("X-Downlink-Push"), should.Equal,
-									"https://example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/push")
+									"https://foo-tenant.example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/push")
 								a.So(req.Header.Get("X-Downlink-Replace"), should.Equal,
-									"https://example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/replace")
+									"https://foo-tenant.example.com/api/v3/as/applications/foo-app/webhooks/foo-hook/devices/foo-device/down/replace")
 								actualBody, err := ioutil.ReadAll(req.Body)
 								if !a.So(err, should.BeNil) {
 									t.FailNow()
@@ -427,6 +428,7 @@ func TestWebhooks(t *testing.T) {
 					}
 					req.Header.Set("Content-Type", "application/json")
 					req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tc.Key))
+					req.Header.Set("X-Forwarded-Host", fmt.Sprintf("%v.test", tenant.FromContext(ctx).TenantID))
 					res, err := http.DefaultClient.Do(req)
 					if !a.So(err, should.BeNil) {
 						t.FailNow()

@@ -16,10 +16,13 @@ package topics_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/TheThingsIndustries/mystique/pkg/topic"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt/topics"
+	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -30,6 +33,16 @@ const gatewayIDV2 = "test"
 
 func TestV2Topics(t *testing.T) {
 	ctx := test.Context()
+	now := time.Now()
+	multitenantLicense := ttipb.License{
+		LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
+		CreatedAt:               now,
+		ValidFrom:               now,
+		ValidUntil:              now.Add(10 * time.Minute),
+		ComponentAddressRegexps: []string{"localhost"},
+		MultiTenancy:            true,
+	}
+	ctx = license.NewContextWithLicense(ctx, multitenantLicense)
 	v2 := topics.NewV2(ctx)
 	uid := unique.ID(ctx, ttnpb.GatewayIdentifiers{GatewayID: gatewayIDV2})
 	for _, tc := range []struct {
@@ -50,6 +63,54 @@ func TestV2Topics(t *testing.T) {
 			UID:      uid,
 			Func:     v2.StatusTopic,
 			Expected: []string{uid, "status"},
+			Is:       v2.IsStatusTopic,
+			IsNot:    []func([]string) bool{v2.IsUplinkTopic, v2.IsTxAckTopic},
+		},
+	} {
+		t.Run(topic.Join(tc.Expected), func(t *testing.T) {
+			a := assertions.New(t)
+			actual := tc.Func(tc.UID)
+			a.So(actual, should.Resemble, tc.Expected)
+			a.So(tc.Is(actual), should.BeTrue)
+			for _, isNot := range tc.IsNot {
+				a.So(isNot(actual), should.BeFalse)
+			}
+		})
+	}
+}
+
+func TestV2TopicsWithoutMultitenancy(t *testing.T) {
+	ctx := test.Context()
+	now := time.Now()
+	singletenantLicense := ttipb.License{
+		LicenseIdentifiers:      ttipb.LicenseIdentifiers{LicenseID: "testing"},
+		CreatedAt:               now,
+		ValidFrom:               now,
+		ValidUntil:              now.Add(10 * time.Minute),
+		ComponentAddressRegexps: []string{"localhost"},
+		MultiTenancy:            false,
+	}
+	ctx = license.NewContextWithLicense(ctx, singletenantLicense)
+	v2 := topics.NewV2(ctx)
+	uid := unique.ID(ctx, ttnpb.GatewayIdentifiers{GatewayID: gatewayIDV2})
+	for _, tc := range []struct {
+		UID      string
+		Func     func(string) []string
+		Expected []string
+		Is       func([]string) bool
+		IsNot    []func([]string) bool
+	}{
+		{
+			UID:      uid,
+			Func:     v2.UplinkTopic,
+			Expected: []string{gatewayIDV2, "up"},
+			Is:       v2.IsUplinkTopic,
+			IsNot:    []func([]string) bool{v2.IsStatusTopic, v2.IsTxAckTopic},
+		},
+		{
+			UID:      uid,
+			Func:     v2.StatusTopic,
+			Expected: []string{gatewayIDV2, "status"},
 			Is:       v2.IsStatusTopic,
 			IsNot:    []func([]string) bool{v2.IsUplinkTopic, v2.IsTxAckTopic},
 		},

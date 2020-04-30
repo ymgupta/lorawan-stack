@@ -34,6 +34,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/jsonpb"
+	licensemiddleware "go.thethings.network/lorawan-stack/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/pkg/metrics"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware"
@@ -42,6 +43,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	sentrymiddleware "go.thethings.network/lorawan-stack/pkg/rpcmiddleware/sentry"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/validator"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 	_ "google.golang.org/grpc/encoding/gzip" // Register gzip compression.
@@ -62,6 +65,8 @@ type options struct {
 	streamInterceptors []grpc.StreamServerInterceptor
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
+
+	tenant tenant.Config
 }
 
 // Option for the gRPC server
@@ -134,6 +139,8 @@ func New(ctx context.Context, opts ...Option) *Server {
 
 	streamInterceptors := []grpc.StreamServerInterceptor{
 		rpcfillcontext.StreamServerInterceptor(options.contextFillers...),
+		licensemiddleware.StreamServerInterceptor,
+		tenantmiddleware.StreamServerInterceptor(options.tenant),
 		grpc_ctxtags.StreamServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDStreamServerInterceptor(),
 		grpc_opentracing.StreamServerInterceptor(),
@@ -148,6 +155,8 @@ func New(ctx context.Context, opts ...Option) *Server {
 
 	unaryInterceptors := []grpc.UnaryServerInterceptor{
 		rpcfillcontext.UnaryServerInterceptor(options.contextFillers...),
+		licensemiddleware.UnaryServerInterceptor,
+		tenantmiddleware.UnaryServerInterceptor(options.tenant),
 		grpc_ctxtags.UnaryServerInterceptor(ctxtagsOpts...),
 		rpcmiddleware.RequestIDUnaryServerInterceptor(),
 		grpc_opentracing.UnaryServerInterceptor(),

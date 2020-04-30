@@ -19,3 +19,8 @@ rules:
   prefix: '// '
 - include: [.make,Makefile]
   prefix: '# '
+- include: [.tti,api/tti,ttipb]
+  exclude: [.json,.md]
+  header:
+    |
+    Copyright © 20\d\d The Things Industries B\.V\.

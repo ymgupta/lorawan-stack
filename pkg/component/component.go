@@ -174,6 +174,8 @@ func New(logger log.Stack, config *Config, opts ...Option) (c *Component, err er
 
 	c.initGRPC()
 
+	c.initTenancy()
+
 	return c, nil
 }
 
@@ -289,6 +291,11 @@ func (c *Component) Start() (err error) {
 		return err
 	}
 	c.logger.Debug("Joined cluster")
+
+	if err := c.startMetering(); err != nil {
+		c.logger.WithError(err).Error("Could not start metering")
+		return err
+	}
 
 	c.logger.Debug("Starting tasks")
 	c.startTasks()

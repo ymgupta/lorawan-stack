@@ -118,7 +118,7 @@ Header.defaultProps = {
   dropdownItems: undefined,
   navigationEntries: undefined,
   onSearchRequest: () => null,
-  logo: <Logo />,
+  logo: <Logo href="/" />,
   searchable: false,
   user: undefined,
 }

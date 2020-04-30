@@ -38,7 +38,7 @@ func (is *IdentityServer) listOAuthClientAuthorizations(ctx context.Context, req
 		}
 	}()
 	authorizations = &ttnpb.OAuthClientAuthorizations{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		authorizations.Authorizations, err = store.GetOAuthStore(db).ListAuthorizations(ctx, &req.UserIdentifiers)
 		return err
 	})
@@ -68,7 +68,7 @@ func (is *IdentityServer) listOAuthAccessTokens(ctx context.Context, req *ttnpb.
 		}
 	}()
 	tokens = &ttnpb.OAuthAccessTokens{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		tokens.Tokens, err = store.GetOAuthStore(db).ListAccessTokens(ctx, &req.UserIDs, &req.ClientIDs)
 		return err
 	})

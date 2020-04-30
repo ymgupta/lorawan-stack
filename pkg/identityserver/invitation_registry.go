@@ -84,7 +84,7 @@ func (is *IdentityServer) listInvitations(ctx context.Context, req *ttnpb.ListIn
 		return nil, errNoInviteRights.New()
 	}
 	invitations = &ttnpb.Invitations{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		invitations.Invitations, err = store.GetInvitationStore(db).FindInvitations(ctx)
 		return err
 	})

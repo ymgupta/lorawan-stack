@@ -30,6 +30,8 @@ replace github.com/russross/blackfriday => github.com/russross/blackfriday v1.5.
 replace github.com/nicksnyder/go-i18n => github.com/nicksnyder/go-i18n v1.10.0
 
 require (
+	cloud.google.com/go v0.44.3
+	cloud.google.com/go/datastore v1.0.0
 	contrib.go.opencensus.io/exporter/prometheus v0.1.0
 	github.com/Azure/go-autorest/autorest v0.10.0 // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2 // indirect
@@ -41,6 +43,7 @@ require (
 	github.com/TheThingsNetwork/go-cayenne-lib v1.0.0
 	github.com/aws/aws-sdk-go v1.29.26
 	github.com/blang/semver v0.0.0-00010101000000-000000000000
+	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833
 	github.com/chrj/smtpd v0.1.2
 	github.com/client9/misspell v0.3.4
 	github.com/disintegration/imaging v1.6.2
@@ -55,6 +58,7 @@ require (
 	github.com/gogo/protobuf v1.3.1
 	github.com/gohugoio/hugo v0.67.1
 	github.com/golang/gddo v0.0.0-20200310004957-95ce5a452273
+	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 	github.com/golang/protobuf v1.3.5
 	github.com/goreleaser/goreleaser v0.132.0
 	github.com/gorilla/handlers v1.4.2
@@ -107,7 +111,9 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.6.2
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
+	github.com/stripe/stripe-go v70.5.0+incompatible
 	go.opencensus.io v0.22.3
+	go.packetbroker.org/api v1.0.2
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.19.0
 	gocloud.dev/pubsub/natspubsub v0.19.0

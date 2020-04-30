@@ -16,6 +16,7 @@ package cluster
 
 // Config represents clustering configuration.
 type Config struct {
+	DiscoveryMode     string   `name:"discovery-mode" description:"Peer discovery mode (DNS)"`
 	Join              []string `name:"join" description:"Addresses of cluster peers to join"`
 	Name              string   `name:"name" description:"Name of the current cluster peer (default: $HOSTNAME)"`
 	Address           string   `name:"address" description:"Address to use for cluster communication"`
@@ -25,6 +26,9 @@ type Config struct {
 	ApplicationServer string   `name:"application-server" description:"Address for the Application Server"`
 	JoinServer        string   `name:"join-server" description:"Address for the Join Server"`
 	CryptoServer      string   `name:"crypto-server" description:"Address for the Crypto Server"`
+	PacketBrokerAgent string   `name:"packet-broker-agent" description:"Address of the Packet Broker Agent"`
 	TLS               bool     `name:"tls" description:"Do cluster gRPC over TLS"`
 	Keys              []string `name:"keys" description:"Keys used to communicate between components of the cluster. The first one will be used by the cluster to identify itself"`
+
+	Claim ClaimRegistryConfig `name:"claim"`
 }

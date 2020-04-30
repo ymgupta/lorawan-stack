@@ -25,6 +25,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/provisioning"
 	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -37,6 +38,7 @@ var (
 	errInvalidIdentifiers   = errors.DefineInvalidArgument("invalid_identifiers", "invalid identifiers")
 	errReadOnlyField        = errors.DefineInvalidArgument("read_only_field", "read-only field `{field}`")
 	errProvisionerNotFound  = errors.DefineNotFound("provisioner_not_found", "provisioner `{id}` not found")
+	errNotFound             = errors.DefineNotFound("not_found", "not found")
 )
 
 // DeviceRegistry is an implementation of joinserver.DeviceRegistry.
@@ -96,6 +98,13 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 
 	pb := &ttnpb.EndDevice{}
 	if err := ttnredis.FindProto(r.Redis, r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
+		tntID, err := unique.ToTenantID(uid)
+		if err != nil {
+			return "", err
+		}
+		if tntID != tenant.FromContext(ctx) {
+			return "", errNotFound.New()
+		}
 		return r.uidKey(uid), nil
 	}).ScanProto(pb); err != nil {
 		return nil, err

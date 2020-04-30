@@ -1,0 +1,73 @@
+// Copyright © 2019 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+
+message Configuration {
+  message UI {
+    string branding_base_url = 1 [(gogoproto.customname) = "BrandingBaseURL"];
+  }
+  message Cluster {
+    UI ui = 1 [(gogoproto.customname) = "UI"];
+
+    message IdentityServer {
+      message UserRegistration {
+        message Invitation {
+          google.protobuf.BoolValue required = 1;
+          google.protobuf.Duration token_ttl = 2 [(gogoproto.customname) = "TokenTTL", (gogoproto.stdduration) = true];
+        }
+        Invitation invitation = 1;
+
+        message ContactInfoValidation {
+          google.protobuf.BoolValue required = 1;
+        }
+        ContactInfoValidation contact_info_validation = 2;
+
+        message AdminApproval {
+          google.protobuf.BoolValue required = 1;
+        }
+        AdminApproval admin_approval = 3;
+
+        message PasswordRequirements {
+          google.protobuf.UInt32Value min_length = 1;
+          google.protobuf.UInt32Value max_length = 2;
+          google.protobuf.UInt32Value min_uppercase = 3;
+          google.protobuf.UInt32Value min_digits = 4;
+          google.protobuf.UInt32Value min_special = 5;
+        }
+        PasswordRequirements password_requirements = 4;
+      }
+      UserRegistration user_registration = 3;
+    }
+
+    // Identity Server configuration.
+    IdentityServer is = 2 [(gogoproto.customname) = "IS"];
+
+    reserved 3; // GatewayServer
+
+    message NetworkServer {
+      repeated bytes dev_addr_prefixes = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
+      google.protobuf.Duration deduplication_window = 2 [(gogoproto.stdduration) = true];
+      google.protobuf.Duration cooldown_window = 3 [(gogoproto.stdduration) = true];
+    }
+
+    NetworkServer ns = 4 [(gogoproto.customname) = "NS"];
+
+    reserved 5; // ApplicationServer
+    reserved 6; // JoinServer
+    reserved 7; // Console
+  }
+
+  // Default cluster configuration.
+  Cluster default_cluster = 2;
+
+  // Configuration per cluster (by ID).
+  reserved 3; // map<string,Cluster> clusters = 3;
+}

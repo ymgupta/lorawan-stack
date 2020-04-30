@@ -196,6 +196,8 @@ func withID(id ttnpb.Identifiers) func(*gorm.DB) *gorm.DB {
 		return withOrganizationID(id.IDString())
 	case "user":
 		return withUserID(id.IDString())
+	case "tenant":
+		return withTenantID(id.IDString())
 	default:
 		panic(fmt.Sprintf("can't find scope for id type %T", id))
 	}

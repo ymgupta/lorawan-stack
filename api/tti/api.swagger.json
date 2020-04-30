@@ -1,0 +1,793 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "lorawan-stack/api/tti/application_api_key.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/tbs/report": {
+      "post": {
+        "operationId": "Report",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "tags": [
+          "Tbs"
+        ]
+      }
+    },
+    "/tenants": {
+      "get": {
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3Tenants"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "order",
+            "description": "Order the results by this field path (must be present in the field mask).\nDefault ordering is by ID. Prepend with a minus (-) to reverse the order.",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "description": "Limit the number of results per page.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "page",
+            "description": "Page number for pagination. 0 is interpreted as 1.",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      },
+      "post": {
+        "operationId": "Create",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3CreateTenantRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    },
+    "/tenants/{tenant.ids.tenant_id}": {
+      "put": {
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant.ids.tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v3UpdateTenantRequest"
+            }
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    },
+    "/tenants/{tenant_ids.tenant_id}": {
+      "get": {
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3Tenant"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_ids.tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    },
+    "/tenants/{tenant_ids.tenant_id}/registry-totals": {
+      "get": {
+        "operationId": "GetRegistryTotals",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v3TenantRegistryTotals"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_ids.tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "field_mask.paths",
+            "description": "The set of field mask paths.",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    },
+    "/tenants/{tenant_id}": {
+      "delete": {
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "properties": {}
+            }
+          },
+          "default": {
+            "description": "An unexpected error response",
+            "schema": {
+              "$ref": "#/definitions/runtimeError"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "tenant_id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "TenantRegistry"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ClusterIdentityServer": {
+      "type": "object",
+      "properties": {
+        "user_registration": {
+          "$ref": "#/definitions/IdentityServerUserRegistration"
+        }
+      }
+    },
+    "ClusterNetworkServer": {
+      "type": "object",
+      "properties": {
+        "dev_addr_prefixes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "byte"
+          }
+        },
+        "deduplication_window": {
+          "type": "string"
+        },
+        "cooldown_window": {
+          "type": "string"
+        }
+      }
+    },
+    "ConfigurationCluster": {
+      "type": "object",
+      "properties": {
+        "ui": {
+          "$ref": "#/definitions/ConfigurationUI"
+        },
+        "is": {
+          "$ref": "#/definitions/ClusterIdentityServer",
+          "description": "Identity Server configuration."
+        },
+        "ns": {
+          "$ref": "#/definitions/ClusterNetworkServer"
+        }
+      }
+    },
+    "ConfigurationUI": {
+      "type": "object",
+      "properties": {
+        "branding_base_url": {
+          "type": "string"
+        }
+      }
+    },
+    "IdentityServerUserRegistration": {
+      "type": "object",
+      "properties": {
+        "invitation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationInvitation"
+        },
+        "contact_info_validation": {
+          "$ref": "#/definitions/IdentityServerUserRegistrationContactInfoValidation"
+        },
+        "admin_approval": {
+          "$ref": "#/definitions/UserRegistrationAdminApproval"
+        },
+        "password_requirements": {
+          "$ref": "#/definitions/UserRegistrationPasswordRequirements"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationContactInfoValidation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "IdentityServerUserRegistrationInvitation": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "token_ttl": {
+          "type": "string"
+        }
+      }
+    },
+    "MeteringDataTenantMeteringData": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "$ref": "#/definitions/v3TenantIdentifiers"
+        },
+        "totals": {
+          "$ref": "#/definitions/v3TenantRegistryTotals"
+        }
+      }
+    },
+    "PictureEmbedded": {
+      "type": "object",
+      "properties": {
+        "mime_type": {
+          "type": "string",
+          "description": "MIME type of the picture."
+        },
+        "data": {
+          "type": "string",
+          "format": "byte",
+          "description": "Picture data. A data URI can be constructed as follows:\n`data:\u003cmime_type\u003e;base64,\u003cdata\u003e`."
+        }
+      }
+    },
+    "UserRegistrationAdminApproval": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "UserRegistrationPasswordRequirements": {
+      "type": "object",
+      "properties": {
+        "min_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "max_length": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_uppercase": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_digits": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "min_special": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "type_url": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "protobufFieldMask": {
+      "type": "object",
+      "properties": {
+        "paths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "The set of field mask paths."
+        }
+      },
+      "description": "paths: \"f.a\"\n    paths: \"f.b.d\"\n\nHere `f` represents a field in some root message, `a` and `b`\nfields in the message found in `f`, and `d` a field found in the\nmessage in `f.b`.\n\nField masks are used to specify a subset of fields that should be\nreturned by a get operation or modified by an update operation.\nField masks also have a custom JSON encoding (see below).\n\n# Field Masks in Projections\n\nWhen used in the context of a projection, a response message or\nsub-message is filtered by the API to only contain those fields as\nspecified in the mask. For example, if the mask in the previous\nexample is applied to a response message as follows:\n\n    f {\n      a : 22\n      b {\n        d : 1\n        x : 2\n      }\n      y : 13\n    }\n    z: 8\n\nThe result will not contain specific values for fields x,y and z\n(their value will be set to the default, and omitted in proto text\noutput):\n\n\n    f {\n      a : 22\n      b {\n        d : 1\n      }\n    }\n\nA repeated field is not allowed except at the last position of a\npaths string.\n\nIf a FieldMask object is not present in a get operation, the\noperation applies to all fields (as if a FieldMask of all fields\nhad been specified).\n\nNote that a field mask does not necessarily apply to the\ntop-level response message. In case of a REST get operation, the\nfield mask applies directly to the response, but in case of a REST\nlist operation, the mask instead applies to each individual message\nin the returned resource list. In case of a REST custom method,\nother definitions may be used. Where the mask applies will be\nclearly documented together with its declaration in the API.  In\nany case, the effect on the returned resource/resources is required\nbehavior for APIs.\n\n# Field Masks in Update Operations\n\nA field mask in update operations specifies which fields of the\ntargeted resource are going to be updated. The API is required\nto only change the values of the fields as specified in the mask\nand leave the others untouched. If a resource is passed in to\ndescribe the updated values, the API ignores the values of all\nfields not covered by the mask.\n\nIf a repeated field is specified for an update operation, new values will\nbe appended to the existing repeated field in the target resource. Note that\na repeated field is only allowed in the last position of a `paths` string.\n\nIf a sub-message is specified in the last position of the field mask for an\nupdate operation, then new value will be merged into the existing sub-message\nin the target resource.\n\nFor example, given the target message:\n\n    f {\n      b {\n        d: 1\n        x: 2\n      }\n      c: [1]\n    }\n\nAnd an update message:\n\n    f {\n      b {\n        d: 10\n      }\n      c: [2]\n    }\n\nthen if the field mask is:\n\n paths: [\"f.b\", \"f.c\"]\n\nthen the result will be:\n\n    f {\n      b {\n        d: 10\n        x: 2\n      }\n      c: [1, 2]\n    }\n\nAn implementation may provide options to override this default behavior for\nrepeated and message fields.\n\nIn order to reset a field's value to the default, the field must\nbe in the mask and set to the default value in the provided resource.\nHence, in order to reset all fields of a resource, provide a default\ninstance of the resource and set all fields in the mask, or do\nnot provide a mask as described below.\n\nIf a field mask is not present on update, the operation applies to\nall fields (as if a field mask of all fields has been specified).\nNote that in the presence of schema evolution, this may mean that\nfields the client does not know and has therefore not filled into\nthe request will be reset to their default. If this is unwanted\nbehavior, a specific service may require a client to always specify\na field mask, producing an error if not.\n\nAs with get operations, the location of the resource which\ndescribes the updated values in the request message depends on the\noperation kind. In any case, the effect of the field mask is\nrequired to be honored by the API.\n\n## Considerations for HTTP REST\n\nThe HTTP kind of an update operation which uses a field mask must\nbe set to PATCH instead of PUT in order to satisfy HTTP semantics\n(PUT must only be used for full updates).\n\n# JSON Encoding of Field Masks\n\nIn JSON, a field mask is encoded as a single string where paths are\nseparated by a comma. Fields name in each path are converted\nto/from lower-camel naming conventions.\n\nAs an example, consider the following message declarations:\n\n    message Profile {\n      User user = 1;\n      Photo photo = 2;\n    }\n    message User {\n      string display_name = 1;\n      string address = 2;\n    }\n\nIn proto a field mask for `Profile` may look as such:\n\n    mask {\n      paths: \"user.display_name\"\n      paths: \"photo\"\n    }\n\nIn JSON, the same mask is represented as below:\n\n    {\n      mask: \"user.displayName,photo\"\n    }\n\n# Field Masks and Oneof Fields\n\nField masks treat fields in oneofs just as regular fields. Consider the\nfollowing message:\n\n    message SampleMessage {\n      oneof test_oneof {\n        string name = 4;\n        SubMessage sub_message = 9;\n      }\n    }\n\nThe field mask can be:\n\n    mask {\n      paths: \"name\"\n    }\n\nOr:\n\n    mask {\n      paths: \"sub_message\"\n    }\n\nNote that oneof type names (\"test_oneof\" in this case) cannot be used in\npaths.\n\n## Field Mask Verification\n\nThe implementation of any API method which has a FieldMask type field in the\nrequest should verify the included field paths, and return an\n`INVALID_ARGUMENT` error if any path is unmappable.",
+      "title": "`FieldMask` represents a set of symbolic field paths, for example:"
+    },
+    "protobufNullValue": {
+      "type": "string",
+      "enum": [
+        "NULL_VALUE"
+      ],
+      "default": "NULL_VALUE",
+      "description": "`NullValue` is a singleton enumeration to represent the null value for the\n`Value` type union.\n\n The JSON representation for `NullValue` is JSON `null`.\n\n - NULL_VALUE: Null value."
+    },
+    "runtimeError": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "string"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v3Configuration": {
+      "type": "object",
+      "properties": {
+        "default_cluster": {
+          "$ref": "#/definitions/ConfigurationCluster",
+          "description": "Default cluster configuration."
+        }
+      }
+    },
+    "v3ContactInfo": {
+      "type": "object",
+      "properties": {
+        "contact_type": {
+          "$ref": "#/definitions/v3ContactType"
+        },
+        "contact_method": {
+          "$ref": "#/definitions/v3ContactMethod"
+        },
+        "value": {
+          "type": "string"
+        },
+        "public": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "validated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "v3ContactMethod": {
+      "type": "string",
+      "enum": [
+        "CONTACT_METHOD_OTHER",
+        "CONTACT_METHOD_EMAIL",
+        "CONTACT_METHOD_PHONE"
+      ],
+      "default": "CONTACT_METHOD_OTHER"
+    },
+    "v3ContactType": {
+      "type": "string",
+      "enum": [
+        "CONTACT_TYPE_OTHER",
+        "CONTACT_TYPE_ABUSE",
+        "CONTACT_TYPE_BILLING",
+        "CONTACT_TYPE_TECHNICAL"
+      ],
+      "default": "CONTACT_TYPE_OTHER"
+    },
+    "v3CreateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "tenant": {
+          "$ref": "#/definitions/v3Tenant"
+        },
+        "initial_user": {
+          "$ref": "#/definitions/v3User"
+        }
+      }
+    },
+    "v3Picture": {
+      "type": "object",
+      "properties": {
+        "embedded": {
+          "$ref": "#/definitions/PictureEmbedded",
+          "description": "Embedded picture.\nOmitted if there are external URLs available (in sizes)."
+        },
+        "sizes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "URLs of the picture for different sizes, if available on a CDN."
+        }
+      }
+    },
+    "v3State": {
+      "type": "string",
+      "enum": [
+        "STATE_REQUESTED",
+        "STATE_APPROVED",
+        "STATE_REJECTED",
+        "STATE_FLAGGED",
+        "STATE_SUSPENDED"
+      ],
+      "default": "STATE_REQUESTED",
+      "description": "State enum defines states that an entity can be in.\n\n - STATE_REQUESTED: Denotes that the entity has been requested and is pending review by an admin.\n - STATE_APPROVED: Denotes that the entity has been reviewed and approved by an admin.\n - STATE_REJECTED: Denotes that the entity has been reviewed and rejected by an admin.\n - STATE_FLAGGED: Denotes that the entity has been flagged and is pending review by an admin.\n - STATE_SUSPENDED: Denotes that the entity has been reviewed and suspended by an admin."
+    },
+    "v3Tenant": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/v3TenantIdentifiers"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "contact_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ContactInfo"
+          }
+        },
+        "max_applications": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of applications that can be created."
+        },
+        "max_clients": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of clients that can be created."
+        },
+        "max_end_devices": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of end_devices that can be created."
+        },
+        "max_gateways": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of gateways that can be created."
+        },
+        "max_organizations": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of organizations that can be created."
+        },
+        "max_users": {
+          "type": "string",
+          "format": "uint64",
+          "description": "If set, restricts the maximum number of users that can be created."
+        },
+        "state": {
+          "$ref": "#/definitions/v3State",
+          "description": "The reviewing state of the tenant.\nThis field can only be modified by tenant admins."
+        },
+        "capabilities": {
+          "type": "object"
+        },
+        "configuration": {
+          "$ref": "#/definitions/v3Configuration"
+        }
+      },
+      "description": "Tenant is the message that defines a Tenant in the network."
+    },
+    "v3TenantIdentifiers": {
+      "type": "object",
+      "properties": {
+        "tenant_id": {
+          "type": "string"
+        }
+      }
+    },
+    "v3TenantRegistryTotals": {
+      "type": "object",
+      "properties": {
+        "applications": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "clients": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "end_devices": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "gateways": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "organizations": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "users": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v3Tenants": {
+      "type": "object",
+      "properties": {
+        "tenants": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3Tenant"
+          }
+        }
+      }
+    },
+    "v3UpdateTenantRequest": {
+      "type": "object",
+      "properties": {
+        "tenant": {
+          "$ref": "#/definitions/v3Tenant"
+        },
+        "field_mask": {
+          "$ref": "#/definitions/protobufFieldMask"
+        }
+      }
+    },
+    "v3User": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "$ref": "#/definitions/v3UserIdentifiers"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "contact_info": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v3ContactInfo"
+          }
+        },
+        "primary_email_address": {
+          "type": "string",
+          "description": "Primary email address that can be used for logging in.\nThis address is not public, use contact_info for that."
+        },
+        "primary_email_address_validated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "password": {
+          "type": "string",
+          "description": "Only used on create; never returned on API calls."
+        },
+        "password_updated_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "require_password_update": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "state": {
+          "$ref": "#/definitions/v3State",
+          "description": "The reviewing state of the user.\nThis field can only be modified by admins."
+        },
+        "admin": {
+          "type": "boolean",
+          "format": "boolean",
+          "description": "This user is an admin.\nThis field can only be modified by other admins."
+        },
+        "temporary_password": {
+          "type": "string",
+          "description": "The temporary password can only be used to update a user's password; never returned on API calls."
+        },
+        "temporary_password_created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "temporary_password_expires_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "profile_picture": {
+          "$ref": "#/definitions/v3Picture"
+        }
+      },
+      "description": "User is the message that defines an user on the network."
+    },
+    "v3UserIdentifiers": {
+      "type": "object",
+      "properties": {
+        "user_id": {
+          "type": "string",
+          "description": "This ID shares namespace with organization IDs."
+        },
+        "email": {
+          "type": "string",
+          "description": "Secondary identifier, which can only be used in specific requests."
+        }
+      }
+    }
+  }
+}

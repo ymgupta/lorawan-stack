@@ -22,6 +22,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/devicetemplates"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
@@ -45,6 +46,10 @@ var errNotFound = errors.DefineNotFound("converter", "converter `{id}` not found
 
 // New returns a new *DeviceTemplateConverter.
 func New(c *component.Component, conf *Config) (*DeviceTemplateConverter, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_DEVICE_TEMPLATE_CONVERTER); err != nil {
+		return nil, err
+	}
+
 	converters := make(map[string]devicetemplates.Converter, len(conf.Enabled))
 	for _, id := range conf.Enabled {
 		converter := devicetemplates.GetConverter(id)

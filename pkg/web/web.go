@@ -33,6 +33,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/fillcontext"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/web/cookie"
 	"go.thethings.network/lorawan-stack/pkg/webhandlers"
 	"go.thethings.network/lorawan-stack/pkg/webmiddleware"
@@ -73,6 +74,8 @@ type options struct {
 
 	redirectToHost  string
 	redirectToHTTPS map[int]int
+
+	tenant tenant.Config
 }
 
 // Option for the web server
@@ -191,6 +194,8 @@ func New(ctx context.Context, opts ...Option) (*Server, error) {
 	router := root.NewRoute().Subrouter()
 	router.Use(
 		mux.MiddlewareFunc(webmiddleware.Redirect(redirectConfig)),
+		// mux.MiddlewareFunc(licensemiddleware.Middleware),
+		// mux.MiddlewareFunc(tenantmiddleware.Middleware(options.tenant)),
 	)
 
 	apiRouter := mux.NewRouter()

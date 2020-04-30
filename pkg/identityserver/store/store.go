@@ -58,7 +58,7 @@ func (s *store) findEntity(ctx context.Context, entityID ttnpb.Identifiers, fiel
 	}
 	if err := query.First(model).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errNotFoundForID(entityID)
+			return s.findEntityWithoutTenant(ctx, entityID, fields...)
 		}
 		return nil, convertError(err)
 	}
@@ -220,6 +220,8 @@ func modelForEntityType(entityType string) modelInterface {
 		return &Organization{}
 	case "user":
 		return &User{}
+	case "tenant":
+		return &Tenant{}
 	default:
 		panic(fmt.Sprintf("can't find model for entity type %s", entityType))
 	}
@@ -236,6 +238,7 @@ var (
 	errEndDeviceNotFound    = errors.DefineNotFound("end_device_not_found", "end device `{application_id}:{device_id}` not found")
 	errOrganizationNotFound = errors.DefineNotFound("organization_not_found", "organization `{organization_id}` not found")
 	errUserNotFound         = errors.DefineNotFound("user_not_found", "user `{user_id}` not found")
+	errTenantNotFound       = errors.DefineNotFound("tenant_not_found", "tenant `{tenant_id}` not found")
 	errSessionNotFound      = errors.DefineNotFound("session_not_found", "session `{session_id}` for user `{user_id}` not found")
 
 	errAuthorizationNotFound     = errors.DefineNotFound("authorization_not_found", "authorization of `{user_id}` for `{client_id}` not found")
@@ -262,6 +265,8 @@ func errNotFoundForID(id ttnpb.Identifiers) error {
 		return errOrganizationNotFound.WithAttributes("organization_id", id.IDString())
 	case "user":
 		return errUserNotFound.WithAttributes("user_id", id.IDString())
+	case "tenant":
+		return errTenantNotFound.WithAttributes("tenant_id", id.IDString())
 	default:
 		panic(fmt.Sprintf("can't find errNotFound for entity type %s", t))
 	}

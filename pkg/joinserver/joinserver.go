@@ -41,6 +41,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/encoding/lorawan"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/interop"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
@@ -80,6 +81,15 @@ func (js *JoinServer) Context() context.Context {
 
 // New returns new *JoinServer.
 func New(c *component.Component, conf *Config) (*JoinServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_JOIN_SERVER); err != nil {
+		return nil, err
+	}
+	for _, prefix := range conf.JoinEUIPrefixes {
+		if err := license.RequireJoinEUIPrefix(c.Context(), prefix); err != nil {
+			return nil, err
+		}
+	}
+
 	js := &JoinServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "joinserver"),
@@ -193,15 +203,16 @@ func validateCallerByAddress(dn pkix.Name, addr string) error {
 // If the configured key vault cannot find the KEK, the key is returned in the clear.
 func (js *JoinServer) wrapKeyIfKEKExists(ctx context.Context, key types.AES128Key, kekLabel string) (*ttnpb.KeyEnvelope, error) {
 	env, err := cryptoutil.WrapAES128Key(ctx, key, kekLabel, js.KeyVault)
-	if err != nil {
-		if errors.IsNotFound(err) {
-			return &ttnpb.KeyEnvelope{
-				Key: &key,
-			}, nil
-		}
-		return nil, err
+	if err == nil {
+		return &env, nil
 	}
-	return &env, nil
+	if errors.IsNotFound(err) {
+		log.FromContext(ctx).WithError(err).WithField("kek_label", kekLabel).Debug("Key not wrapped")
+		return &ttnpb.KeyEnvelope{
+			Key: &key,
+		}, nil
+	}
+	return nil, err
 }
 
 // HandleJoin handles the given join-request.
@@ -450,20 +461,20 @@ func (js *JoinServer) HandleJoin(ctx context.Context, req *ttnpb.JoinRequest) (r
 			}
 			sessionKeys.FNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.FNwkSIntKey, nsKEKLabel)
 			if err != nil {
-				return nil, nil, errWrapKey.WithCause(err)
+				return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 			}
 			sessionKeys.AppSKey, err = js.wrapKeyIfKEKExists(ctx, appSKey, asKEKLabel)
 			if err != nil {
-				return nil, nil, errWrapKey.WithCause(err)
+				return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", asKEKLabel)
 			}
 			if req.SelectedMACVersion.UseNwkKey() {
 				sessionKeys.SNwkSIntKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.SNwkSIntKey, nsKEKLabel)
 				if err != nil {
-					return nil, nil, errWrapKey.WithCause(err)
+					return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 				}
 				sessionKeys.NwkSEncKey, err = js.wrapKeyIfKEKExists(ctx, nwkSKeys.NwkSEncKey, nsKEKLabel)
 				if err != nil {
-					return nil, nil, errWrapKey.WithCause(err)
+					return nil, nil, errWrapKey.WithCause(err).WithAttributes("label", nsKEKLabel)
 				}
 			}
 

@@ -83,6 +83,12 @@ var (
 
 			ctx = log.NewContext(ctx, logger)
 
+			// initialize license
+			ctx, err = initializeLicense(ctx)
+			if err != nil {
+				return err
+			}
+
 			// initialize shared packages
 			if err := shared.Initialize(ctx, &config.ServiceBase); err != nil {
 				return err

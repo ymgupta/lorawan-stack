@@ -28,8 +28,8 @@ import PropTypes from '@ttn-lw/lib/prop-types'
 import style from './footer.styl'
 
 const m = defineMessages({
-  footer: "You are the network. Let's build this thing together.",
-  getSupport: 'Get support',
+  footer: 'Everything you need to build enterprise grade, private LoRaWAN networks',
+  getSupport: 'Get Support',
 })
 
 const Footer = function({ className, links, supportLink }) {
@@ -39,8 +39,8 @@ const Footer = function({ className, links, supportLink }) {
         <span className={style.claim}>
           <Message content={m.footer} /> –{' '}
         </span>
-        <Link.Anchor secondary className={style.link} href="https://www.thethingsnetwork.org">
-          The Things Network
+        <Link.Anchor secondary className={style.link} href="https://www.thethingsindustries.com">
+          The Things Industries
         </Link.Anchor>
       </div>
       <div>

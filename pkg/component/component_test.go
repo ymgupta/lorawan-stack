@@ -30,6 +30,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/config"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/log/handler/memory"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 	"go.thethings.network/lorawan-stack/pkg/web"
@@ -78,7 +79,11 @@ func TestHTTP(t *testing.T) {
 	a := assertions.New(t)
 
 	httpAddress, httpsAddress := "0.0.0.0:9185", "0.0.0.0:9186"
-	baseConfig := component.Config{}
+	baseConfig := component.Config{
+		ServiceBase: config.ServiceBase{
+			Tenancy: tenant.Config{DefaultID: "foo-tenant"},
+		},
+	}
 
 	workingRoutePath := "/ok"
 	workingRoute := registererFunc(func(s *web.Server) {

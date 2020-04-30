@@ -54,6 +54,8 @@ export default defineMessages({
   cancel: 'Cancel',
   changeLocation: 'Change location settings',
   changePassword: 'Change password',
+  claimDevice: 'Claim Device',
+  claimAuth: 'Claim Authentication Code',
   channel: 'Channel',
   clear: 'Clear',
   claiming: 'Claiming',

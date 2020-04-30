@@ -99,7 +99,7 @@ func (is *IdentityServer) getApplication(ctx context.Context, req *ttnpb.GetAppl
 			return nil, err
 		}
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		app, err = store.GetApplicationStore(db).GetApplication(ctx, &req.ApplicationIdentifiers, &req.FieldMask)
 		if err != nil {
 			return err
@@ -151,7 +151,7 @@ func (is *IdentityServer) listApplications(ctx context.Context, req *ttnpb.ListA
 		}
 	}()
 	apps = &ttnpb.Applications{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		ids, err := is.getMembershipStore(ctx, db).FindMemberships(paginateCtx, req.Collaborator, "application", includeIndirect)
 		if err != nil {
 			return err

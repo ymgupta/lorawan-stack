@@ -21,11 +21,13 @@ import PropTypes from '@ttn-lw/lib/prop-types'
 
 import style from './logo.styl'
 
-const Logo = function({ className, logo, secondaryLogo, vertical }) {
+const Logo = function({ className, logo, secondaryLogo, vertical, text, clusterTag }) {
   const classname = classnames(style.container, className, {
     [style.vertical]: vertical,
     [style.customBranding]: Boolean(secondaryLogo),
   })
+  const cappedText = text ? text.substr(0, 25) : undefined
+  const cappedClusterTag = clusterTag ? clusterTag.substr(0, 5) : undefined
 
   return (
     <div className={classname}>
@@ -36,9 +38,15 @@ const Logo = function({ className, logo, secondaryLogo, vertical }) {
       </div>
       {Boolean(secondaryLogo) && (
         <div className={style.secondaryLogo}>
-          <div id="secondary-logo" className={style.secondaryLogoContainer}>
+          <div className={style.secondaryLogoContainer}>
             <img {...secondaryLogo} />
           </div>
+          {text && (
+            <div className={style.text}>
+              {clusterTag && <span className={style.clusterTag}>{cappedClusterTag}</span>}
+              {cappedText}
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -52,14 +60,18 @@ const imgPropType = PropTypes.shape({
 
 Logo.propTypes = {
   className: PropTypes.string,
+  clusterTag: PropTypes.string,
   logo: imgPropType.isRequired,
   secondaryLogo: imgPropType,
+  text: PropTypes.string,
   vertical: PropTypes.bool,
 }
 
 Logo.defaultProps = {
   className: undefined,
+  clusterTag: undefined,
   secondaryLogo: undefined,
+  text: undefined,
   vertical: false,
 }
 

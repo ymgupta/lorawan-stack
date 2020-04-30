@@ -212,7 +212,7 @@ const (
 )
 
 func (w *webhooks) createDownlinkURL(ctx context.Context, webhookID ttnpb.ApplicationWebhookIdentifiers, devID ttnpb.EndDeviceIdentifiers, op string) string {
-	downlinks := w.downlinks
+	downlinks := w.downlinks.Apply(ctx)
 	baseURL := downlinks.PublicTLSAddress
 	if baseURL == "" {
 		baseURL = downlinks.PublicAddress

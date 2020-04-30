@@ -21,6 +21,7 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/config"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
 	"go.thethings.network/lorawan-stack/pkg/util/test/assertions/should"
 )
@@ -51,6 +52,9 @@ func TestPProf(t *testing.T) {
 					Enable:   true,
 					Password: healthPassword,
 				},
+			},
+			Tenancy: tenant.Config{
+				DefaultID: "foo-tenant",
 			},
 		},
 	}

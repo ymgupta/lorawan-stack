@@ -1,0 +1,107 @@
+// Copyright © 2019 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "lorawan-stack/api/user.proto";
+import "lorawan-stack/api/contact_info.proto";
+import "lorawan-stack/api/enums.proto";
+import "lorawan-stack/api/tti/configuration.proto";
+import "lorawan-stack/api/tti/identifiers.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+
+// Tenant is the message that defines a Tenant in the network.
+message Tenant {
+  TenantIdentifiers ids = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  google.protobuf.Timestamp created_at = 2 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp updated_at = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+
+  string name = 4 [(validate.rules).string.max_len = 50];
+  string description = 5 [(validate.rules).string.max_len = 2000];
+  map<string,string> attributes = 6 [(validate.rules).map.keys.string = {pattern: "^[a-z0-9](?:[-]?[a-z0-9]){2,}$" , max_len: 36}];
+  repeated ttn.lorawan.v3.ContactInfo contact_info = 7;
+
+  // If set, restricts the maximum number of applications that can be created.
+  google.protobuf.UInt64Value max_applications = 10;
+  // If set, restricts the maximum number of clients that can be created.
+  google.protobuf.UInt64Value max_clients = 11;
+  // If set, restricts the maximum number of end_devices that can be created.
+  google.protobuf.UInt64Value max_end_devices = 12;
+  // If set, restricts the maximum number of gateways that can be created.
+  google.protobuf.UInt64Value max_gateways = 13;
+  // If set, restricts the maximum number of organizations that can be created.
+  google.protobuf.UInt64Value max_organizations = 14;
+  // If set, restricts the maximum number of users that can be created.
+  google.protobuf.UInt64Value max_users = 15;
+
+  // The reviewing state of the tenant.
+  // This field can only be modified by tenant admins.
+  ttn.lorawan.v3.State state = 8 [(validate.rules).enum.defined_only = true];
+
+  google.protobuf.Struct capabilities = 9 [(gogoproto.nullable) = false];
+
+  Configuration configuration = 16;
+}
+
+message Tenants {
+  repeated Tenant tenants = 1;
+}
+
+message GetTenantRequest {
+  TenantIdentifiers tenant_ids = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
+}
+
+message ListTenantsRequest {
+  google.protobuf.FieldMask field_mask = 1 [(gogoproto.nullable) = false];
+  // Order the results by this field path (must be present in the field mask).
+  // Default ordering is by ID. Prepend with a minus (-) to reverse the order.
+  string order = 2 [
+    (validate.rules).string = { in: ["", "tenant_id", "-tenant_id", "name", "-name", "created_at", "-created_at"] }
+  ];
+  // Limit the number of results per page.
+  uint32 limit = 3 [(validate.rules).uint32.lte = 1000];
+  // Page number for pagination. 0 is interpreted as 1.
+  uint32 page = 4;
+}
+
+message CreateTenantRequest {
+  Tenant tenant = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  ttn.lorawan.v3.User initial_user = 2;
+}
+
+message UpdateTenantRequest {
+  Tenant tenant = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false, (validate.rules).message.required = true];
+  google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
+}
+
+message GetTenantIdentifiersForEndDeviceEUIsRequest {
+  bytes join_eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "JoinEUI"];
+  bytes dev_eui = 2 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "DevEUI"];
+}
+
+message GetTenantIdentifiersForGatewayEUIRequest {
+  bytes eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "EUI"];
+}
+
+message GetTenantRegistryTotalsRequest {
+  TenantIdentifiers tenant_ids = 1 [(gogoproto.embed) = true];
+  google.protobuf.FieldMask field_mask = 2 [(gogoproto.nullable) = false];
+}
+
+message TenantRegistryTotals {
+  uint64 applications = 1;
+  uint64 clients = 2;
+  uint64 end_devices = 3;
+  uint64 gateways = 4;
+  uint64 organizations = 5;
+  uint64 users = 6;
+}

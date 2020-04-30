@@ -20,6 +20,8 @@ import "go.thethings.network/lorawan-stack/pkg/ttnpb"
 type APIKey struct {
 	Model
 
+	TenantID string `gorm:"unique_index:api_key_id_index;type:VARCHAR(36)"`
+
 	APIKeyID string `gorm:"type:VARCHAR;unique_index:api_key_id_index"`
 
 	Key    string `gorm:"type:VARCHAR"`

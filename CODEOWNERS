@@ -47,6 +47,9 @@
 /pkg/joinserver @johanstokking @rvolosatovs @adriansmares
 /pkg/networkserver @johanstokking @rvolosatovs @adriansmares
 
+/pkg/deviceclaimingserver @johanstokking @adriansmares
+/pkg/tenantbillingserver @htdvisser @adriansmares
+
 # SDKs
 /sdk/js @bafonins @kschiffer @pgalic96
 

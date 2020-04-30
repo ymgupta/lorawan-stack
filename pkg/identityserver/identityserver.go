@@ -26,11 +26,14 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/email"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/oauth"
 	"go.thethings.network/lorawan-stack/pkg/redis"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"google.golang.org/grpc"
 )
@@ -44,6 +47,7 @@ type IdentityServer struct {
 	ctx            context.Context
 	config         *Config
 	db             *gorm.DB
+	readDB         *gorm.DB
 	redis          *redis.Client
 	emailTemplates *email.TemplateRegistry
 	oauth          oauth.Server
@@ -67,13 +71,21 @@ func (is *IdentityServer) configFromContext(ctx context.Context) *Config {
 	if config, ok := ctx.Value(ctxKey).(*Config); ok {
 		return config
 	}
-	return is.config
+	config := is.config.Apply(ctx)
+	return &config
 }
 
 var errDBNeedsMigration = errors.Define("db_needs_migration", "the database needs to be migrated")
 
 // New returns new *IdentityServer.
 func New(c *component.Component, config *Config) (is *IdentityServer, err error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_ENTITY_REGISTRY, ttnpb.ClusterRole_ACCESS); err != nil {
+		return nil, err
+	}
+	if err := license.RequireComponentAddress(c.Context(), config.OAuth.UI.CanonicalURL); err != nil {
+		return nil, err
+	}
+
 	is = &IdentityServer{
 		Component: c,
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "identityserver"),
@@ -93,6 +105,35 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 		<-is.Context().Done()
 		is.db.Close()
 	}()
+
+	if is.config.ReadDatabaseURI != "" {
+		is.readDB, err = store.Open(is.Context(), is.config.ReadDatabaseURI)
+		if err != nil {
+			return nil, err
+		}
+		if c.LogDebug() {
+			is.readDB = is.readDB.Debug()
+		}
+		if err = store.Check(is.readDB); err != nil {
+			return nil, err
+		}
+		go func() {
+			<-is.Context().Done()
+			is.readDB.Close()
+		}()
+	}
+
+	if err := is.config.Tenancy.decodeAdminKeys(is.ctx); err != nil {
+		return nil, err
+	}
+	var fetcher tenant.Fetcher = tenant.FetcherFunc(is.getTenantForFetcher)
+	if ttl := c.GetBaseConfig(is.Context()).Tenancy.CacheTTL; ttl > 0 {
+		fetcher = tenant.NewCachedFetcher(fetcher, ttl, ttl)
+	}
+	c.AddContextFiller(func(ctx context.Context) context.Context {
+		ctx = tenant.NewContextWithFetcher(ctx, fetcher)
+		return ctx
+	})
 
 	is.emailTemplates, err = is.initEmailTemplates(is.Context())
 	if err != nil {
@@ -141,6 +182,10 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.EntityAccess", cluster.HookName, c.ClusterAuthUnaryHook())
 	hooks.RegisterUnaryHook("/ttn.lorawan.v3.OAuthAuthorizationRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
 
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", rpclog.NamespaceHook, rpclog.UnaryNamespaceHook("identityserver"))
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", cluster.HookName, c.ClusterAuthUnaryHook())
+	hooks.RegisterUnaryHook("/tti.lorawan.v3.TenantRegistry", "tenant-rights", is.tenantRightsHook)
+
 	c.RegisterGRPC(is)
 	c.RegisterWeb(is.oauth)
 
@@ -170,6 +215,8 @@ func (is *IdentityServer) RegisterServices(s *grpc.Server) {
 	ttnpb.RegisterEndDeviceRegistrySearchServer(s, &registrySearch{IdentityServer: is})
 	ttnpb.RegisterOAuthAuthorizationRegistryServer(s, &oauthRegistry{IdentityServer: is})
 	ttnpb.RegisterContactInfoRegistryServer(s, &contactInfoRegistry{IdentityServer: is})
+
+	ttipb.RegisterTenantRegistryServer(s, &tenantRegistry{IdentityServer: is})
 }
 
 // RegisterHandlers registers gRPC handlers.
@@ -191,6 +238,8 @@ func (is *IdentityServer) RegisterHandlers(s *runtime.ServeMux, conn *grpc.Clien
 	ttnpb.RegisterEndDeviceRegistrySearchHandler(is.Context(), s, conn)
 	ttnpb.RegisterOAuthAuthorizationRegistryHandler(is.Context(), s, conn)
 	ttnpb.RegisterContactInfoRegistryHandler(is.Context(), s, conn)
+
+	ttipb.RegisterTenantRegistryHandler(is.Context(), s, conn)
 }
 
 // Roles returns the roles that the Identity Server fulfills.

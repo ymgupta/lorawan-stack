@@ -33,6 +33,8 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/mqtt"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"google.golang.org/grpc/metadata"
@@ -225,8 +227,18 @@ type topicAccess struct {
 }
 
 func (c *connection) Connect(ctx context.Context, info *auth.Info) (context.Context, error) {
-	ids := ttnpb.ApplicationIdentifiers{
-		ApplicationID: info.Username,
+	ids, err := unique.ToApplicationID(info.Username)
+	if err != nil {
+		if id := c.server.GetBaseConfig(ctx).Tenancy.DefaultID; id != "" {
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: id})
+		} else {
+			return nil, err
+		}
+		ids = ttnpb.ApplicationIdentifiers{
+			ApplicationID: info.Username,
+		}
+	} else if ctx, err = unique.WithContext(ctx, info.Username); err != nil {
+		return nil, err
 	}
 	if err := ids.ValidateContext(ctx); err != nil {
 		return nil, err
@@ -245,7 +257,6 @@ func (c *connection) Connect(ctx context.Context, info *auth.Info) (context.Cont
 	uid := unique.ID(ctx, ids)
 	ctx = log.NewContextWithField(ctx, "application_uid", uid)
 
-	var err error
 	c.io, err = c.server.Subscribe(ctx, "mqtt", ids)
 	if err != nil {
 		return nil, err

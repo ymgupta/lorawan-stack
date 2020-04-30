@@ -40,6 +40,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/log"
 	pfconfig "go.thethings.network/lorawan-stack/pkg/pfconfig/basicstationlns"
 	"go.thethings.network/lorawan-stack/pkg/pfconfig/shared"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -67,7 +68,6 @@ func eui64Ptr(eui types.EUI64) *types.EUI64 { return &eui }
 func TestClientTokenAuth(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
@@ -81,6 +81,9 @@ func TestClientTokenAuth(t *testing.T) {
 			},
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
+			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
 			},
 		},
 	})
@@ -112,20 +115,20 @@ func TestClientTokenAuth(t *testing.T) {
 	}{
 		{
 			Name:           "RegisteredGatewayAndValidKey",
-			GatewayID:      registeredGatewayID.GatewayID,
+			GatewayID:      registeredGatewayUID,
 			AuthToken:      registeredGatewayToken,
 			ErrorAssertion: nil,
 		},
 		{
 			Name:           "RegisteredGatewayAndValidKey",
-			GatewayID:      registeredGatewayID.GatewayID,
+			GatewayID:      registeredGatewayUID,
 			AuthToken:      registeredGatewayToken,
 			TokenPrefix:    "Bearer ",
 			ErrorAssertion: nil,
 		},
 		{
 			Name:      "RegisteredGatewayAndInValidKey",
-			GatewayID: registeredGatewayID.GatewayID,
+			GatewayID: registeredGatewayUID,
 			AuthToken: "invalidToken",
 			ErrorAssertion: func(err error) bool {
 				return err == websocket.ErrBadHandshake
@@ -133,7 +136,7 @@ func TestClientTokenAuth(t *testing.T) {
 		},
 		{
 			Name:           "RegisteredGatewayAndNoKey",
-			GatewayID:      registeredGatewayID.GatewayID,
+			GatewayID:      registeredGatewayUID,
 			ErrorAssertion: nil,
 		},
 		{
@@ -171,7 +174,6 @@ func TestClientSideTLS(t *testing.T) {
 func TestDiscover(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
@@ -185,6 +187,9 @@ func TestDiscover(t *testing.T) {
 			},
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
+			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
 			},
 		},
 	})
@@ -409,7 +414,6 @@ func TestDiscover(t *testing.T) {
 func TestVersion(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
@@ -423,6 +427,9 @@ func TestVersion(t *testing.T) {
 			},
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
+			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
 			},
 		},
 	})
@@ -670,7 +677,6 @@ func TestVersion(t *testing.T) {
 func TestTraffic(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
@@ -684,6 +690,9 @@ func TestTraffic(t *testing.T) {
 			},
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
+			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
 			},
 		},
 	})
@@ -1002,7 +1011,6 @@ func TestTraffic(t *testing.T) {
 func TestRTT(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 
@@ -1016,6 +1024,9 @@ func TestRTT(t *testing.T) {
 			},
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
+			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
 			},
 		},
 	})
@@ -1279,7 +1290,6 @@ func TestRTT(t *testing.T) {
 func TestPingPong(t *testing.T) {
 	a := assertions.New(t)
 	ctx := log.NewContext(test.Context(), test.GetLogger(t))
-	ctx = newContextWithRightsFetcher(ctx)
 	ctx, cancelCtx := context.WithCancel(ctx)
 	defer cancelCtx()
 

@@ -129,7 +129,7 @@ func (is *IdentityServer) getClient(ctx context.Context, req *ttnpb.GetClientReq
 			return nil, err
 		}
 	}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		cli, err = store.GetClientStore(db).GetClient(ctx, &req.ClientIdentifiers, &req.FieldMask)
 		if err != nil {
 			return err
@@ -181,7 +181,7 @@ func (is *IdentityServer) listClients(ctx context.Context, req *ttnpb.ListClient
 		}
 	}()
 	clis = &ttnpb.Clients{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		ids, err := is.getMembershipStore(ctx, db).FindMemberships(paginateCtx, req.Collaborator, "client", includeIndirect)
 		if err != nil {
 			return err

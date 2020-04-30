@@ -28,6 +28,8 @@ type Gateway struct {
 	Model
 	SoftDelete
 
+	TenantID string `gorm:"unique_index:gateway_id_index;type:VARCHAR(36)"`
+
 	GatewayEUI *EUI64 `gorm:"unique_index:gateway_eui_index;type:VARCHAR(16);column:gateway_eui"`
 
 	// BEGIN common fields

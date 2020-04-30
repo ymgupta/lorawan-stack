@@ -41,6 +41,7 @@ const dataTransform = function(content) {
 export default class FileInput extends Component {
   static propTypes = {
     accept: PropTypes.string,
+    capture: PropTypes.bool,
     dataTransform: PropTypes.func,
     disabled: PropTypes.bool,
     maxSize: PropTypes.number,
@@ -59,6 +60,7 @@ export default class FileInput extends Component {
     maxSize: 10 * 1024 * 1024, // Equals 10 MB.
     providedMessage: m.fileProvided,
     value: undefined,
+    capture: false,
   }
 
   constructor(props) {
@@ -141,7 +143,7 @@ export default class FileInput extends Component {
   }
 
   render() {
-    const { message, name, accept, value, disabled } = this.props
+    const { message, name, accept, value, disabled, capture } = this.props
     const id = `file_input_${name}`
 
     return (
@@ -165,6 +167,7 @@ export default class FileInput extends Component {
           accept={accept}
           disabled={disabled}
           tabIndex="-1"
+          capture={capture}
         />
       </div>
     )

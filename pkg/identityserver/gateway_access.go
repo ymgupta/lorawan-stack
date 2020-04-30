@@ -105,7 +105,7 @@ func (is *IdentityServer) listGatewayAPIKeys(ctx context.Context, req *ttnpb.Lis
 		}
 	}()
 	keys = &ttnpb.APIKeys{}
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		keys.APIKeys, err = store.GetAPIKeyStore(db).FindAPIKeys(ctx, req.GatewayIdentifiers)
 		return err
 	})
@@ -123,7 +123,7 @@ func (is *IdentityServer) getGatewayAPIKey(ctx context.Context, req *ttnpb.GetGa
 		return nil, err
 	}
 
-	err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		_, key, err = store.GetAPIKeyStore(db).GetAPIKey(ctx, req.KeyID)
 		if err != nil {
 			return err
@@ -196,7 +196,7 @@ func (is *IdentityServer) getGatewayCollaborator(ctx context.Context, req *ttnpb
 	res := &ttnpb.GetCollaboratorResponse{
 		OrganizationOrUserIdentifiers: req.OrganizationOrUserIdentifiers,
 	}
-	err := is.withDatabase(ctx, func(db *gorm.DB) error {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		rights, err := is.getMembershipStore(ctx, db).GetMember(
 			ctx,
 			&req.OrganizationOrUserIdentifiers,
@@ -279,7 +279,7 @@ func (is *IdentityServer) listGatewayCollaborators(ctx context.Context, req *ttn
 			setTotalHeader(ctx, total)
 		}
 	}()
-	err = is.withDatabase(ctx, func(db *gorm.DB) error {
+	err = is.withReadDatabase(ctx, func(db *gorm.DB) error {
 		memberRights, err := is.getMembershipStore(ctx, db).FindMembers(ctx, req.GatewayIdentifiers)
 		if err != nil {
 			return err

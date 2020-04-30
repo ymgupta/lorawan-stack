@@ -23,6 +23,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -53,6 +54,7 @@ func uplinkHash(ctx context.Context, up *ttnpb.UplinkMessage) (string, error) {
 		// NOTE: Data rate and frequency are included in the key to support retransmissions.
 		strconv.FormatUint(up.Settings.Frequency, 32),
 		keyEncoding.EncodeToString(drBytes),
+		tenant.FromContext(ctx).TenantID,
 	), nil
 }
 

@@ -23,6 +23,8 @@ import (
 	"github.com/spf13/cobra"
 	"go.thethings.network/lorawan-stack/pkg/auth"
 	"go.thethings.network/lorawan-stack/pkg/identityserver/store"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 )
 
@@ -40,6 +42,18 @@ var (
 				return err
 			}
 			defer db.Close()
+
+			tenantID, err := cmd.Flags().GetString("tenant-id")
+			if err != nil {
+				return err
+			}
+			switch tenantID {
+			case "NULL": // all caps so there is no mistake.
+				tenantID = ""
+			case "":
+				tenantID = config.Tenancy.DefaultID
+			}
+			ctx = tenant.NewContext(ctx, ttipb.TenantIdentifiers{TenantID: tenantID})
 
 			clientID, err := cmd.Flags().GetString("id")
 			if err != nil {
@@ -139,7 +153,7 @@ var (
 					logger.WithField("secret", secret).Info("Created OAuth client")
 				}
 
-				if owner != "" {
+				if owner != "" && tenantID != "" {
 					logger.Info("Setting owner rights...")
 					memberStore := store.GetMembershipStore(db)
 					err = memberStore.SetMember(
@@ -166,6 +180,8 @@ var (
 )
 
 func init() {
+	createOAuthClient.Flags().String("tenant-id", "", "Tenant ID; use \"NULL\" to create tenant-agnostic OAuth client")
+	createOAuthClient.Flags().Lookup("tenant-id").Hidden = true
 	createOAuthClient.Flags().String("id", "console", "OAuth client ID")
 	createOAuthClient.Flags().String("name", "", "Name of the OAuth client")
 	createOAuthClient.Flags().String("owner", "", "Owner of the OAuth client")

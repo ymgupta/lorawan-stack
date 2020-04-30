@@ -74,6 +74,8 @@ func TestGatewayServer(t *testing.T) {
 	is, isAddr := startMockIS(ctx)
 	ns, nsAddr := mock.StartNS(ctx)
 
+	tenantStore := &mockTenantClient{}
+
 	c := componenttest.NewComponent(t, &component.Config{
 		ServiceBase: config.ServiceBase{
 			GRPC: config.GRPC{
@@ -122,8 +124,9 @@ func TestGatewayServer(t *testing.T) {
 		}
 		config.Stats = statsRegistry
 	}
-
-	gs, err := gatewayserver.New(c, config)
+	gs, err := gatewayserver.New(c, config,
+		gatewayserver.WithTenantRegistry(tenantStore),
+	)
 	if !a.So(err, should.BeNil) {
 		t.FailNow()
 	}

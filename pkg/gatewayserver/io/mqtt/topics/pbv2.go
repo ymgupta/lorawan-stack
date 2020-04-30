@@ -16,9 +16,14 @@ package topics
 
 import (
 	"context"
+
+	"go.thethings.network/lorawan-stack/pkg/license"
+	"go.thethings.network/lorawan-stack/pkg/unique"
 )
 
-type v2 struct{}
+type v2 struct {
+	multiTenancy bool
+}
 
 func (v2 *v2) BirthTopic(uid string) []string {
 	return []string{"connect"}
@@ -66,10 +71,16 @@ func (v2 *v2) DownlinkTopic(uid string) []string {
 
 func (v2 *v2) createTopic(uid string, path []string) []string {
 	inTopicIdentifier := uid
+	if !v2.multiTenancy {
+		ids, _ := unique.ToGatewayID(uid) // The error can be safely ignored here since the caller already validates the uid.
+		inTopicIdentifier = ids.GatewayID
+	}
 	return append([]string{inTopicIdentifier}, path...)
 }
 
 // NewV2 returns a topic layout that uses the legacy The Things Stack V2 topic structure.
 func NewV2(ctx context.Context) Layout {
-	return &v2{}
+	return &v2{
+		multiTenancy: license.RequireMultiTenancy(ctx) == nil,
+	}
 }

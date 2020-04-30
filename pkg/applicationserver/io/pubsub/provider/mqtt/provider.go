@@ -17,6 +17,7 @@ package mqtt
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	mqtt_topic "github.com/TheThingsIndustries/mystique/pkg/topic"
@@ -46,7 +47,14 @@ var errConnectFailed = errors.Define("connect_failed", "connection to MQTT serve
 
 // OpenConnection implements provider.Provider using the mqtt driver.
 func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *provider.Connection, err error) {
-	settings, ok := target.GetProvider().(*ttnpb.ApplicationPubSub_MQTT)
+	providerI := target.GetProvider()
+	if settings, ok := providerI.(*ttnpb.ApplicationPubSub_AWSIoT); ok {
+		providerI, err = awsIotMQTTProvider(ctx, settings)
+		if err != nil {
+			return nil, err
+		}
+	}
+	settings, ok := providerI.(*ttnpb.ApplicationPubSub_MQTT)
 	if !ok {
 		panic("wrong provider type provided to OpenConnection")
 	}
@@ -61,6 +69,13 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 			return nil, err
 		}
 		clientOpts.SetTLSConfig(config)
+	}
+	if len(settings.MQTT.Headers) > 0 {
+		headers := make(http.Header, len(settings.MQTT.Headers))
+		for k, v := range settings.MQTT.Headers {
+			headers.Set(k, v)
+		}
+		clientOpts.SetHTTPHeaders(headers)
 	}
 	client := mqtt.NewClient(clientOpts)
 	token := client.Connect()

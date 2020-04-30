@@ -1,0 +1,2028 @@
+{
+  "files": [
+    {
+      "name": "lorawan-stack/api/tti/application_api_key.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "ApplicationAPIKey",
+          "longName": "ApplicationAPIKey",
+          "fullName": "tti.lorawan.v3.ApplicationAPIKey",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "application_ids",
+              "description": "",
+              "label": "",
+              "type": "ApplicationIdentifiers",
+              "longType": "ttn.lorawan.v3.ApplicationIdentifiers",
+              "fullType": "ttn.lorawan.v3.ApplicationIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "api_key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.min_len",
+                    "value": 1
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/configuration.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "Configuration",
+          "longName": "Configuration",
+          "fullName": "tti.lorawan.v3.Configuration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "default_cluster",
+              "description": "Default cluster configuration.",
+              "label": "",
+              "type": "Cluster",
+              "longType": "Configuration.Cluster",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Cluster",
+          "longName": "Configuration.Cluster",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ui",
+              "description": "",
+              "label": "",
+              "type": "UI",
+              "longType": "Configuration.UI",
+              "fullType": "tti.lorawan.v3.Configuration.UI",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "is",
+              "description": "Identity Server configuration.",
+              "label": "",
+              "type": "IdentityServer",
+              "longType": "Configuration.Cluster.IdentityServer",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "ns",
+              "description": "",
+              "label": "",
+              "type": "NetworkServer",
+              "longType": "Configuration.Cluster.NetworkServer",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.NetworkServer",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "IdentityServer",
+          "longName": "Configuration.Cluster.IdentityServer",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "user_registration",
+              "description": "",
+              "label": "",
+              "type": "UserRegistration",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UserRegistration",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "invitation",
+              "description": "",
+              "label": "",
+              "type": "Invitation",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "contact_info_validation",
+              "description": "",
+              "label": "",
+              "type": "ContactInfoValidation",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "admin_approval",
+              "description": "",
+              "label": "",
+              "type": "AdminApproval",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "password_requirements",
+              "description": "",
+              "label": "",
+              "type": "PasswordRequirements",
+              "longType": "Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AdminApproval",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ContactInfoValidation",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Invitation",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "required",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "token_ttl",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "PasswordRequirements",
+          "longName": "Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "min_length",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_length",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_uppercase",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_digits",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_special",
+              "description": "",
+              "label": "",
+              "type": "UInt32Value",
+              "longType": "google.protobuf.UInt32Value",
+              "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "NetworkServer",
+          "longName": "Configuration.Cluster.NetworkServer",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.NetworkServer",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "dev_addr_prefixes",
+              "description": "",
+              "label": "repeated",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "deduplication_window",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "cooldown_window",
+              "description": "",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UI",
+          "longName": "Configuration.UI",
+          "fullName": "tti.lorawan.v3.Configuration.UI",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "branding_base_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/identifiers.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "LicenseIdentifiers",
+          "longName": "LicenseIdentifiers",
+          "fullName": "tti.lorawan.v3.LicenseIdentifiers",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "license_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "LicenseIssuerIdentifiers",
+          "longName": "LicenseIssuerIdentifiers",
+          "fullName": "tti.lorawan.v3.LicenseIssuerIdentifiers",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "license_issuer_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "TenantIdentifiers",
+          "longName": "TenantIdentifiers",
+          "fullName": "tti.lorawan.v3.TenantIdentifiers",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/license.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "License",
+          "longName": "License",
+          "fullName": "tti.lorawan.v3.License",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "id",
+              "description": "Immutable and unique public identifier for the License.\nGenerated by the License Server.",
+              "label": "",
+              "type": "LicenseIdentifiers",
+              "longType": "LicenseIdentifiers",
+              "fullType": "tti.lorawan.v3.LicenseIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "license_issuer_ids",
+              "description": "Issuer of the license.",
+              "label": "",
+              "type": "LicenseIssuerIdentifiers",
+              "longType": "LicenseIssuerIdentifiers",
+              "fullType": "tti.lorawan.v3.LicenseIssuerIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "created_at",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "valid_from",
+              "description": "The license is not valid before this time.",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "valid_until",
+              "description": "The license is not valid after this time.",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "warn_for",
+              "description": "For how long (before valid_until) to warn about license expiry.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "limit_for",
+              "description": "For how long (before valid_until) to limit non-critical functionality.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "min_version",
+              "description": "If set, sets the minimum version allowed by this license (major.minor.patch).",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_version",
+              "description": "If set, sets the maximum version allowed by this license (major.minor.patch).",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "components",
+              "description": "If set, only the given components can be started.",
+              "label": "repeated",
+              "type": "ClusterRole",
+              "longType": "ttn.lorawan.v3.ClusterRole",
+              "fullType": "ttn.lorawan.v3.ClusterRole",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "component_address_regexps",
+              "description": "If set, the server addresses must match any of these regexps.",
+              "label": "repeated",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "dev_addr_prefixes",
+              "description": "If set, the configured DevAddr prefixes must match any of these prefixes.",
+              "label": "repeated",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "join_eui_prefixes",
+              "description": "If set, the configured JoinEUI prefixes must match any of these prefixes.",
+              "label": "repeated",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "multi_tenancy",
+              "description": "Indicates whether multi-tenancy support is included.",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_applications",
+              "description": "If set, restricts the maximum number of applications that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_clients",
+              "description": "If set, restricts the maximum number of clients that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_end_devices",
+              "description": "If set, restricts the maximum number of end_devices that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_gateways",
+              "description": "If set, restricts the maximum number of gateways that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_organizations",
+              "description": "If set, restricts the maximum number of organizations that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_users",
+              "description": "If set, restricts the maximum number of users that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "metering",
+              "description": "If set, requires checking in with a metering service.",
+              "label": "",
+              "type": "MeteringConfiguration",
+              "longType": "MeteringConfiguration",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "LicenseKey",
+          "longName": "LicenseKey",
+          "fullName": "tti.lorawan.v3.LicenseKey",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "license",
+              "description": "The marshaled License message.",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "signatures",
+              "description": "Signatures for the license bytes. The LicenseKey is invalid if it does not\ncontain any signature with a known key_id or if it contains any invalid\nsignature.",
+              "label": "repeated",
+              "type": "Signature",
+              "longType": "LicenseKey.Signature",
+              "fullType": "tti.lorawan.v3.LicenseKey.Signature",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Signature",
+          "longName": "LicenseKey.Signature",
+          "fullName": "tti.lorawan.v3.LicenseKey.Signature",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "key_id",
+              "description": "The ID of the key used to sign license.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "signature",
+              "description": "Signature for license using the key identified by key_id.",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "LicenseUpdate",
+          "longName": "LicenseUpdate",
+          "fullName": "tti.lorawan.v3.LicenseUpdate",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "extend_valid_until",
+              "description": "How long the license validity should be extended (relative to the current time) on update.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "MeteringConfiguration",
+          "longName": "MeteringConfiguration",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "interval",
+              "description": "How frequently to report to the metering service.",
+              "label": "",
+              "type": "Duration",
+              "longType": "google.protobuf.Duration",
+              "fullType": "google.protobuf.Duration",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "on_success",
+              "description": "How to update the license on success.",
+              "label": "",
+              "type": "LicenseUpdate",
+              "longType": "LicenseUpdate",
+              "fullType": "tti.lorawan.v3.LicenseUpdate",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "aws",
+              "description": "",
+              "label": "",
+              "type": "AWS",
+              "longType": "MeteringConfiguration.AWS",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration.AWS",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "prometheus",
+              "description": "",
+              "label": "",
+              "type": "Prometheus",
+              "longType": "MeteringConfiguration.Prometheus",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "tenant_billing_server",
+              "description": "",
+              "label": "",
+              "type": "TenantBillingServer",
+              "longType": "MeteringConfiguration.TenantBillingServer",
+              "fullType": "tti.lorawan.v3.MeteringConfiguration.TenantBillingServer",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AWS",
+          "longName": "MeteringConfiguration.AWS",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration.AWS",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "sku",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Prometheus",
+          "longName": "MeteringConfiguration.Prometheus",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration.Prometheus",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": false,
+          "extensions": [],
+          "fields": []
+        },
+        {
+          "name": "TenantBillingServer",
+          "longName": "MeteringConfiguration.TenantBillingServer",
+          "fullName": "tti.lorawan.v3.MeteringConfiguration.TenantBillingServer",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": false,
+          "extensions": [],
+          "fields": []
+        },
+        {
+          "name": "MeteringData",
+          "longName": "MeteringData",
+          "fullName": "tti.lorawan.v3.MeteringData",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenants",
+              "description": "",
+              "label": "repeated",
+              "type": "TenantMeteringData",
+              "longType": "MeteringData.TenantMeteringData",
+              "fullType": "tti.lorawan.v3.MeteringData.TenantMeteringData",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "TenantMeteringData",
+          "longName": "MeteringData.TenantMeteringData",
+          "fullName": "tti.lorawan.v3.MeteringData.TenantMeteringData",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_id",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "totals",
+              "description": "",
+              "label": "",
+              "type": "TenantRegistryTotals",
+              "longType": "TenantRegistryTotals",
+              "fullType": "tti.lorawan.v3.TenantRegistryTotals",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/tenant.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "CreateTenantRequest",
+          "longName": "CreateTenantRequest",
+          "fullName": "tti.lorawan.v3.CreateTenantRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant",
+              "description": "",
+              "label": "",
+              "type": "Tenant",
+              "longType": "Tenant",
+              "fullType": "tti.lorawan.v3.Tenant",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "initial_user",
+              "description": "",
+              "label": "",
+              "type": "User",
+              "longType": "ttn.lorawan.v3.User",
+              "fullType": "ttn.lorawan.v3.User",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "longName": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "join_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "dev_eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantIdentifiersForGatewayEUIRequest",
+          "longName": "GetTenantIdentifiersForGatewayEUIRequest",
+          "fullName": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "eui",
+              "description": "",
+              "label": "",
+              "type": "bytes",
+              "longType": "bytes",
+              "fullType": "bytes",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantRegistryTotalsRequest",
+          "longName": "GetTenantRegistryTotalsRequest",
+          "fullName": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_ids",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "GetTenantRequest",
+          "longName": "GetTenantRequest",
+          "fullName": "tti.lorawan.v3.GetTenantRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant_ids",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ListTenantsRequest",
+          "longName": "ListTenantsRequest",
+          "fullName": "tti.lorawan.v3.ListTenantsRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "order",
+              "description": "Order the results by this field path (must be present in the field mask).\nDefault ordering is by ID. Prepend with a minus (-) to reverse the order.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.in",
+                    "value": [
+                      "",
+                      "tenant_id",
+                      "-tenant_id",
+                      "name",
+                      "-name",
+                      "created_at",
+                      "-created_at"
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "limit",
+              "description": "Limit the number of results per page.",
+              "label": "",
+              "type": "uint32",
+              "longType": "uint32",
+              "fullType": "uint32",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "uint32.lte",
+                    "value": 1000
+                  }
+                ]
+              }
+            },
+            {
+              "name": "page",
+              "description": "Page number for pagination. 0 is interpreted as 1.",
+              "label": "",
+              "type": "uint32",
+              "longType": "uint32",
+              "fullType": "uint32",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Tenant",
+          "longName": "Tenant",
+          "fullName": "tti.lorawan.v3.Tenant",
+          "description": "Tenant is the message that defines a Tenant in the network.",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "ids",
+              "description": "",
+              "label": "",
+              "type": "TenantIdentifiers",
+              "longType": "TenantIdentifiers",
+              "fullType": "tti.lorawan.v3.TenantIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "created_at",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "updated_at",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "name",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 50
+                  }
+                ]
+              }
+            },
+            {
+              "name": "description",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "string.max_len",
+                    "value": 2000
+                  }
+                ]
+              }
+            },
+            {
+              "name": "attributes",
+              "description": "",
+              "label": "repeated",
+              "type": "AttributesEntry",
+              "longType": "Tenant.AttributesEntry",
+              "fullType": "tti.lorawan.v3.Tenant.AttributesEntry",
+              "ismap": true,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "map.keys.string.max_len",
+                    "value": 36
+                  },
+                  {
+                    "name": "map.keys.string.pattern",
+                    "value": "^[a-z0-9](?:[-]?[a-z0-9]){2,}$"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "contact_info",
+              "description": "",
+              "label": "repeated",
+              "type": "ContactInfo",
+              "longType": "ttn.lorawan.v3.ContactInfo",
+              "fullType": "ttn.lorawan.v3.ContactInfo",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_applications",
+              "description": "If set, restricts the maximum number of applications that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_clients",
+              "description": "If set, restricts the maximum number of clients that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_end_devices",
+              "description": "If set, restricts the maximum number of end_devices that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_gateways",
+              "description": "If set, restricts the maximum number of gateways that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_organizations",
+              "description": "If set, restricts the maximum number of organizations that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "max_users",
+              "description": "If set, restricts the maximum number of users that can be created.",
+              "label": "",
+              "type": "UInt64Value",
+              "longType": "google.protobuf.UInt64Value",
+              "fullType": "google.protobuf.UInt64Value",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "state",
+              "description": "The reviewing state of the tenant.\nThis field can only be modified by tenant admins.",
+              "label": "",
+              "type": "State",
+              "longType": "ttn.lorawan.v3.State",
+              "fullType": "ttn.lorawan.v3.State",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "enum.defined_only",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "capabilities",
+              "description": "",
+              "label": "",
+              "type": "Struct",
+              "longType": "google.protobuf.Struct",
+              "fullType": "google.protobuf.Struct",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "configuration",
+              "description": "",
+              "label": "",
+              "type": "Configuration",
+              "longType": "Configuration",
+              "fullType": "tti.lorawan.v3.Configuration",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AttributesEntry",
+          "longName": "Tenant.AttributesEntry",
+          "fullName": "tti.lorawan.v3.Tenant.AttributesEntry",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "key",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "value",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "TenantRegistryTotals",
+          "longName": "TenantRegistryTotals",
+          "fullName": "tti.lorawan.v3.TenantRegistryTotals",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "applications",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "clients",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "end_devices",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "gateways",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "organizations",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "users",
+              "description": "",
+              "label": "",
+              "type": "uint64",
+              "longType": "uint64",
+              "fullType": "uint64",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Tenants",
+          "longName": "Tenants",
+          "fullName": "tti.lorawan.v3.Tenants",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenants",
+              "description": "",
+              "label": "repeated",
+              "type": "Tenant",
+              "longType": "Tenant",
+              "fullType": "tti.lorawan.v3.Tenant",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UpdateTenantRequest",
+          "longName": "UpdateTenantRequest",
+          "fullName": "tti.lorawan.v3.UpdateTenantRequest",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "tenant",
+              "description": "",
+              "label": "",
+              "type": "Tenant",
+              "longType": "Tenant",
+              "fullType": "tti.lorawan.v3.Tenant",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "field_mask",
+              "description": "",
+              "label": "",
+              "type": "FieldMask",
+              "longType": "google.protobuf.FieldMask",
+              "fullType": "google.protobuf.FieldMask",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/tenant_services.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": false,
+      "hasServices": true,
+      "enums": [],
+      "extensions": [],
+      "messages": [],
+      "services": [
+        {
+          "name": "TenantRegistry",
+          "longName": "TenantRegistry",
+          "fullName": "tti.lorawan.v3.TenantRegistry",
+          "description": "",
+          "methods": [
+            {
+              "name": "Create",
+              "description": "",
+              "requestType": "CreateTenantRequest",
+              "requestLongType": "CreateTenantRequest",
+              "requestFullType": "tti.lorawan.v3.CreateTenantRequest",
+              "requestStreaming": false,
+              "responseType": "Tenant",
+              "responseLongType": "Tenant",
+              "responseFullType": "tti.lorawan.v3.Tenant",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "POST",
+                      "pattern": "/tenants",
+                      "body": "*"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Get",
+              "description": "",
+              "requestType": "GetTenantRequest",
+              "requestLongType": "GetTenantRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantRequest",
+              "requestStreaming": false,
+              "responseType": "Tenant",
+              "responseLongType": "Tenant",
+              "responseFullType": "tti.lorawan.v3.Tenant",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/tenants/{tenant_ids.tenant_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "GetRegistryTotals",
+              "description": "",
+              "requestType": "GetTenantRegistryTotalsRequest",
+              "requestLongType": "GetTenantRegistryTotalsRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantRegistryTotalsRequest",
+              "requestStreaming": false,
+              "responseType": "TenantRegistryTotals",
+              "responseLongType": "TenantRegistryTotals",
+              "responseFullType": "tti.lorawan.v3.TenantRegistryTotals",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/tenants/{tenant_ids.tenant_id}/registry-totals"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "List",
+              "description": "",
+              "requestType": "ListTenantsRequest",
+              "requestLongType": "ListTenantsRequest",
+              "requestFullType": "tti.lorawan.v3.ListTenantsRequest",
+              "requestStreaming": false,
+              "responseType": "Tenants",
+              "responseLongType": "Tenants",
+              "responseFullType": "tti.lorawan.v3.Tenants",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "GET",
+                      "pattern": "/tenants"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Update",
+              "description": "",
+              "requestType": "UpdateTenantRequest",
+              "requestLongType": "UpdateTenantRequest",
+              "requestFullType": "tti.lorawan.v3.UpdateTenantRequest",
+              "requestStreaming": false,
+              "responseType": "Tenant",
+              "responseLongType": "Tenant",
+              "responseFullType": "tti.lorawan.v3.Tenant",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "PUT",
+                      "pattern": "/tenants/{tenant.ids.tenant_id}",
+                      "body": "*"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "Delete",
+              "description": "",
+              "requestType": "TenantIdentifiers",
+              "requestLongType": "TenantIdentifiers",
+              "requestFullType": "tti.lorawan.v3.TenantIdentifiers",
+              "requestStreaming": false,
+              "responseType": "Empty",
+              "responseLongType": ".google.protobuf.Empty",
+              "responseFullType": "google.protobuf.Empty",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "DELETE",
+                      "pattern": "/tenants/{tenant_id}"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "name": "GetIdentifiersForEndDeviceEUIs",
+              "description": "",
+              "requestType": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestLongType": "GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantIdentifiersForEndDeviceEUIsRequest",
+              "requestStreaming": false,
+              "responseType": "TenantIdentifiers",
+              "responseLongType": "TenantIdentifiers",
+              "responseFullType": "tti.lorawan.v3.TenantIdentifiers",
+              "responseStreaming": false
+            },
+            {
+              "name": "GetIdentifiersForGatewayEUI",
+              "description": "",
+              "requestType": "GetTenantIdentifiersForGatewayEUIRequest",
+              "requestLongType": "GetTenantIdentifiersForGatewayEUIRequest",
+              "requestFullType": "tti.lorawan.v3.GetTenantIdentifiersForGatewayEUIRequest",
+              "requestStreaming": false,
+              "responseType": "TenantIdentifiers",
+              "responseLongType": "TenantIdentifiers",
+              "responseFullType": "tti.lorawan.v3.TenantIdentifiers",
+              "responseStreaming": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "lorawan-stack/api/tti/tenantbillingserver.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": false,
+      "hasServices": true,
+      "enums": [],
+      "extensions": [],
+      "messages": [],
+      "services": [
+        {
+          "name": "Tbs",
+          "longName": "Tbs",
+          "fullName": "tti.lorawan.v3.Tbs",
+          "description": "The Tbs service manages the Tenant Billing Server metering reporting.",
+          "methods": [
+            {
+              "name": "Report",
+              "description": "",
+              "requestType": "MeteringData",
+              "requestLongType": "MeteringData",
+              "requestFullType": "tti.lorawan.v3.MeteringData",
+              "requestStreaming": false,
+              "responseType": "Empty",
+              "responseLongType": ".google.protobuf.Empty",
+              "responseFullType": "google.protobuf.Empty",
+              "responseStreaming": false,
+              "options": {
+                "google.api.http": {
+                  "rules": [
+                    {
+                      "method": "POST",
+                      "pattern": "/tbs/report"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "scalarValueTypes": [
+    {
+      "protoType": "double",
+      "notes": "",
+      "cppType": "double",
+      "csType": "double",
+      "goType": "float64",
+      "javaType": "double",
+      "phpType": "float",
+      "pythonType": "float",
+      "rubyType": "Float"
+    },
+    {
+      "protoType": "float",
+      "notes": "",
+      "cppType": "float",
+      "csType": "float",
+      "goType": "float32",
+      "javaType": "float",
+      "phpType": "float",
+      "pythonType": "float",
+      "rubyType": "Float"
+    },
+    {
+      "protoType": "int32",
+      "notes": "Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.",
+      "cppType": "int32",
+      "csType": "int",
+      "goType": "int32",
+      "javaType": "int",
+      "phpType": "integer",
+      "pythonType": "int",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "int64",
+      "notes": "Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.",
+      "cppType": "int64",
+      "csType": "long",
+      "goType": "int64",
+      "javaType": "long",
+      "phpType": "integer/string",
+      "pythonType": "int/long",
+      "rubyType": "Bignum"
+    },
+    {
+      "protoType": "uint32",
+      "notes": "Uses variable-length encoding.",
+      "cppType": "uint32",
+      "csType": "uint",
+      "goType": "uint32",
+      "javaType": "int",
+      "phpType": "integer",
+      "pythonType": "int/long",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "uint64",
+      "notes": "Uses variable-length encoding.",
+      "cppType": "uint64",
+      "csType": "ulong",
+      "goType": "uint64",
+      "javaType": "long",
+      "phpType": "integer/string",
+      "pythonType": "int/long",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "sint32",
+      "notes": "Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.",
+      "cppType": "int32",
+      "csType": "int",
+      "goType": "int32",
+      "javaType": "int",
+      "phpType": "integer",
+      "pythonType": "int",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "sint64",
+      "notes": "Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.",
+      "cppType": "int64",
+      "csType": "long",
+      "goType": "int64",
+      "javaType": "long",
+      "phpType": "integer/string",
+      "pythonType": "int/long",
+      "rubyType": "Bignum"
+    },
+    {
+      "protoType": "fixed32",
+      "notes": "Always four bytes. More efficient than uint32 if values are often greater than 2^28.",
+      "cppType": "uint32",
+      "csType": "uint",
+      "goType": "uint32",
+      "javaType": "int",
+      "phpType": "integer",
+      "pythonType": "int",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "fixed64",
+      "notes": "Always eight bytes. More efficient than uint64 if values are often greater than 2^56.",
+      "cppType": "uint64",
+      "csType": "ulong",
+      "goType": "uint64",
+      "javaType": "long",
+      "phpType": "integer/string",
+      "pythonType": "int/long",
+      "rubyType": "Bignum"
+    },
+    {
+      "protoType": "sfixed32",
+      "notes": "Always four bytes.",
+      "cppType": "int32",
+      "csType": "int",
+      "goType": "int32",
+      "javaType": "int",
+      "phpType": "integer",
+      "pythonType": "int",
+      "rubyType": "Bignum or Fixnum (as required)"
+    },
+    {
+      "protoType": "sfixed64",
+      "notes": "Always eight bytes.",
+      "cppType": "int64",
+      "csType": "long",
+      "goType": "int64",
+      "javaType": "long",
+      "phpType": "integer/string",
+      "pythonType": "int/long",
+      "rubyType": "Bignum"
+    },
+    {
+      "protoType": "bool",
+      "notes": "",
+      "cppType": "bool",
+      "csType": "bool",
+      "goType": "bool",
+      "javaType": "boolean",
+      "phpType": "boolean",
+      "pythonType": "boolean",
+      "rubyType": "TrueClass/FalseClass"
+    },
+    {
+      "protoType": "string",
+      "notes": "A string must always contain UTF-8 encoded or 7-bit ASCII text.",
+      "cppType": "string",
+      "csType": "string",
+      "goType": "string",
+      "javaType": "String",
+      "phpType": "string",
+      "pythonType": "str/unicode",
+      "rubyType": "String (UTF-8)"
+    },
+    {
+      "protoType": "bytes",
+      "notes": "May contain any arbitrary sequence of bytes.",
+      "cppType": "string",
+      "csType": "ByteString",
+      "goType": "[]byte",
+      "javaType": "ByteString",
+      "phpType": "string",
+      "pythonType": "str",
+      "rubyType": "String (ASCII-8BIT)"
+    }
+  ]
+}

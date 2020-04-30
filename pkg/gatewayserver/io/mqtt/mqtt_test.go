@@ -34,6 +34,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mock"
 	. "go.thethings.network/lorawan-stack/pkg/gatewayserver/io/mqtt"
 	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/unique"
 	"go.thethings.network/lorawan-stack/pkg/util/test"
@@ -67,6 +68,9 @@ func TestAuthentication(t *testing.T) {
 			Cluster: cluster.Config{
 				IdentityServer: isAddr,
 			},
+			Tenancy: tenant.Config{
+				DefaultID: tenant.FromContext(test.Context()).TenantID,
+			},
 		},
 	})
 	c.FrequencyPlans = frequencyplans.NewStore(test.FrequencyPlansFetcher)
@@ -88,6 +92,11 @@ func TestAuthentication(t *testing.T) {
 	}{
 		{
 			UID: registeredGatewayUID,
+			Key: registeredGatewayKey,
+			OK:  true,
+		},
+		{
+			UID: registeredGatewayID.GatewayID,
 			Key: registeredGatewayKey,
 			OK:  true,
 		},

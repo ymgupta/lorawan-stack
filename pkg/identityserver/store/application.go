@@ -24,6 +24,8 @@ type Application struct {
 	Model
 	SoftDelete
 
+	TenantID string `gorm:"unique_index:application_id_index;type:VARCHAR(36)"`
+
 	// BEGIN common fields
 	ApplicationID string       `gorm:"unique_index:application_id_index;type:VARCHAR(36);not null"`
 	Name          string       `gorm:"type:VARCHAR"`

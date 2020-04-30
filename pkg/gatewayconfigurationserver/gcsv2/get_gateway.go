@@ -25,8 +25,10 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"go.thethings.network/lorawan-stack/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/pkg/unique"
 )
 
 type antennaLocation struct {
@@ -63,13 +65,28 @@ type gatewayInfoResponse struct {
 }
 
 var errUnauthenticated = errors.DefineUnauthenticated("unauthenticated", "call was not authenticated")
+var errGatewayNotRegistered = errors.DefineNotFound("gateway_not_registered", "gateway `{gateway_id_or_uid}` is not registered")
 
 func (s *Server) handleGetGateway(c echo.Context) error {
 	ctx := c.Request().Context()
 
 	gatewayIDs := ttnpb.GatewayIdentifiers{
-		GatewayID: c.Param("gateway_id"),
+		GatewayID: c.Param("gateway_id_or_uid"),
 	}
+
+	var err error
+	if license.RequireMultiTenancy(ctx) == nil {
+		uid := c.Param("gateway_id_or_uid")
+		gatewayIDs, err = unique.ToGatewayID(uid)
+		if err != nil {
+			return errGatewayNotRegistered.WithAttributes("gateway_id_or_uid", uid)
+		}
+		ctx, err = unique.WithContext(ctx, uid)
+		if err != nil {
+			return errGatewayNotRegistered.WithAttributes("gateway_id_or_uid", uid)
+		}
+	}
+
 	if err := gatewayIDs.ValidateContext(ctx); err != nil {
 		return err
 	}

@@ -16,9 +16,9 @@ env:
     - TEST_SLOWDOWN=8
     - TEST_REDIS=1
     - PATH=/snap/bin:$PATH
-    - HUGO_BASE_URL=https://thethingsstack.io/
-    - DOCKER_IMAGE=thethingsnetwork/lorawan-stack
-    - DOCKER_IMAGE_DEV=thethingsnetwork/lorawan-stack-dev
+    - HUGO_BASE_URL=https://enterprise.thethingsstack.io/
+    - DOCKER_IMAGE=thethingsindustries/lorawan-stack
+    - DOCKER_IMAGE_DEV=thethingsindustries/lorawan-stack-dev
 matrix:
   include:
     - env: RUNTYPE=js
@@ -93,8 +93,11 @@ before_script:
     fi
 script:
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE proto:swaggerClean proto:swagger; fi
+  - if [[ "$RUNTYPE" == "js" ]]; then $MAGE ttiProto:swaggerClean ttiProto:swagger; fi
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE proto:markdownClean proto:markdown; fi
+  - if [[ "$RUNTYPE" == "js" ]]; then $MAGE ttiProto:markdownClean ttiProto:markdown; fi
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE proto:jsSDKClean proto:jsSDK; fi
+  - if [[ "$RUNTYPE" == "js" ]]; then $MAGE ttiProto:jsSDKClean ttiProto:jsSDK; fi
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE jsSDK:clean jsSDK:build; fi
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:translations; fi
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE js:backendTranslations; fi
@@ -104,6 +107,7 @@ script:
   - if [[ "$RUNTYPE" == "js" ]]; then $MAGE docs:build; fi
   - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE headers:check; fi
   - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE proto:goClean proto:go; fi
+  - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE ttiProto:goClean ttiProto:go; fi
   - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE go:messages; fi
   - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE go:lint; fi
   - if [[ "$RUNTYPE" == "go.lint" ]]; then $MAGE go:unconvert; fi
@@ -133,12 +137,12 @@ after_success:
   - |
     if [[ "$RUNTYPE" == "release" ]]; then
       set -e
-      $MAGE js:build
+      $MAGE js:buildTTI
       $MAGE docs:build
       docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-      snapcraft login --with snapcraft.login
+      if [[ -f snapcraft.login ]]; then snapcraft login --with snapcraft.login; fi
       if [[ ! -z "$TRAVIS_TAG" && "$TRAVIS_TAG" =~ ^v3\.[0-9]+\.[0-9]+ ]]; then
-        GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(printf "[Release notes](https://github.com/TheThingsNetwork/lorawan-stack/blob/${TRAVIS_TAG}/CHANGELOG.md#$(echo ${TRAVIS_TAG} | sed "s/v\([1-9]\+\)\.\([1-9]\+\)\.\([1-9]\+\)/\1\2\3---$(date +%Y-%m-%d)/"))")
+        GO111MODULE=on go run github.com/goreleaser/goreleaser --release-notes <(printf "[Release notes](https://github.com/TheThingsIndustries/lorawan-stack/blob/${TRAVIS_TAG}/CHANGELOG.md#$(echo ${TRAVIS_TAG} | sed "s/v\([1-9]\+\)\.\([1-9]\+\)\.\([1-9]\+\)/\1\2\3---$(date +%Y-%m-%d)/"))")
       else
         GO111MODULE=on go run github.com/goreleaser/goreleaser --snapshot
         docker push $DOCKER_IMAGE_DEV:$TRAVIS_COMMIT
@@ -150,7 +154,7 @@ deploy:
     skip_cleanup: true
     github_token: $GITHUB_TOKEN
     keep_history: true
-    fqdn: thethingsstack.io
+    fqdn: enterprise.thethingsstack.io
     on:
       tags: true
       condition: $RUNTYPE = "release"

@@ -60,7 +60,7 @@ func (rs *registrySearch) SearchApplications(ctx context.Context, req *ttnpb.Sea
 		}
 	}()
 	res := &ttnpb.Applications{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		entityIDs, err := store.GetEntitySearch(db).FindEntities(ctx, member, req, "application")
 		if err != nil {
 			return err
@@ -103,7 +103,7 @@ func (rs *registrySearch) SearchClients(ctx context.Context, req *ttnpb.SearchEn
 		}
 	}()
 	res := &ttnpb.Clients{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		entityIDs, err := store.GetEntitySearch(db).FindEntities(ctx, member, req, "client")
 		if err != nil {
 			return err
@@ -146,7 +146,7 @@ func (rs *registrySearch) SearchGateways(ctx context.Context, req *ttnpb.SearchE
 		}
 	}()
 	res := &ttnpb.Gateways{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		entityIDs, err := store.GetEntitySearch(db).FindEntities(ctx, member, req, "gateway")
 		if err != nil {
 			return err
@@ -189,7 +189,7 @@ func (rs *registrySearch) SearchOrganizations(ctx context.Context, req *ttnpb.Se
 		}
 	}()
 	res := &ttnpb.Organizations{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		entityIDs, err := store.GetEntitySearch(db).FindEntities(ctx, member, req, "organization")
 		if err != nil {
 			return err
@@ -235,7 +235,7 @@ func (rs *registrySearch) SearchUsers(ctx context.Context, req *ttnpb.SearchEnti
 		}
 	}()
 	res := &ttnpb.Users{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		entityIDs, err := store.GetEntitySearch(db).FindEntities(ctx, nil, req, "user")
 		if err != nil {
 			return err
@@ -278,7 +278,7 @@ func (rs *registrySearch) SearchEndDevices(ctx context.Context, req *ttnpb.Searc
 		}
 	}()
 	res := &ttnpb.EndDevices{}
-	err = rs.withDatabase(ctx, func(db *gorm.DB) error {
+	err = rs.withReadDatabase(ctx, func(db *gorm.DB) error {
 		ids, err := store.GetEntitySearch(db).FindEndDevices(ctx, req)
 		if err != nil {
 			return err

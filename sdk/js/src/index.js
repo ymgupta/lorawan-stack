@@ -21,6 +21,7 @@ import Js from './service/join-server'
 import Ns from './service/network-server'
 import Organizations from './service/organizations'
 import Users from './service/users'
+import DeviceClaim from './service/claim'
 import Auth from './service/auth'
 import EventHandler from './util/events'
 import StackConfiguration from './util/stack-configuration'
@@ -46,6 +47,7 @@ class TtnLw {
     this.Ns = new Ns(this.api.Ns)
     this.Organizations = new Organizations(this.api)
     this.Users = new Users(this.api)
+    this.DeviceClaim = new DeviceClaim(this.api, { stackConfig: stackConfiguration })
     this.Auth = new Auth(this.api.EntityAccess)
 
     this.subscribe = EventHandler.subscribe

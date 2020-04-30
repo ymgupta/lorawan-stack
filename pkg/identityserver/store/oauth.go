@@ -52,6 +52,9 @@ func (a ClientAuthorization) toPB() *ttnpb.OAuthClientAuthorization {
 type AuthorizationCode struct {
 	Model
 
+	// TenantID needed for Authorization Code index.
+	TenantID string `gorm:"unique_index:authorization_code_code_index;type:VARCHAR(36)"`
+
 	Client   *Client
 	ClientID string `gorm:"type:UUID;index;not null"`
 
@@ -92,6 +95,9 @@ func (a AuthorizationCode) toPB() *ttnpb.OAuthAuthorizationCode {
 // AccessToken model.
 type AccessToken struct {
 	Model
+
+	// TenantID needed for Access Token ID index.
+	TenantID string `gorm:"unique_index:access_token_id_index;type:VARCHAR(36)"`
 
 	Client   *Client
 	ClientID string `gorm:"type:UUID;index;not null"`

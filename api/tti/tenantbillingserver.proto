@@ -1,0 +1,20 @@
+// Copyright © 2019 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "lorawan-stack/api/tti/license.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+
+// The Tbs service manages the Tenant Billing Server metering reporting.
+service Tbs {
+  rpc Report(MeteringData) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post: "/tbs/report"
+    };
+  }
+}

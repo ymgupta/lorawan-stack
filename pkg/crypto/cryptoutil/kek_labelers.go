@@ -20,6 +20,7 @@ import (
 	"net/url"
 	"strings"
 
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/types"
 )
 
@@ -39,6 +40,12 @@ func hostFromAddress(ctx context.Context, addr string) string {
 	}
 	if h, _, err := net.SplitHostPort(host); err == nil {
 		host = h
+	}
+	host = strings.TrimSuffix(host, ".")
+	if license.RequireMultiTenancy(ctx) == nil && net.ParseIP(host) == nil {
+		if idx := strings.Index(host, "."); idx != -1 {
+			host = host[idx+1:]
+		}
 	}
 	return host
 }

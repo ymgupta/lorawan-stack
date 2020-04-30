@@ -93,3 +93,19 @@
       &-container
         display: block
         height: 2.2rem
+
+.text
+  one-liner()
+  color: $tc-deep-gray
+  text-decoration: none
+  margin-top: $cs.xs
+  font-size: $fs.s
+  +media-query($bp.s)
+    margin-top: $cs.xxs
+
+  .cluster-tag
+    font-family: $font-family-mono
+    font-weight: bold
+    font-size: $fs.s
+    margin-right: $cs.xxs
+    color: $tc-active

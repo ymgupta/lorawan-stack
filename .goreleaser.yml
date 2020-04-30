@@ -8,8 +8,10 @@ release:
 
 builds:
   - id: stack
-    main: ./cmd/ttn-lw-stack
-    binary: ttn-lw-stack
+    main: ./cmd/tti-lw-stack
+    binary: tti-lw-stack
+    flags:
+    - -tags=tti
     ldflags:
     - -s
     - -w
@@ -35,8 +37,10 @@ builds:
         goarch: 386
 
   - id: cli
-    main: ./cmd/ttn-lw-cli
-    binary: ttn-lw-cli
+    main: ./cmd/tti-lw-cli
+    binary: tti-lw-cli
+    flags:
+    - -tags=tti
     ldflags:
     - -s
     - -w
@@ -93,11 +97,11 @@ nfpms:
     builds:
       - cli
       - stack
-    vendor: The Things Network
-    homepage: https://www.thethingsnetwork.org
-    maintainer: The Things Network Foundation <stack@thethingsnetwork.org>
+    vendor: The Things Industries
+    homepage: https://www.thethingsindustries.com
+    maintainer: The Things Industries <stack@thethingsindustries.com>
     description: The Things Stack for LoRaWAN
-    license: Apache 2.0
+    license: TTI EULA
     formats:
       - deb
       - rpm
@@ -107,67 +111,68 @@ nfpms:
     files:
       "public/**/*": "/srv/ttn-lorawan/public"
 
-snapcrafts:
-  - id: stack
-    builds:
-      - cli
-      - stack
-    name: ttn-lw-stack
-    summary: The Things Stack for LoRaWAN
-    description: The Things Stack for LoRaWAN
-    grade: stable
-    confinement: strict
-    publish: true
-    apps:
-      ttn-lw-stack:
-        plugs: [ home, network, network-bind ]
-      ttn-lw-cli:
-        plugs: [ home, network, network-bind ]
+# TODO: Re-enable (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
+#snapcrafts:
+#  - id: stack
+#    builds:
+#      - cli
+#      - stack
+#    name: ttn-lw-stack
+#    summary: The Things Stack for LoRaWAN
+#    description: The Things Stack for LoRaWAN
+#    grade: stable
+#    confinement: strict
+#    publish: true
+#    apps:
+#      ttn-lw-stack:
+#        plugs: [ home, network, network-bind ]
+#      ttn-lw-cli:
+#        plugs: [ home, network, network-bind ]
 
 brews:
-  - name: ttn-lw-stack
+  - name: tti-lw-stack
     ids:
       - stack
     github:
-      owner: TheThingsNetwork
+      owner: TheThingsIndustries
       name: homebrew-lorawan-stack
     commit_author:
-      name: ttn-ci
-      email: stack@thethingsnetwork.org
-    homepage: https://www.thethingsnetwork.org
+      name: tti-ci
+      email: stack@thethingsindustries.com
+    homepage: https://www.thethingsindustries.com
     description: The Things Stack for LoRaWAN
     conflicts:
-      - ttn-lw-cli
+      - tti-lw-cli
     skip_upload: auto
     install: |
-      bin.install "ttn-lw-cli"
-      libexec.install %w[ttn-lw-stack public]
+      bin.install "tti-lw-cli"
+      libexec.install %w[tti-lw-stack public]
       env = {
           :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
       }
-      (bin/"ttn-lw-stack").write_env_script libexec/"ttn-lw-stack", env
+      (bin/"tti-lw-stack").write_env_script libexec/"tti-lw-stack", env
 
-  - name: ttn-lw-cli
+  - name: tti-lw-cli
     ids:
       - cli
     github:
-      owner: TheThingsNetwork
+      owner: TheThingsIndustries
       name: homebrew-lorawan-stack
     commit_author:
-      name: ttn-ci
-      email: stack@thethingsnetwork.org
-    homepage: https://www.thethingsnetwork.org
+      name: tti-ci
+      email: stack@thethingsindustries.com
+    homepage: https://www.thethingsindustries.com
     description: CLI of The Things Stack for LoRaWAN
     conflicts:
-      - ttn-lw-stack
+      - tti-lw-stack
     skip_upload: auto
     install: |
-      bin.install "ttn-lw-cli"
+      bin.install "tti-lw-cli"
 
 blobs:
   - provider: s3
     # NOTE: GoReleaser documentation says that bucket is a template, but it's not.
-    bucket: the-things-stack-releases
+    bucket: the-things-enterprise-stack-releases
     ids:
     - stack
     - cli
@@ -178,8 +183,8 @@ dockers:
     goarch: amd64
     dockerfile: Dockerfile
     binaries:
-      - ttn-lw-cli
-      - ttn-lw-stack
+      - tti-lw-cli
+      - tti-lw-stack
     image_templates:
       - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Major }}.{{ .Minor }}'
       - '{{ or (index .Env "DOCKER_IMAGE") "lorawan-stack" }}:{{ .Version }}'
@@ -191,8 +196,8 @@ dockers:
     goarch: amd64
     dockerfile: Dockerfile
     binaries:
-      - ttn-lw-cli
-      - ttn-lw-stack
+      - tti-lw-cli
+      - tti-lw-stack
     image_templates:
       - '{{ or (index .Env "DOCKER_IMAGE_DEV") "lorawan-stack-dev" }}:{{ .FullCommit }}'
     extra_files:

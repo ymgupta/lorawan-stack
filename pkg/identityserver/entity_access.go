@@ -201,7 +201,7 @@ func (is *IdentityServer) authInfo(ctx context.Context) (info *ttnpb.AuthInfoRes
 		return nil, errUnsupportedAuthorization.New()
 	}
 
-	if err = is.withDatabase(ctx, fetch); err != nil {
+	if err = is.withReadDatabase(ctx, fetch); err != nil {
 		return nil, err
 	}
 
@@ -250,7 +250,7 @@ func (is *IdentityServer) RequireAuthenticated(ctx context.Context) error {
 	}
 
 	if userID := authInfo.GetEntityIdentifiers().GetUserIDs(); userID != nil {
-		err = is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+		err = is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 			user, err := store.GetUserStore(db).GetUser(ctx, userID, &types.FieldMask{Paths: []string{
 				"state",
 			}})

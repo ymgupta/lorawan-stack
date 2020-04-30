@@ -32,6 +32,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/rpclog"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/warning"
+	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
 	"go.thethings.network/lorawan-stack/pkg/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -40,6 +41,7 @@ import (
 // DefaultDialOptions for gRPC clients
 func DefaultDialOptions(ctx context.Context) []grpc.DialOption {
 	streamInterceptors := []grpc.StreamClientInterceptor{
+		tenantmiddleware.StreamClientInterceptor,
 		errors.StreamClientInterceptor(),
 		metrics.StreamClientInterceptor,
 		grpc_opentracing.StreamClientInterceptor(),
@@ -48,6 +50,7 @@ func DefaultDialOptions(ctx context.Context) []grpc.DialOption {
 	}
 
 	unaryInterceptors := []grpc.UnaryClientInterceptor{
+		tenantmiddleware.UnaryClientInterceptor,
 		errors.UnaryClientInterceptor(),
 		metrics.UnaryClientInterceptor,
 		grpc_opentracing.UnaryClientInterceptor(),

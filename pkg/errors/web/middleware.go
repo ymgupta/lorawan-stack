@@ -25,6 +25,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	sentryerrors "go.thethings.network/lorawan-stack/pkg/errors/sentry"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	_ "go.thethings.network/lorawan-stack/pkg/ttnpb" // imported for side-effect of correct TTN error rendering.
 )
 
@@ -101,6 +102,12 @@ func ErrorMiddleware(extraRenderers map[string]ErrorRenderer) echo.MiddlewareFun
 				errEvent := sentryerrors.NewEvent(err)
 				errEvent.Transaction = c.Path()
 				errEvent.Request = errEvent.Request.FromHTTPRequest(c.Request())
+
+				// TTES Tags.
+				if tenantID := tenant.FromContext(c.Request().Context()); !tenantID.IsZero() {
+					errEvent.Tags["tenant-id"] = tenantID.TenantID
+				}
+
 				sentry.CaptureEvent(errEvent)
 			}
 			if c.Response().Committed {

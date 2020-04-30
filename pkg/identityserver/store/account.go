@@ -23,6 +23,8 @@ type Account struct {
 	Model
 	SoftDelete
 
+	TenantID string `gorm:"unique_index:account_uid_index;type:VARCHAR(36)"`
+
 	UID string `gorm:"type:VARCHAR(36);unique_index:account_uid_index"`
 
 	AccountID   string `gorm:"type:UUID;index:account_id_index;not null"`

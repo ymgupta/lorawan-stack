@@ -345,6 +345,7 @@ func TestServer(t *testing.T) {
 			if tt.StoreSetup != nil {
 				tt.StoreSetup(store)
 			}
+			tenantStore := &mockTenantClient{}
 
 			s := NewServer(componenttest.NewComponent(t, &component.Config{}), append([]Option{
 				WithTLSConfig(&tls.Config{
@@ -352,6 +353,7 @@ func TestServer(t *testing.T) {
 				}),
 				WithAuth(mockAuthFunc),
 				WithRegistries(store, store),
+				WithTenantRegistry(tenantStore),
 			}, tt.Options...)...)
 			req := httptest.NewRequest(http.MethodPost, "/update-info", strings.NewReader(updateInfoRequest))
 			ctx := test.Context()

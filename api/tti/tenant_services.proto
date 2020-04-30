@@ -1,0 +1,50 @@
+// Copyright © 2019 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "lorawan-stack/api/tti/identifiers.proto";
+import "lorawan-stack/api/tti/tenant.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+
+service TenantRegistry {
+  rpc Create(CreateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      post: "/tenants"
+      body: "*"
+    };
+  };
+  rpc Get(GetTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      get: "/tenants/{tenant_ids.tenant_id}"
+    };
+  };
+  rpc GetRegistryTotals(GetTenantRegistryTotalsRequest) returns (TenantRegistryTotals) {
+    option (google.api.http) = {
+      get: "/tenants/{tenant_ids.tenant_id}/registry-totals"
+    };
+  }
+  rpc List(ListTenantsRequest) returns (Tenants) {
+    option (google.api.http) = {
+      get: "/tenants"
+    };
+  };
+  rpc Update(UpdateTenantRequest) returns (Tenant) {
+    option (google.api.http) = {
+      put: "/tenants/{tenant.ids.tenant_id}"
+      body: "*"
+    };
+  };
+  rpc Delete(TenantIdentifiers) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/tenants/{tenant_id}"
+    };
+  };
+
+  rpc GetIdentifiersForEndDeviceEUIs(GetTenantIdentifiersForEndDeviceEUIsRequest) returns (TenantIdentifiers);
+  rpc GetIdentifiersForGatewayEUI(GetTenantIdentifiersForGatewayEUIRequest) returns (TenantIdentifiers);
+}

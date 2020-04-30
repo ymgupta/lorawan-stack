@@ -23,6 +23,8 @@ import (
 type EndDevice struct {
 	Model
 
+	TenantID string `gorm:"unique_index:end_device_id_index;index:end_device_application_index;type:VARCHAR(36)"`
+
 	ApplicationID string `gorm:"unique_index:end_device_id_index;type:VARCHAR(36);not null;index:end_device_application_index"`
 	Application   *Application
 

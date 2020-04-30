@@ -77,7 +77,7 @@ func (is *IdentityServer) SendEmail(ctx context.Context, f func(emails.Data) ema
 // SendUserEmail sends an email to the given user.
 func (is *IdentityServer) SendUserEmail(ctx context.Context, userIDs *ttnpb.UserIdentifiers, makeMessage func(emails.Data) email.MessageData) error {
 	var usr *ttnpb.User
-	err := is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		usr, err = store.GetUserStore(db).GetUser(ctx, userIDs, &types.FieldMask{
 			Paths: []string{"name", "primary_email_address"},
 		})
@@ -102,7 +102,7 @@ func (is *IdentityServer) SendUserEmail(ctx context.Context, userIDs *ttnpb.User
 // SendContactsEmail sends an email to the contacts of the given entity.
 func (is *IdentityServer) SendContactsEmail(ctx context.Context, ids *ttnpb.EntityIdentifiers, makeMessage func(emails.Data) email.MessageData) error {
 	var contacts []*ttnpb.ContactInfo
-	err := is.withDatabase(ctx, func(db *gorm.DB) (err error) {
+	err := is.withReadDatabase(ctx, func(db *gorm.DB) (err error) {
 		contacts, err = store.GetContactInfoStore(db).GetContactInfo(ctx, ids)
 		return err
 	})

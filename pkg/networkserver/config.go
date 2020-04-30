@@ -26,6 +26,7 @@ import (
 
 // Config represents the NetworkServer configuration.
 type Config struct {
+	EnterpriseConfig    `name:",squash"`
 	ApplicationUplinks  ApplicationUplinkQueue `name:"-"`
 	Devices             DeviceRegistry         `name:"-"`
 	DownlinkTasks       DownlinkTaskQueue      `name:"-"`

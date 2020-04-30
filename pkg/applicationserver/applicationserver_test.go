@@ -45,6 +45,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/events"
 	"go.thethings.network/lorawan-stack/pkg/jsonpb"
 	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/types"
 	"go.thethings.network/lorawan-stack/pkg/unique"
@@ -782,6 +783,7 @@ hardware_versions:
 						}
 						req.Header.Set("Content-Type", "application/json")
 						req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", key))
+						req.Header.Set("X-Forwarded-Host", fmt.Sprintf("%v.test", tenant.FromContext(ctx).TenantID))
 						res, err := http.DefaultClient.Do(req)
 						if err == nil && (res.StatusCode < 200 || res.StatusCode > 299) {
 							err = errors.FromHTTPStatusCode(res.StatusCode)

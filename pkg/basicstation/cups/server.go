@@ -28,6 +28,7 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/pkg/web"
 	"golang.org/x/sync/singleflight"
@@ -43,7 +44,10 @@ type Server struct {
 	// clients from the appropriate cluster peer.
 	registry ttnpb.GatewayRegistryClient
 	access   ttnpb.GatewayAccessClient
-	auth     func(context.Context) grpc.CallOption
+
+	tenantRegistry ttipb.TenantRegistryClient
+
+	auth func(context.Context) grpc.CallOption
 
 	requireExplicitEnable bool
 	registerUnknown       bool

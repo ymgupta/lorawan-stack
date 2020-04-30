@@ -157,11 +157,11 @@ The folder structure of the frontend looks as follows:
 ├── template.go       go template module used to render the frontend HTML
 ```
 
-For development purposes, the frontend can be run using `webpack-dev-server`. After following the [Getting Started](#getting-started) section to initialize The Things Stack and doing an initial build of the frontend via `./mage js:build`, it can be served using:
+For development purposes, the frontend can be run using `webpack-dev-server`. After following the [Getting Started](#getting-started) section to initialize The Things Stack and doing an initial build of the frontend via `./mage js:buildTTI`, it can be served using:
 
 ```bash
 $ export NODE_ENV=development
-$ ./mage js:serve
+$ ./mage js:serveTTI
 ```
 
 The development server runs on `http://localhost:8080` and will proxy all api calls to port `1885`. The serve command watches any changes inside `pkg/webui` and refreshes automatically.
@@ -169,6 +169,8 @@ The development server runs on `http://localhost:8080` and will proxy all api ca
 #### Development Configuration
 
 In order to set up The Things Stack to support running the frontend via `webpack-dev-server`, the following environment setup is needed:
+
+Console and Accounts
 
 ```bash
 NODE_ENV="development"
@@ -182,6 +184,18 @@ TTN_LW_CONSOLE_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
 TTN_LW_IS_OAUTH_UI_CANONICAL_URL="http://localhost:8080/oauth"
 TTN_LW_IS_EMAIL_NETWORK_IDENTITY_SERVER_URL="http://localhost:8080/oauth.js"
 TTN_LW_CONSOLE_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
+```
+
+Device claiming
+
+```bash
+TTN_LW_DCS_UI_JS_FILE="libs.bundle.js claim.js"
+TTN_LW_DCS_OAUTH_AUTHORIZE_URL="http://localhost:8080/oauth/authorize"
+TTN_LW_DCS_UI_CANONICAL_URL="http://localhost:8080/claim"
+TTN_LW_DCS_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
+TTN_LW_DCS_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
+TTN_LW_DCS_UI_IS_BASE_URL="http://localhost:8080/api/v3"
+TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
 ```
 
 ## Code Style
@@ -618,7 +632,7 @@ The difference of a development build includes:
 The frontend can then be built using:
 
 ```bash
-$ ./mage js:build
+$ ./mage js:buildTTI
 ```
 
 For development/testing purposes we suggest to run the binaries directly via `go run`:

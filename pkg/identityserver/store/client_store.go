@@ -112,7 +112,7 @@ func (s *clientStore) GetClient(ctx context.Context, id *ttnpb.ClientIdentifiers
 	var cliModel Client
 	if err := query.First(&cliModel).Error; err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errNotFoundForID(id)
+			return s.getClientWithoutTenant(ctx, id, fieldMask)
 		}
 		return nil, err
 	}

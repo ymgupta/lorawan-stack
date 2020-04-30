@@ -26,6 +26,9 @@ type User struct {
 	Model
 	SoftDelete
 
+	// TenantID needed for Primary Email Address index.
+	TenantID string `gorm:"unique_index:uix_users_primary_email_address;type:VARCHAR(36)"`
+
 	Account Account `gorm:"polymorphic:Account;polymorphic_value:user"`
 
 	// BEGIN common fields

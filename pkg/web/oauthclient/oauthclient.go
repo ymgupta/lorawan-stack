@@ -73,7 +73,8 @@ func (oc *OAuthClient) configFromContext(ctx context.Context) *Config {
 	if config, ok := ctx.Value(ctxKey).(*Config); ok {
 		return config
 	}
-	return &oc.config
+	config := oc.config.Apply(ctx)
+	return &config
 }
 
 func (oc *OAuthClient) oauth(c echo.Context) *oauth2.Config {

@@ -34,19 +34,21 @@ type Data struct {
 
 // TemplateData contains data to use in the App template.
 type TemplateData struct {
-	SiteName        string   `name:"site-name" description:"The site name"`
-	Title           string   `name:"title" description:"The page title"`
-	SubTitle        string   `name:"sub-title" description:"The page sub-title"`
-	Description     string   `name:"descriptions" description:"The page description"`
-	Language        string   `name:"language" description:"The page language"`
-	ThemeColor      string   `name:"theme-color" description:"The page theme color"`
-	CanonicalURL    string   `name:"canonical-url" description:"The page canonical URL"`
-	AssetsBaseURL   string   `name:"assets-base-url" description:"The base URL to the page assets"`
-	BrandingBaseURL string   `name:"branding-base-url" description:"The base URL to the branding assets"`
-	IconPrefix      string   `name:"icon-prefix" description:"The prefix to put before the page icons (favicon.ico, touch-icon.png, og-image.png)"`
-	CSSFiles        []string `name:"css-file" description:"The names of the CSS files"`
-	JSFiles         []string `name:"js-file" description:"The names of the JS files"`
-	SentryDSN       string   `name:"sentry-dsn" description:"The Sentry DSN"`
+	SiteName          string   `name:"site-name" description:"The site name"`
+	Title             string   `name:"title" description:"The page title"`
+	SubTitle          string   `name:"sub-title" description:"The page sub-title"`
+	Description       string   `name:"descriptions" description:"The page description"`
+	Language          string   `name:"language" description:"The page language"`
+	ThemeColor        string   `name:"theme-color" description:"The page theme color"`
+	CanonicalURL      string   `name:"canonical-url" description:"The page canonical URL"`
+	AssetsBaseURL     string   `name:"assets-base-url" description:"The base URL to the page assets"`
+	BrandingBaseURL   string   `name:"branding-base-url" description:"The base URL to the branding assets"`
+	BrandingText      string   `name:"branding-text" description:"The branding text displayed in the header (25 characters max)"`
+	BrandingClusterID string   `name:"branding-cluster-id" description:"The cluster id displayed in the header (5 characters max)"`
+	IconPrefix        string   `name:"icon-prefix" description:"The prefix to put before the page icons (favicon.ico, touch-icon.png, og-image.png)"`
+	CSSFiles          []string `name:"css-file" description:"The names of the CSS files"`
+	JSFiles           []string `name:"js-file" description:"The names of the JS files"`
+	SentryDSN         string   `name:"sentry-dsn" description:"The Sentry DSN"`
 }
 
 // MountPath derives the mount path from the canonical URL of the config.
@@ -90,6 +92,8 @@ const appHTML = `
       window.APP_ROOT={{.MountPath}};
       window.ASSETS_ROOT={{$assetsBaseURL}};
       window.BRANDING_ROOT={{$brandingBaseURL}};
+      {{with .BrandingText}}window.BRANDING_TEXT={{.}};{{end}}
+      {{with .BrandingClusterID}}window.BRANDING_CLUSTER_ID={{.}};{{end}}
       window.APP_CONFIG={{.AppConfig}};
       window.SITE_NAME={{.SiteName}};
       window.SITE_TITLE={{.Title}};
@@ -135,7 +139,7 @@ func RegisterHashedFile(original, hashed string) {
 
 // Render is the echo.Renderer that renders the web UI.
 func (t *AppTemplate) Render(w io.Writer, _ string, pageData interface{}, c echo.Context) error {
-	templateData := c.Get("template_data").(TemplateData)
+	templateData := c.Get("template_data").(TemplateData).Apply(c.Request().Context())
 	cssFiles := make([]string, len(templateData.CSSFiles))
 	for i, cssFile := range templateData.CSSFiles {
 		if hashedFile, ok := hashedFiles[cssFile]; ok {

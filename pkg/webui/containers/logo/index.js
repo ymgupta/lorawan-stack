@@ -19,6 +19,8 @@ import LogoComponent from '@ttn-lw/components/logo'
 import {
   selectAssetsRootPath,
   selectBrandingRootPath,
+  selectBrandingText,
+  selectBrandingClusterID,
   selectApplicationSiteName,
 } from '../../lib/selectors/env'
 
@@ -34,6 +36,14 @@ const secondaryLogo = hasCustomBranding
     }
   : undefined
 
-const Logo = props => <LogoComponent logo={logo} secondaryLogo={secondaryLogo} {...props} />
+const Logo = props => (
+  <LogoComponent
+    logo={logo}
+    secondaryLogo={secondaryLogo}
+    {...props}
+    text={selectBrandingText()}
+    clusterTag={selectBrandingClusterID()}
+  />
+)
 
 export default Logo

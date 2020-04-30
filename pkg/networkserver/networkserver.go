@@ -26,6 +26,7 @@ import (
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/interop"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/random"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/hooks"
@@ -94,6 +95,8 @@ type NetworkServer struct {
 	*component.Component
 	ctx context.Context
 
+	enterpriseConfig EnterpriseConfig
+
 	devices DeviceRegistry
 
 	netID      types.NetID
@@ -124,6 +127,10 @@ var DefaultOptions []Option
 
 // New returns new NetworkServer.
 func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, error) {
+	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_NETWORK_SERVER); err != nil {
+		return nil, err
+	}
+
 	switch {
 	case conf.DeduplicationWindow == 0:
 		return nil, errInvalidConfiguration.WithCause(errors.New("DeduplicationWindow must be greater than 0"))
@@ -148,6 +155,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 			},
 		}
 	}
+
+	for _, prefix := range devAddrPrefixes {
+		if err := license.RequireDevAddrPrefix(c.Context(), prefix); err != nil {
+			return nil, err
+		}
+	}
+
 	downlinkPriorities, err := conf.DownlinkPriorities.Parse()
 	if err != nil {
 		return nil, err
@@ -172,6 +186,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	ns := &NetworkServer{
 		Component:           c,
 		ctx:                 ctx,
+		enterpriseConfig:    conf.EnterpriseConfig,
 		netID:               conf.NetID,
 		newDevAddr:          makeNewDevAddrFunc(devAddrPrefixes...),
 		applicationServers:  &sync.Map{},

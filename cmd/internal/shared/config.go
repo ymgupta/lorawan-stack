@@ -130,6 +130,8 @@ var DefaultServiceBase = config.ServiceBase{
 	DeviceRepository: DefaultDeviceRepositoryConfig,
 	Rights:           DefaultRightsConfig,
 	KeyVault:         DefaultKeyVaultConfig,
+
+	Tenancy: DefaultTenancyConfig,
 }
 
 // DefaultPublicHost is the default public host where The Things Stack is served.

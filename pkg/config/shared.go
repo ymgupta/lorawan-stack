@@ -25,11 +25,14 @@ import (
 	ttnblob "go.thethings.network/lorawan-stack/pkg/blob"
 	"go.thethings.network/lorawan-stack/pkg/cluster"
 	"go.thethings.network/lorawan-stack/pkg/crypto"
+	awscrypto "go.thethings.network/lorawan-stack/pkg/crypto/aws"
 	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/pkg/errors"
 	"go.thethings.network/lorawan-stack/pkg/fetch"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/redis"
+	"go.thethings.network/lorawan-stack/pkg/tenant"
 	"gocloud.dev/blob"
 )
 
@@ -132,8 +135,13 @@ type Rights struct {
 
 // KeyVault represents configuration for key vaults.
 type KeyVault struct {
-	Provider string            `name:"provider" description:"Provider (static)"`
-	Static   map[string][]byte `name:"static"`
+	Provider string            `name:"provider" description:"Provider (static, aws)"`
+	Static   map[string][]byte `name:"static" description:"Static labeled key encryption keys"`
+
+	AWS struct {
+		Region         string `name:"region" description:"AWS region"`
+		SecretIDPrefix string `name:"secret-id-prefix" description:"Secret ID prefix"`
+	} `name:"aws"`
 }
 
 // KeyVault returns an initialized crypto.KeyVault based on the configuration.
@@ -144,6 +152,8 @@ func (v KeyVault) KeyVault() (crypto.KeyVault, error) {
 		kv.Separator = ":"
 		kv.ReplaceOldNew = []string{":", "_"}
 		return kv, nil
+	case "aws":
+		return awscrypto.NewKeyVault(v.AWS.Region, v.AWS.SecretIDPrefix)
 	default:
 		return cryptoutil.EmptyKeyVault, nil
 	}
@@ -419,6 +429,9 @@ type ServiceBase struct {
 	DeviceRepository DeviceRepositoryConfig `name:"device-repository" description:"Source of the device repository"`
 	Rights           Rights                 `name:"rights"`
 	KeyVault         KeyVault               `name:"key-vault"`
+
+	Tenancy tenant.Config  `name:"tenancy"`
+	License license.Config `name:"license"`
 }
 
 // FrequencyPlansFetcher returns a fetch.Interface based on the frequency plans configuration.

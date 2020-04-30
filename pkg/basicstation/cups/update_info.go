@@ -164,6 +164,10 @@ func (s *Server) UpdateInfo(c echo.Context) error {
 	serverAuth := s.getServerAuth(ctx)
 
 	var gtw *ttnpb.Gateway
+	ctx, err = s.getContextForGatewayEUI(ctx, req.Router.EUI64, serverAuth)
+	if err != nil {
+		return err
+	}
 	ids, err := registry.GetIdentifiersForEUI(ctx, &ttnpb.GetGatewayIdentifiersForEUIRequest{
 		EUI: req.Router.EUI64,
 	}, serverAuth)

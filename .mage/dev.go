@@ -136,17 +136,20 @@ func (Dev) InitStack() error {
 	if mg.Verbose() {
 		fmt.Printf("Initializing the Stack\n")
 	}
-	if err := execGo("run", "./cmd/ttn-lw-stack", "is-db", "init"); err != nil {
+	if err := execGo("run", "./cmd/tti-lw-stack", "is-db", "init"); err != nil {
 		return err
 	}
-	if err := execGo("run", "./cmd/ttn-lw-stack", "is-db", "create-admin-user",
+	if err := execGo("run", "./cmd/tti-lw-stack", "is-db", "create-tenant"); err != nil {
+		return err
+	}
+	if err := execGo("run", "./cmd/tti-lw-stack", "is-db", "create-admin-user",
 		"--id", "admin",
 		"--email", "admin@localhost",
 		"--password", "admin",
 	); err != nil {
 		return err
 	}
-	if err := execGo("run", "./cmd/ttn-lw-stack", "is-db", "create-oauth-client",
+	if err := execGo("run", "./cmd/tti-lw-stack", "is-db", "create-oauth-client",
 		"--id", "cli",
 		"--name", "Command Line Interface",
 		"--owner", "admin",
@@ -156,7 +159,7 @@ func (Dev) InitStack() error {
 	); err != nil {
 		return err
 	}
-	return execGo("run", "./cmd/ttn-lw-stack", "is-db", "create-oauth-client",
+	if err := execGo("run", "./cmd/tti-lw-stack", "is-db", "create-oauth-client",
 		"--id", "console",
 		"--name", "Console",
 		"--owner", "admin",
@@ -167,6 +170,20 @@ func (Dev) InitStack() error {
 		"--logout-redirect-uri", "https://localhost:8885/console",
 		"--logout-redirect-uri", "http://localhost:1885/console",
 		"--logout-redirect-uri", "/console",
+	); err != nil {
+		return err
+	}
+	return execGo("run", "./cmd/tti-lw-stack", "is-db", "create-oauth-client",
+		"--id", "device-claiming",
+		"--name", "Device Claiming",
+		"--owner", "admin",
+		"--secret", "device-claiming",
+		"--redirect-uri", "https://localhost:8885/claim/oauth/callback",
+		"--redirect-uri", "http://localhost:1885/claim/oauth/callback",
+		"--redirect-uri", "/claim/oauth/callback",
+		"--logout-redirect-uri", "https://localhost:8885/claim",
+		"--logout-redirect-uri", "http://localhost:1885/claim",
+		"--logout-redirect-uri", "/claim",
 	)
 }
 

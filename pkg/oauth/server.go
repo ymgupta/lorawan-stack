@@ -101,7 +101,8 @@ func (s *server) configFromContext(ctx context.Context) *Config {
 	if config, ok := ctx.Value(ctxKey).(*Config); ok {
 		return config
 	}
-	return &s.config
+	config := s.config.Apply(ctx)
+	return &config
 }
 
 func (s *server) now() time.Time { return time.Now().UTC() }
