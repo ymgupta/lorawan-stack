@@ -28,6 +28,7 @@ import (
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/pkg/component"
 	"go.thethings.network/lorawan-stack/pkg/config"
+	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/log"
 	"go.thethings.network/lorawan-stack/pkg/log/handler/memory"
 	"go.thethings.network/lorawan-stack/pkg/tenant"
@@ -103,6 +104,13 @@ func TestHTTP(t *testing.T) {
 		a.So(err, should.BeNil)
 		c.RegisterWeb(workingRoute)
 
+		// Disable multi-tenancy to bypass tenant middleware.
+		c.AddContextFiller(func(ctx context.Context) context.Context {
+			l := license.FromContext(test.Context())
+			l.MultiTenancy = false
+			return license.NewContextWithLicense(ctx, l)
+		})
+
 		err = c.Start()
 		a.So(err, should.BeNil)
 
@@ -145,6 +153,13 @@ func TestHTTP(t *testing.T) {
 		c, err := component.New(test.GetLogger(t), &config)
 		a.So(err, should.BeNil)
 		c.RegisterWeb(workingRoute)
+
+		// Disable multi-tenancy to bypass tenant middleware.
+		c.AddContextFiller(func(ctx context.Context) context.Context {
+			l := license.FromContext(test.Context())
+			l.MultiTenancy = false
+			return license.NewContextWithLicense(ctx, l)
+		})
 
 		err = c.Start()
 		a.So(err, should.BeNil)
