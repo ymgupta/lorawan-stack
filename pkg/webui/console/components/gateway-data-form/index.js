@@ -32,6 +32,7 @@ import OwnersSelect from '@console/containers/owners-select'
 
 import PropTypes from '@ttn-lw/lib/prop-types'
 import sharedMessages from '@ttn-lw/lib/shared-messages'
+
 import {
   id as gatewayIdRegexp,
   address as addressRegexp,

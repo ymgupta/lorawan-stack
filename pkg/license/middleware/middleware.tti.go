@@ -5,11 +5,12 @@ package middleware
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"time"
 
-	echo "github.com/labstack/echo/v4"
 	"go.thethings.network/lorawan-stack/pkg/license"
 	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/warning"
+	"go.thethings.network/lorawan-stack/pkg/webhandlers"
 	"google.golang.org/grpc"
 )
 
@@ -28,14 +29,15 @@ func checkLicense(ctx context.Context) error {
 	return nil
 }
 
-// Middleware is an Echo middleware verifying the license validity on each request.
-func Middleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		if err := checkLicense(c.Request().Context()); err != nil {
-			return err
+// Middleware is an HTTP middleware verifying the license validity on each request.
+func Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := checkLicense(r.Context()); err != nil {
+			webhandlers.Error(w, r, err)
+			return
 		}
-		return next(c)
-	}
+		next.ServeHTTP(w, r)
+	})
 }
 
 // UnaryServerInterceptor is a gRPC interceptor verifying the license validity on each request.
