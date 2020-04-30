@@ -27,7 +27,8 @@ import sharedMessages from '@ttn-lw/lib/shared-messages'
 import style from './device-claim.styl'
 
 const m = defineMessages({
-  claimSuccess: 'End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` claimed',
+  claimSuccess:
+    'End device JoinEUI `{joinEUI}` and DevEUI `{devEUI}` Device ID `{DeviceId}` claimed',
 })
 
 @connect(
@@ -56,9 +57,9 @@ export default class DeviceClaim extends Component {
   handleSubmitSuccess = device => {
     /* eslint no-invalid-this: "off"*/
     const { redirectHome } = this.props
-    const { dev_eui: devEUI, join_eui: joinEUI } = device.ids
+    const { dev_eui: devEUI, join_eui: joinEUI, device_id: DeviceId } = device.ids
     redirectHome({
-      values: { devEUI, joinEUI },
+      values: { DeviceId, devEUI, joinEUI },
       ...m.claimSuccess,
     })
   }
