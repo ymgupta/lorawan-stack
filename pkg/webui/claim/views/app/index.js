@@ -14,6 +14,7 @@
 
 import { hot } from 'react-hot-loader/root'
 import React from 'react'
+import { connect } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
 
 import { Route, Switch } from 'react-router-dom'
@@ -23,20 +24,63 @@ import { ToastContainer } from '@ttn-lw/components/toast'
 import ErrorView from '@ttn-lw/lib/components/error-view'
 import { withEnv } from '@ttn-lw/lib/components/env'
 import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+import WithAuth from '@ttn-lw/lib/components/with-auth'
 import Header from '@claim/containers/header'
-import Landing from '@claim/views/landing'
-import Login from '@claim/views/login'
-import FullViewError from '@claim/views/error'
+import Overview from '@claim/views/overview'
+import DeviceClaim from '@claim/views/device-claim'
+import FullViewError, { FullViewErrorInner } from '@claim/views/error'
 import dev from '@ttn-lw/lib/dev'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
+import {
+  selectUser,
+  selectUserFetching,
+  selectUserError,
+  selectUserRights,
+  selectUserIsAdmin,
+} from '@claim/store/selectors/user'
 
 import style from './app.styl'
 
+const GenericNotFound = () => <FullViewErrorInner error={{ statusCode: 404 }} />
+
 @withEnv
+@connect(state => ({
+  user: selectUser(state),
+  fetching: selectUserFetching(state),
+  error: selectUserError(state),
+  rights: selectUserRights(state),
+  isAdmin: selectUserIsAdmin(state),
+}))
 class ClaimApp extends React.Component {
+  static propTypes = {
+    env: PropTypes.env.isRequired,
+    error: PropTypes.error,
+    fetching: PropTypes.bool.isRequired,
+    history: PropTypes.shape({
+      push: PropTypes.func,
+      replace: PropTypes.func,
+    }).isRequired,
+    isAdmin: PropTypes.bool,
+    rights: PropTypes.rights,
+    user: PropTypes.user,
+  }
+  static defaultProps = {
+    user: undefined,
+    error: undefined,
+    isAdmin: undefined,
+    rights: undefined,
+  }
+
   render() {
     const {
-      env: { siteTitle, pageData, siteName },
       history,
+      user,
+      fetching,
+      error,
+      rights,
+      isAdmin,
+      env: { siteTitle, pageData, siteName },
     } = this.props
 
     if (pageData && pageData.error) {
@@ -58,13 +102,23 @@ class ClaimApp extends React.Component {
             <div id="modal-container" />
             <Header className={style.header} />
             <main className={style.main}>
-              <div className={style.content}>
-                <Switch>
-                  {/* Routes for registration, privacy policy, other public pages. */}
-                  <Route path="/login" component={Login} />
-                  <Route path="/" component={Landing} />
-                </Switch>
-              </div>
+              <WithAuth
+                user={user}
+                fetching={fetching}
+                error={error}
+                errorComponent={FullViewErrorInner}
+                rights={rights}
+                isAdmin={isAdmin}
+              >
+                <div className={style.content}>
+                  <Switch>
+                    {/* Routes for registration, privacy policy, other public pages. */}
+                    <Route exact path="/" component={Overview} />
+                    <Route path={'/:appId'} component={DeviceClaim} />
+                    <Route component={GenericNotFound} />
+                  </Switch>
+                </div>
+              </WithAuth>
             </main>
             <ToastContainer />
             <Footer className={style.footer} />

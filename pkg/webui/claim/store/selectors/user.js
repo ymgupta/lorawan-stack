@@ -12,20 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { GET_USER_ME_BASE, LOGOUT_BASE } from '../actions/user'
+
+import { createFetchingSelector } from './fetching'
+import { createErrorSelector } from './error'
+
 const selectUserStore = state => state.user
 
 export const selectUser = state => selectUserStore(state).user
+export const selectUserError = createErrorSelector([GET_USER_ME_BASE, LOGOUT_BASE])
+export const selectUserFetching = createFetchingSelector(GET_USER_ME_BASE)
 
 export const selectUserId = function(state) {
   const user = selectUser(state)
-  const { ids = {} } = user
 
-  return ids.user_id
+  if (!Boolean(user)) {
+    return undefined
+  }
+
+  return user.ids.user_id
 }
 
 export const selectUserIsAdmin = function(state) {
   const user = selectUser(state)
-  return user.isAdmin
+
+  return user ? user.isAdmin : false
 }
 
 export const selectUserRights = state => selectUserStore(state).rights

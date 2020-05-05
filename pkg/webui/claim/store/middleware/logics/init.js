@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import api from '@claim/api'
-import * as accessToken from '@claim/lib/access-token'
 import * as user from '@claim/store/actions/user'
 import * as init from '@claim/store/actions/init'
 import createRequestLogic from './lib'
@@ -21,19 +20,36 @@ import createRequestLogic from './lib'
 const claimAppLogic = createRequestLogic({
   type: init.INITIALIZE,
   async process(_, dispatch) {
-    dispatch(user.getUserMe())
+    dispatch(user.getUserRights())
+
+    let info, rights
 
     try {
-      // There is no way to retrieve the current user directly
-      // within the device claiming app, so first get the authentication info
-      // and only afterwards fetch the user.
-      const info = await api.users.authInfo()
-      const userId = info.data.oauth_access_token.user_ids.user_id
-      const result = await api.users.get(userId)
-      dispatch(user.getUserMeSuccess(result.data))
+      // There is no way to retrieve the current user directly within the
+      // claim app, so first get the authentication info and only afterwards
+      // fetch the user.
+      info = await api.users.authInfo()
+      rights = info.oauth_access_token.rights
+      dispatch(user.getUserRightsSuccess(rights))
     } catch (error) {
-      dispatch(user.getUserMeFailure())
-      accessToken.clear()
+      dispatch(user.getUserRightsFailure())
+      info = undefined
+    }
+
+    if (info) {
+      try {
+        dispatch(user.getUserMe())
+        const userId = info.oauth_access_token.user_ids.user_id
+        const userResult = await api.users.get(userId, [
+          'state',
+          'name',
+          'primary_email_address_validated_at',
+        ])
+        userResult.isAdmin = info.is_admin || false
+        dispatch(user.getUserMeSuccess(userResult))
+      } catch (error) {
+        dispatch(user.getUserMeFailure(error))
+      }
     }
 
     // eslint-disable-next-line no-console
