@@ -15,6 +15,49 @@ The Things Network's development tooling uses [Mage](https://magefile.org/). Und
 
 If you are unfamiliar with forking projects on GitHub or cloning them locally, please [see the GitHub documentation](https://help.github.com/articles/fork-a-repo/).
 
+## Managing Multiple Repositories
+
+If you already have [The Things Stack](https://github.com/TheThingsNetwork/lorawan-stack) in your local environment, we recommend using a separate folder for this repository instead of adding this repository as an upstream. This reduces the risk of accidentally pushing code from here to the open source repo.
+
+If you already have The Things Stack in `<your-workspace>/lorawan-stack`, then you can clone this repo to a new folder using
+
+```bash
+$ git clone git@github.com:TheThingsIndustries/lorawan-stack.git <your-workspace>/lorawan-stack-ttes
+```
+
+> The `-ttes` suffix is just an example. Make sure to choose a folder name other than `lorawan-stack`.
+
+Using explicit upstream names (other than `origin`) is another method of preventing accidental pushes.
+
+In you local repository you can run the following
+
+```bash
+$ cd <your-workspace>/lorawan-stack-ttes
+$ git remote rename origin ttes
+```
+
+With this, pushing a branch would be
+
+```bash
+$ git push ttes feature/<my-ttes-branch>
+```
+
+If you want to cherry-pick/merge TTS commits into this repository, you can create an additional git upstream while disabling push to TTS.
+
+```bash
+$ git remote add tts git@github.com:TheThingsNetwork/lorawan-stack.git
+$ git remote set-url --push tts DISABLED
+```
+
+The resultant remote configuration would be similar to this
+
+```
+ttes     git@github.com:TheThingsIndustries/lorawan-stack.git (fetch)
+ttes     git@github.com:TheThingsIndustries/lorawan-stack.git (push)
+tts      git@github.com:TheThingsNetwork/lorawan-stack.git (fetch)
+tts      DISABLED (push)
+```
+
 ## Getting Started
 
 As most of the tasks will be managed by `make` and `mage` we will first initialize the tooling:
