@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 
-	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // Key is a 256-bit secret key.

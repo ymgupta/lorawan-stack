@@ -5,7 +5,7 @@ package ttipb
 import (
 	fmt "fmt"
 
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 func (dst *ApplicationAPIKey) SetFields(src *ApplicationAPIKey, paths ...string) error {

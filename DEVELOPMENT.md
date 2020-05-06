@@ -160,6 +160,8 @@ $ ./mage proto:clean proto:all jsSDK:definitions
 The documentation site for The Things Stack is built from the `doc` folder.
 All content is stored as Markdown files in `doc/content`.
 
+Data for generated documentation like API and glossary is stored in `doc/data`.
+
 In order to build the documentation site with the right theme, you need to run
 `./mage docs:deps` from time to time.
 
@@ -239,6 +241,14 @@ TTN_LW_DCS_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
 TTN_LW_DCS_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
 TTN_LW_DCS_UI_IS_BASE_URL="http://localhost:8080/api/v3"
 TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
+```
+
+#### Optional Configuration
+
+Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
+
+```bash
+WEBPACK_DISABLE_HMR="true"
 ```
 
 ## Code Style
@@ -332,11 +342,11 @@ We follow the [official go guidelines](https://github.com/golang/go/wiki/CodeRev
 | :------------------: | :-----: | :-----------------------------------------------------------: |
 | context              | ctx     | context.Context                                               |
 | mutex                | mu      | sync.Mutex                                                    |
-| configuration        | conf    | go.thethings.network/lorawan-stack/pkg/config.Config          |
-| logger               | logger  | go.thethings.network/lorawan-stack/pkg/log.Logger             |
+| configuration        | conf    | go.thethings.network/lorawan-stack/pkg/v3/config.Config       |
+| logger               | logger  | go.thethings.network/lorawan-stack/pkg/v3/log.Logger          |
 | message              | msg     | go.thethings.network/lorawan-stack/api/gateway.UplinkMessage  |
 | status               | st      | go.thethings.network/lorawan-stack/api/gateway.Status         |
-| server               | srv     | go.thethings.network/lorawan-stack/pkg/network-server.Server  |
+| server               | srv     | go.thethings.network/lorawan-stack/pkg/v3/networkserver.Server|
 | ID                   | id      | string                                                        |
 | unique ID            | uid     | string                                                        |
 | counter              | cnt     | int                                                           |

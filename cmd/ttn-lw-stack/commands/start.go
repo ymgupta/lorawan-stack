@@ -21,34 +21,34 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
-	"go.thethings.network/lorawan-stack/cmd/internal/shared"
-	"go.thethings.network/lorawan-stack/pkg/applicationserver"
-	asioapredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/packages/redis"
-	asiopsredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/pubsub/redis"
-	asiowebredis "go.thethings.network/lorawan-stack/pkg/applicationserver/io/web/redis"
-	asredis "go.thethings.network/lorawan-stack/pkg/applicationserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/component"
-	"go.thethings.network/lorawan-stack/pkg/console"
-	"go.thethings.network/lorawan-stack/pkg/cryptoserver"
-	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
-	dcsredis "go.thethings.network/lorawan-stack/pkg/deviceclaimingserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/devicetemplateconverter"
-	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/events"
-	events_grpc "go.thethings.network/lorawan-stack/pkg/events/grpc"
-	"go.thethings.network/lorawan-stack/pkg/gatewayconfigurationserver"
-	"go.thethings.network/lorawan-stack/pkg/gatewayserver"
-	gsredis "go.thethings.network/lorawan-stack/pkg/gatewayserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/identityserver"
-	"go.thethings.network/lorawan-stack/pkg/joinserver"
-	jsredis "go.thethings.network/lorawan-stack/pkg/joinserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/networkserver"
-	nsredis "go.thethings.network/lorawan-stack/pkg/networkserver/redis"
-	"go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
-	"go.thethings.network/lorawan-stack/pkg/qrcodegenerator"
-	"go.thethings.network/lorawan-stack/pkg/redis"
-	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
-	"go.thethings.network/lorawan-stack/pkg/web"
+	"go.thethings.network/lorawan-stack/v3/cmd/internal/shared"
+	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver"
+	asioapredis "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/packages/redis"
+	asiopsredis "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/redis"
+	asiowebredis "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/web/redis"
+	asredis "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/component"
+	"go.thethings.network/lorawan-stack/v3/pkg/console"
+	"go.thethings.network/lorawan-stack/v3/pkg/cryptoserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/deviceclaimingserver"
+	dcsredis "go.thethings.network/lorawan-stack/v3/pkg/deviceclaimingserver/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/devicetemplateconverter"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	events_grpc "go.thethings.network/lorawan-stack/v3/pkg/events/grpc"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayconfigurationserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
+	gsredis "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/identityserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/joinserver"
+	jsredis "go.thethings.network/lorawan-stack/v3/pkg/joinserver/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/networkserver"
+	nsredis "go.thethings.network/lorawan-stack/v3/pkg/networkserver/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/packetbrokeragent"
+	"go.thethings.network/lorawan-stack/v3/pkg/qrcodegenerator"
+	"go.thethings.network/lorawan-stack/v3/pkg/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenantbillingserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/web"
 )
 
 var errUnknownComponent = errors.DefineInvalidArgument("unknown_component", "unknown component `{component}`")
@@ -304,9 +304,9 @@ var startCommand = &cobra.Command{
 			_ = qrg
 		}
 
-		if start.PacketBrokerAgent {
+		if start.PacketBrokerAgent || startDefault {
 			logger.Info("Setting up Packet Broker Agent")
-			pba, err := packetbrokeragent.New(c, &config.PBA)
+			pba, err := packetbrokeragent.New(c, &config.PBA, packetbrokeragent.WithTenancyContextFiller())
 			if err != nil {
 				return shared.ErrInitializePacketBrokerAgent.WithCause(err)
 			}

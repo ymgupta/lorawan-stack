@@ -46,6 +46,7 @@
 /pkg/interop @johanstokking @rvolosatovs @adriansmares
 /pkg/joinserver @johanstokking @rvolosatovs @adriansmares
 /pkg/networkserver @johanstokking @rvolosatovs @adriansmares
+/pkg/packetbrokeragent @johanstokking @adriansmares
 
 /pkg/deviceclaimingserver @johanstokking @adriansmares
 /pkg/tenantbillingserver @htdvisser @adriansmares

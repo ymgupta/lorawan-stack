@@ -7,7 +7,7 @@ package tti.lorawan.v3;
 import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 
-option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
 
 message TenantIdentifiers {
   option (gogoproto.populate) = false;

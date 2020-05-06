@@ -6,8 +6,8 @@ import (
 	"context"
 	"net/url"
 
-	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/license"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 )
 
 func (c Config) Apply(ctx context.Context) Config {

@@ -5,7 +5,7 @@ package tenant
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 type tenantIDKeyType struct{}

@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
-	"go.thethings.network/lorawan-stack/pkg/log"
-	ttnredis "go.thethings.network/lorawan-stack/pkg/redis"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	ttnredis "go.thethings.network/lorawan-stack/v3/pkg/redis"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 )
 
 // RedisClaimRegistry is an implementation of the ClaimRegistry that uses Redis

@@ -5,14 +5,12 @@ package tenantbillingserver
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )
 
-var (
-	errPeerAddressNotAllowed = errors.DefineUnauthenticated("peer_address_not_allowed", "peer address `{peer_address}` is not allowed")
-)
+var errPeerAddressNotAllowed = errors.DefineUnauthenticated("peer_address_not_allowed", "peer address `{peer_address}` is not allowed")
 
 func (tbs *TenantBillingServer) billingRightsUnaryHook(h grpc.UnaryHandler) grpc.UnaryHandler {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {

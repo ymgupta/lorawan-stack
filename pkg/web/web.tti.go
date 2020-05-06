@@ -2,7 +2,7 @@
 
 package web
 
-import "go.thethings.network/lorawan-stack/pkg/tenant"
+import "go.thethings.network/lorawan-stack/v3/pkg/tenant"
 
 // WithTenantConfig adds tenant configuration.
 func WithTenantConfig(config tenant.Config) Option {

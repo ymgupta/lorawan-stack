@@ -16,7 +16,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 // ensure the imports are used
@@ -246,6 +246,18 @@ func (m *Tenant) ValidateFields(paths ...string) error {
 				if err := v.ValidateFields(subs...); err != nil {
 					return TenantValidationError{
 						field:  "configuration",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "billing":
+
+			if v, ok := interface{}(m.GetBilling()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return TenantValidationError{
+						field:  "billing",
 						reason: "embedded message failed validation",
 						cause:  err,
 					}

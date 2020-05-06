@@ -1,4 +1,4 @@
-module go.thethings.network/lorawan-stack
+module go.thethings.network/lorawan-stack/v3
 
 go 1.14
 
@@ -115,7 +115,7 @@ require (
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/stripe/stripe-go v70.5.0+incompatible
 	go.opencensus.io v0.22.3
-	go.packetbroker.org/api v1.0.2
+	go.packetbroker.org/api/v3 v3.0.0
 	go.thethings.network/lorawan-stack-legacy v0.0.0-20190118141410-68812c833a78
 	gocloud.dev v0.19.0
 	gocloud.dev/pubsub/natspubsub v0.19.0

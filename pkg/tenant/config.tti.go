@@ -5,8 +5,8 @@ package tenant
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 var errNoTenantID = errors.DefineNotFound("no_tenant_id", "no tenant ID")

@@ -5,7 +5,7 @@ package emails
 import (
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/version"
+	"go.thethings.network/lorawan-stack/v3/pkg/version"
 )
 
 // TenantCreated is the email that is sent when a new tenant has been created.

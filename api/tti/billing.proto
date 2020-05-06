@@ -1,0 +1,25 @@
+// Copyright © 2020 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
+
+message Billing {
+  message Stripe {
+    string customer_id = 1 [(gogoproto.customname) = "CustomerID", (validate.rules).string.min_len = 1];
+    string plan_id = 2 [(gogoproto.customname) = "PlanID", (validate.rules).string.min_len = 1];
+    string subscription_id = 3 [(gogoproto.customname) = "SubscriptionID", (validate.rules).string.min_len = 1];
+    string subscription_item_id = 4 [(gogoproto.customname) = "SubscriptionItemID", (validate.rules).string.min_len = 1];
+  }
+
+  oneof provider {
+    option (validate.required) = true;
+
+    Stripe stripe = 17;
+  }
+}

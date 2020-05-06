@@ -5,12 +5,7 @@ package backend
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-)
-
-const (
-	// ManagedByTenantAttribute is the backend that manages the tenant.
-	ManagedByTenantAttribute = "managed-by"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 // Interface is an tenant handling backend.

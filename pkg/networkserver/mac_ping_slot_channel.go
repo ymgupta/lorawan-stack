@@ -17,9 +17,9 @@ package networkserver
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/events"
-	"go.thethings.network/lorawan-stack/pkg/log"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 var (
@@ -29,7 +29,8 @@ var (
 
 func deviceNeedsPingSlotChannelReq(dev *ttnpb.EndDevice) bool {
 	switch {
-	case dev.MACState == nil:
+	case dev.GetMulticast(),
+		dev.GetMACState() == nil:
 		return false
 	case dev.MACState.DesiredParameters.PingSlotFrequency != dev.MACState.CurrentParameters.PingSlotFrequency:
 		return true

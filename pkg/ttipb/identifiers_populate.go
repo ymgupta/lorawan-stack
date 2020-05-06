@@ -2,7 +2,7 @@
 
 package ttipb
 
-import ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+import ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 
 type randyIdentifiers interface {
 	Float32() float32

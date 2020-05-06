@@ -7,8 +7,8 @@ import (
 	time "time"
 
 	types "github.com/gogo/protobuf/types"
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
@@ -187,6 +187,31 @@ func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
 					dst.Configuration = src.Configuration
 				} else {
 					dst.Configuration = nil
+				}
+			}
+		case "billing":
+			if len(subs) > 0 {
+				var newDst, newSrc *Billing
+				if (src == nil || src.Billing == nil) && dst.Billing == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.Billing
+				}
+				if dst.Billing != nil {
+					newDst = dst.Billing
+				} else {
+					newDst = &Billing{}
+					dst.Billing = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Billing = src.Billing
+				} else {
+					dst.Billing = nil
 				}
 			}
 
