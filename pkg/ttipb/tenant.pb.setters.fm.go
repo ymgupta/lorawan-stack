@@ -8,7 +8,7 @@ import (
 
 	types "github.com/gogo/protobuf/types"
 	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
+	go_thethings_network_lorawan_stack_v3_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {
@@ -419,7 +419,7 @@ func (dst *GetTenantIdentifiersForEndDeviceEUIsRequest) SetFields(src *GetTenant
 			if src != nil {
 				dst.JoinEUI = src.JoinEUI
 			} else {
-				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				var zero go_thethings_network_lorawan_stack_v3_pkg_types.EUI64
 				dst.JoinEUI = zero
 			}
 		case "dev_eui":
@@ -429,7 +429,7 @@ func (dst *GetTenantIdentifiersForEndDeviceEUIsRequest) SetFields(src *GetTenant
 			if src != nil {
 				dst.DevEUI = src.DevEUI
 			} else {
-				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				var zero go_thethings_network_lorawan_stack_v3_pkg_types.EUI64
 				dst.DevEUI = zero
 			}
 
@@ -450,7 +450,7 @@ func (dst *GetTenantIdentifiersForGatewayEUIRequest) SetFields(src *GetTenantIde
 			if src != nil {
 				dst.EUI = src.EUI
 			} else {
-				var zero go_thethings_network_lorawan_stack_pkg_types.EUI64
+				var zero go_thethings_network_lorawan_stack_v3_pkg_types.EUI64
 				dst.EUI = zero
 			}
 
