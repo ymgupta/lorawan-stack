@@ -3,7 +3,7 @@
 package tenantbillingserver
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/tenantbillingserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenantbillingserver"
 )
 
 // DefaultTenantBillingServerConfig is the default configuration for the Tenant Billing Server.

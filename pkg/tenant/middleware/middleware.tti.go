@@ -8,10 +8,10 @@ import (
 	"net"
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 var (

@@ -22,10 +22,10 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 
-	sentryerrors "go.thethings.network/lorawan-stack/pkg/errors/sentry"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	sentryerrors "go.thethings.network/lorawan-stack/v3/pkg/errors/sentry"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"

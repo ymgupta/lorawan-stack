@@ -7,9 +7,9 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm/dialects/postgres"
-	"go.thethings.network/lorawan-stack/pkg/jsonpb"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/jsonpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 // Tenant model.

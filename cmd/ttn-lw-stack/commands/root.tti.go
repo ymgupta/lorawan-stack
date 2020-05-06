@@ -7,10 +7,10 @@ import (
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
-	pkglicense "go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/log"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/types"
+	pkglicense "go.thethings.network/lorawan-stack/v3/pkg/license"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 var license *ttipb.License

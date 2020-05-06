@@ -19,8 +19,8 @@ import (
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -468,8 +468,8 @@ func (m *UpdateTenantRequest) GetFieldMask() types.FieldMask {
 }
 
 type GetTenantIdentifiersForEndDeviceEUIsRequest struct {
-	JoinEUI              go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=join_eui,json=joinEui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"join_eui"`
-	DevEUI               go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,2,opt,name=dev_eui,json=devEui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"dev_eui"`
+	JoinEUI              go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=join_eui,json=joinEui,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.EUI64" json:"join_eui"`
+	DevEUI               go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,2,opt,name=dev_eui,json=devEui,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.EUI64" json:"dev_eui"`
 	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
 	XXX_sizecache        int32                                              `json:"-"`
 }
@@ -509,7 +509,7 @@ func (m *GetTenantIdentifiersForEndDeviceEUIsRequest) XXX_DiscardUnknown() {
 var xxx_messageInfo_GetTenantIdentifiersForEndDeviceEUIsRequest proto.InternalMessageInfo
 
 type GetTenantIdentifiersForGatewayEUIRequest struct {
-	EUI                  go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=eui,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64" json:"eui"`
+	EUI                  go_thethings_network_lorawan_stack_pkg_types.EUI64 `protobuf:"bytes,1,opt,name=eui,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.EUI64" json:"eui"`
 	XXX_NoUnkeyedLiteral struct{}                                           `json:"-"`
 	XXX_sizecache        int32                                              `json:"-"`
 }

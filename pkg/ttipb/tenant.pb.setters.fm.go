@@ -7,8 +7,8 @@ import (
 	time "time"
 
 	types "github.com/gogo/protobuf/types"
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 func (dst *Tenant) SetFields(src *Tenant, paths ...string) error {

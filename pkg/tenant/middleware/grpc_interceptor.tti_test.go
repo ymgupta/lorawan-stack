@@ -8,7 +8,7 @@ import (
 
 	"github.com/smartystreets/assertions"
 	"github.com/smartystreets/assertions/should"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 	"google.golang.org/grpc/metadata"
 )
 

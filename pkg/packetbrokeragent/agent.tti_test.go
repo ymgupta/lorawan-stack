@@ -3,7 +3,7 @@
 package packetbrokeragent_test
 
 import (
-	. "go.thethings.network/lorawan-stack/pkg/packetbrokeragent"
+	. "go.thethings.network/lorawan-stack/v3/pkg/packetbrokeragent"
 )
 
 func init() {

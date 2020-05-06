@@ -19,8 +19,8 @@ import (
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -60,9 +60,9 @@ type License struct {
 	// If set, the server addresses must match any of these regexps.
 	ComponentAddressRegexps []string `protobuf:"bytes,11,rep,name=component_address_regexps,json=componentAddressRegexps,proto3" json:"component_address_regexps,omitempty"`
 	// If set, the configured DevAddr prefixes must match any of these prefixes.
-	DevAddrPrefixes []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,12,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
+	DevAddrPrefixes []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,12,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
 	// If set, the configured JoinEUI prefixes must match any of these prefixes.
-	JoinEUIPrefixes []go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix `protobuf:"bytes,13,rep,name=join_eui_prefixes,json=joinEuiPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix" json:"join_eui_prefixes"`
+	JoinEUIPrefixes []go_thethings_network_lorawan_stack_pkg_types.EUI64Prefix `protobuf:"bytes,13,rep,name=join_eui_prefixes,json=joinEuiPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.EUI64Prefix" json:"join_eui_prefixes"`
 	// Indicates whether multi-tenancy support is included.
 	MultiTenancy bool `protobuf:"varint,14,opt,name=multi_tenancy,json=multiTenancy,proto3" json:"multi_tenancy,omitempty"`
 	// If set, restricts the maximum number of applications that can be created.

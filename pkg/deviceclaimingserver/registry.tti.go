@@ -5,8 +5,8 @@ package deviceclaimingserver
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 // AuthorizedApplicationRegistry is a store for applications.

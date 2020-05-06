@@ -12,9 +12,9 @@ import (
 	"log"
 	"os"
 
-	"go.thethings.network/lorawan-stack/pkg/jsonpb"
-	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/jsonpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/license"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 var encoding = base64.StdEncoding

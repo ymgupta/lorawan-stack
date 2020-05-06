@@ -5,7 +5,7 @@ package shared
 import (
 	"time"
 
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 )
 
 // DefaultTenancyConfig is the default tenancy configuration.

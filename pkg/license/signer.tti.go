@@ -9,7 +9,7 @@ import (
 	"crypto/x509"
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 // KeySigner verifies the license key and extracts license information.

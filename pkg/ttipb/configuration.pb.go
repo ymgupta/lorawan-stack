@@ -17,7 +17,7 @@ import (
 	github_com_gogo_protobuf_types "github.com/gogo/protobuf/types"
 	types "github.com/gogo/protobuf/types"
 	golang_proto "github.com/golang/protobuf/proto"
-	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/pkg/types"
+	go_thethings_network_lorawan_stack_pkg_types "go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -531,7 +531,7 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequireme
 }
 
 type Configuration_Cluster_NetworkServer struct {
-	DevAddrPrefixes      []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,1,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
+	DevAddrPrefixes      []go_thethings_network_lorawan_stack_pkg_types.DevAddrPrefix `protobuf:"bytes,1,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
 	DeduplicationWindow  *time.Duration                                               `protobuf:"bytes,2,opt,name=deduplication_window,json=deduplicationWindow,proto3,stdduration" json:"deduplication_window,omitempty"`
 	CooldownWindow       *time.Duration                                               `protobuf:"bytes,3,opt,name=cooldown_window,json=cooldownWindow,proto3,stdduration" json:"cooldown_window,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                                                     `json:"-"`

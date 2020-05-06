@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 	"golang.org/x/sync/singleflight"
 )
 

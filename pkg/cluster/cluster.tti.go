@@ -6,7 +6,7 @@ import (
 	"context"
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 )
 
 var errInvalidDiscoveryMode = errors.DefineInvalidArgument("discovery_mode", "invalid discovery mode")
