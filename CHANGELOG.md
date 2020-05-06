@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [3.8.0] - 2020-05-06
+
+### Added
+
 - Console logout is now propagated to the OAuth provider.
   - This requires a database migration (`ttn-lw-stack is-db migrate`) because of the added columns.
   - To set the `logout-redirect-uris` for existing clients, the CLI client can be used, e.g.: `ttn-lw-cli clients update console --logout-redirect-uris "https://localhost:8885/console" --redirect-uris "http://localhost:1885/console"`.
@@ -41,10 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Network Server will schedule all time-bound network-initiated downlinks at most RX1 delay ahead of time.
 - Network Server now uses its own internal clock in `DeviceTimeAns`.
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - Missing target ns and as in parameters in device claiming sdk claim request  
@@ -54,9 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Data rate 4 in version `1.0.2-a` of AU915.
 - Incorrect `TxOffset` values used by Network Server in some bands.
 
-### Security
-
-## [3.7.2](2020-04-22)
+## [3.7.2] - 2020-04-22
 
 ### Added
 
@@ -115,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Error display on failed end device fetching in the Console.
 - Various inconsistencies with Regional Parameters specifications.
 
-## [3.7.0](2020-04-02)
+## [3.7.0] - 2020-04-02
 
 ### Added
 
@@ -145,13 +153,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Local CLI and stack config files now properly override global config.
 - Error display on failed end device deletion in the Console.
 
-## [3.6.3](2020-03-30)
+## [3.6.3] - 2020-03-30
 
 ### Fixed
 
 - Limited throughput in upstream handlers in Gateway Server when one gateway's upstream handler is busy.
 
-## [3.6.2](2020-03-19)
+## [3.6.2] - 2020-03-19
 
 ### Fixed
 
@@ -167,7 +175,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Admin users that are suspended can no longer create, view or delete other users.
 
-## [3.6.1](2020-03-13)
+## [3.6.1] - 2020-03-13
 
 ### Added
 
@@ -195,7 +203,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Changing username and password to be not required in pubsub integration.
 
-## [3.6.0](2020-02-27)
+## [3.6.0] - 2020-02-27
 
 ### Added
 
@@ -222,7 +230,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Returned values not representing the effective state of the devices in Network Server when deprecated field paths are used.
 - Downlink queue operations in Network Server for LoRaWAN 1.1 devices.
 
-## [3.5.3](2020-02-14)
+## [3.5.3] - 2020-02-14
 
 ### Added
 
@@ -245,7 +253,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [3.5.2](2020-02-06)
+## [3.5.2] - 2020-02-06
 
 ### Fixed
 
@@ -253,7 +261,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Frequency plan validation in Network Server on device update.
 - Authentication of Basic Station gateways.
 
-## [3.5.1](2020-01-29)
+## [3.5.1] - 2020-01-29
 
 ### Added
 
@@ -267,7 +275,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Crashes on Gateway Server start when traffic flow started while The Things Stack was still starting.
 - Not detecting session change in Application Server when interop Join Server did not provide a `SessionKeyID`.
 
-## [3.5.0](2020-01-24)
+## [3.5.0] - 2020-01-24
 
 ### Added
 
@@ -305,7 +313,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Events processing in the JS SDK.
 - Application Server frontends getting stuck after their associated link is closed.
 
-## [3.4.2](2020-01-08)
+## [3.4.2] - 2020-01-08
 
 ### Added
 
@@ -330,7 +338,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [3.4.1](2019-12-30)
+## [3.4.1] - 2019-12-30
 
 ### Added
 
@@ -347,7 +355,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fix class A downlink scheduling when an uplink message has been received between the triggering uplink message.
 
-## [3.4.0](2019-12-24)
+## [3.4.0] - 2019-12-24
 
 ### Added
 
@@ -365,7 +373,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix updating and setting of webhook headers in the Console.
 - Fix DevNonce checks for LoRaWAN 1.0.3.
 
-## [3.3.2](2019-12-04)
+## [3.3.2] - 2019-12-04
 
 ### Added
 
@@ -822,7 +830,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.2...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.0...HEAD
+[3.8.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.2...v3.8.0
 [3.7.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...v3.7.2
 [3.7.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.7.0
 [3.6.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.2...v3.6.3
