@@ -2,7 +2,7 @@
 
 package ttipb
 
-import "go.thethings.network/lorawan-stack/pkg/ttnpb"
+import "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 
 func onlyPublicContactInfo(info []*ttnpb.ContactInfo) []*ttnpb.ContactInfo {
 	if info == nil {

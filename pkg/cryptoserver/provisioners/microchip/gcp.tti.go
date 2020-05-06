@@ -9,7 +9,7 @@ import (
 	"cloud.google.com/go/datastore"
 	kms "cloud.google.com/go/kms/apiv1"
 	"cloud.google.com/go/storage"
-	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	kmspb "google.golang.org/genproto/googleapis/cloud/kms/v1"
 )
 

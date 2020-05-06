@@ -10,8 +10,8 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/webhook"
-	"go.thethings.network/lorawan-stack/pkg/events"
-	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 )
 
 const (
@@ -63,11 +63,13 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 		return err
 	}
 
-	if !s.shouldHandlePlan(sub.Plan.ID) {
+	subscriptionItem := s.findSubscriptionItem(sub.Items)
+	if subscriptionItem == nil {
 		return nil
 	}
 
-	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Plan.ID))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, subscriptionItem.ID))
+	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, subscriptionItem.Plan.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Customer.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.ID))
 
@@ -84,12 +86,14 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	}
 }
 
-func (s *Stripe) shouldHandlePlan(id string) bool {
-	if _, ok := s.meteredPlanIDs[id]; ok {
-		return true
+func (s *Stripe) findSubscriptionItem(items *stripe.SubscriptionItemList) *stripe.SubscriptionItem {
+	for _, item := range items.Data {
+		if _, ok := s.recurringPlanIDs[item.Plan.ID]; ok {
+			return item
+		}
+		if _, ok := s.meteredPlanIDs[item.Plan.ID]; ok {
+			return item
+		}
 	}
-	if _, ok := s.recurringPlanIDs[id]; ok {
-		return true
-	}
-	return false
+	return nil
 }

@@ -17,8 +17,8 @@ package packetbrokeragent
 import (
 	"context"
 
-	packetbroker "go.packetbroker.org/api/v1"
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	packetbroker "go.packetbroker.org/api/v3"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 )
 
 var errNoPHYPayload = errors.DefineFailedPrecondition("no_phy_payload", "no PHYPayload in message")

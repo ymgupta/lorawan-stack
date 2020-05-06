@@ -20,8 +20,8 @@ import (
 	"net/url"
 	"strings"
 
-	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/v3/pkg/license"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // ComponentPrefixKEKLabeler is a ComponentKEKLabeler that joins the component prefix, separators and host.

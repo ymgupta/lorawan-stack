@@ -6,8 +6,8 @@ import (
 	"context"
 
 	ptypes "github.com/gogo/protobuf/types"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 // TenantStore interface for storing Tenants.

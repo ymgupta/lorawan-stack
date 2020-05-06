@@ -12,8 +12,8 @@ import (
 	"time"
 
 	"github.com/spf13/pflag"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
-	"go.thethings.network/lorawan-stack/pkg/types"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 var encoding = base64.StdEncoding

@@ -3,8 +3,8 @@
 package cryptoserver
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/crypto/cryptoservices"
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/crypto/cryptoservices"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 )
 
 // Provisioner contains network and application layer cryptographic services.
