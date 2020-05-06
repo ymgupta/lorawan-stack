@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.67.1" />
+  <title>Create Gateway | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.0/getting-started/cli/create-gateway/" />
+  <link rel="icon" type="image/png" href="/v3.8.0/favicon.png">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.0/css/theme.min.b9781525d89c05bb408c0108077cf3956423f943f51f81a1c63602401fbfb38d.css" integrity="sha256-uXgVJdicBbtAjAEIB3zzlWQj&#43;UP1H4GhxjYCQB&#43;/s40=">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Create Gateway">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Create Gateway">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.0/getting-started/cli/create-gateway/">
+  <meta name="twitter:title" content="Create Gateway" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.0/">
+        <img src="/v3.8.0/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.0</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.0/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.0/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.0/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.0/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.0/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.0/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column is-one-third">
+
+
+<h2 class="title is-size-4">Command-line Interface</h2>
+
+<ul class="menu-list">
+<a href="https://thethingsstack.io/v3.8.0/getting-started/cli/" class="">Overview</a>
+<li>
+  <a href="https://thethingsstack.io/v3.8.0/getting-started/cli/create-application/" class="">Create Application</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.0/getting-started/cli/create-end-device/" class="">Create End Device</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.0/getting-started/cli/create-gateway/" class="is-active">Create Gateway</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.0/getting-started/cli/installing-cli/" class="">Installing the Command-line Interface</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.0/getting-started/cli/login/" class="">Login with the Command-line interface</a>
+</li>
+</ul>
+
+
+
+
+
+      </div>
+      
+      <div class="column is-two-thirds">
+
+<h1 class="title is-size-2">Create Gateway</h1>
+
+<div class="content"><h2 id="create-gateway">Create Gateway</h2>
+<p>First, list the available frequency plans:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways list-frequency-plans
+</code></pre></div><p>Then, create the first gateway with the chosen frequency plan:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways create gtw1 <span class="se">\
+</span><span class="se"></span>  --user-id admin <span class="se">\
+</span><span class="se"></span>  --frequency-plan-id EU_863_870 <span class="se">\
+</span><span class="se"></span>  --gateway-eui 00800000A00009EF <span class="se">\
+</span><span class="se"></span>  --enforce-duty-cycle
+</code></pre></div><p>This creates a gateway <code>gtw1</code> with user <code>admin</code> as collaborator, frequency plan <code>EU_863_870</code>, EUI <code>00800000A00009EF</code> and respecting duty-cycle limitations. You can now connect your gateway to The Things Stack.</p>
+<blockquote>
+<p>Note: The CLI returns the created and updated entities by default in JSON. This can be useful in scripts.</p>
+</blockquote>
+<h3 id="create-gateway-api-key">Create Gateway API Key</h3>
+<p>Some gateways require an API Key with Link Gateway Rights to be able to connect to The Things Stack.</p>
+<p>Create an API key for the gateway:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways api-keys create <span class="se">\
+</span><span class="se"></span>  --name link <span class="se">\
+</span><span class="se"></span>  --gateway-id gtw1 <span class="se">\
+</span><span class="se"></span>  --right-gateway-link
+</code></pre></div><p>The CLI will return an API key such as <code>NNSXS.VEEBURF3KR77ZR...</code>. This API key has only link rights and can therefore only be used for linking this gateway. Make sure to copy the key and save it in a safe place. You will not be able to see this key again in the future, and if you lose it, you can create a new one to replace it in the gateway configuration.</p>
+</div>
+
+
+<div class="is-clearfix">
+<a class="button is-pulled-left" href="/v3.8.0/getting-started/cli/create-end-device/">← Create End Device</a>
+<a class="button is-pulled-right" href="/v3.8.0/getting-started/cli/installing-cli/">Installing the Command-line Interface →</a>
+</div>
+
+
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.0/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.0/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.0/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.0/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.0/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by benolayinka on 29 Apr 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/7b56f0ff2954226c6fb1fac784779709a352f773">
+      doc: Restructure and standardize folders
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/getting-started/cli/create-gateway/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.0/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+
+</body>
+
+</html>
