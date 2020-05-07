@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Apply missing context to as and ns APIConfig in dcs 
+
 ### Security
 
 ## [3.8.0] - 2020-05-06
