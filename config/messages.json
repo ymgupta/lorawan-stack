@@ -1196,6 +1196,15 @@
       "file": "errors.tti.go"
     }
   },
+  "error:cmd/ttn-lw-cli/commands:activation_mode": {
+    "translations": {
+      "en": "invalid activation mode"
+    },
+    "description": {
+      "package": "cmd/ttn-lw-cli/commands",
+      "file": "end_devices.go"
+    }
+  },
   "error:cmd/ttn-lw-cli/commands:antenna_index": {
     "translations": {
       "en": "index of antenna to update out of bounds"
@@ -1266,15 +1275,6 @@
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
       "file": "end_devices.go"
-    }
-  },
-  "error:cmd/ttn-lw-cli/commands:f_opts": {
-    "translations": {
-      "en": "invalid f_opts"
-    },
-    "description": {
-      "package": "cmd/ttn-lw-cli/commands",
-      "file": "simulate.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:fail_write": {

@@ -7,7 +7,7 @@ package store
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 )
 
 // SetContext needs to be called before creating models.

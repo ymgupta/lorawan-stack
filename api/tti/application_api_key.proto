@@ -8,7 +8,7 @@ import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
 import "github.com/gogo/protobuf/gogoproto/gogo.proto";
 import "lorawan-stack/api/identifiers.proto";
 
-option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
 
 message ApplicationAPIKey {
   ttn.lorawan.v3.ApplicationIdentifiers application_ids = 1 [(gogoproto.customname) = "ApplicationIDs", (gogoproto.nullable) = false, (validate.rules).message.required = true];

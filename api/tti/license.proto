@@ -13,7 +13,7 @@ import "lorawan-stack/api/enums.proto";
 import "lorawan-stack/api/tti/identifiers.proto";
 import "lorawan-stack/api/tti/tenant.proto";
 
-option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
 
 message License {
   // Immutable and unique public identifier for the License.
@@ -46,9 +46,9 @@ message License {
   // If set, the server addresses must match any of these regexps.
   repeated string component_address_regexps = 11;
   // If set, the configured DevAddr prefixes must match any of these prefixes.
-  repeated bytes dev_addr_prefixes = 12 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
+  repeated bytes dev_addr_prefixes = 12 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/v3/pkg/types.DevAddrPrefix", (gogoproto.nullable) = false];
   // If set, the configured JoinEUI prefixes must match any of these prefixes.
-  repeated bytes join_eui_prefixes = 13 [(gogoproto.customname) = "JoinEUIPrefixes", (gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64Prefix", (gogoproto.nullable) = false];
+  repeated bytes join_eui_prefixes = 13 [(gogoproto.customname) = "JoinEUIPrefixes", (gogoproto.customtype) = "go.thethings.network/lorawan-stack/v3/pkg/types.EUI64Prefix", (gogoproto.nullable) = false];
 
   // Indicates whether multi-tenancy support is included.
   bool multi_tenancy = 14;

@@ -17,8 +17,8 @@ package topics
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/license"
-	"go.thethings.network/lorawan-stack/pkg/unique"
+	"go.thethings.network/lorawan-stack/v3/pkg/license"
+	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 )
 
 const topicV3 = "v3"

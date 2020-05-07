@@ -5,9 +5,9 @@ package packetbrokeragent
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/cluster"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/cluster"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 // WithTenancyContextFiller returns an Option that fills the tenant context.

@@ -3,7 +3,7 @@
 package api
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/v3/pkg/rpcmetadata"
 	"google.golang.org/grpc"
 )
 

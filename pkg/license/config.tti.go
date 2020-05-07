@@ -6,7 +6,7 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 // Config represents the license configuration.

@@ -10,8 +10,8 @@ import (
 	echo "github.com/labstack/echo/v4"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/webhook"
-	"go.thethings.network/lorawan-stack/pkg/events"
-	"go.thethings.network/lorawan-stack/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 )
 
 const (

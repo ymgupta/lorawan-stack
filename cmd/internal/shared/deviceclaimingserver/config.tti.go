@@ -3,10 +3,10 @@
 package shared
 
 import (
-	"go.thethings.network/lorawan-stack/cmd/internal/shared"
-	"go.thethings.network/lorawan-stack/pkg/deviceclaimingserver"
-	"go.thethings.network/lorawan-stack/pkg/web/oauthclient"
-	"go.thethings.network/lorawan-stack/pkg/webui"
+	"go.thethings.network/lorawan-stack/v3/cmd/internal/shared"
+	"go.thethings.network/lorawan-stack/v3/pkg/deviceclaimingserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/web/oauthclient"
+	"go.thethings.network/lorawan-stack/v3/pkg/webui"
 )
 
 // DefaultDeviceClaimingServerConfig is the default configuration for the Device Claiming Server.

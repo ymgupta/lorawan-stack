@@ -20,8 +20,8 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	tenantmiddleware "go.thethings.network/lorawan-stack/pkg/tenant/middleware"
-	"go.thethings.network/lorawan-stack/pkg/version"
+	tenantmiddleware "go.thethings.network/lorawan-stack/v3/pkg/tenant/middleware"
+	"go.thethings.network/lorawan-stack/v3/pkg/version"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

@@ -5,7 +5,7 @@ package tenantbillingserver
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
 )

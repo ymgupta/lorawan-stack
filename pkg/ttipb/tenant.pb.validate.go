@@ -16,7 +16,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 
-	ttnpb "go.thethings.network/lorawan-stack/pkg/ttnpb"
+	ttnpb "go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 // ensure the imports are used

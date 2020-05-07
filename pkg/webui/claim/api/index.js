@@ -74,20 +74,8 @@ export default {
     },
   },
   users: {
-    async get(userId) {
-      return instance.get(`${isBaseUrl}/users/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${(await token()).access_token}`,
-        },
-      })
-    },
-    async authInfo() {
-      return instance.get(`${isBaseUrl}/auth_info`, {
-        headers: {
-          Authorization: `Bearer ${(await token()).access_token}`,
-        },
-      })
-    },
+    get: ttnClient.Users.getById.bind(ttnClient.Users),
+    authInfo: ttnClient.Auth.getAuthInfo.bind(ttnClient.Auth),
   },
   deviceClaim: {
     claim: ttnClient.DeviceClaim.claim.bind(ttnClient.DeviceClaim),

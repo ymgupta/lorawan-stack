@@ -15,6 +15,49 @@ The Things Network's development tooling uses [Mage](https://magefile.org/). Und
 
 If you are unfamiliar with forking projects on GitHub or cloning them locally, please [see the GitHub documentation](https://help.github.com/articles/fork-a-repo/).
 
+## Managing Multiple Repositories
+
+If you already have [The Things Stack](https://github.com/TheThingsNetwork/lorawan-stack) in your local environment, we recommend using a separate folder for this repository instead of adding this repository as an upstream. This reduces the risk of accidentally pushing code from here to the open source repo.
+
+If you already have The Things Stack in `<your-workspace>/lorawan-stack`, then you can clone this repo to a new folder using
+
+```bash
+$ git clone git@github.com:TheThingsIndustries/lorawan-stack.git <your-workspace>/lorawan-stack-ttes
+```
+
+> The `-ttes` suffix is just an example. Make sure to choose a folder name other than `lorawan-stack`.
+
+Using explicit upstream names (other than `origin`) is another method of preventing accidental pushes.
+
+In you local repository you can run the following
+
+```bash
+$ cd <your-workspace>/lorawan-stack-ttes
+$ git remote rename origin ttes
+```
+
+With this, pushing a branch would be
+
+```bash
+$ git push ttes feature/<my-ttes-branch>
+```
+
+If you want to cherry-pick/merge TTS commits into this repository, you can create an additional git upstream while disabling push to TTS.
+
+```bash
+$ git remote add tts git@github.com:TheThingsNetwork/lorawan-stack.git
+$ git remote set-url --push tts DISABLED
+```
+
+The resultant remote configuration would be similar to this
+
+```
+ttes     git@github.com:TheThingsIndustries/lorawan-stack.git (fetch)
+ttes     git@github.com:TheThingsIndustries/lorawan-stack.git (push)
+tts      git@github.com:TheThingsNetwork/lorawan-stack.git (fetch)
+tts      DISABLED (push)
+```
+
 ## Getting Started
 
 As most of the tasks will be managed by `make` and `mage` we will first initialize the tooling:
@@ -117,6 +160,8 @@ $ ./mage proto:clean proto:all jsSDK:definitions
 The documentation site for The Things Stack is built from the `doc` folder.
 All content is stored as Markdown files in `doc/content`.
 
+Data for generated documentation like API and glossary is stored in `doc/data`.
+
 In order to build the documentation site with the right theme, you need to run
 `./mage docs:deps` from time to time.
 
@@ -196,6 +241,14 @@ TTN_LW_DCS_OAUTH_TOKEN_URL="http://localhost:8080/oauth/token"
 TTN_LW_DCS_UI_ASSETS_BASE_URL="http://localhost:8080/assets"
 TTN_LW_DCS_UI_IS_BASE_URL="http://localhost:8080/api/v3"
 TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
+```
+
+#### Optional Configuration
+
+Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
+
+```bash
+WEBPACK_DISABLE_HMR="true"
 ```
 
 ## Code Style
@@ -289,11 +342,11 @@ We follow the [official go guidelines](https://github.com/golang/go/wiki/CodeRev
 | :------------------: | :-----: | :-----------------------------------------------------------: |
 | context              | ctx     | context.Context                                               |
 | mutex                | mu      | sync.Mutex                                                    |
-| configuration        | conf    | go.thethings.network/lorawan-stack/pkg/config.Config          |
-| logger               | logger  | go.thethings.network/lorawan-stack/pkg/log.Logger             |
+| configuration        | conf    | go.thethings.network/lorawan-stack/pkg/v3/config.Config       |
+| logger               | logger  | go.thethings.network/lorawan-stack/pkg/v3/log.Logger          |
 | message              | msg     | go.thethings.network/lorawan-stack/api/gateway.UplinkMessage  |
 | status               | st      | go.thethings.network/lorawan-stack/api/gateway.Status         |
-| server               | srv     | go.thethings.network/lorawan-stack/pkg/network-server.Server  |
+| server               | srv     | go.thethings.network/lorawan-stack/pkg/v3/networkserver.Server|
 | ID                   | id      | string                                                        |
 | unique ID            | uid     | string                                                        |
 | counter              | cnt     | int                                                           |

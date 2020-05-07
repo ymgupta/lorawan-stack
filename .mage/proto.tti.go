@@ -136,7 +136,7 @@ func (p TTIProto) JsSDK(context.Context) error {
 	}
 	return withProtoc(func(pCtx *protocContext, protoc func(...string) error) error {
 		if err := protoc(
-			fmt.Sprintf("--doc_opt=json,api.tti.json --doc_out=%s/sdk/js/generated", pCtx.WorkingDirectory),
+			fmt.Sprintf("--doc_opt=json,api.tti.json --doc_out=%s/v3/sdk/js/generated", pCtx.WorkingDirectory),
 			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
 		); err != nil {
 			return xerrors.Errorf("failed to generate protos: %w", err)

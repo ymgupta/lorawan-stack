@@ -5,7 +5,7 @@ package cryptoserver
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/pkg/cryptoserver/provisioners/microchip"
+	"go.thethings.network/lorawan-stack/v3/pkg/cryptoserver/provisioners/microchip"
 )
 
 // Config represents the CryptoServer configuration.

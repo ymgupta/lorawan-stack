@@ -7,10 +7,10 @@ import (
 	"fmt"
 	"os"
 
-	cli_errors "go.thethings.network/lorawan-stack/cmd/internal/errors"
-	"go.thethings.network/lorawan-stack/cmd/ttn-lw-cli/commands"
-	"go.thethings.network/lorawan-stack/config/tags"
-	"go.thethings.network/lorawan-stack/pkg/errors"
+	cli_errors "go.thethings.network/lorawan-stack/v3/cmd/internal/errors"
+	"go.thethings.network/lorawan-stack/v3/cmd/ttn-lw-cli/commands"
+	"go.thethings.network/lorawan-stack/v3/config/tags"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 )
 
 func main() {

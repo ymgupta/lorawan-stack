@@ -20,17 +20,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	"go.thethings.network/lorawan-stack/pkg/applicationserver/io"
-	"go.thethings.network/lorawan-stack/pkg/component"
-	"go.thethings.network/lorawan-stack/pkg/errorcontext"
-	"go.thethings.network/lorawan-stack/pkg/errors"
-	"go.thethings.network/lorawan-stack/pkg/events"
-	"go.thethings.network/lorawan-stack/pkg/log"
-	"go.thethings.network/lorawan-stack/pkg/rpcclient"
-	"go.thethings.network/lorawan-stack/pkg/rpcmetadata"
-	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/discover"
-	"go.thethings.network/lorawan-stack/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/pkg/unique"
+	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io"
+	"go.thethings.network/lorawan-stack/v3/pkg/component"
+	"go.thethings.network/lorawan-stack/v3/pkg/errorcontext"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/rpcclient"
+	"go.thethings.network/lorawan-stack/v3/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/v3/pkg/rpcmiddleware/discover"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -277,7 +277,13 @@ func (as *ApplicationServer) getLink(ctx context.Context, ids ttnpb.ApplicationI
 		}
 		return nil, errNotLinked.WithAttributes("application_uid", uid)
 	}
-	return val.(*link), nil
+	link := val.(*link)
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-link.connReady:
+		return link, nil
+	}
 }
 
 func (l *link) run() {
@@ -313,7 +319,6 @@ func (as *ApplicationServer) SendUp(ctx context.Context, up *ttnpb.ApplicationUp
 	if err != nil {
 		return err
 	}
-	<-link.connReady
 	return link.sendUp(ctx, up, func() error { return nil })
 }
 

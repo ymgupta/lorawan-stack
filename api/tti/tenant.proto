@@ -17,7 +17,7 @@ import "lorawan-stack/api/tti/billing.proto";
 import "lorawan-stack/api/tti/configuration.proto";
 import "lorawan-stack/api/tti/identifiers.proto";
 
-option go_package = "go.thethings.network/lorawan-stack/pkg/ttipb";
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
 
 // Tenant is the message that defines a Tenant in the network.
 message Tenant {
@@ -86,12 +86,12 @@ message UpdateTenantRequest {
 }
 
 message GetTenantIdentifiersForEndDeviceEUIsRequest {
-  bytes join_eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "JoinEUI"];
-  bytes dev_eui = 2 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "DevEUI"];
+  bytes join_eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/v3/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "JoinEUI"];
+  bytes dev_eui = 2 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/v3/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "DevEUI"];
 }
 
 message GetTenantIdentifiersForGatewayEUIRequest {
-  bytes eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "EUI"];
+  bytes eui = 1 [(gogoproto.customtype) = "go.thethings.network/lorawan-stack/v3/pkg/types.EUI64", (gogoproto.nullable) = false, (gogoproto.customname) = "EUI"];
 }
 
 message GetTenantRegistryTotalsRequest {

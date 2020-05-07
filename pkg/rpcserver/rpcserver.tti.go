@@ -3,9 +3,9 @@
 package rpcserver
 
 import (
-	"go.thethings.network/lorawan-stack/pkg/rpcmiddleware/validator"
-	"go.thethings.network/lorawan-stack/pkg/tenant"
-	"go.thethings.network/lorawan-stack/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/rpcmiddleware/validator"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
 func init() {
