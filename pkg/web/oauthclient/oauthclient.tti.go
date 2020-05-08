@@ -22,6 +22,12 @@ func (conf Config) Apply(ctx context.Context) Config {
 			deriv.AuthorizeURL = auth.String()
 		}
 	}
+	if logout, err := url.Parse(conf.LogoutURL); err == nil {
+		if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
+			logout.Host = tenantID + "." + logout.Host
+			deriv.LogoutURL = logout.String()
+		}
+	}
 	if token, err := url.Parse(conf.TokenURL); err == nil {
 		if tenantID := tenant.FromContext(ctx).TenantID; tenantID != "" {
 			token.Host = tenantID + "." + token.Host
