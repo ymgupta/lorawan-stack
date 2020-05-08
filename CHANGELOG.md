@@ -9,13 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Gateway Server events for uplink messages now contain end device identifiers.
+
 ### Changed
+
+- Troubleshooting section of `DEVELOPMENT.md`
+- Change console field labels from `MAC version` and `PHY version` to `LoRaWAN version` and `Regional Parameters version` and add descriptions
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Apply missing context to as and ns APIConfig in dcs 
+- OAuth authorization page crashing.
 
 ### Security
 
