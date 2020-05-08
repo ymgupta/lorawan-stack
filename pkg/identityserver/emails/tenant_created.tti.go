@@ -43,16 +43,16 @@ Before you get started, please reset your password by following the link below:
 To access the console, you can use the URL {{.Network.ConsoleURL}}.
 
 You can read how to get started with the console in the Getting Started guide:
-https://enterprise.thethingsstack.io/v{{.TTESVersion}}/guides/getting-started/console/
+https://enterprise.thethingsstack.io/latest/getting-started/console/
 
 It is also possible to use the command-line interface (CLI).
 You can read how to get started with the CLI in the Getting Started guide:
-https://enterprise.thethingsstack.io/v{{.TTESVersion}}/guides/getting-started/cli/
+https://enterprise.thethingsstack.io/latest/getting-started/cli/
 
 Other users of your tenant can register accounts, but they can not use their accounts
 until the accounts are approved by an admin user (you). You can read how to do this
 in the user management guide:
-https://enterprise.thethingsstack.io/v{{.TTESVersion}}/guides/user-management/
+https://enterprise.thethingsstack.io/latest/user-management/
 
 If at any point you have questions, you can reach out to us using the support
 button that is shown in the console.
