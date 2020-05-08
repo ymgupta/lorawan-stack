@@ -268,6 +268,8 @@ func (conf StackConfig) Apply(ctx context.Context) StackConfig {
 	deriv := conf
 	deriv.IS = conf.IS.Apply(ctx)
 	deriv.DCS = conf.DCS.Apply(ctx)
+	deriv.NS = conf.NS.Apply(ctx)
+	deriv.AS = conf.AS.Apply(ctx)
 	return deriv
 }
 
