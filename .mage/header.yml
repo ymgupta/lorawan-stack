@@ -20,7 +20,7 @@ rules:
 - include: [.make,Makefile]
   prefix: '# '
 - include: [.tti,api/tti,ttipb]
-  exclude: [.json,.md]
+  exclude: [.json,.md,doc/data/api/tti.lorawan.v3]
   header:
     |
     Copyright © 20\d\d The Things Industries B\.V\.
