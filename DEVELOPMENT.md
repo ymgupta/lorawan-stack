@@ -257,8 +257,15 @@ TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
 Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
 ```bash
-WEBPACK_DISABLE_HMR="true"
+WEBPACK_DEV_SERVER_DISABLE_HMR="true"
 ```
+
+Enable TLS in `webpack-dev-server`, using the key and certificate set via `TTN_LW_TLS_KEY` and `TTN_LW_TLS_CERTIFICATE` environment variables. Useful when developing functionalities that rely on TLS.
+
+```bash
+WEBPACK_DEV_SERVER_USE_TLS="true"
+```
+Note: To use this option, The Things Stack for LoRaWAN must be properly setup for TLS. You can obtain more information about this in the **Getting Started** section of the The Things Stack for LoRaWAN documentation.
 
 ## Code Style
 
