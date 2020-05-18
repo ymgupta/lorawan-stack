@@ -2,7 +2,7 @@
   "claim.containers.device-claim-form.index.claimRecognized": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxxxxx",
   "claim.containers.device-claim-form.index.claimAuthMessage": "Xxxx xxxxxxxxxxxxxx XX xxxx",
   "claim.containers.device-claim-form.index.claimInvalid": "Xxxxxxx xxxxxxxxxxxxxx XX xxxx",
-  "claim.views.device-claim.index.claimSuccess": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` xxxxxxx",
+  "claim.views.device-claim.index.claimSuccess": "Xxx xxxxxx XxxxXXX `{joinEUI}` xxx XxxXXX `{devEUI}` Xxxxxx XX `{DeviceId}` xxxxxxx",
   "components.data-sheet.index.noData": "Xx xxxx xxxxxxxxx",
   "components.error-notification.story.problem": "Xx xxx x xxxxxxx xxxx!",
   "components.error-notification.story.lengthyProblem": "Xx xxx x xxxxxxx xxxx! Xxx xxx xxxxxxxxxxx xx xxxxx xxxxxxx xx xxxx, xxxxx xxx xxxxxxxxx xx x xxxxxxx.",
