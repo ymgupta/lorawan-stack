@@ -134,7 +134,8 @@ var DefaultOptions []Option
 
 // New returns new NetworkServer.
 func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, error) {
-	if err := license.RequireComponent(c.Context(), ttnpb.ClusterRole_NETWORK_SERVER); err != nil {
+	ctx := log.NewContextWithField(c.Context(), "namespace", "networkserver")
+	if err := license.RequireComponent(ctx, ttnpb.ClusterRole_NETWORK_SERVER); err != nil {
 		return nil, err
 	}
 
@@ -164,7 +165,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	}
 
 	for _, prefix := range devAddrPrefixes {
-		if err := license.RequireDevAddrPrefix(c.Context(), prefix); err != nil {
+		if err := license.RequireDevAddrPrefix(ctx, prefix); err != nil {
 			return nil, err
 		}
 	}
@@ -173,8 +174,6 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	if err != nil {
 		return nil, err
 	}
-
-	ctx := log.NewContextWithField(c.Context(), "namespace", "networkserver")
 
 	var interopCl InteropClient
 	if !conf.Interop.IsZero() {

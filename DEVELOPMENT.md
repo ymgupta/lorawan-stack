@@ -77,6 +77,32 @@ $ ./mage dev:initStack
 
 This starts a CockroachDB and Redis database in Docker containers, creates a database, migrates tables and creates a user `admin` with password `admin`.
 
+## Starting The Things Enterprise Stack
+
+You can use `go run -tags tti ./cmd/tti-lw-stack start` to start The Things Enterprise Stack.
+
+> TIP: If you add `GOFLAGS="--tags=tti"` to your environment, you can omit `-tags tti`.
+
+### Multi-Tenancy
+
+In order to work with multi-tenancy, you need to add some lines to `/etc/hosts`:
+
+```
+127.0.0.1    default.localhost   # default tenant for The Things Enterprise Stack
+127.0.0.1    my-tenant.localhost # if you want to test an alternative tenant
+```
+
+> NOTE: The `default` tenant is created by Mage. Use the command `tti-lw-stack is-db create-tenant --id my-tenant` to create additional tenants. Add `--help` for details.
+
+You'll also need to set the following environment variables:
+
+```
+export TTN_LW_TENANCY_BASE_DOMAINS="localhost"
+export TTN_LW_LICENSE_KEY="..."
+```
+
+If you don't have a license key for development, you can also add `MultiTenancy: true` to `cmd/ttn-lw-stack/commands/root.tti.go`.
+
 ## Using the CLI with the Development Environment
 
 In order to login, you will need to use the correct OAuth Server Address:
@@ -257,8 +283,15 @@ TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
 Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
 ```bash
-WEBPACK_DISABLE_HMR="true"
+WEBPACK_DEV_SERVER_DISABLE_HMR="true"
 ```
+
+Enable TLS in `webpack-dev-server`, using the key and certificate set via `TTN_LW_TLS_KEY` and `TTN_LW_TLS_CERTIFICATE` environment variables. Useful when developing functionalities that rely on TLS.
+
+```bash
+WEBPACK_DEV_SERVER_USE_TLS="true"
+```
+Note: To use this option, The Things Stack for LoRaWAN must be properly setup for TLS. You can obtain more information about this in the **Getting Started** section of the The Things Stack for LoRaWAN documentation.
 
 ## Code Style
 

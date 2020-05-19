@@ -18,6 +18,7 @@ package mqtt
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"time"
 
 	mqtt_topic "github.com/TheThingsIndustries/mystique/pkg/topic"
@@ -58,8 +59,12 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	if !ok {
 		panic("wrong provider type provided to OpenConnection")
 	}
+	serverURL, err := adaptURLScheme(settings.MQTT.ServerURL)
+	if err != nil {
+		return nil, err
+	}
 	clientOpts := mqtt.NewClientOptions()
-	clientOpts.AddBroker(settings.MQTT.ServerURL)
+	clientOpts.AddBroker(serverURL)
 	clientOpts.SetClientID(settings.MQTT.ClientID)
 	clientOpts.SetUsername(settings.MQTT.Username)
 	clientOpts.SetPassword(settings.MQTT.Password)
@@ -166,6 +171,20 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 		}
 	}
 	return pc, nil
+}
+
+func adaptURLScheme(initial string) (string, error) {
+	u, err := url.Parse(initial)
+	if err != nil {
+		return "", err
+	}
+	switch u.Scheme {
+	case "mqtt":
+		u.Scheme = "tcp"
+	case "mqtts":
+		u.Scheme = "ssl"
+	}
+	return u.String(), nil
 }
 
 func init() {
