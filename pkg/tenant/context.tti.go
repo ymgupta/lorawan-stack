@@ -5,6 +5,7 @@ package tenant
 import (
 	"context"
 
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 )
 
@@ -23,5 +24,6 @@ func FromContext(ctx context.Context) ttipb.TenantIdentifiers {
 
 // NewContext returns a context containing the tenant identifier.
 func NewContext(parent context.Context, id ttipb.TenantIdentifiers) context.Context {
-	return context.WithValue(parent, tenantIDKey, id)
+	ctx := context.WithValue(parent, tenantIDKey, id)
+	return log.NewContextWithField(ctx, "tenant_id", id.TenantID)
 }

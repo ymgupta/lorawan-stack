@@ -1979,15 +1979,6 @@
       "file": "format.go"
     }
   },
-  "error:pkg/applicationserver/io/web:http": {
-    "translations": {
-      "en": "HTTP error: {message}"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/web",
-      "file": "webhooks.go"
-    }
-  },
   "error:pkg/applicationserver/io/web:parse_file": {
     "translations": {
       "en": "could not parse file"
@@ -3554,22 +3545,13 @@
       "file": "frequencyplans.go"
     }
   },
-  "error:pkg/gatewayconfigurationserver/gcsv2:gateway_not_registered": {
+  "error:pkg/gatewayconfigurationserver/v2:unauthenticated": {
     "translations": {
-      "en": "gateway `{gateway_id_or_uid}` is not registered"
+      "en": "unauthenticated"
     },
     "description": {
-      "package": "pkg/gatewayconfigurationserver/gcsv2",
-      "file": "get_gateway.go"
-    }
-  },
-  "error:pkg/gatewayconfigurationserver/gcsv2:unauthenticated": {
-    "translations": {
-      "en": "call was not authenticated"
-    },
-    "description": {
-      "package": "pkg/gatewayconfigurationserver/gcsv2",
-      "file": "get_gateway.go"
+      "package": "pkg/gatewayconfigurationserver/v2",
+      "file": "http_gateway.go"
     }
   },
   "error:pkg/gatewayserver/io/basicstationlns/messages:data_rate": {
