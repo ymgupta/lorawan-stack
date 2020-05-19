@@ -171,7 +171,7 @@ func (w *webhooks) RegisterRoutes(server *ttnweb.Server) {
 	router.Use(
 		mux.MiddlewareFunc(webmiddleware.Namespace("applicationserver/io/web")),
 		mux.MiddlewareFunc(licensemiddleware.Middleware),
-		mux.MiddlewareFunc(tenantmiddleware.Middleware(s.GetBaseConfig(s.Context()).Tenancy)),
+		mux.MiddlewareFunc(tenantmiddleware.Middleware(w.server.GetBaseConfig(w.ctx).Tenancy)),
 		mux.MiddlewareFunc(webmiddleware.Metadata("Authorization")),
 		w.validateAndFillIDs,
 		w.requireApplicationRights(ttnpb.RIGHT_APPLICATION_TRAFFIC_DOWN_WRITE),
