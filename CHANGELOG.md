@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Setting custom gateway attributes in the console
+- Pub/Sub documentation.
 
 ### Changed
 
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Some views not being accessible in the OAuth app (e.g. update password).
 - `LinkADRReq` scheduling.
 - Unsetting NwkKey in Join Server.
+- CSRF token validation issues preventing login and logout in some circumstances.
 
 ### Security
 
