@@ -29,6 +29,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/config"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	"go.thethings.network/lorawan-stack/v3/pkg/rpcmetadata"
+	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/v3/pkg/util/test"
 	"go.thethings.network/lorawan-stack/v3/pkg/util/test/assertions/should"
@@ -65,6 +66,8 @@ func TestGetGateway(t *testing.T) {
 		Name              string
 		SetupStore        func(*mockGatewayRegistryClient)
 		SetupRequest      func(*http.Request)
+		DefaultTenantID   string
+		TenantID          string
 		ResponseAssertion func(*assertions.Assertion, *httptest.ResponseRecorder) bool
 	}{
 		{
@@ -72,12 +75,65 @@ func TestGetGateway(t *testing.T) {
 			SetupStore: func(reg *mockGatewayRegistryClient) {
 				reg.out, reg.err = nil, status.Error(codes.NotFound, "not found")
 			},
+			DefaultTenantID: tenant.FromContext(test.Context()).TenantID,
 			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
 				return a.So(rec.Code, should.Equal, http.StatusNotFound)
 			},
 		},
 		{
-			Name: "Any Authenticated Gateway",
+			Name: "Any Authenticated Gateway With Default Tenant ID",
+			SetupStore: func(reg *mockGatewayRegistryClient) {
+				reg.out, reg.err = &ttnpb.Gateway{
+					Description: "Gateway Description",
+					Attributes: map[string]string{
+						"key": "some-key",
+					},
+					FrequencyPlanID:      "EU_863_870",
+					GatewayServerAddress: "gatewayserver",
+					Antennas: []ttnpb.GatewayAntenna{
+						{Location: ttnpb.Location{Latitude: 12.34, Longitude: 56.78, Altitude: 90}},
+					},
+				}, nil
+			},
+			DefaultTenantID: tenant.FromContext(test.Context()).TenantID,
+			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
+				body := rec.Body.String()
+				return a.So(rec.Code, should.Equal, http.StatusOK) &&
+					a.So(body, assertions.ShouldContainSubstring, `"attributes":{"description":"Gateway Description"}`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan":"EU_863_870"`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan_url":"http://example.com/api/v2/frequency-plans/EU_863_870"`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"router":{"id":"gatewayserver","mqtt_address":"mqtts://gatewayserver:8881"}`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"antenna_location":{"latitude":12.34,"longitude":56.78,"altitude":90}`)
+			},
+		},
+		{
+			Name: "Any Authenticated Gateway With Tenant ID",
+			SetupStore: func(reg *mockGatewayRegistryClient) {
+				reg.out, reg.err = &ttnpb.Gateway{
+					Description: "Gateway Description",
+					Attributes: map[string]string{
+						"key": "some-key",
+					},
+					FrequencyPlanID:      "EU_863_870",
+					GatewayServerAddress: "gatewayserver",
+					Antennas: []ttnpb.GatewayAntenna{
+						{Location: ttnpb.Location{Latitude: 12.34, Longitude: 56.78, Altitude: 90}},
+					},
+				}, nil
+			},
+			TenantID: "custom",
+			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
+				body := rec.Body.String()
+				return a.So(rec.Code, should.Equal, http.StatusOK) &&
+					a.So(body, assertions.ShouldContainSubstring, `"attributes":{"description":"Gateway Description"}`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan":"EU_863_870"`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan_url":"http://example.com/api/v2/frequency-plans/EU_863_870"`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"router":{"id":"gatewayserver","mqtt_address":"mqtts://gatewayserver:8881"}`) &&
+					a.So(body, assertions.ShouldContainSubstring, `"antenna_location":{"latitude":12.34,"longitude":56.78,"altitude":90}`)
+			},
+		},
+		{
+			Name: "Any Authenticated Gateway Without Tenant ID",
 			SetupStore: func(reg *mockGatewayRegistryClient) {
 				reg.out, reg.err = &ttnpb.Gateway{
 					Description: "Gateway Description",
@@ -92,13 +148,7 @@ func TestGetGateway(t *testing.T) {
 				}, nil
 			},
 			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
-				body := rec.Body.String()
-				return a.So(rec.Code, should.Equal, http.StatusOK) &&
-					a.So(body, assertions.ShouldContainSubstring, `"attributes":{"description":"Gateway Description"}`) &&
-					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan":"EU_863_870"`) &&
-					a.So(body, assertions.ShouldContainSubstring, `"frequency_plan_url":"http://example.com/api/v2/frequency-plans/EU_863_870"`) &&
-					a.So(body, assertions.ShouldContainSubstring, `"router":{"id":"gatewayserver","mqtt_address":"mqtts://gatewayserver:8881"}`) &&
-					a.So(body, assertions.ShouldContainSubstring, `"antenna_location":{"latitude":12.34,"longitude":56.78,"altitude":90}`)
+				return a.So(rec.Code, should.Equal, http.StatusBadRequest)
 			},
 		},
 		{
@@ -119,6 +169,7 @@ func TestGetGateway(t *testing.T) {
 			SetupRequest: func(req *http.Request) {
 				req.Header.Set("User-Agent", "TTNGateway")
 			},
+			DefaultTenantID: tenant.FromContext(test.Context()).TenantID,
 			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
 				body := rec.Body.String()
 				return a.So(rec.Code, should.Equal, http.StatusOK) &&
@@ -144,6 +195,7 @@ func TestGetGateway(t *testing.T) {
 			SetupRequest: func(req *http.Request) {
 				req.Header.Del("Authorization")
 			},
+			DefaultTenantID: tenant.FromContext(test.Context()).TenantID,
 			ResponseAssertion: func(a *assertions.Assertion, rec *httptest.ResponseRecorder) bool {
 				return a.So(rec.Code, should.Equal, http.StatusOK) &&
 					a.So(rec.Body.String(), assertions.ShouldNotContainSubstring, `"router":{"mqtt_address":"mqtts://gatewayserver:8881"}`)
@@ -166,6 +218,9 @@ func TestGetGateway(t *testing.T) {
 					HTTP: config.HTTP{
 						Listen: ":0",
 					},
+					Tenancy: tenant.Config{
+						DefaultID: tc.DefaultTenantID,
+					},
 				},
 			}
 			c := componenttest.NewComponent(t, conf)
@@ -177,7 +232,11 @@ func TestGetGateway(t *testing.T) {
 			componenttest.StartComponent(t, c)
 			defer c.Close()
 
-			req := httptest.NewRequest(http.MethodGet, "/api/v2/gateways/foo-gtw", nil).WithContext(ctx)
+			url := "/api/v2/gateways/foo-gtw"
+			if tc.TenantID != "" {
+				url += "@" + tc.TenantID
+			}
+			req := httptest.NewRequest(http.MethodGet, url, nil).WithContext(ctx)
 			req.Header.Set("Authorization", "key some-key")
 			if tc.SetupRequest != nil {
 				tc.SetupRequest(req)

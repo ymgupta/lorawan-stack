@@ -23,13 +23,10 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/types"
-	"github.com/gorilla/mux"
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
-	"go.thethings.network/lorawan-stack/v3/pkg/license"
 	"go.thethings.network/lorawan-stack/v3/pkg/rpcmetadata"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
-	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 	"go.thethings.network/lorawan-stack/v3/pkg/webhandlers"
 )
 
@@ -70,30 +67,7 @@ var errUnauthenticated = errors.DefineUnauthenticated("unauthenticated", "unauth
 
 func (s *Server) handleGetGateway(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	var id ttnpb.GatewayIdentifiers
-	if license.RequireMultiTenancy(ctx) == nil {
-		uid := mux.Vars(r)["gateway_uid"]
-		var err error
-		id, err = unique.ToGatewayID(uid)
-		if err != nil {
-			webhandlers.Error(w, r, err)
-			return
-		}
-		ctx, err = unique.WithContext(ctx, uid)
-		if err != nil {
-			webhandlers.Error(w, r, err)
-			return
-		}
-	} else {
-		// In a single tenant environment, the tenant is not part of the ID.
-		id = ttnpb.GatewayIdentifiers{
-			GatewayID: mux.Vars(r)["gateway_uid"],
-		}
-		if err := id.ValidateContext(ctx); err != nil {
-			webhandlers.Error(w, r, err)
-			return
-		}
-	}
+	id := gatewayIDFromContext(ctx)
 
 	registry, err := s.getRegistry(ctx, &id)
 	if err != nil {

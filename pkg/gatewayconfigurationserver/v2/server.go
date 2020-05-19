@@ -88,9 +88,10 @@ func (s *Server) RegisterRoutes(server *web.Server) {
 		// NOTE: There is no tenant middleware as The Things Network Stack V2 is single-tenant.
 		rewriteAuthorization,
 		mux.MiddlewareFunc(webmiddleware.Metadata("Authorization")),
+		validateAndFillIDsMultiTenant(s.component.GetBaseConfig(s.component.Context()).Tenancy),
 	)
 
-	router.HandleFunc("/gateways/{gateway_uid}", s.handleGetGateway).Methods(http.MethodGet)
+	router.HandleFunc("/gateways/{gateway_id_or_uid}", s.handleGetGateway).Methods(http.MethodGet)
 	router.HandleFunc("/frequency-plans/{frequency_plan_id}", s.handleGetFrequencyPlan).Methods(http.MethodGet)
 }
 
