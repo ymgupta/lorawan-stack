@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gcsv2
+package gatewayconfigurationserver
 
 import (
 	"context"
+	"net/http"
 
+	"github.com/gorilla/mux"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"
+	licensemiddleware "go.thethings.network/lorawan-stack/v3/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/v3/pkg/web"
+	"go.thethings.network/lorawan-stack/v3/pkg/webmiddleware"
 	"google.golang.org/grpc"
 )
 
@@ -75,13 +79,19 @@ func WithTheThingsGatewayConfig(config TheThingsGatewayConfig) Option {
 	}
 }
 
-const compatAPIPrefix = "/api/v2"
-
 // RegisterRoutes implements the web.Registerer interface.
-func (s *Server) RegisterRoutes(srv *web.Server) {
-	group := srv.Group(compatAPIPrefix, s.normalizeAuthorization)
-	group.GET("/gateways/:gateway_id_or_uid", s.handleGetGateway)
-	group.GET("/frequency-plans/:frequency_plan_id", s.handleGetFrequencyPlan)
+func (s *Server) RegisterRoutes(server *web.Server) {
+	router := server.Prefix("/api/v2/").Subrouter()
+	router.Use(
+		mux.MiddlewareFunc(webmiddleware.Namespace("gatewayconfigurationserver/v2")),
+		mux.MiddlewareFunc(licensemiddleware.Middleware),
+		// NOTE: There is no tenant middleware as The Things Network Stack V2 is single-tenant.
+		rewriteAuthorization,
+		mux.MiddlewareFunc(webmiddleware.Metadata("Authorization")),
+	)
+
+	router.HandleFunc("/gateways/{gateway_uid}", s.handleGetGateway).Methods(http.MethodGet)
+	router.HandleFunc("/frequency-plans/{frequency_plan_id}", s.handleGetFrequencyPlan).Methods(http.MethodGet)
 }
 
 // New returns a new v2 GCS on top of the given gateway registry.

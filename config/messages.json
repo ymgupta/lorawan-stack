@@ -1097,24 +1097,6 @@
       "file": "errors.go"
     }
   },
-  "error:cmd/internal/shared:initialize_crypto_server": {
-    "translations": {
-      "en": "could not initialize Crypto Server"
-    },
-    "description": {
-      "package": "cmd/internal/shared",
-      "file": "errors.tti.go"
-    }
-  },
-  "error:cmd/internal/shared:initialize_device_claiming_server": {
-    "translations": {
-      "en": "could not initialize Device Claiming Server"
-    },
-    "description": {
-      "package": "cmd/internal/shared",
-      "file": "errors.tti.go"
-    }
-  },
   "error:cmd/internal/shared:initialize_device_template_converter": {
     "translations": {
       "en": "could not initialize Device Template Converter"
@@ -1185,15 +1167,6 @@
     "description": {
       "package": "cmd/internal/shared",
       "file": "errors.go"
-    }
-  },
-  "error:cmd/internal/shared:initialize_tenant_billing_server": {
-    "translations": {
-      "en": "could not initialize Tenant Billing Server"
-    },
-    "description": {
-      "package": "cmd/internal/shared",
-      "file": "errors.tti.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:activation_mode": {
@@ -1536,15 +1509,6 @@
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
       "file": "end_device_templates.go"
-    }
-  },
-  "error:cmd/ttn-lw-cli/commands:no_tenant_id": {
-    "translations": {
-      "en": "no tenant ID set"
-    },
-    "description": {
-      "package": "cmd/ttn-lw-cli/commands",
-      "file": "tenants.tti.go"
     }
   },
   "error:cmd/ttn-lw-cli/commands:no_token_id": {
@@ -1977,15 +1941,6 @@
     "description": {
       "package": "pkg/applicationserver/io/web",
       "file": "format.go"
-    }
-  },
-  "error:pkg/applicationserver/io/web:http": {
-    "translations": {
-      "en": "HTTP error: {message}"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/web",
-      "file": "webhooks.go"
     }
   },
   "error:pkg/applicationserver/io/web:parse_file": {
@@ -2618,15 +2573,6 @@
       "file": "bucket.go"
     }
   },
-  "error:pkg/cluster:claiming_backend": {
-    "translations": {
-      "en": "invalid ID claiming backend"
-    },
-    "description": {
-      "package": "pkg/cluster",
-      "file": "claims.tti.go"
-    }
-  },
   "error:pkg/cluster:cluster_key": {
     "translations": {
       "en": "invalid cluster key"
@@ -2634,15 +2580,6 @@
     "description": {
       "package": "pkg/cluster",
       "file": "cluster.go"
-    }
-  },
-  "error:pkg/cluster:discovery_mode": {
-    "translations": {
-      "en": "invalid discovery mode"
-    },
-    "description": {
-      "package": "pkg/cluster",
-      "file": "cluster.tti.go"
     }
   },
   "error:pkg/cluster:key_length": {
@@ -2760,33 +2697,6 @@
     "description": {
       "package": "pkg/config",
       "file": "shared.go"
-    }
-  },
-  "error:pkg/crypto/aws:certificate": {
-    "translations": {
-      "en": "invalid certificate `{id}`"
-    },
-    "description": {
-      "package": "pkg/crypto/aws",
-      "file": "keyvault.tti.go"
-    }
-  },
-  "error:pkg/crypto/aws:secret_content": {
-    "translations": {
-      "en": "invalid secret content in `{id}`"
-    },
-    "description": {
-      "package": "pkg/crypto/aws",
-      "file": "keyvault.tti.go"
-    }
-  },
-  "error:pkg/crypto/aws:secret_not_found": {
-    "translations": {
-      "en": "secret `{id}` not found"
-    },
-    "description": {
-      "package": "pkg/crypto/aws",
-      "file": "keyvault.tti.go"
     }
   },
   "error:pkg/crypto/cryptoservices:no_app_key": {
@@ -2931,177 +2841,6 @@
     "description": {
       "package": "pkg/crypto",
       "file": "errors.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:key_loader": {
-    "translations": {
-      "en": "invalid key loader"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "microchip.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:mac_version": {
-    "translations": {
-      "en": "invalid MAC version"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:no_dev_eui": {
-    "translations": {
-      "en": "no DevEUI specified"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:no_join_eui": {
-    "translations": {
-      "en": "no JoinEUI specified"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:part_number": {
-    "translations": {
-      "en": "invalid part number `{part_number}`"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:provisioner": {
-    "translations": {
-      "en": "invalid provisioner `{id}`"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver/provisioners/microchip:serial_number": {
-    "translations": {
-      "en": "invalid serial number `{serial_number}`"
-    },
-    "description": {
-      "package": "pkg/cryptoserver/provisioners/microchip",
-      "file": "cryptoservices.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:app_key_not_exposed": {
-    "translations": {
-      "en": "AppKey not exposed"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc_applicationcryptoservice.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:no_application_service": {
-    "translations": {
-      "en": "no application service provided by provisioner `{id}`"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc_applicationcryptoservice.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:no_network_service": {
-    "translations": {
-      "en": "no network service provided by provisioner `{id}`"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc_networkcryptoservice.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:nwk_key_not_exposed": {
-    "translations": {
-      "en": "NwkKey not exposed"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "grpc_networkcryptoservice.tti.go"
-    }
-  },
-  "error:pkg/cryptoserver:provisioner_not_found": {
-    "translations": {
-      "en": "provisioner `{id}` not found"
-    },
-    "description": {
-      "package": "pkg/cryptoserver",
-      "file": "provisioners.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver/redis:invalid_fieldmask": {
-    "translations": {
-      "en": "invalid fieldmask"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver/redis",
-      "file": "registry.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver/redis:invalid_identifiers": {
-    "translations": {
-      "en": "invalid identifiers"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver/redis",
-      "file": "registry.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver:application_not_authorized": {
-    "translations": {
-      "en": "application not authorized"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "grpc.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver:claim_authentication_code": {
-    "translations": {
-      "en": "invalid claim authentication code"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "grpc.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver:parse_qr_code": {
-    "translations": {
-      "en": "parse QR code failed"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "grpc.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver:permission_denied": {
-    "translations": {
-      "en": "permission denied"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "grpc.tti.go"
-    }
-  },
-  "error:pkg/deviceclaimingserver:qr_code_data": {
-    "translations": {
-      "en": "invalid QR code data"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "grpc.tti.go"
     }
   },
   "error:pkg/devicerepository:fetch": {
@@ -3554,22 +3293,13 @@
       "file": "frequencyplans.go"
     }
   },
-  "error:pkg/gatewayconfigurationserver/gcsv2:gateway_not_registered": {
+  "error:pkg/gatewayconfigurationserver/v2:unauthenticated": {
     "translations": {
-      "en": "gateway `{gateway_id_or_uid}` is not registered"
+      "en": "unauthenticated"
     },
     "description": {
-      "package": "pkg/gatewayconfigurationserver/gcsv2",
-      "file": "get_gateway.go"
-    }
-  },
-  "error:pkg/gatewayconfigurationserver/gcsv2:unauthenticated": {
-    "translations": {
-      "en": "call was not authenticated"
-    },
-    "description": {
-      "package": "pkg/gatewayconfigurationserver/gcsv2",
-      "file": "get_gateway.go"
+      "package": "pkg/gatewayconfigurationserver/v2",
+      "file": "http_gateway.go"
     }
   },
   "error:pkg/gatewayserver/io/basicstationlns/messages:data_rate": {
@@ -4409,15 +4139,6 @@
       "file": "registry.go"
     }
   },
-  "error:pkg/identityserver/store:end_device_euis_not_found": {
-    "translations": {
-      "en": "end device JoinEUI `{join_eui}` and DevEUI `{dev_eui}` not found"
-    },
-    "description": {
-      "package": "pkg/identityserver/store",
-      "file": "tenant_store.tti.go"
-    }
-  },
   "error:pkg/identityserver/store:end_device_not_found": {
     "translations": {
       "en": "end device `{application_id}:{device_id}` not found"
@@ -4425,24 +4146,6 @@
     "description": {
       "package": "pkg/identityserver/store",
       "file": "store.go"
-    }
-  },
-  "error:pkg/identityserver/store:entity_quota": {
-    "translations": {
-      "en": "quota for {entity_type} entities reached"
-    },
-    "description": {
-      "package": "pkg/identityserver/store",
-      "file": "hooks.tti.go"
-    }
-  },
-  "error:pkg/identityserver/store:gateway_eui_not_found": {
-    "translations": {
-      "en": "gateway EUI `{eui}` not found"
-    },
-    "description": {
-      "package": "pkg/identityserver/store",
-      "file": "tenant_store.tti.go"
     }
   },
   "error:pkg/identityserver/store:gateway_not_found": {
@@ -4535,15 +4238,6 @@
       "file": "store.go"
     }
   },
-  "error:pkg/identityserver/store:tenant_not_found": {
-    "translations": {
-      "en": "tenant `{tenant_id}` not found"
-    },
-    "description": {
-      "package": "pkg/identityserver/store",
-      "file": "store.go"
-    }
-  },
   "error:pkg/identityserver/store:transaction_recovered": {
     "translations": {
       "en": "Internal Server Error"
@@ -4625,15 +4319,6 @@
       "file": "identityserver.go"
     }
   },
-  "error:pkg/identityserver:insufficient_tenant_rights": {
-    "translations": {
-      "en": "insufficient tenant rights"
-    },
-    "description": {
-      "package": "pkg/identityserver",
-      "file": "tenant_access.tti.go"
-    }
-  },
   "error:pkg/identityserver:invalid_authorization": {
     "translations": {
       "en": "invalid authorization"
@@ -4686,15 +4371,6 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "invitation_registry.go"
-    }
-  },
-  "error:pkg/identityserver:no_tenant_rights": {
-    "translations": {
-      "en": "no tenant rights"
-    },
-    "description": {
-      "package": "pkg/identityserver",
-      "file": "tenant_access.tti.go"
     }
   },
   "error:pkg/identityserver:oauth_client_rejected": {
@@ -4812,15 +4488,6 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "user_registry.go"
-    }
-  },
-  "error:pkg/identityserver:tenant_admin_key": {
-    "translations": {
-      "en": "invalid tenant admin key"
-    },
-    "description": {
-      "package": "pkg/identityserver",
-      "file": "tenant_access.tti.go"
     }
   },
   "error:pkg/identityserver:token_expired": {
@@ -5168,15 +4835,6 @@
   "error:pkg/joinserver/redis:invalid_identifiers": {
     "translations": {
       "en": "invalid identifiers"
-    },
-    "description": {
-      "package": "pkg/joinserver/redis",
-      "file": "registry.go"
-    }
-  },
-  "error:pkg/joinserver/redis:not_found": {
-    "translations": {
-      "en": "not found"
     },
     "description": {
       "package": "pkg/joinserver/redis",
@@ -5617,164 +5275,11 @@
   },
   "error:pkg/joinserver:wrap_key": {
     "translations": {
-      "en": "failed to wrap key with KEK label `{label}`"
+      "en": "failed to wrap key"
     },
     "description": {
       "package": "pkg/joinserver",
       "file": "errors.go"
-    }
-  },
-  "error:pkg/license/awsmetrics:metering_service_unavailable": {
-    "translations": {
-      "en": "AWS Marketplace metering service unavailable"
-    },
-    "description": {
-      "package": "pkg/license/awsmetrics",
-      "file": "reporter.tti.go"
-    }
-  },
-  "error:pkg/license:component_address_not_licensed": {
-    "translations": {
-      "en": "component address `{address}` is not included in this license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "context.tti.go"
-    }
-  },
-  "error:pkg/license:component_not_licensed": {
-    "translations": {
-      "en": "the `{component}` component is not included in this license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "context.tti.go"
-    }
-  },
-  "error:pkg/license:dev_addr_prefix_not_licensed": {
-    "translations": {
-      "en": "DevAddr prefix `{prefix}` is not included in this license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "context.tti.go"
-    }
-  },
-  "error:pkg/license:invalid_license": {
-    "translations": {
-      "en": "invalid license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:invalid_license_signature": {
-    "translations": {
-      "en": "invalid license signature"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "verifier.tti.go"
-    }
-  },
-  "error:pkg/license:join_eui_prefix_not_licensed": {
-    "translations": {
-      "en": "JoinEUI prefix `{prefix}` is not included in this license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "context.tti.go"
-    }
-  },
-  "error:pkg/license:license_expired": {
-    "translations": {
-      "en": "the license is expired"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:license_not_renewed": {
-    "translations": {
-      "en": "the license was not renewed by the metering service"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:license_not_valid_yet": {
-    "translations": {
-      "en": "the license is not valid yet"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:limited_functionality": {
-    "translations": {
-      "en": "limited functionality due to license expiry"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:missing_license": {
-    "translations": {
-      "en": "missing license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "verifier.tti.go"
-    }
-  },
-  "error:pkg/license:multi_tenancy_not_licensed": {
-    "translations": {
-      "en": "multi-tenancy is not included in this license"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "context.tti.go"
-    }
-  },
-  "error:pkg/license:no_valid_license_signature": {
-    "translations": {
-      "en": "no valid license signature"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "verifier.tti.go"
-    }
-  },
-  "error:pkg/license:unknown_license_key_type": {
-    "translations": {
-      "en": "unknown license key type"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:version_too_high": {
-    "translations": {
-      "en": "the current version number is too high"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
-    }
-  },
-  "error:pkg/license:version_too_low": {
-    "translations": {
-      "en": "the current version number is too low"
-    },
-    "description": {
-      "package": "pkg/license",
-      "file": "util.tti.go"
     }
   },
   "error:pkg/messageprocessors/cayennelpp:channel": {
@@ -5892,15 +5397,6 @@
     "description": {
       "package": "pkg/networkserver/redis",
       "file": "application_uplink_queue.go"
-    }
-  },
-  "error:pkg/networkserver/redis:not_found": {
-    "translations": {
-      "en": "not found"
-    },
-    "description": {
-      "package": "pkg/networkserver/redis",
-      "file": "registry.go"
     }
   },
   "error:pkg/networkserver/redis:read_only_field": {
@@ -6198,15 +5694,6 @@
     "description": {
       "package": "pkg/networkserver",
       "file": "errors.go"
-    }
-  },
-  "error:pkg/networkserver:no_tenant": {
-    "translations": {
-      "en": "no tenant present in context"
-    },
-    "description": {
-      "package": "pkg/networkserver",
-      "file": "errors.tti.go"
     }
   },
   "error:pkg/networkserver:outdated_data": {
@@ -6929,159 +6416,6 @@
       "file": "javascript.go"
     }
   },
-  "error:pkg/tenant/middleware:missing_tenant_id": {
-    "translations": {
-      "en": "missing tenant ID"
-    },
-    "description": {
-      "package": "pkg/tenant/middleware",
-      "file": "middleware.tti.go"
-    }
-  },
-  "error:pkg/tenant/middleware:tenant_not_active": {
-    "translations": {
-      "en": "tenant is not active"
-    },
-    "description": {
-      "package": "pkg/tenant/middleware",
-      "file": "middleware.tti.go"
-    }
-  },
-  "error:pkg/tenant:no_config": {
-    "translations": {
-      "en": "no configuration"
-    },
-    "description": {
-      "package": "pkg/tenant",
-      "file": "config.tti.go"
-    }
-  },
-  "error:pkg/tenant:no_fetcher": {
-    "translations": {
-      "en": "no fetcher"
-    },
-    "description": {
-      "package": "pkg/tenant",
-      "file": "config.tti.go"
-    }
-  },
-  "error:pkg/tenant:no_tenant_id": {
-    "translations": {
-      "en": "no tenant ID"
-    },
-    "description": {
-      "package": "pkg/tenant",
-      "file": "config.tti.go"
-    }
-  },
-  "error:pkg/tenant:tenant_not_found": {
-    "translations": {
-      "en": "tenant `{tenant_id}` not found"
-    },
-    "description": {
-      "package": "pkg/tenant",
-      "file": "fetcher.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:customer_id_mismatch": {
-    "translations": {
-      "en": "tenant is owned by another customer"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "tenants.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:no_api_key": {
-    "translations": {
-      "en": "no API key provided"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:no_endpoint_secret_key": {
-    "translations": {
-      "en": "no endpoint secret key provided"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:no_managed_plan": {
-    "translations": {
-      "en": "no managed plan in the subscription"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "tenants.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:no_plan_ids": {
-    "translations": {
-      "en": "no plan IDs provided"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:no_tenant_id": {
-    "translations": {
-      "en": "no tenant ID set"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "tenants.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:tenant_not_managed": {
-    "translations": {
-      "en": "tenant is not managed by Stripe"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "tenants.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver/stripe:unknown_tenant_state": {
-    "translations": {
-      "en": "tenant state `{state}` is unknown"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver/stripe",
-      "file": "stripe.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver:invalid_reporter_address_regexp": {
-    "translations": {
-      "en": "invalid reporter address regular expression"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver",
-      "file": "config.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver:peer_address_not_allowed": {
-    "translations": {
-      "en": "peer address `{peer_address}` is not allowed"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver",
-      "file": "access.tti.go"
-    }
-  },
-  "error:pkg/tenantbillingserver:stripe_disabled": {
-    "translations": {
-      "en": "the Stripe billing backend is disabled"
-    },
-    "description": {
-      "package": "pkg/tenantbillingserver",
-      "file": "reporting.tti.go"
-    }
-  },
   "error:pkg/toa:bandwidth": {
     "translations": {
       "en": "invalid bandwidth"
@@ -7352,49 +6686,13 @@
       "file": "types.go"
     }
   },
-  "error:pkg/unique:empty": {
-    "translations": {
-      "en": "empty"
-    },
-    "description": {
-      "package": "pkg/unique",
-      "file": "unique.tti.go"
-    }
-  },
-  "error:pkg/unique:ends_with_a_dot": {
-    "translations": {
-      "en": "ends with a dot"
-    },
-    "description": {
-      "package": "pkg/unique",
-      "file": "unique.tti.go"
-    }
-  },
   "error:pkg/unique:format": {
     "translations": {
       "en": "invalid format in value `{value}`"
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.tti.go"
-    }
-  },
-  "error:pkg/unique:missing_tenant_id": {
-    "translations": {
-      "en": "missing tenant ID"
-    },
-    "description": {
-      "package": "pkg/unique",
-      "file": "unique.tti.go"
-    }
-  },
-  "error:pkg/unique:starts_with_a_dot": {
-    "translations": {
-      "en": "starts with a dot"
-    },
-    "description": {
-      "package": "pkg/unique",
-      "file": "unique.tti.go"
+      "file": "unique.go"
     }
   },
   "error:pkg/unique:unique_identifier": {
@@ -7403,7 +6701,7 @@
     },
     "description": {
       "package": "pkg/unique",
-      "file": "unique.tti.go"
+      "file": "unique.go"
     }
   },
   "error:pkg/util/datarate:data_rate": {
@@ -7980,33 +7278,6 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "client_registry.go"
-    }
-  },
-  "event:dcs.end_device.claim.abort": {
-    "translations": {
-      "en": "claim end device abort"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "observability.tti.go"
-    }
-  },
-  "event:dcs.end_device.claim.fail": {
-    "translations": {
-      "en": "claim end device fail"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "observability.tti.go"
-    }
-  },
-  "event:dcs.end_device.claim.success": {
-    "translations": {
-      "en": "claim end device successful"
-    },
-    "description": {
-      "package": "pkg/deviceclaimingserver",
-      "file": "observability.tti.go"
     }
   },
   "event:end_device.create": {
