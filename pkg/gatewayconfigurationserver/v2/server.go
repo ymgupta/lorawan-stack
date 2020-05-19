@@ -18,7 +18,6 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"
 	licensemiddleware "go.thethings.network/lorawan-stack/v3/pkg/license/middleware"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
@@ -81,18 +80,26 @@ func WithTheThingsGatewayConfig(config TheThingsGatewayConfig) Option {
 
 // RegisterRoutes implements the web.Registerer interface.
 func (s *Server) RegisterRoutes(server *web.Server) {
-	router := server.Prefix("/api/v2/").Subrouter()
-	router.Use(
-		mux.MiddlewareFunc(webmiddleware.Namespace("gatewayconfigurationserver/v2")),
-		mux.MiddlewareFunc(licensemiddleware.Middleware),
-		// NOTE: There is no tenant middleware as The Things Network Stack V2 is single-tenant.
-		rewriteAuthorization,
-		mux.MiddlewareFunc(webmiddleware.Metadata("Authorization")),
-		validateAndFillIDsMultiTenant(s.component.GetBaseConfig(s.component.Context()).Tenancy),
-	)
+	router := server.APIRouter()
 
-	router.HandleFunc("/gateways/{gateway_id_or_uid}", s.handleGetGateway).Methods(http.MethodGet)
-	router.HandleFunc("/frequency-plans/{frequency_plan_id}", s.handleGetFrequencyPlan).Methods(http.MethodGet)
+	middleware := []webmiddleware.MiddlewareFunc{
+		webmiddleware.Namespace("gatewayconfigurationserver/v2"),
+		// NOTE: There is no tenant middleware as The Things Network Stack V2 is single-tenant.
+		licensemiddleware.Middleware,
+		rewriteAuthorization,
+		webmiddleware.Metadata("Authorization"),
+	}
+	validateAndFillIDs := validateAndFillIDsMultiTenant(s.component.GetBaseConfig(s.component.Context()).Tenancy)
+
+	router.Handle(
+		"/api/v2/gateways/{gateway_id_or_uid}",
+		webmiddleware.Chain(append(middleware, validateAndFillIDs), http.HandlerFunc(s.handleGetGateway)),
+	).Methods(http.MethodGet)
+
+	router.Handle(
+		"/api/v2/frequency-plans/{frequency_plan_id}",
+		webmiddleware.Chain(middleware, http.HandlerFunc(s.handleGetFrequencyPlan)),
+	).Methods(http.MethodGet)
 }
 
 // New returns a new v2 GCS on top of the given gateway registry.

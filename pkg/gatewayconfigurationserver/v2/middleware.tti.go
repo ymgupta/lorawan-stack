@@ -11,12 +11,13 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 	"go.thethings.network/lorawan-stack/v3/pkg/unique"
 	"go.thethings.network/lorawan-stack/v3/pkg/webhandlers"
+	"go.thethings.network/lorawan-stack/v3/pkg/webmiddleware"
 )
 
 // validateAndFillIDsMultiTenant validates and fills the gateway ID in a tenant-aware manner.
 // Since the GCS V2 endpoint is not using tenant middleware, the tenant is taken from the gateway UID if the environment
 // is multi-tenant. Otherwise, the default tenant ID is used.
-func validateAndFillIDsMultiTenant(config tenant.Config) mux.MiddlewareFunc {
+func validateAndFillIDsMultiTenant(config tenant.Config) webmiddleware.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
