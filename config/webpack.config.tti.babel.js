@@ -9,6 +9,8 @@ import ttnConfig from './webpack.config.babel'
 
 const { CONTEXT = '.' } = process.env
 
+const WEBPACK_DEV_SERVER_ENABLE_MULTI_TENANCY =
+  process.env.WEBPACK_DEV_SERVER_ENABLE_MULTI_TENANCY === 'true'
 const WEBPACK_DEV_SERVER_USE_TLS = process.env.WEBPACK_DEV_SERVER_USE_TLS === 'true'
 
 const context = path.resolve(CONTEXT)
@@ -27,10 +29,24 @@ const config = merge(ttnConfig, {
   },
 })
 
-config.devServer.proxy.push({
-  context: ['/claim'],
-  target: WEBPACK_DEV_SERVER_USE_TLS ? 'https://localhost:8885' : 'http://localhost:1885',
-  changeOrigin: true,
-})
+// Add claim app to proxies.
+config.devServer.proxy[0].context.push('/claim')
+
+if (WEBPACK_DEV_SERVER_ENABLE_MULTI_TENANCY) {
+  // Use default proxy only for api route.
+  config.devServer.proxy[0].context = '/api'
+
+  // Add new proxy using default tenant URL.
+  config.devServer.disableHostCheck = true
+  config.devServer.headers = { 'Access-Control-Allow-Origin': '*' }
+  config.devServer.proxy.push({
+    context: ['/console', '/oauth', '/claim'],
+    target: WEBPACK_DEV_SERVER_USE_TLS
+      ? 'https://default.localhost:8885'
+      : 'http://default.localhost:1885',
+    changeOrigin: true,
+    secure: false,
+  })
+}
 
 export default config
