@@ -280,19 +280,29 @@ TTN_LW_DCS_UI_DCS_BASE_URL="http://localhost:8080/api/v3"
 
 #### Optional Configuration
 
-Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
+##### Disable [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/)
 
 ```bash
 WEBPACK_DEV_SERVER_DISABLE_HMR="true"
 ```
 
-Enable TLS in `webpack-dev-server`, using the key and certificate set via `TTN_LW_TLS_KEY` and `TTN_LW_TLS_CERTIFICATE` environment variables. Useful when developing functionalities that rely on TLS.
+##### Enable TLS in `webpack-dev-server`
 
 ```bash
 WEBPACK_DEV_SERVER_USE_TLS="true"
 ```
-Note: To use this option, The Things Stack for LoRaWAN must be properly setup for TLS. You can obtain more information about this in the **Getting Started** section of the The Things Stack for LoRaWAN documentation.
+This option uses the key and certificate set via `TTN_LW_TLS_KEY` and `TTN_LW_TLS_CERTIFICATE` environment variables. Useful when developing functionalities that rely on TLS.
 
+> Note: To use this option, The Things Stack for LoRaWAN must be properly setup for TLS. You can obtain more information about this in the **Getting Started** section of the The Things Stack for LoRaWAN documentation.
+
+##### Enable multi tenancy support in `webpack-dev-server`
+
+```bash
+WEBPACK_DEV_SERVER_ENABLE_MULTI_TENANCY="true"
+```
+
+> Note: This will only work for the default tenant via `http://default.localhost:8080`. Make sure to add this host to the host file of your system, pointing it to `127.0.0.1`.
+ 
 ## Code Style
 
 ### Code Formatting
