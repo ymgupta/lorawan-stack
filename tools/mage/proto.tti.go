@@ -48,10 +48,10 @@ func (p TTIProto) Go(context.Context) error {
 	if err != nil {
 		return xerrors.Errorf("failed to construct absolute path to pkg/ttipb: %w", err)
 	}
-	if err := execGo("run", "golang.org/x/tools/cmd/goimports", "-w", ttipb); err != nil {
+	if err := runGoTool("golang.org/x/tools/cmd/goimports", "-w", ttipb); err != nil {
 		return xerrors.Errorf("failed to run goimports on generated code: %w", err)
 	}
-	if err := execGo("run", "github.com/mdempsky/unconvert", "-apply", ttipb); err != nil {
+	if err := runUnconvert(ttipb); err != nil {
 		return xerrors.Errorf("failed to run unconvert on generated code: %w", err)
 	}
 	return sh.RunV("gofmt", "-w", "-s", ttipb)
