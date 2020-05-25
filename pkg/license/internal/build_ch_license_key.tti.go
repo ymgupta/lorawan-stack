@@ -18,10 +18,7 @@ import (
 
 var encoding = base64.StdEncoding
 
-var (
-	cluster = pflag.String("cluster", "eu1", "Cluster ID")
-	billing = pflag.Bool("billing", false, "Integrate with billing")
-)
+var cluster = pflag.String("cluster", "eu1", "Cluster ID")
 
 func main() {
 	pflag.Parse()
@@ -34,7 +31,7 @@ func main() {
 
 	license := ttipb.License{
 		LicenseIdentifiers: ttipb.LicenseIdentifiers{
-			LicenseID: fmt.Sprintf("tti-production-%s", *cluster),
+			LicenseID: fmt.Sprintf("tti-ch-%s", *cluster),
 		},
 		LicenseIssuerIdentifiers: ttipb.LicenseIssuerIdentifiers{LicenseIssuerID: "tti"},
 		CreatedAt:                now,
@@ -55,14 +52,6 @@ func main() {
 		MaxGateways:      nil, // unrestricted
 		MaxOrganizations: nil, // unrestricted
 		MaxUsers:         nil, // unrestricted
-	}
-
-	if *billing {
-		license.Metering = &ttipb.MeteringConfiguration{
-			Metering: &ttipb.MeteringConfiguration_TenantBillingServer_{
-				TenantBillingServer: &ttipb.MeteringConfiguration_TenantBillingServer{},
-			},
-		}
 	}
 
 	licenseKey, err := license.BuildLicenseKey()
