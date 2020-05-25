@@ -101,14 +101,11 @@ func ErrorMiddleware(extraRenderers map[string]ErrorRenderer) echo.MiddlewareFun
 			if statusCode >= 500 {
 				errEvent := sentryerrors.NewEvent(err)
 				errEvent.Transaction = c.Path()
-				errEvent.Request = errEvent.Request.FromHTTPRequest(c.Request())
-
+				errEvent.Request = sentry.NewRequest(c.Request())
 				// TTES Tags.
 				if tenantID := tenant.FromContext(c.Request().Context()); !tenantID.IsZero() {
 					errEvent.Tags["tenant-id"] = tenantID.TenantID
 				}
-
-				sentry.CaptureEvent(errEvent)
 			}
 			if c.Response().Committed {
 				return err
