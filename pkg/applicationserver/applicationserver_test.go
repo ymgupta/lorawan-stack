@@ -481,6 +481,9 @@ hardware_versions:
 						LocationSolved: &ttnpb.ApplicationPubSub_Message{
 							Topic: "up.location.solved",
 						},
+						ServiceData: &ttnpb.ApplicationPubSub_Message{
+							Topic: "up.service.data",
+						},
 					},
 					FieldMask: pbtypes.FieldMask{
 						Paths: []string{
@@ -494,6 +497,7 @@ hardware_versions:
 							"downlink_replace",
 							"format",
 							"provider",
+							"service_data",
 							"join_accept",
 							"location_solved",
 							"uplink_message",
@@ -617,6 +621,9 @@ hardware_versions:
 						LocationSolved: &ttnpb.ApplicationPubSub_Message{
 							Topic: "up/location/solved",
 						},
+						ServiceData: &ttnpb.ApplicationPubSub_Message{
+							Topic: "up/service/data",
+						},
 					},
 					FieldMask: pbtypes.FieldMask{
 						Paths: []string{
@@ -630,6 +637,7 @@ hardware_versions:
 							"downlink_replace",
 							"format",
 							"provider",
+							"service_data",
 							"join_accept",
 							"location_solved",
 							"uplink_message",
@@ -738,12 +746,14 @@ hardware_versions:
 						DownlinkSent:                  &ttnpb.ApplicationWebhook_Message{Path: ""},
 						DownlinkFailed:                &ttnpb.ApplicationWebhook_Message{Path: ""},
 						LocationSolved:                &ttnpb.ApplicationWebhook_Message{Path: ""},
+						ServiceData:                   &ttnpb.ApplicationWebhook_Message{Path: ""},
 					},
 					FieldMask: pbtypes.FieldMask{
 						Paths: []string{
 							"base_url",
 							"format",
 							"uplink_message",
+							"service_data",
 							"join_accept",
 							"downlink_ack",
 							"downlink_nack",
@@ -1059,7 +1069,7 @@ hardware_versions:
 										KEKLabel:     "test",
 									},
 								},
-								LastAFCntDown: 2,
+								LastAFCntDown: 0,
 								StartedAt:     dev.Session.StartedAt,
 							})
 							a.So(dev.PendingSession, should.Resemble, &ttnpb.Session{
@@ -1071,20 +1081,20 @@ hardware_versions:
 										KEKLabel:     "test",
 									},
 								},
-								LastAFCntDown: 0,
+								LastAFCntDown: 2,
 								StartedAt:     dev.PendingSession.StartedAt,
 							})
 							a.So(queue, should.Resemble, []*ttnpb.ApplicationDownlink{
 								{
 									SessionKeyID: []byte{0x22},
 									FPort:        11,
-									FCnt:         1,
+									FCnt:         11,
 									FRMPayload:   []byte{0x1, 0x1, 0x1, 0x1},
 								},
 								{
 									SessionKeyID: []byte{0x22},
 									FPort:        22,
-									FCnt:         2,
+									FCnt:         22,
 									FRMPayload:   []byte{0x2, 0x2, 0x2, 0x2},
 								},
 							})
@@ -1334,6 +1344,20 @@ hardware_versions:
 										KEKLabel:     "test",
 									},
 									PendingSession: true,
+									InvalidatedDownlinks: []*ttnpb.ApplicationDownlink{
+										{
+											SessionKeyID: []byte{0x33},
+											FPort:        11,
+											FCnt:         2,
+											FRMPayload:   []byte{0x91, 0xfd, 0x90, 0xf6},
+										},
+										{
+											SessionKeyID: []byte{0x33},
+											FPort:        22,
+											FCnt:         3,
+											FRMPayload:   []byte{0x2f, 0x3f, 0x31, 0x2c},
+										},
+									},
 								},
 							},
 						},
@@ -1374,7 +1398,7 @@ hardware_versions:
 										KEKLabel:     "test",
 									},
 								},
-								LastAFCntDown: 0,
+								LastAFCntDown: 2,
 								StartedAt:     dev.PendingSession.StartedAt,
 							})
 							a.So(queue, should.Resemble, []*ttnpb.ApplicationDownlink{

@@ -1745,6 +1745,15 @@
       "file": "data.go"
     }
   },
+  "error:pkg/applicationserver/io/packages/loradms/v1:no_association": {
+    "translations": {
+      "en": "no association available"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1",
+      "file": "package.go"
+    }
+  },
   "error:pkg/applicationserver/io/packages/loradms/v1:uplink_request_failed": {
     "translations": {
       "en": "uplink request failed"
@@ -2234,6 +2243,15 @@
   "error:pkg/applicationserver:payload_crypto_disabled": {
     "translations": {
       "en": "payload crypto is disabled"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "applicationserver.go"
+    }
+  },
+  "error:pkg/applicationserver:unknown_session": {
+    "translations": {
+      "en": "unknown session"
     },
     "description": {
       "package": "pkg/applicationserver",
@@ -3381,6 +3399,15 @@
     "description": {
       "package": "pkg/errors",
       "file": "validation.go"
+    }
+  },
+  "error:pkg/events/grpc:no_identifiers": {
+    "translations": {
+      "en": "no identifiers"
+    },
+    "description": {
+      "package": "pkg/events/grpc",
+      "file": "grpc.go"
     }
   },
   "error:pkg/fetch:fetch_file": {
@@ -8016,24 +8043,6 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "end_device_registry.go"
-    }
-  },
-  "event:events.stream.start": {
-    "translations": {
-      "en": "start event stream"
-    },
-    "description": {
-      "package": "pkg/events/grpc",
-      "file": "grpc.go"
-    }
-  },
-  "event:events.stream.stop": {
-    "translations": {
-      "en": "stop event stream"
-    },
-    "description": {
-      "package": "pkg/events/grpc",
-      "file": "grpc.go"
     }
   },
   "event:gateway.api-key.create": {
