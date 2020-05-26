@@ -59,8 +59,9 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 	}
 
 	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
-		AuthType:  tenantAdminAuthType,
-		AuthValue: conf.TenantAdminKey,
+		AuthType:      tenantAdminAuthType,
+		AuthValue:     conf.TenantAdminKey,
+		AllowInsecure: c.AllowInsecureForCredentials(),
 	})
 
 	if conf.Stripe.Enable {
