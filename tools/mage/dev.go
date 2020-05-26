@@ -46,7 +46,6 @@ func (Dev) Misspell() error {
 		".editorconfig",
 		".gitignore",
 		".goreleaser.yml",
-		".mage",
 		".make",
 		".revive.toml",
 		".travis.yml",
@@ -59,13 +58,12 @@ func (Dev) Misspell() error {
 		"docker-compose.yml",
 		"Dockerfile",
 		"lorawan-stack.go",
-		"magefile.go",
 		"Makefile",
+		"tools",
 		"pkg",
 		"README.md",
 		"sdk",
 		"SECURITY.md",
-		"tools.go",
 	)
 }
 
