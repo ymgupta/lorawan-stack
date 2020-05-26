@@ -44,8 +44,9 @@ func (tbs *TenantBillingServer) collectAndReport(ctx context.Context) error {
 		logger   = log.FromContext(ctx)
 		registry = ttipb.NewTenantRegistryClient(cc)
 		creds    = grpc.PerRPCCredentials(rpcmetadata.MD{
-			AuthType:  tenantAdminAuthType,
-			AuthValue: tbs.config.TenantAdminKey,
+			AuthType:      tenantAdminAuthType,
+			AuthValue:     tbs.config.TenantAdminKey,
+			AllowInsecure: tbs.AllowInsecureForCredentials(),
 		})
 	)
 	for {
