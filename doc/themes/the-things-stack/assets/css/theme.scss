@@ -248,4 +248,29 @@ details + blockquote {
   }
 }
 
+.hero-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-container a {
+  display: block;
+  text-align: center;
+}
+
+.hero-subcontainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  border: 2px dashed $blue;
+  border-radius: 2rem;
+}
+
+.hero-subcontainer > a > img {
+  max-width: 50%;
+}
+
 @import "highlight.scss";
