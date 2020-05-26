@@ -1124,6 +1124,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_event_server": {
+    "translations": {
+      "en": "could not initialize Event Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.tti.go"
+    }
+  },
   "error:cmd/internal/shared:initialize_gateway_configuration_server": {
     "translations": {
       "en": "could not initialize Gateway Configuration Server"
@@ -3471,6 +3480,42 @@
     "description": {
       "package": "pkg/events/grpc",
       "file": "grpc.go"
+    }
+  },
+  "error:pkg/eventserver/redis:no_payload": {
+    "translations": {
+      "en": "no payload"
+    },
+    "description": {
+      "package": "pkg/eventserver/redis",
+      "file": "event_queue.tti.go"
+    }
+  },
+  "error:pkg/eventserver/redis:value_type": {
+    "translations": {
+      "en": "invalid value type for key `{key}`"
+    },
+    "description": {
+      "package": "pkg/eventserver/redis",
+      "file": "event_queue.tti.go"
+    }
+  },
+  "error:pkg/eventserver:configuration": {
+    "translations": {
+      "en": "invalid configuration"
+    },
+    "description": {
+      "package": "pkg/eventserver",
+      "file": "eventserver.tti.go"
+    }
+  },
+  "error:pkg/eventserver:no_identifiers": {
+    "translations": {
+      "en": "no identifiers"
+    },
+    "description": {
+      "package": "pkg/eventserver",
+      "file": "grpc_events.tti.go"
     }
   },
   "error:pkg/fetch:fetch_file": {
