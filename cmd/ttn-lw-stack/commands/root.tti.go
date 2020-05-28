@@ -7,8 +7,10 @@ import (
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
+	"github.com/prometheus/client_golang/prometheus"
 	pkglicense "go.thethings.network/lorawan-stack/v3/pkg/license"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/metrics"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
@@ -53,5 +55,17 @@ func initializeLicense(ctx context.Context) (context.Context, error) {
 		logger.WithFields(license).Warn("No license configured, running unlicensed mode")
 	}
 	ctx = pkglicense.NewContextWithLicense(ctx, *license)
+	labels := prometheus.Labels{"metering_interval": "disabled"}
+	if license.Metering != nil {
+		labels["metering_interval"] = license.Metering.Interval.String()
+	}
+	metrics.MustRegister(prometheus.NewGaugeFunc(prometheus.GaugeOpts{
+		Namespace:   metrics.Namespace,
+		Name:        "license_expiry_seconds",
+		Help:        "Expiry date of the license.",
+		ConstLabels: labels,
+	}, func() float64 {
+		return float64(pkglicense.FromContext(ctx).ValidUntil.UnixNano()) / 1e9
+	}))
 	return ctx, nil
 }
