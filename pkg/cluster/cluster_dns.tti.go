@@ -172,7 +172,7 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 			for _, record := range records {
 				name := record.Target[:strings.Index(record.Target, ".")]
 				address := fmt.Sprintf("%s:%d", strings.TrimSuffix(record.Target, "."), record.Port)
-				peers[address] = &peer{
+				peers[name] = &peer{
 					name:   name,
 					roles:  roles,
 					target: address,
