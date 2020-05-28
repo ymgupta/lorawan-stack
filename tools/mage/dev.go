@@ -46,7 +46,6 @@ func (Dev) Misspell() error {
 		".editorconfig",
 		".gitignore",
 		".goreleaser.yml",
-		".make",
 		".revive.toml",
 		".travis.yml",
 		"api",
@@ -64,6 +63,7 @@ func (Dev) Misspell() error {
 		"README.md",
 		"sdk",
 		"SECURITY.md",
+		"tools",
 	)
 }
 
