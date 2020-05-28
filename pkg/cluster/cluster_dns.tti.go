@@ -172,7 +172,7 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 			for _, record := range records {
 				name := record.Target[:strings.Index(record.Target, ".")]
 				address := fmt.Sprintf("%s:%d", strings.TrimSuffix(record.Target, "."), record.Port)
-				peers[address] = &peer{
+				peers[name] = &peer{
 					name:   name,
 					roles:  roles,
 					target: address,
@@ -337,6 +337,7 @@ func idKey(ctx context.Context, ids ttnpb.Identifiers) string {
 func (c *dnsCluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) (Peer, error) {
 	role = overridePeerRole(ctx, role, ids)
 	roleString := strings.Title(strings.Replace(role.String(), "_", " ", -1))
+	logger := log.FromContext(ctx).WithField("cluster_role", roleString)
 
 	c.peerMu.RLock()
 	defer c.peerMu.RUnlock()
@@ -344,8 +345,10 @@ func (c *dnsCluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids tt
 	matches := c.byRole[role]
 	switch len(matches) {
 	case 0:
+		logger.Debug("No peer with requested role")
 		return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
 	case 1:
+		logger.Debug("Select only peer with requested role")
 		return matches[0], nil
 	}
 
@@ -361,22 +364,32 @@ func (c *dnsCluster) GetPeer(ctx context.Context, role ttnpb.ClusterRole, ids tt
 		}
 		peerID, err := c.claimRegistry.GetPeerID(ctx, ids, candidateIDs...)
 		if err != nil {
+			logger.WithField("candidate_ids", candidateIDs).Debug("None of the peer candidates has claim on requested gateway")
 			return nil, err
 		}
-		return c.peers[peerID], nil
+		peer, ok := c.peers[peerID]
+		if !ok || peer == nil {
+			logger.WithField("peer_id", peerID).Debug("Peer no longer available")
+			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
+		}
+		return peer, nil
 	default:
 		hashMap := c.consistentHashes[role]
 		if hashMap == nil {
+			logger.Debug("No consistent hash map for peers with requested role")
 			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
 		}
 		key := idKey(ctx, ids)
+		logger.WithField("hash_key", key).Debug("Select peer using consistent hash")
 		peerID := hashMap.Get(key)
 		if peerID == "" {
+			logger.Debug("Empty consistent hash map for peers with requested role")
 			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
 		}
-		log.FromContext(ctx).Debugf("Hashed %s to %s", key, peerID)
-		peer := c.peers[peerID]
-		if peer == nil {
+		logger = logger.WithField("peer_id", peerID)
+		peer, ok := c.peers[peerID]
+		if !ok || peer == nil {
+			logger.WithField("peer_id", peerID).Debug("Peer no longer available")
 			return nil, errPeerUnavailable.WithAttributes("cluster_role", roleString)
 		}
 		return peer, nil
