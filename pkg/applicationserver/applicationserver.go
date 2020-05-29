@@ -33,8 +33,9 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/packages"
 	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/packages/loradms/v1" // The LoRa Cloud Device Management v1 package implementation
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub"
-	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/mqtt" // The MQTT integration provider
-	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/nats" // The NATS integration provider
+	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/awsiot" // The AWS IoT integration provider
+	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/mqtt"   // The MQTT integration provider
+	_ "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/nats"   // The NATS integration provider
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/web"
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"

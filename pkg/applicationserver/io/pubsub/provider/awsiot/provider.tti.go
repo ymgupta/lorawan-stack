@@ -1,6 +1,7 @@
 // Copyright © 2020 The Things Industries B.V.
 
-package mqtt
+// Package awsiot implements an AWS IoT pub/sub provider.
+package awsiot
 
 import (
 	"context"
@@ -15,10 +16,19 @@ import (
 	sigv4 "github.com/aws/aws-sdk-go/aws/signer/v4"
 	"github.com/aws/aws-sdk-go/service/iot"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider"
+	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/mqtt"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
-func awsIotMQTTProvider(ctx context.Context, settings *ttnpb.ApplicationPubSub_AWSIoT) (*ttnpb.ApplicationPubSub_MQTT, error) {
+type impl struct {
+}
+
+// OpenConnection implements provider.Provider using the MQTT driver.
+func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *provider.Connection, err error) {
+	settings, ok := target.GetProvider().(*ttnpb.ApplicationPubSub_AWSIoT)
+	if !ok {
+		panic("wrong provider type provided to OpenConnection")
+	}
 	awsConfig := aws.NewConfig()
 	if settings.AWSIoT.Region != "" {
 		awsConfig = awsConfig.WithRegion(settings.AWSIoT.Region)
@@ -71,13 +81,13 @@ func awsIotMQTTProvider(ctx context.Context, settings *ttnpb.ApplicationPubSub_A
 			headers[key] = value
 		}
 	}
-	mqttProvider := &ttnpb.ApplicationPubSub_MQTT{
+	mqttSettings := &ttnpb.ApplicationPubSub_MQTT{
 		MQTT: &ttnpb.ApplicationPubSub_MQTTProvider{
 			ServerURL: brokerAddress,
 			Headers:   headers,
 		},
 	}
-	return mqttProvider, nil
+	return mqtt.OpenConnection(ctx, mqttSettings, target)
 }
 
 func init() {

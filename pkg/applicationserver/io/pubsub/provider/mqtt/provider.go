@@ -17,7 +17,6 @@ package mqtt
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"time"
@@ -49,17 +48,9 @@ var errConnectFailed = errors.Define("connect_failed", "connection to MQTT serve
 
 // OpenConnection implements provider.Provider using the MQTT driver.
 func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *provider.Connection, err error) {
-	var settings *ttnpb.ApplicationPubSub_MQTT
-	switch s := target.GetProvider().(type) {
-	case *ttnpb.ApplicationPubSub_MQTT:
-		settings = s
-	case *ttnpb.ApplicationPubSub_AWSIoT:
-		settings, err = awsIotMQTTProvider(ctx, s)
-	default:
-		panic(fmt.Sprintf("wrong provider type provided to OpenConnection: %T", s))
-	}
-	if err != nil {
-		return nil, err
+	settings, ok := target.GetProvider().(*ttnpb.ApplicationPubSub_MQTT)
+	if !ok {
+		panic("wrong provider type provided to OpenConnection")
 	}
 	return OpenConnection(ctx, settings, target)
 }
