@@ -45,18 +45,19 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 		return nil, err
 	}
 	if settings.AWSIoT.AssumeRole != nil {
-		awsConfig = awsConfig.WithCredentials(stscreds.NewCredentials(
-			ses, settings.AWSIoT.AssumeRole.ARN,
-			func(p *stscreds.AssumeRoleProvider) {
-				if settings.AWSIoT.AssumeRole.SessionDuration != nil {
-					p.Duration = *settings.AWSIoT.AssumeRole.SessionDuration
-				}
-				if settings.AWSIoT.AssumeRole.ExternalID != "" {
-					p.ExternalID = aws.String(settings.AWSIoT.AssumeRole.ExternalID)
-				}
-			},
-		))
-		ses.Config.MergeIn(awsConfig)
+		ses.Config.MergeIn(&aws.Config{
+			Credentials: stscreds.NewCredentials(
+				ses, settings.AWSIoT.AssumeRole.ARN,
+				func(p *stscreds.AssumeRoleProvider) {
+					if d := settings.AWSIoT.AssumeRole.SessionDuration; d != nil {
+						p.Duration = *d
+					}
+					if id := settings.AWSIoT.AssumeRole.ExternalID; id != "" {
+						p.ExternalID = aws.String(id)
+					}
+				},
+			),
+		})
 	}
 	endpointAddress := settings.AWSIoT.EndpointAddress
 	if endpointAddress == "" {
@@ -87,7 +88,89 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 			Headers:   headers,
 		},
 	}
-	return mqtt.OpenConnection(ctx, mqttSettings, target)
+	topics := provider.Topics(target)
+	if defaultIntegration := settings.AWSIoT.GetDefault(); defaultIntegration != nil {
+		topics = &defaultIntegrationTopics{
+			baseTopic: fmt.Sprintf(defaultIntegrationBaseTopicFormat, defaultIntegration.StackName),
+		}
+	}
+	return mqtt.OpenConnection(ctx, mqttSettings, topics)
+}
+
+const defaultIntegrationBaseTopicFormat = "thethings/lorawan/%s"
+
+type defaultIntegrationTopics struct {
+	baseTopic string
+}
+
+func (t defaultIntegrationTopics) GetBaseTopic() string {
+	return t.baseTopic
+}
+
+func (t defaultIntegrationTopics) GetUplinkMessage() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "uplink",
+	}
+}
+
+func (t defaultIntegrationTopics) GetJoinAccept() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "join",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkAck() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/ack",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkNack() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/nack",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkSent() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/sent",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkFailed() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/failed",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkQueued() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/queued",
+	}
+}
+
+func (t defaultIntegrationTopics) GetLocationSolved() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "location/solved",
+	}
+}
+
+func (t defaultIntegrationTopics) GetServiceData() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "service/data",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkPush() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/push",
+	}
+}
+
+func (t defaultIntegrationTopics) GetDownlinkReplace() *ttnpb.ApplicationPubSub_Message {
+	return &ttnpb.ApplicationPubSub_Message{
+		Topic: "downlink/replace",
+	}
 }
 
 func init() {
