@@ -4,6 +4,7 @@ package cluster
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math/rand"
 	"net"
@@ -151,6 +152,13 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		if port != "" { // Port is already known, use A records.
 			records, err := c.resolver.LookupIPAddr(ctx, host)
 			if err != nil {
+				var dnsErr *net.DNSError
+				if errors.As(err, &dnsErr) {
+					if dnsErr.IsNotFound {
+						logger.WithField("address", address).WithError(err).Warn("DNS record not found")
+						continue
+					}
+				}
 				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
 				continue
 			}
@@ -166,6 +174,13 @@ func (c *dnsCluster) updatePeers(ctx context.Context) {
 		} else { // Port is not known, use SRV records.
 			_, records, err := c.resolver.LookupSRV(ctx, "", "", host)
 			if err != nil {
+				var dnsErr *net.DNSError
+				if errors.As(err, &dnsErr) {
+					if dnsErr.IsNotFound {
+						logger.WithField("address", address).WithError(err).Warn("DNS record not found")
+						continue
+					}
+				}
 				logger.WithField("address", address).WithError(err).Error("DNS lookup failed")
 				continue
 			}
