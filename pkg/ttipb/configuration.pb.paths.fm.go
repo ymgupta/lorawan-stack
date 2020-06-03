@@ -7,6 +7,16 @@ var ConfigurationFieldPathsNested = []string{
 	"default_cluster.is",
 	"default_cluster.is.end_device_picture",
 	"default_cluster.is.end_device_picture.disable_upload",
+	"default_cluster.is.oauth",
+	"default_cluster.is.oauth.providers",
+	"default_cluster.is.oauth.providers.oidc",
+	"default_cluster.is.oauth.providers.oidc.client_id",
+	"default_cluster.is.oauth.providers.oidc.client_secret",
+	"default_cluster.is.oauth.providers.oidc.provider_url",
+	"default_cluster.is.oauth.providers.oidc.redirect_url",
+	"default_cluster.is.oauth.providers.oidc.shared",
+	"default_cluster.is.oauth.providers.oidc.shared.allow_registrations",
+	"default_cluster.is.oauth.providers.oidc.shared.name",
 	"default_cluster.is.profile_picture",
 	"default_cluster.is.profile_picture.disable_upload",
 	"default_cluster.is.profile_picture.use_gravatar",
@@ -51,6 +61,16 @@ var Configuration_ClusterFieldPathsNested = []string{
 	"is",
 	"is.end_device_picture",
 	"is.end_device_picture.disable_upload",
+	"is.oauth",
+	"is.oauth.providers",
+	"is.oauth.providers.oidc",
+	"is.oauth.providers.oidc.client_id",
+	"is.oauth.providers.oidc.client_secret",
+	"is.oauth.providers.oidc.provider_url",
+	"is.oauth.providers.oidc.redirect_url",
+	"is.oauth.providers.oidc.shared",
+	"is.oauth.providers.oidc.shared.allow_registrations",
+	"is.oauth.providers.oidc.shared.name",
 	"is.profile_picture",
 	"is.profile_picture.disable_upload",
 	"is.profile_picture.use_gravatar",
@@ -89,6 +109,16 @@ var Configuration_ClusterFieldPathsTopLevel = []string{
 var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
 	"end_device_picture",
 	"end_device_picture.disable_upload",
+	"oauth",
+	"oauth.providers",
+	"oauth.providers.oidc",
+	"oauth.providers.oidc.client_id",
+	"oauth.providers.oidc.client_secret",
+	"oauth.providers.oidc.provider_url",
+	"oauth.providers.oidc.redirect_url",
+	"oauth.providers.oidc.shared",
+	"oauth.providers.oidc.shared.allow_registrations",
+	"oauth.providers.oidc.shared.name",
 	"profile_picture",
 	"profile_picture.disable_upload",
 	"profile_picture.use_gravatar",
@@ -115,6 +145,7 @@ var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
 
 var Configuration_Cluster_IdentityServerFieldPathsTopLevel = []string{
 	"end_device_picture",
+	"oauth",
 	"profile_picture",
 	"user_registration",
 	"user_rights",
@@ -181,6 +212,21 @@ var Configuration_Cluster_IdentityServer_UserRightsFieldPathsTopLevel = []string
 	"create_gateways",
 	"create_organizations",
 }
+var Configuration_Cluster_IdentityServer_OAuthFieldPathsNested = []string{
+	"providers",
+	"providers.oidc",
+	"providers.oidc.client_id",
+	"providers.oidc.client_secret",
+	"providers.oidc.provider_url",
+	"providers.oidc.redirect_url",
+	"providers.oidc.shared",
+	"providers.oidc.shared.allow_registrations",
+	"providers.oidc.shared.name",
+}
+
+var Configuration_Cluster_IdentityServer_OAuthFieldPathsTopLevel = []string{
+	"providers",
+}
 var Configuration_Cluster_IdentityServer_UserRegistration_InvitationFieldPathsNested = []string{
 	"required",
 	"token_ttl",
@@ -218,4 +264,44 @@ var Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirementsFi
 	"min_length",
 	"min_special",
 	"min_uppercase",
+}
+var Configuration_Cluster_IdentityServer_OAuth_AuthProvidersFieldPathsNested = []string{
+	"oidc",
+	"oidc.client_id",
+	"oidc.client_secret",
+	"oidc.provider_url",
+	"oidc.redirect_url",
+	"oidc.shared",
+	"oidc.shared.allow_registrations",
+	"oidc.shared.name",
+}
+
+var Configuration_Cluster_IdentityServer_OAuth_AuthProvidersFieldPathsTopLevel = []string{
+	"oidc",
+}
+var Configuration_Cluster_IdentityServer_OAuth_AuthProviders_SharedFieldPathsNested = []string{
+	"allow_registrations",
+	"name",
+}
+
+var Configuration_Cluster_IdentityServer_OAuth_AuthProviders_SharedFieldPathsTopLevel = []string{
+	"allow_registrations",
+	"name",
+}
+var Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnectFieldPathsNested = []string{
+	"client_id",
+	"client_secret",
+	"provider_url",
+	"redirect_url",
+	"shared",
+	"shared.allow_registrations",
+	"shared.name",
+}
+
+var Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnectFieldPathsTopLevel = []string{
+	"client_id",
+	"client_secret",
+	"provider_url",
+	"redirect_url",
+	"shared",
 }

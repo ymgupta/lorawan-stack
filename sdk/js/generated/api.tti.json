@@ -300,6 +300,16 @@
               "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "oauth",
+              "description": "",
+              "label": "",
+              "type": "OAuth",
+              "longType": "Configuration.Cluster.IdentityServer.OAuth",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -319,6 +329,140 @@
               "type": "BoolValue",
               "longType": "google.protobuf.BoolValue",
               "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "OAuth",
+          "longName": "Configuration.Cluster.IdentityServer.OAuth",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "providers",
+              "description": "",
+              "label": "",
+              "type": "AuthProviders",
+              "longType": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "AuthProviders",
+          "longName": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "oidc",
+              "description": "",
+              "label": "",
+              "type": "OpenIDConnect",
+              "longType": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "OpenIDConnect",
+          "longName": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "shared",
+              "description": "",
+              "label": "",
+              "type": "Shared",
+              "longType": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "client_id",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "client_secret",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "redirect_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "provider_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "Shared",
+          "longName": "Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "name",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "allow_registrations",
+              "description": "",
+              "label": "",
+              "type": "bool",
+              "longType": "bool",
+              "fullType": "bool",
               "ismap": false,
               "defaultValue": ""
             }
@@ -643,6 +787,103 @@
           "fields": [
             {
               "name": "branding_base_url",
+              "description": "",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        }
+      ],
+      "services": []
+    },
+    {
+      "name": "lorawan-stack/api/tti/external_user.proto",
+      "description": "",
+      "package": "tti.lorawan.v3",
+      "hasEnums": false,
+      "hasExtensions": false,
+      "hasMessages": true,
+      "hasServices": false,
+      "enums": [
+        {
+          "name": "Provider",
+          "longName": "ExternalUser.Provider",
+          "fullName": "tti.lorawan.v3.ExternalUser.Provider",
+          "description": "",
+          "values": [
+            {
+              "name": "OIDC",
+              "number": "0",
+              "description": ""
+            }
+          ]
+        }
+      ],
+      "extensions": [],
+      "messages": [
+        {
+          "name": "ExternalUser",
+          "longName": "ExternalUser",
+          "fullName": "tti.lorawan.v3.ExternalUser",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "user_ids",
+              "description": "",
+              "label": "",
+              "type": "UserIdentifiers",
+              "longType": "ttn.lorawan.v3.UserIdentifiers",
+              "fullType": "ttn.lorawan.v3.UserIdentifiers",
+              "ismap": false,
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "message.required",
+                    "value": true
+                  }
+                ]
+              }
+            },
+            {
+              "name": "provider",
+              "description": "",
+              "label": "",
+              "type": "Provider",
+              "longType": "ExternalUser.Provider",
+              "fullType": "tti.lorawan.v3.ExternalUser.Provider",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "created_at",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "updated_at",
+              "description": "",
+              "label": "",
+              "type": "Timestamp",
+              "longType": "google.protobuf.Timestamp",
+              "fullType": "google.protobuf.Timestamp",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "external_id",
               "description": "",
               "label": "",
               "type": "string",

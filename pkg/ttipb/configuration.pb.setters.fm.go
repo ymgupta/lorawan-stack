@@ -250,6 +250,31 @@ func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cl
 					dst.UserRights = nil
 				}
 			}
+		case "oauth":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_OAuth
+				if (src == nil || src.OAuth == nil) && dst.OAuth == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.OAuth
+				}
+				if dst.OAuth != nil {
+					newDst = dst.OAuth
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_OAuth{}
+					dst.OAuth = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.OAuth = src.OAuth
+				} else {
+					dst.OAuth = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -503,6 +528,42 @@ func (dst *Configuration_Cluster_IdentityServer_UserRights) SetFields(src *Confi
 	return nil
 }
 
+func (dst *Configuration_Cluster_IdentityServer_OAuth) SetFields(src *Configuration_Cluster_IdentityServer_OAuth, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "providers":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_OAuth_AuthProviders
+				if (src == nil || src.Providers == nil) && dst.Providers == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.Providers
+				}
+				if dst.Providers != nil {
+					newDst = dst.Providers
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_OAuth_AuthProviders{}
+					dst.Providers = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Providers = src.Providers
+				} else {
+					dst.Providers = nil
+				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
 func (dst *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) SetFields(src *Configuration_Cluster_IdentityServer_UserRegistration_Invitation, paths ...string) error {
 	for name, subs := range _processPaths(paths) {
 		switch name {
@@ -619,6 +680,142 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequire
 				dst.MinSpecial = src.MinSpecial
 			} else {
 				dst.MinSpecial = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) SetFields(src *Configuration_Cluster_IdentityServer_OAuth_AuthProviders, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "oidc":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect
+				if (src == nil || src.OIDC == nil) && dst.OIDC == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.OIDC
+				}
+				if dst.OIDC != nil {
+					newDst = dst.OIDC
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect{}
+					dst.OIDC = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.OIDC = src.OIDC
+				} else {
+					dst.OIDC = nil
+				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) SetFields(src *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "name":
+			if len(subs) > 0 {
+				return fmt.Errorf("'name' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.Name = src.Name
+			} else {
+				var zero string
+				dst.Name = zero
+			}
+		case "allow_registrations":
+			if len(subs) > 0 {
+				return fmt.Errorf("'allow_registrations' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.AllowRegistrations = src.AllowRegistrations
+			} else {
+				var zero bool
+				dst.AllowRegistrations = zero
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) SetFields(src *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "shared":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared
+				if src != nil {
+					newSrc = &src.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared
+				}
+				newDst = &dst.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared = src.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared
+				} else {
+					var zero Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared
+					dst.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared = zero
+				}
+			}
+		case "client_id":
+			if len(subs) > 0 {
+				return fmt.Errorf("'client_id' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ClientID = src.ClientID
+			} else {
+				var zero string
+				dst.ClientID = zero
+			}
+		case "client_secret":
+			if len(subs) > 0 {
+				return fmt.Errorf("'client_secret' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ClientSecret = src.ClientSecret
+			} else {
+				var zero string
+				dst.ClientSecret = zero
+			}
+		case "redirect_url":
+			if len(subs) > 0 {
+				return fmt.Errorf("'redirect_url' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.RedirectURL = src.RedirectURL
+			} else {
+				var zero string
+				dst.RedirectURL = zero
+			}
+		case "provider_url":
+			if len(subs) > 0 {
+				return fmt.Errorf("'provider_url' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.ProviderURL = src.ProviderURL
+			} else {
+				var zero string
+				dst.ProviderURL = zero
 			}
 
 		default:

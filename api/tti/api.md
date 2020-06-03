@@ -14,6 +14,10 @@
   - [Message `Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster)
   - [Message `Configuration.Cluster.IdentityServer`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer)
   - [Message `Configuration.Cluster.IdentityServer.EndDevicePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture)
+  - [Message `Configuration.Cluster.IdentityServer.OAuth`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth)
+  - [Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders)
+  - [Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect)
+  - [Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared)
   - [Message `Configuration.Cluster.IdentityServer.ProfilePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval)
@@ -23,6 +27,9 @@
   - [Message `Configuration.Cluster.IdentityServer.UserRights`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights)
   - [Message `Configuration.Cluster.NetworkServer`](#tti.lorawan.v3.Configuration.Cluster.NetworkServer)
   - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
+- [File `lorawan-stack/api/tti/external_user.proto`](#lorawan-stack/api/tti/external_user.proto)
+  - [Message `ExternalUser`](#tti.lorawan.v3.ExternalUser)
+  - [Enum `ExternalUser.Provider`](#tti.lorawan.v3.ExternalUser.Provider)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
   - [Message `LicenseIssuerIdentifiers`](#tti.lorawan.v3.LicenseIssuerIdentifiers)
@@ -121,12 +128,42 @@
 | `profile_picture` | [`Configuration.Cluster.IdentityServer.ProfilePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture) |  |  |
 | `end_device_picture` | [`Configuration.Cluster.IdentityServer.EndDevicePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture) |  |  |
 | `user_rights` | [`Configuration.Cluster.IdentityServer.UserRights`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights) |  |  |
+| `oauth` | [`Configuration.Cluster.IdentityServer.OAuth`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture">Message `Configuration.Cluster.IdentityServer.EndDevicePicture`</a>
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `disable_upload` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth">Message `Configuration.Cluster.IdentityServer.OAuth`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `providers` | [`Configuration.Cluster.IdentityServer.OAuth.AuthProviders`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders">Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `oidc` | [`Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect">Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `shared` | [`Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared) |  |  |
+| `client_id` | [`string`](#string) |  |  |
+| `client_secret` | [`string`](#string) |  |  |
+| `redirect_url` | [`string`](#string) |  |  |
+| `provider_url` | [`string`](#string) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared">Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `name` | [`string`](#string) |  |  |
+| `allow_registrations` | [`bool`](#bool) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture">Message `Configuration.Cluster.IdentityServer.ProfilePicture`</a>
 
@@ -195,6 +232,30 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `branding_base_url` | [`string`](#string) |  |  |
+
+## <a name="lorawan-stack/api/tti/external_user.proto">File `lorawan-stack/api/tti/external_user.proto`</a>
+
+### <a name="tti.lorawan.v3.ExternalUser">Message `ExternalUser`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `user_ids` | [`ttn.lorawan.v3.UserIdentifiers`](#ttn.lorawan.v3.UserIdentifiers) |  |  |
+| `provider` | [`ExternalUser.Provider`](#tti.lorawan.v3.ExternalUser.Provider) |  |  |
+| `created_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `updated_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `external_id` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `user_ids` | <p>`message.required`: `true`</p> |
+
+### <a name="tti.lorawan.v3.ExternalUser.Provider">Enum `ExternalUser.Provider`</a>
+
+| Name | Number | Description |
+| ---- | ------ | ----------- |
+| `OIDC` | 0 |  |
 
 ## <a name="lorawan-stack/api/tti/identifiers.proto">File `lorawan-stack/api/tti/identifiers.proto`</a>
 

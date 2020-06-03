@@ -1,0 +1,26 @@
+// Copyright © 2020 The Things Industries B.V.
+
+syntax = "proto3";
+
+package tti.lorawan.v3;
+
+import "github.com/envoyproxy/protoc-gen-validate/validate/validate.proto";
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+import "google/protobuf/timestamp.proto";
+import "lorawan-stack/api/identifiers.proto";
+
+option go_package = "go.thethings.network/lorawan-stack/v3/pkg/ttipb";
+
+message ExternalUser {
+  ttn.lorawan.v3.UserIdentifiers user_ids = 1 [(gogoproto.customname) = "UserIDs", (gogoproto.nullable) = false, (validate.rules).message.required = true];
+
+  enum Provider {
+    OIDC = 0;
+  };
+  Provider provider = 2;
+
+  google.protobuf.Timestamp created_at = 3 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+  google.protobuf.Timestamp updated_at = 4 [(gogoproto.nullable) = false, (gogoproto.stdtime) = true];
+
+  string external_id = 5 [(gogoproto.customname) = "ExternalID"];
+}

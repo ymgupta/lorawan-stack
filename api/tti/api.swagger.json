@@ -273,6 +273,38 @@
     }
   },
   "definitions": {
+    "AuthProvidersOpenIDConnect": {
+      "type": "object",
+      "properties": {
+        "shared": {
+          "$ref": "#/definitions/AuthProvidersShared"
+        },
+        "client_id": {
+          "type": "string"
+        },
+        "client_secret": {
+          "type": "string"
+        },
+        "redirect_url": {
+          "type": "string"
+        },
+        "provider_url": {
+          "type": "string"
+        }
+      }
+    },
+    "AuthProvidersShared": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "allow_registrations": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
     "BillingStripe": {
       "type": "object",
       "properties": {
@@ -304,6 +336,9 @@
         },
         "user_rights": {
           "$ref": "#/definitions/IdentityServerUserRights"
+        },
+        "oauth": {
+          "$ref": "#/definitions/IdentityServerOAuth"
         }
       }
     },
@@ -354,6 +389,14 @@
         "disable_upload": {
           "type": "boolean",
           "format": "boolean"
+        }
+      }
+    },
+    "IdentityServerOAuth": {
+      "type": "object",
+      "properties": {
+        "providers": {
+          "$ref": "#/definitions/OAuthAuthProviders"
         }
       }
     },
@@ -437,6 +480,14 @@
         },
         "totals": {
           "$ref": "#/definitions/v3TenantRegistryTotals"
+        }
+      }
+    },
+    "OAuthAuthProviders": {
+      "type": "object",
+      "properties": {
+        "oidc": {
+          "$ref": "#/definitions/AuthProvidersOpenIDConnect"
         }
       }
     },
