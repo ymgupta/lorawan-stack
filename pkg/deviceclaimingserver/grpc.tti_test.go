@@ -4,6 +4,7 @@ package deviceclaimingserver_test
 
 import (
 	"context"
+	"fmt"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -1301,7 +1302,7 @@ func TestClaim(t *testing.T) {
 					Description:              "test test",
 					NetworkServerAddress:     ctx.Value(sourceNSAddrKey).(string),
 					ApplicationServerAddress: ctx.Value(sourceASAddrKey).(string),
-					JoinServerAddress:        "joinserver:1234",
+					JoinServerAddress:        fmt.Sprintf("%s.joinserver:1234", sourceTenantIDs.TenantID),
 				}, nil
 			},
 			JsGetEndDeviceFunc: func(ctx context.Context, in *ttnpb.GetEndDeviceRequest, opts ...grpc.CallOption) (*ttnpb.EndDevice, error) {
@@ -1399,7 +1400,7 @@ func TestClaim(t *testing.T) {
 						Description:              "test test",
 						ApplicationServerAddress: ctx.Value(targetASAddrKey).(string),
 						NetworkServerAddress:     ctx.Value(targetNSAddrKey).(string),
-						JoinServerAddress:        "joinserver:1234",
+						JoinServerAddress:        fmt.Sprintf("%s.joinserver:1234", targetTenantIDs.TenantID),
 					}) {
 					return nil, errRequest.New()
 				}
@@ -1510,17 +1511,17 @@ func TestClaim(t *testing.T) {
 				return ctx
 			}
 
-			sourceMockNS, sourceNSAddr := startMockNS(ctx, rpcserver.WithContextFiller(withTestCounters))
+			sourceMockNS, sourceNSAddr := startMockNS(ctx, sourceTenantIDs, rpcserver.WithContextFiller(withTestCounters))
 			sourceMockNS.GetFunc = tc.SourceNsGetEndDeviceFunc
 			sourceMockNS.DeleteFunc = tc.SourceNsDeleteEndDeviceFunc
-			sourceMockAS, sourceASAddr := startMockAS(ctx, rpcserver.WithContextFiller(withTestCounters))
+			sourceMockAS, sourceASAddr := startMockAS(ctx, sourceTenantIDs, rpcserver.WithContextFiller(withTestCounters))
 			sourceMockAS.GetFunc = tc.SourceAsGetEndDeviceFunc
 			sourceMockAS.DeleteFunc = tc.SourceAsDeleteEndDeviceFunc
 
-			targetMockNS, targetNSAddr := startMockNS(ctx, rpcserver.WithContextFiller(withTestCounters))
+			targetMockNS, targetNSAddr := startMockNS(ctx, targetTenantIDs, rpcserver.WithContextFiller(withTestCounters))
 			targetMockNS.SetFunc = tc.TargetNsSetEndDeviceFunc
 			targetMockNS.DeleteFunc = tc.TargetNsDeleteEndDeviceFunc
-			targetMockAS, targetASAddr := startMockAS(ctx, rpcserver.WithContextFiller(withTestCounters))
+			targetMockAS, targetASAddr := startMockAS(ctx, targetTenantIDs, rpcserver.WithContextFiller(withTestCounters))
 			targetMockAS.SetFunc = tc.TargetAsSetEndDeviceFunc
 			targetMockAS.DeleteFunc = tc.TargetAsDeleteEndDeviceFunc
 

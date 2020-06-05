@@ -495,6 +495,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		targetDev.DeviceID = req.TargetDeviceID
 	}
 	logger = logger.WithField("target_device_uid", unique.ID(targetCtx, targetDev.EndDeviceIdentifiers))
+	if license.RequireMultiTenancy(ctx) == nil {
+		parts := strings.SplitN(targetDev.JoinServerAddress, ".", 2)
+		if len(parts) == 2 {
+			targetDev.JoinServerAddress = fmt.Sprintf("%s.%s", tenant.FromContext(targetCtx).TenantID, parts[1])
+		}
+	}
 	targetDev.NetworkServerAddress = req.TargetNetworkServerAddress
 	targetDev.NetworkServerKEKLabel = req.TargetNetworkServerKEKLabel
 	targetDev.ApplicationServerAddress = req.TargetApplicationServerAddress
