@@ -1,0 +1,99 @@
+// Copyright © 2019 The Things Industries B.V.
+
+package store
+
+import (
+	"context"
+	"runtime/trace"
+
+	"github.com/jinzhu/gorm"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+)
+
+// GetExternalUserStore returns an ExternalUserStore on the given db (or transaction).
+func GetExternalUserStore(db *gorm.DB) ExternalUserStore {
+	return &externalUserStore{store: newStore(db)}
+}
+
+type externalUserStore struct {
+	*store
+}
+
+func (s *externalUserStore) CreateExternalUser(ctx context.Context, eu *ttipb.ExternalUser) (*ttipb.ExternalUser, error) {
+	defer trace.StartRegion(ctx, "create external user").End()
+	user, err := s.findEntity(ctx, eu.UserIDs, "id")
+	if err != nil {
+		return nil, err
+	}
+	model := ExternalUser{
+		UserID:     user.PrimaryKey(),
+		Provider:   int32(eu.Provider),
+		ExternalID: eu.ExternalID,
+	}
+	model.CreatedAt = cleanTime(eu.CreatedAt)
+	if err := s.createEntity(ctx, &model); err != nil {
+		return nil, err
+	}
+	proto := model.toPB()
+	proto.UserIDs = eu.UserIDs
+	return proto, nil
+}
+
+func withPreload(column string, conditions ...interface{}) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		db = db.Preload(column, conditions...)
+		return db
+	}
+}
+
+type friendlyExternalUser struct {
+	ExternalUser
+	FriendlyUserID string
+}
+
+func (s *externalUserStore) optimizedQuery(ctx context.Context) *gorm.DB {
+	return s.store.query(ctx, ExternalUser{}).
+		Select(`"external_users".*, "accounts"."uid" AS "friendly_user_id"`).
+		Joins(`LEFT JOIN "users" ON "users"."id" = "external_users"."user_id"`).
+		Joins(`LEFT JOIN "accounts" ON "accounts"."account_type" = 'user' AND "accounts"."account_id" = "users"."id"`)
+}
+
+func (s *externalUserStore) GetExternalUserByUserID(ctx context.Context, ids *ttnpb.UserIdentifiers) (*ttipb.ExternalUser, error) {
+	defer trace.StartRegion(ctx, "get external user by user id").End()
+	var model friendlyExternalUser
+	err := s.optimizedQuery(ctx).Where(Account{UID: ids.GetUserID()}).Scan(&model).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errExternalUserNotFound.New()
+		}
+	}
+	proto := model.toPB()
+	proto.UserIDs.UserID = model.FriendlyUserID
+	return proto, nil
+}
+
+func (s *externalUserStore) GetExternalUserByExternalID(ctx context.Context, id string) (*ttipb.ExternalUser, error) {
+	defer trace.StartRegion(ctx, "get external user by user id").End()
+	var model friendlyExternalUser
+	err := s.optimizedQuery(ctx).Where(ExternalUser{ExternalID: id}).Scan(&model).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errExternalUserNotFound.New()
+		}
+	}
+	proto := model.toPB()
+	proto.UserIDs.UserID = model.FriendlyUserID
+	return proto, nil
+}
+
+func (s *externalUserStore) DeleteExternalUser(ctx context.Context, id string) error {
+	defer trace.StartRegion(ctx, "delete external user").End()
+	err := s.query(ctx, ExternalUser{}).Where(ExternalUser{ExternalID: id}).Delete(ExternalUser{}).Error
+	if err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return errExternalUserNotFound.New()
+		}
+	}
+	return nil
+}

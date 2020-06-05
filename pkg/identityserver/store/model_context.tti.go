@@ -83,3 +83,8 @@ func (usr *User) SetContext(ctx context.Context) {
 	usr.Model.SetContext(ctx)
 	usr.Account.SetContext(ctx)
 }
+
+func (eu *ExternalUser) SetContext(ctx context.Context) {
+	eu.TenantID = tenant.FromContext(ctx).TenantID
+	eu.Model.SetContext(ctx)
+}

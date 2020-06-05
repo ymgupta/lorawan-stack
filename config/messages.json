@@ -4751,6 +4751,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:external_user_not_found": {
+    "translations": {
+      "en": "external user not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
   "error:pkg/identityserver/store:gateway_eui_not_found": {
     "translations": {
       "en": "gateway EUI `{eui}` not found"
