@@ -12,6 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skipping payload crypto on application-level via application link's `skip_payload_crypto` field.
 - Authentication method, ID and Remote IP in events metadata.
 - Tenant Billing Server automatic metric pulls. Defaults to one every hour.
+- Service data messages published by integrations. Can be consumed using the bundled MQTT server, Webhooks or Pub/Sub integrations.
+- Application package application-wide associations support.
+- LoRaCloud DAS application package server URL overrides support.
 
 ### Changed
 
@@ -27,7 +30,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-### Security
+## [3.8.3] - 2020-06-05
+
+### Added
+
+- Favicon to documentation pages.
+- Draft template for documentation.
+
+### Changed
+
+- Late scheduling algorithm; Gateway Server now takes the 90th percentile of at least the last 5 round-trip times of the last 30 minutes into account to determine whether there's enough time to send the downlink to the gateway. This was the highest round-trip time received while the gateway was connected.
+
+### Fixed
+
+- Downlink scheduling to gateways which had one observed round-trip time that was higher than the available time to schedule. In some occassions, this broke downlink at some point while the gateway was connected.
 
 ## [3.8.2] - 2020-06-03
 
@@ -864,7 +880,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.2...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.3...HEAD
+[3.8.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.2...v3.8.3
 [3.8.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.2...v3.8.2
 [3.7.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...v3.7.2
 [3.7.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.6.0...v3.7.0
