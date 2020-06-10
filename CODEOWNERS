@@ -38,6 +38,7 @@
 # Subsystems
 /pkg/applicationserver @johanstokking @adriansmares @KrishnaIyer
 /pkg/console @bafonins @kschiffer @pgalic96
+/pkg/eventserver @rvolosatovs @htdvisser @johanstokking
 /pkg/gatewayconfigurationserver @rvolosatovs @KrishnaIyer @htdvisser
 /pkg/gatewayserver @johanstokking @KrishnaIyer @adriansmares
 /pkg/identityserver @htdvisser @bafonins @kschiffer

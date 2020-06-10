@@ -2519,6 +2519,7 @@ Power state of the device.
 | `QR_CODE_GENERATOR` | 11 |  |
 | `PACKET_BROKER_AGENT` | 12 |  |
 | `TENANT_BILLING_SERVER` | 101 |  |
+| `EVENT_SERVER` | 102 |  |
 
 ### <a name="ttn.lorawan.v3.DownlinkPathConstraint">Enum `DownlinkPathConstraint`</a>
 

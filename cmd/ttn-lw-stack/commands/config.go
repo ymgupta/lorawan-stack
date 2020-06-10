@@ -36,6 +36,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/cryptoserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/deviceclaimingserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/devicetemplateconverter"
+	"go.thethings.network/lorawan-stack/v3/pkg/eventserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver"
@@ -54,6 +55,7 @@ type Config struct {
 	NS               networkserver.Config              `name:"ns"`
 	AS               applicationserver.Config          `name:"as"`
 	JS               joinserver.Config                 `name:"js"`
+	ES               eventserver.Config                `name:"es"`
 	Console          console.Config                    `name:"console"`
 	GCS              gatewayconfigurationserver.Config `name:"gcs"`
 	DTC              devicetemplateconverter.Config    `name:"dtc"`

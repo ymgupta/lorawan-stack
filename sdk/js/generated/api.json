@@ -9930,6 +9930,11 @@
               "name": "TENANT_BILLING_SERVER",
               "number": "101",
               "description": ""
+            },
+            {
+              "name": "EVENT_SERVER",
+              "number": "102",
+              "description": ""
             }
           ]
         },

@@ -36,6 +36,8 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
 	events_grpc "go.thethings.network/lorawan-stack/v3/pkg/events/grpc"
+	"go.thethings.network/lorawan-stack/v3/pkg/eventserver"
+	esredis "go.thethings.network/lorawan-stack/v3/pkg/eventserver/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayconfigurationserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
 	gsredis "go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/redis"
@@ -72,6 +74,7 @@ var startCommand = &cobra.Command{
 			DeviceClaimingServer bool
 			CryptoServer         bool
 			TenantBillingServer  bool
+			EventServer          bool
 		}
 		startDefault := len(args) == 0
 		for _, arg := range args {
@@ -105,12 +108,14 @@ var startCommand = &cobra.Command{
 			case "pba":
 				start.PacketBrokerAgent = true
 
-			case "cs", "cryptoserver":
-				start.CryptoServer = true
 			case "dcs":
 				start.DeviceClaimingServer = true
+			case "cs", "cryptoserver":
+				start.CryptoServer = true
 			case "tbs":
 				start.TenantBillingServer = true
+			case "es", "eventserver":
+				start.EventServer = true
 
 			case "all":
 				start.IdentityServer = true
@@ -127,6 +132,7 @@ var startCommand = &cobra.Command{
 				start.DeviceClaimingServer = true
 				start.CryptoServer = true
 				start.TenantBillingServer = true
+				start.EventServer = true
 			default:
 				return errUnknownComponent.WithAttributes("component", arg)
 			}
@@ -151,7 +157,6 @@ var startCommand = &cobra.Command{
 			return shared.ErrInitializeBaseComponent.WithCause(err)
 		}
 
-		c.RegisterGRPC(events_grpc.NewEventsServer(c.Context(), events.DefaultPubSub()))
 		c.RegisterGRPC(component.NewConfigurationServer(c))
 
 		host, err := os.Hostname()
@@ -341,6 +346,29 @@ var startCommand = &cobra.Command{
 				return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
 			}
 			_ = dcs
+		}
+
+		eventPubSub := events.DefaultPubSub()
+		if start.EventServer || startDefault {
+			logger.Info("Setting up Event Server")
+			config.ES.Subscriber = eventPubSub
+			config.ES.Consumers.StreamGroup = "stream"
+			esIngestQueue := &esredis.EventQueue{
+				Redis:  redis.New(config.Redis.WithNamespace("es", "events", "ingest")),
+				MaxLen: 1000,
+				ID:     redisConsumerID,
+			}
+			if err := esIngestQueue.Init(config.ES.Consumers.GroupNames()...); err != nil {
+				return shared.ErrInitializeEventServer.WithCause(err)
+			}
+			config.ES.IngestQueue = esIngestQueue
+			es, err := eventserver.New(c, &config.ES)
+			if err != nil {
+				return shared.ErrInitializeEventServer.WithCause(err)
+			}
+			_ = es
+		} else {
+			c.RegisterGRPC(events_grpc.NewEventsServer(c.Context(), eventPubSub))
 		}
 
 		if rootRedirect != nil {
