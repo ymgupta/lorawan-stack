@@ -9,13 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Metrics for log messages, counted per level and namespace.
+- Allow suppressing logs on HTTP requests for user-defined paths (see `--http.log-ignore-paths` option).
+- Redux state and actions reporting to Sentry
+- Serving frontend sourcemaps in production
+- Redux state and actions reporting to Sentry.
+- Serving frontend sourcemaps in production.
+- Frequency plan documentation.
+
 ### Changed
+
+- Suppress a few unexpected EOF errors, in order to reduce noise in the logs for health checks.
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Packet Broker Agent cluster ID is used as subscription group.
+- LinkADR handling in 72-channel bands.
 
 ## [3.8.3] - 2020-06-05
 
