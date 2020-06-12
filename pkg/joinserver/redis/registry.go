@@ -21,7 +21,7 @@ import (
 	"runtime/trace"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v7"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/provisioning"
 	ttnredis "go.thethings.network/lorawan-stack/v3/pkg/redis"
@@ -304,7 +304,7 @@ func (r *DeviceRegistry) set(ctx context.Context, tx *redis.Tx, uid string, gets
 			return nil, err
 		}
 	}
-	_, err = tx.Pipelined(pipelined)
+	_, err = tx.TxPipelined(pipelined)
 	if err != nil {
 		return nil, ttnredis.ConvertError(err)
 	}
@@ -499,7 +499,7 @@ func (r *KeyRegistry) SetByID(ctx context.Context, joinEUI, devEUI types.EUI64, 
 				return err
 			}
 		}
-		_, err = tx.Pipelined(pipelined)
+		_, err = tx.TxPipelined(pipelined)
 		if err != nil {
 			return err
 		}
