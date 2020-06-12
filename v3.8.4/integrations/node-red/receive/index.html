@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Receive Events and Messages | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.4/integrations/node-red/receive/" />
+  <link rel="alternate icon" href="/v3.8.4/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.4/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.4/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.4/css/theme.min.83d4bb480e31089ec0d1aec051cb5b9b0100417da2032d30e5132151fc30f40d.css" integrity="sha256-g9S7SA4xCJ7A0a7AUctbmwEAQX2iAy0w5RMhUfww9A0=">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Receive Events and Messages">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Receive Events and Messages">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.4/integrations/node-red/receive/">
+  <meta name="twitter:title" content="Receive Events and Messages" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.4/">
+        <img src="/v3.8.4/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.4</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.4/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.4/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.4/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.4/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.4/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.4/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column is-one-third">
+
+
+<h2 class="title is-size-4">Node-RED</h2>
+
+<ul class="menu-list">
+<a href="https://thethingsstack.io/v3.8.4/integrations/node-red/" class="">Overview</a>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/integrations/node-red/setup/" class="">Setup</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/integrations/node-red/receive/" class="is-active">Receive Events and Messages</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/integrations/node-red/send/" class="">Send Messages</a>
+</li>
+</ul>
+
+
+
+
+
+      </div>
+      
+      <div class="column is-two-thirds">
+
+<h1 class="title is-size-2">Receive Events and Messages</h1>
+
+<div class="content"><p>This section follows the process of setting up a flow which subscribes and listens to the events and messages that are being published by the MQTT Server.</p>
+<h2 id="configure-mqtt-in-node">Configure MQTT In Node</h2>
+<p>Place the <strong>mqtt in</strong> node on the dashboard. Double-click on the node to configure its properties.</p>
+<p>In the <strong>Server</strong> dropdown menu, select <strong>Add new mqtt-broker</strong> and click on the button besides to edit it.</p>
+<p>In the <strong>Connection</strong> tab, under <strong>Server</strong>, provide the MQTT Server address from The Things Stack Console.</p>
+<blockquote>
+<p>Note: in this example, TLS-secured connection is to be established, so the <strong>Port</strong> value is set to 8883. In this case you should also check the <strong>Enable secure (SSL/TLS) connection</strong> box.</p>
+</blockquote>
+<figure>
+    <img src="mqtt_in_node_connection.png"
+         alt="Configuring MQTT Server connection information"/> 
+</figure>
+
+<p>In the <strong>Security</strong> tab, enter the <strong>Username</strong> and <strong>Password</strong> according to the values in The Things Stack Console.</p>
+<figure>
+    <img src="mqtt_in_node_security.png"
+         alt="Configuring MQTT Server credentials"/> 
+</figure>
+
+<p>Go back to <strong>Properties</strong> and set the <strong>Topic</strong> value to <code>#</code> (to subscribe to all topics).</p>
+<blockquote>
+<p>Note: a full list of topics that you can subscribe to is mentioned in <a href="https://thethingsstack.io/v3.8.4/integrations/mqtt/">MQTT Server</a> guide.</p>
+</blockquote>
+<p>Select the <strong>QoS</strong> value from the listed options and set <strong>Output</strong> parameter to <strong>a parsed JSON object</strong>.</p>
+<h2 id="configure-debug-nodes">Configure Debug Nodes</h2>
+<p>Add two <strong>debug</strong> nodes and connect both to the <strong>mqtt in</strong> node. One debug node will listen to the events, while the other will listen to published messages.</p>
+<blockquote>
+<p>Note: you can also subscribe to <code>v3/{application_id}/devices/{device_id}/up</code> to only listen to uplink messages coming from end devices, as mentioned in <a href="https://thethingsstack.io/v3.8.4/integrations/mqtt/">MQTT Server</a> guide.</p>
+</blockquote>
+<p>Set the <strong>Output</strong> parameters of these nodes to <strong>complete msg object</strong> and <strong>msg.payload</strong>.</p>
+<h2 id="deploy">Deploy</h2>
+<p>Click on <strong>Deploy</strong> in the upper right corner. If the setup is correct, <strong>connected</strong> status will be reported below the <strong>mqtt in</strong> node.</p>
+<p>Click on <strong>debug</strong> icon in the upper right corner to see the published event messages and their payloads in JSON format.</p>
+<figure>
+    <img src="receive_uplink_flow.png"
+         alt="Final flow scheme"/> 
+</figure>
+
+</div>
+
+
+<div class="is-clearfix">
+<a class="button is-pulled-left" href="/v3.8.4/integrations/node-red/setup/">← Setup</a>
+<a class="button is-pulled-right" href="/v3.8.4/integrations/node-red/send/">Send Messages →</a>
+</div>
+
+
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.4/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.4/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.4/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.4/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.4/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by Nejra on 10 Jun 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/9982058236e49e8096f97c9364bbd9a3f037b50c">
+      doc: Remove bullet numbers
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/integrations/node-red/receive/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.4/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+
+</body>
+
+</html>

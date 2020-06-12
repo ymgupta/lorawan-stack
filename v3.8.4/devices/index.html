@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Devices | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.4/devices/" />
+  <link rel="alternate icon" href="/v3.8.4/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.4/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.4/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.4/css/theme.min.83d4bb480e31089ec0d1aec051cb5b9b0100417da2032d30e5132151fc30f40d.css" integrity="sha256-g9S7SA4xCJ7A0a7AUctbmwEAQX2iAy0w5RMhUfww9A0=">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Devices">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Devices">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.4/devices/">
+  <meta name="twitter:title" content="Devices" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.4/">
+        <img src="/v3.8.4/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.4</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.4/getting-started/">Getting Started</a>
+        <a class="navbar-item is-active" href="/v3.8.4/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.4/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.4/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.4/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.4/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column">
+
+<h1 class="title is-size-2">Devices</h1>
+
+<div class="content"></div>
+
+
+<div class="is-clearfix">
+</div>
+
+
+
+<div class="columns is-multiline has-vertical-space">
+  <div class="column is-half is-flex">
+    <div class="card has-radius is-fullwidth">
+      <div class="card-content">
+        <h3 class="title is-size-5 is-uppercase"><a href="https://thethingsstack.io/v3.8.4/devices/adding-devices/">Adding Devices</a></h3>
+        <div class="content has-text-grey">
+          <p>Devices can be added to The Things Stack by following instructions for <a href="https://thethingsstack.io/v3.8.4/getting-started/console/create-end-device/">Adding Devices in the Console</a> or <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/create-end-device/">Adding Devices Using the Command-line interface</a>.</p>
+        </div>
+        <div class="buttons">
+          <a href="https://thethingsstack.io/v3.8.4/devices/adding-devices/" class="button is-primary is-outlined">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-half is-flex">
+    <div class="card has-radius is-fullwidth">
+      <div class="card-content">
+        <h3 class="title is-size-5 is-uppercase"><a href="https://thethingsstack.io/v3.8.4/devices/class-c-multicast/">Class C and Multicast</a></h3>
+        <div class="content has-text-grey">
+          <p>Class C end devices continuously listen for downlink messages. This allows applications to send messages to devices at any time, instead of having to wait for a Class A uplink. When combined with multicast groups, this allows applications to send immediate downlinks to many devices at the same time.</p>
+<p>This guide shows how to enable or disable Class C for an and device, and how to work with multicast groups.</p>
+        </div>
+        <div class="buttons">
+          <a href="https://thethingsstack.io/v3.8.4/devices/class-c-multicast/" class="button is-primary is-outlined">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-half is-flex">
+    <div class="card has-radius is-fullwidth">
+      <div class="card-content">
+        <h3 class="title is-size-5 is-uppercase"><a href="https://thethingsstack.io/v3.8.4/devices/downlink-queue-ops/">Downlink Queue Operations</a></h3>
+        <div class="content has-text-grey">
+          <p>The Things Stack keeps a queue of downlink messages per device. Applications can keep pushing downlink messages or replace the queue with a list of downlink messages.</p>
+<p>You can schedule downlink using the CLI, MQTT or HTTP webhooks.</p>
+<p>This guide shows how to interact with the downlink queue from the command-line interface (CLI).</p>
+        </div>
+        <div class="buttons">
+          <a href="https://thethingsstack.io/v3.8.4/devices/downlink-queue-ops/" class="button is-primary is-outlined">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-half is-flex">
+    <div class="card has-radius is-fullwidth">
+      <div class="card-content">
+        <h3 class="title is-size-5 is-uppercase"><a href="https://thethingsstack.io/v3.8.4/devices/end-device-templates/">End Device Templates</a></h3>
+        <div class="content has-text-grey">
+          Learn how to create templates or convert from vendor-specific manifest files, how to map and combine templates, how to assign EUIs and how to execute the templates to create the end devices.
+        </div>
+        <div class="buttons">
+          <a href="https://thethingsstack.io/v3.8.4/devices/end-device-templates/" class="button is-primary is-outlined">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="column is-half is-flex">
+    <div class="card has-radius is-fullwidth">
+      <div class="card-content">
+        <h3 class="title is-size-5 is-uppercase"><a href="https://thethingsstack.io/v3.8.4/devices/generate-qr-code/">Generate QR Code</a></h3>
+        <div class="content has-text-grey">
+          <p>The Things Stack can generate QR codes for your devices. This helps identifying the devices and allows for claiming the device.</p>
+<p>This guide shows you to generate a QR code for claiming with the command-line interface (CLI).</p>
+        </div>
+        <div class="buttons">
+          <a href="https://thethingsstack.io/v3.8.4/devices/generate-qr-code/" class="button is-primary is-outlined">Read</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.4/getting-started/">Getting Started</a></p>
+        <p><a class=" is-active" href="/v3.8.4/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.4/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.4/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.4/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by benolayinka on 16 Apr 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fce26e94887601bf07b88381f07c9755e18a2117">
+      doc: Restructure
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/devices/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.4/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+
+</body>
+
+</html>

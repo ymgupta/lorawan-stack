@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Installing the CLI | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.4/getting-started/cli/installing-cli/" />
+  <link rel="alternate icon" href="/v3.8.4/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.4/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.4/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.4/css/theme.min.83d4bb480e31089ec0d1aec051cb5b9b0100417da2032d30e5132151fc30f40d.css" integrity="sha256-g9S7SA4xCJ7A0a7AUctbmwEAQX2iAy0w5RMhUfww9A0=">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Installing the CLI">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Installing the CLI">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.4/getting-started/cli/installing-cli/">
+  <meta name="twitter:title" content="Installing the CLI" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.4/">
+        <img src="/v3.8.4/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.4</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.4/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.4/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.4/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.4/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.4/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.4/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column is-one-third">
+
+
+<h2 class="title is-size-4">Command-line Interface</h2>
+
+<ul class="menu-list">
+<a href="https://thethingsstack.io/v3.8.4/getting-started/cli/" class="">Overview</a>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/installing-cli/" class="is-active">Installing the CLI</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/login/" class="">Login with the CLI</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/create-gateway/" class="">Create Gateway</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/create-application/" class="">Create Application</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.4/getting-started/cli/create-end-device/" class="">Create End Device</a>
+</li>
+</ul>
+
+
+
+
+
+      </div>
+      
+      <div class="column is-two-thirds">
+
+<h1 class="title is-size-2">Installing the CLI</h1>
+
+<div class="content"><p>This section contains instructions for installing the command-line interface.</p>
+<h3 id="package-managers-recommended">Package managers (recommended)</h3>
+<h4 id="macos">macOS</h4>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ brew install TheThingsNetwork/lorawan-stack/ttn-lw-stack
+</code></pre></div><h4 id="linux">Linux</h4>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ sudo snap install ttn-lw-stack
+$ sudo snap <span class="nb">alias</span> ttn-lw-stack.ttn-lw-cli ttn-lw-cli
+</code></pre></div><h3 id="binaries">Binaries</h3>
+<p>You can download <a href="https://github.com/TheThingsNetwork/lorawan-stack/releases">pre-built binaries</a> for your operating system and processor architecture.</p>
+<h2 id="configuration">Configuration</h2>
+<p>The command-line needs to be configured to connect to your deployment on <code>thethings.example.com</code>. You have multiple options to make the configuration file available to the CLI:</p>
+<ol>
+<li>Environment: <code>export TTN_LW_CONFIG=/path/to/ttn-lw-cli.yml</code></li>
+<li>Command-line flag: <code>-c /path/to/ttn-lw-cli.yml</code></li>
+<li>Save as <code>.ttn-lw-cli.yml</code> in <code>$XDG_CONFIG_HOME</code>, your home directory, or the working directory.</li>
+</ol>
+<blockquote>
+<p>NOTE: When using the snap packages, <code>~/.ttn-lw-cli.yml</code> will fail with permission errors. Choose a different path.</p>
+</blockquote>
+<h3 id="generate-configuration-file">Generate configuration file</h3>
+<p>For a standard deployment on <code>thethings.example.com</code>, all you need is:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli use thethings.example.com <span class="o">[</span>--fetch-ca<span class="o">]</span> <span class="o">[</span>--user<span class="o">]</span> <span class="o">[</span>--overwrite<span class="o">]</span>
+</code></pre></div><p>This will generate and save the required CLI config file. By default, the file is saved on the current directory, use the <code>--user</code> to save it under the user config directory.</p>
+<p>If the deployment is using a CA that is not already trusted by your system, use the <code>--fetch-ca</code> flag to also connect to the server and retrieve the CA required for establishing secure communication.</p>
+<blockquote>
+<p>NOTE: If the file exists already, it is not overwritten and an error is printed instead. You can use <code>--overwrite</code> to overwrite the existing configuration file.</p>
+</blockquote>
+<blockquote>
+<p>NOTE: You can also use the <code>--grpc-port</code> and <code>--oauth-server-address</code> flags to override the default values for the gRPC port and the OAuth server address. These are not needed for standard deployments.</p>
+</blockquote>
+<h3 id="manually-creating-configuration-file">Manually creating configuration file</h3>
+<p>Alternatively, you can create a file named <code>.ttn-lw-cli.yml</code> and paste the following contents:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="k">oauth-server-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;https://thethings.example.com/oauth&#39;</span><span class="w">
+</span><span class="w">
+</span><span class="w"></span><span class="k">identity-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">gateway-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">network-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">application-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">join-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">device-claiming-server-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">device-template-converter-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span><span class="w"></span><span class="k">qr-code-generator-grpc-address</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethings.example.com:8884&#39;</span><span class="w">
+</span></code></pre></div><p>For advanced options, see the <a href="https://thethingsstack.io/v3.8.4/reference/configuration/cli/">Configuration Reference</a>.</p></div>
+
+
+<div class="is-clearfix">
+<a class="button is-pulled-left" href="/v3.8.4/getting-started/cli/">← Command-line Interface</a>
+<a class="button is-pulled-right" href="/v3.8.4/getting-started/cli/login/">Login with the CLI →</a>
+</div>
+
+
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.4/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.4/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.4/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.4/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.4/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by benolayinka on 08 May 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/50f90b4d4e94b5ce373e443bf88a69663fa8950e">
+      doc: Fix cli guide order
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/getting-started/cli/installing-cli/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.4/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+
+</body>
+
+</html>
