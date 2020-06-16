@@ -355,6 +355,9 @@ var startCommand = &cobra.Command{
 			config.DCS.AuthorizedApplications = &dcsredis.AuthorizedApplicationRegistry{
 				Redis: redis.New(config.Redis.WithNamespace("dcs", "applications", "authorized")),
 			}
+			if config.DCS.UI.TemplateData.SentryDSN == "" {
+				config.DCS.UI.TemplateData.SentryDSN = config.Sentry.DSN
+			}
 			dcs, err := deviceclaimingserver.New(c, &config.DCS)
 			if err != nil {
 				return shared.ErrInitializeDeviceClaimingServer.WithCause(err)
