@@ -21,6 +21,7 @@ import (
 var (
 	selectTenantFlags               = util.FieldMaskFlags(&ttipb.Tenant{})
 	setTenantFlags                  = util.FieldFlags(&ttipb.Tenant{})
+	stripeBillingProviderFlags      = util.FieldFlags(&ttipb.Billing_Stripe{}, "billing", "provider", "stripe")
 	setInitialUserFlags             = util.FieldFlags(&ttnpb.User{}, "initial_user")
 	selectTenantRegistryTotalsFlags = util.FieldMaskFlags(&ttipb.TenantRegistryTotals{})
 )
@@ -28,6 +29,13 @@ var (
 func tenantIDFlags() *pflag.FlagSet {
 	flagSet := &pflag.FlagSet{}
 	flagSet.String("tenant-id", "", "")
+	return flagSet
+}
+
+func tenantBillingFlags() *pflag.FlagSet {
+	flagSet := &pflag.FlagSet{}
+	flagSet.Bool("billing.provider.stripe", false, "use the Stripe billing provider")
+	flagSet.AddFlagSet(stripeBillingProviderFlags)
 	return flagSet
 }
 
@@ -196,31 +204,64 @@ var (
 			if cliID == nil {
 				return errNoTenantID
 			}
-			paths := util.UpdateFieldMask(cmd.Flags(), setTenantFlags, attributesFlags())
-			if len(paths) == 0 {
+			paths := util.UpdateFieldMask(cmd.Flags(), setTenantFlags, attributesFlags(), stripeBillingProviderFlags)
+			rawUnsetPaths, _ := cmd.Flags().GetStringSlice("unset")
+			unsetPaths := util.NormalizePaths(rawUnsetPaths)
+
+			if len(paths)+len(unsetPaths) == 0 {
 				logger.Warn("No fields selected, won't update anything")
 				return nil
 			}
-			var tenant ttipb.Tenant
+			if remainingPaths := ttnpb.ExcludeFields(paths, unsetPaths...); len(remainingPaths) != len(paths) {
+				overlapPaths := ttnpb.ExcludeFields(paths, remainingPaths...)
+				return errConflictingPaths.WithAttributes("field_mask_paths", overlapPaths)
+			}
+
+			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
+			if err != nil {
+				return err
+			}
+			tenant, err := ttipb.NewTenantRegistryClient(is).Get(ctx, &ttipb.GetTenantRequest{
+				TenantIdentifiers: *cliID,
+				FieldMask:         types.FieldMask{Paths: paths},
+			}, getTenantAdminCreds(cmd))
+			if err != nil && !errors.IsNotFound(err) {
+				return err
+			}
+			if tenant == nil {
+				tenant = &ttipb.Tenant{TenantIdentifiers: *cliID}
+			}
+
 			if err := util.SetFields(&tenant, setTenantFlags); err != nil {
 				return err
 			}
 			tenant.Attributes = mergeAttributes(tenant.Attributes, cmd.Flags())
 			tenant.TenantIdentifiers = *cliID
 
-			is, err := api.Dial(ctx, config.IdentityServerGRPCAddress)
-			if err != nil {
+			if stripe, _ := cmd.Flags().GetBool("billing.provider.stripe"); stripe {
+				if tenant.GetBilling().GetStripe() == nil {
+					tenant.Billing = &ttipb.Billing{Provider: &ttipb.Billing_Stripe_{
+						Stripe: &ttipb.Billing_Stripe{},
+					}}
+				}
+				if err = util.SetFields(tenant.GetBilling().GetStripe(), stripeBillingProviderFlags, "billing", "provider", "stripe"); err != nil {
+					return err
+				}
+			}
+
+			if err := tenant.SetFields(tenant, ttnpb.ExcludeFields(paths, unsetPaths...)...); err != nil {
 				return err
 			}
+
 			res, err := ttipb.NewTenantRegistryClient(is).Update(ctx, &ttipb.UpdateTenantRequest{
-				Tenant:    tenant,
-				FieldMask: types.FieldMask{Paths: paths},
+				Tenant:    *tenant,
+				FieldMask: types.FieldMask{Paths: append(paths, unsetPaths...)},
 			}, getTenantAdminCreds(cmd))
 			if err != nil {
 				return err
 			}
 
-			res.SetFields(&tenant, "ids")
+			res.SetFields(tenant, "ids")
 			return io.Write(os.Stdout, config.OutputFormat, res)
 		},
 	}
@@ -287,7 +328,9 @@ func init() {
 	tenantsCommand.AddCommand(tenantsCreateCommand)
 	tenantsUpdateCommand.Flags().AddFlagSet(tenantIDFlags())
 	tenantsUpdateCommand.Flags().AddFlagSet(setTenantFlags)
+	tenantsUpdateCommand.Flags().AddFlagSet(tenantBillingFlags())
 	tenantsUpdateCommand.Flags().AddFlagSet(attributesFlags())
+	tenantsUpdateCommand.Flags().AddFlagSet(util.UnsetFlagSet())
 	tenantsCommand.AddCommand(tenantsUpdateCommand)
 	tenantsDeleteCommand.Flags().AddFlagSet(tenantIDFlags())
 	tenantsCommand.AddCommand(tenantsDeleteCommand)
