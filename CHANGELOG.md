@@ -9,13 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Option to reset end device payload formatters in the Console.
+
 ### Changed
+
+- JSON uplink message doc edited for clarity.
 
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Endless authentication refresh loop in the Console in some rare situations.
+- Logout operation not working properly in the Console in some rare situations.
+- Handling API key deletion event for applications, gateways, organizations and users.
+- Organization API key deletion in the Console.
+- CLI now only sends relevant end device fields to Identity Server on create.
 
 ## [3.8.4] - 2020-06-12
 
