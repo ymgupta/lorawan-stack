@@ -14,15 +14,21 @@ import (
 )
 
 const (
-	tenantIDAttribute         = "tenant-id"
-	maxApplicationsAttribute  = "max-applications"
-	maxClientsAttribute       = "max-clients"
-	maxEndDevicesAttribute    = "max-end-devices"
-	maxGatewaysAttribute      = "max-gateways"
-	maxOrganizationsAttribute = "max-organizations"
-	maxUsersAttribute         = "max-users"
-	adminUserIDAttribute      = "admin-user"
-	adminPasswordAttribute    = "admin-password"
+	adminEmailAttribute        = "admin-email"
+	adminFullNameAttribute     = "admin-full-name"
+	adminPasswordAttribute     = "admin-password"
+	adminUserIDAttribute       = "admin-user"
+	companyAttribute           = "company"
+	maxApplicationsAttribute   = "max-applications"
+	maxClientsAttribute        = "max-clients"
+	maxEndDevicesAttribute     = "max-end-devices"
+	maxGatewaysAttribute       = "max-gateways"
+	maxOrganizationsAttribute  = "max-organizations"
+	maxUsersAttribute          = "max-users"
+	nameAttribute              = "name"
+	tenantDescriptionAttribute = "tenant-description"
+	tenantIDAttribute          = "tenant-id"
+	tenantNameAttribute        = "tenant-name"
 )
 
 var (
@@ -84,6 +90,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	if err != nil {
 		return err
 	}
+
 	customer, err := s.getCustomer(sub.Customer.ID, nil)
 	if err != nil {
 		return err
@@ -94,36 +101,12 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		return errNoManagedPlan
 	}
 
-	ids, err := toTenantIDs(sub)
+	tnt, err := s.toTenant(sub, subscriptionItem, customer)
 	if err != nil {
 		return err
 	}
-	tnt := ttipb.Tenant{
-		TenantIdentifiers: *ids,
-		Name:              customer.Name,
-		Description:       customer.Description,
-		ContactInfo: []*ttnpb.ContactInfo{
-			{
-				ContactType:   ttnpb.CONTACT_TYPE_BILLING,
-				ContactMethod: ttnpb.CONTACT_METHOD_EMAIL,
-				Value:         customer.Email,
-				Public:        false,
-			},
-		},
-		State: ttnpb.STATE_APPROVED,
-		Billing: &ttipb.Billing{
-			Provider: &ttipb.Billing_Stripe_{
-				Stripe: &ttipb.Billing_Stripe{
-					CustomerID:         customer.ID,
-					PlanID:             subscriptionItem.Plan.ID,
-					SubscriptionID:     sub.ID,
-					SubscriptionItemID: subscriptionItem.ID,
-				},
-			},
-		},
-	}
 
-	err = s.addTenantLimits(&tnt, sub)
+	err = s.addTenantLimits(tnt, sub)
 	if err != nil {
 		return err
 	}
@@ -145,7 +128,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	}
 
 	var tntExists bool
-	existingTnt, err := client.Get(ctx, &ttipb.GetTenantRequest{TenantIdentifiers: *ids, FieldMask: tntFieldMask}, s.tenantAuth)
+	existingTnt, err := client.Get(ctx, &ttipb.GetTenantRequest{TenantIdentifiers: tnt.TenantIdentifiers, FieldMask: tntFieldMask}, s.tenantAuth)
 	if err != nil && !errors.IsNotFound(err) {
 		return err
 	} else if err == nil {
@@ -162,7 +145,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		}
 
 		_, err := client.Update(ctx, &ttipb.UpdateTenantRequest{
-			Tenant:    tnt,
+			Tenant:    *tnt,
 			FieldMask: tntFieldMask,
 		}, s.tenantAuth)
 		if err != nil {
@@ -170,18 +153,24 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 		}
 	} else {
 		password, _ := sub.Metadata[adminPasswordAttribute]
+		name, _ := sub.Metadata[adminFullNameAttribute]
 		userID, ok := sub.Metadata[adminUserIDAttribute]
 		if !ok {
-			userID = ids.TenantID
+			userID = tnt.TenantID
+		}
+		email, ok := sub.Metadata[adminEmailAttribute]
+		if !ok {
+			email = customer.Email
 		}
 
 		_, err = client.Create(ctx, &ttipb.CreateTenantRequest{
-			Tenant: tnt,
+			Tenant: *tnt,
 			InitialUser: &ttnpb.User{
 				UserIdentifiers: ttnpb.UserIdentifiers{
 					UserID: userID,
 				},
-				PrimaryEmailAddress: customer.Email,
+				Name:                name,
+				PrimaryEmailAddress: email,
 				State:               ttnpb.STATE_APPROVED,
 				Password:            password,
 				Admin:               true,
@@ -230,6 +219,66 @@ func (s *Stripe) getTenantRegistry(ctx context.Context) (ttipb.TenantRegistryCli
 		return nil, err
 	}
 	return ttipb.NewTenantRegistryClient(cc), nil
+}
+
+func (s *Stripe) toTenant(sub *stripe.Subscription, subscriptionItem *stripe.SubscriptionItem, customer *stripe.Customer) (*ttipb.Tenant, error) {
+	ids, err := toTenantIDs(sub)
+	if err != nil {
+		return nil, err
+	}
+
+	var tenantName string
+	if name, ok := sub.Metadata[tenantNameAttribute]; ok {
+		tenantName = name
+	} else if name, ok := sub.Metadata[nameAttribute]; ok {
+		tenantName = name
+	} else if company, ok := sub.Metadata[companyAttribute]; ok {
+		tenantName = company
+	} else {
+		tenantName = customer.Name
+	}
+
+	var tenantDescription string
+	if description, ok := sub.Metadata[tenantDescriptionAttribute]; ok {
+		tenantDescription = description
+	} else {
+		tenantDescription = customer.Description
+	}
+
+	contactInfo := []*ttnpb.ContactInfo{
+		{
+			ContactType:   ttnpb.CONTACT_TYPE_BILLING,
+			ContactMethod: ttnpb.CONTACT_METHOD_EMAIL,
+			Value:         customer.Email,
+			Public:        false,
+		},
+	}
+	if adminEmail, ok := sub.Metadata[adminEmailAttribute]; ok {
+		contactInfo = append(contactInfo, &ttnpb.ContactInfo{
+			ContactType:   ttnpb.CONTACT_TYPE_TECHNICAL,
+			ContactMethod: ttnpb.CONTACT_METHOD_EMAIL,
+			Value:         adminEmail,
+			Public:        false,
+		})
+	}
+
+	return &ttipb.Tenant{
+		TenantIdentifiers: *ids,
+		Name:              tenantName,
+		Description:       tenantDescription,
+		ContactInfo:       contactInfo,
+		State:             ttnpb.STATE_APPROVED,
+		Billing: &ttipb.Billing{
+			Provider: &ttipb.Billing_Stripe_{
+				Stripe: &ttipb.Billing_Stripe{
+					CustomerID:         customer.ID,
+					PlanID:             subscriptionItem.Plan.ID,
+					SubscriptionID:     sub.ID,
+					SubscriptionItemID: subscriptionItem.ID,
+				},
+			},
+		},
+	}, nil
 }
 
 var errNoTenantID = errors.DefineInvalidArgument("no_tenant_id", "no tenant ID set")
