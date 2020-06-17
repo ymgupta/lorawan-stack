@@ -114,6 +114,21 @@ func sameHost(address1, address2 string) bool {
 	return strings.EqualFold(getHost(address1), getHost(address2))
 }
 
+// customDialer allows for overriding dialing components.
+// This is useful for testing.
+var customDialer func(context.Context, ttnpb.ClusterRole, string, credentials.TransportCredentials, ...grpc.DialOption) (*grpc.ClientConn, error)
+
+func dialContext(ctx context.Context, role ttnpb.ClusterRole, target string, creds credentials.TransportCredentials, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+	if customDialer != nil {
+		return customDialer(ctx, role, target, creds, opts...)
+	}
+	address, err := discover.Address(role, target)
+	if err != nil {
+		return nil, err
+	}
+	return grpc.DialContext(ctx, address, append(opts, grpc.WithTransportCredentials(creds))...)
+}
+
 var dialTimeout = 5 * time.Second
 
 func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEndDeviceRequest) (ids *ttnpb.EndDeviceIdentifiers, err error) {
@@ -312,7 +327,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.Debug("Get source end device from Network Server")
 		dialCtx, cancelDial := context.WithTimeout(sourceCtx, dialTimeout)
 		defer cancelDial()
-		sourceNSConn, err := discover.DialContext(dialCtx, sourceDev.NetworkServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
+		sourceNSConn, err := dialContext(dialCtx, ttnpb.ClusterRole_NETWORK_SERVER, sourceDev.NetworkServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Network Server")
 			return nil, err
@@ -345,7 +360,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		logger.Debug("Get source end device from Application Server")
 		dialCtx, cancelDial := context.WithTimeout(sourceCtx, dialTimeout)
 		defer cancelDial()
-		sourceASConn, err := discover.DialContext(dialCtx, sourceDev.ApplicationServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
+		sourceASConn, err := dialContext(dialCtx, ttnpb.ClusterRole_APPLICATION_SERVER, sourceDev.ApplicationServerAddress, credentials.NewTLS(sourceTLSConfig), sourceDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial source Application Server")
 			return nil, err
@@ -385,7 +400,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if req.TargetNetworkServerAddress != "" {
 		dialCtx, cancelDial := context.WithTimeout(targetCtx, dialTimeout)
 		defer cancelDial()
-		targetNSConn, err = discover.DialContext(dialCtx, req.TargetNetworkServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
+		targetNSConn, err = dialContext(dialCtx, ttnpb.ClusterRole_NETWORK_SERVER, req.TargetNetworkServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Network Server")
 			return nil, err
@@ -396,7 +411,7 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 	if req.TargetApplicationServerAddress != "" {
 		dialCtx, cancelDial := context.WithTimeout(targetCtx, dialTimeout)
 		defer cancelDial()
-		targetASConn, err = discover.DialContext(dialCtx, req.TargetApplicationServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
+		targetASConn, err = dialContext(dialCtx, ttnpb.ClusterRole_APPLICATION_SERVER, req.TargetApplicationServerAddress, credentials.NewTLS(targetTLSConfig), targetDialOpts...)
 		if err != nil {
 			logger.WithError(err).Warn("Failed to dial target Application Server")
 			return nil, err
