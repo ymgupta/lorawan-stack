@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Option to reset end device payload formatters in the Console.
+- Sentry reporting to device claiming frontend.
 
 ### Changed
 
