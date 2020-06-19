@@ -104,8 +104,8 @@ var (
 			refreshToken() // NOTE: ignore errors.
 			optionalAuth()
 
-			cliID := getTenantID(cmd.Flags(), args)
-			if cliID == nil {
+			tenantID := getTenantID(cmd.Flags(), args)
+			if tenantID == nil {
 				return errNoTenantID
 			}
 			paths := util.SelectFieldMask(cmd.Flags(), selectTenantFlags)
@@ -115,7 +115,7 @@ var (
 				return err
 			}
 			res, err := ttipb.NewTenantRegistryClient(is).Get(ctx, &ttipb.GetTenantRequest{
-				TenantIdentifiers: *cliID,
+				TenantIdentifiers: *tenantID,
 				FieldMask:         types.FieldMask{Paths: paths},
 			}, getTenantAdminCreds(cmd))
 			if err != nil {
@@ -130,7 +130,7 @@ var (
 		Aliases: []string{"add", "register"},
 		Short:   "Create a tenant",
 		RunE: asBulk(func(cmd *cobra.Command, args []string) (err error) {
-			cliID := getTenantID(cmd.Flags(), args)
+			tenantID := getTenantID(cmd.Flags(), args)
 			var tenant ttipb.Tenant
 			if inputDecoder != nil {
 				_, err := inputDecoder.Decode(&tenant)
@@ -142,8 +142,8 @@ var (
 				return err
 			}
 			tenant.Attributes = mergeAttributes(tenant.Attributes, cmd.Flags())
-			if cliID != nil && cliID.TenantID != "" {
-				tenant.TenantID = cliID.TenantID
+			if tenantID != nil && tenantID.TenantID != "" {
+				tenant.TenantID = tenantID.TenantID
 			}
 			if tenant.TenantID == "" {
 				return errNoTenantID
@@ -200,8 +200,8 @@ var (
 			refreshToken() // NOTE: ignore errors.
 			optionalAuth()
 
-			cliID := getTenantID(cmd.Flags(), args)
-			if cliID == nil {
+			tenantID := getTenantID(cmd.Flags(), args)
+			if tenantID == nil {
 				return errNoTenantID
 			}
 			paths := util.UpdateFieldMask(cmd.Flags(), setTenantFlags, attributesFlags(), stripeBillingProviderFlags)
@@ -222,21 +222,21 @@ var (
 				return err
 			}
 			tenant, err := ttipb.NewTenantRegistryClient(is).Get(ctx, &ttipb.GetTenantRequest{
-				TenantIdentifiers: *cliID,
+				TenantIdentifiers: *tenantID,
 				FieldMask:         types.FieldMask{Paths: paths},
 			}, getTenantAdminCreds(cmd))
 			if err != nil && !errors.IsNotFound(err) {
 				return err
 			}
 			if tenant == nil {
-				tenant = &ttipb.Tenant{TenantIdentifiers: *cliID}
+				tenant = &ttipb.Tenant{TenantIdentifiers: *tenantID}
 			}
 
 			if err := util.SetFields(&tenant, setTenantFlags); err != nil {
 				return err
 			}
 			tenant.Attributes = mergeAttributes(tenant.Attributes, cmd.Flags())
-			tenant.TenantIdentifiers = *cliID
+			tenant.TenantIdentifiers = *tenantID
 
 			if stripe, _ := cmd.Flags().GetBool("billing.provider.stripe"); stripe {
 				if tenant.GetBilling().GetStripe() == nil {
@@ -269,8 +269,8 @@ var (
 		Use:   "delete [tenant-id]",
 		Short: "Delete a tenant",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliID := getTenantID(cmd.Flags(), args)
-			if cliID == nil {
+			tenantID := getTenantID(cmd.Flags(), args)
+			if tenantID == nil {
 				return errNoTenantID
 			}
 
@@ -278,7 +278,7 @@ var (
 			if err != nil {
 				return err
 			}
-			_, err = ttipb.NewTenantRegistryClient(is).Delete(ctx, cliID, getTenantAdminCreds(cmd))
+			_, err = ttipb.NewTenantRegistryClient(is).Delete(ctx, tenantID, getTenantAdminCreds(cmd))
 			if err != nil {
 				return err
 			}
