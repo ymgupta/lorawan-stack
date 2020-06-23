@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - JSON uplink message doc edited for clarity.
+- Defer events subscriptions until there is actual interest for events.
 
 ### Deprecated
 
