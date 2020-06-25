@@ -18,7 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Option to reset end device payload formatters in the Console.
+- Sentry reporting to device claiming frontend.
+- Service discovery using DNS SRV records for external Application Server linking.
+- Functionality to set end device attributes in the Console.
+- Event description tooltip to events in the Console.
+- CLI support for setting and unsetting end device location (see `--location.latitude`, `--location.longitude`, `--location.altitude` and `--location.accuracy` options).
+- Functionality to allow admin users to list all applications and gateways in the Console.
+- Ursalink UG8X gateway documentation.
+
+### Changed
+
 - Event stream start and stop events are not published anymore.
+- JSON uplink message doc edited for clarity.
+- Defer events subscriptions until there is actual interest for events.
+- The CLI snap version uses the `$SNAP_USER_COMMON` directory for config by default, so that it is preserved between revisions.
+- Defer events subscriptions until there is actual interest for events.
+- End device creation form with wizard in the Console.
 
 ### Deprecated
 
@@ -27,8 +43,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Tenant Billing Server default reporting addresses.
+- Requirement to specify `frequency_plan_id` when creating gateways in the Console.
 
 ### Fixed
+
+- Endless authentication refresh loop in the Console in some rare situations.
+- Logout operation not working properly in the Console in some rare situations.
+- Handling API key deletion event for applications, gateways, organizations and users.
+- Organization API key deletion in the Console.
+- CLI now only sends relevant end device fields to Identity Server on create.
+- Maximum ADR data rate index used in 1.0.2a and earlier versions of AU915 band.
+- End device events stream restart in the Console.
+- CLI was unable to read input from pipes.
+- Timezones issue in claim authentication code form, causing time to reverse on submission.
+
+## [3.8.4] - 2020-06-12
+
+### Added
+
+- Metrics for log messages, counted per level and namespace.
+- Allow suppressing logs on HTTP requests for user-defined paths (see `--http.log-ignore-paths` option).
+- Redux state and actions reporting to Sentry
+- Serving frontend sourcemaps in production
+- Frequency plan documentation.
+- LoRa Basics Station documentation.
+
+### Changed
+
+- Suppress a few unexpected EOF errors, in order to reduce noise in the logs for health checks.
+>>>>>>> origin/master
+
+### Fixed
+
+- Packet Broker Agent cluster ID is used as subscription group.
+- LinkADR handling in 72-channel bands.
+- Data uplink metrics reported by Application Server.
 
 ## [3.8.3] - 2020-06-05
 
@@ -880,7 +929,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.3...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.4...HEAD
+[3.8.4]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.3...v3.8.4
 [3.8.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.2...v3.8.3
 [3.8.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.2...v3.8.2
 [3.7.2]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.7.0...v3.7.2
