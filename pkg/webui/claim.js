@@ -16,17 +16,20 @@ import React from 'react'
 import DOM from 'react-dom'
 import { Provider } from 'react-redux'
 import { createBrowserHistory } from 'history'
+import * as Sentry from '@sentry/browser'
+
+import sentryConfig from '@ttn-lw/constants/sentry'
 
 import WithLocale from './lib/components/with-locale'
 import env from './lib/env'
 import { selectApplicationRootPath } from './lib/selectors/env'
 import { EnvProvider } from './lib/components/env'
 import Init from './lib/components/init'
-
 import createStore from './claim/store'
 
 const appRoot = selectApplicationRootPath()
 const history = createBrowserHistory({ basename: `${appRoot}/` })
+if (env.sentryDsn) Sentry.init(sentryConfig)
 const store = createStore(history)
 
 const rootElement = document.getElementById('app')

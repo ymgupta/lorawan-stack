@@ -15,7 +15,6 @@
 package commands
 
 import (
-	"bufio"
 	"context"
 	"encoding/hex"
 	"io/ioutil"
@@ -45,6 +44,7 @@ var (
 	setEndDeviceFlags        = &pflag.FlagSet{}
 	endDeviceFlattenPaths    = []string{"provisioning_data"}
 	endDevicePictureFlags    = &pflag.FlagSet{}
+	endDeviceLocationFlags   = util.FieldFlags(&ttnpb.Location{}, "location")
 
 	selectAllEndDeviceFlags = util.SelectAllFlagSet("end devices")
 )
@@ -473,6 +473,10 @@ var (
 				}
 				paths = append(paths, "claim_authentication_code")
 			}
+			if hasUpdateDeviceLocationFlags(cmd.Flags()) {
+				updateDeviceLocation(&device, cmd.Flags())
+				paths = append(paths, "locations")
+			}
 
 			if err = util.SetFields(&device, setEndDeviceFlags); err != nil {
 				return err
@@ -512,8 +516,11 @@ var (
 			if err != nil {
 				return err
 			}
+			var isDevice ttnpb.EndDevice
+			logger.WithField("paths", isPaths).Debug("Create end device on Identity Server")
+			isDevice.SetFields(&device, append(isPaths, "ids")...)
 			isRes, err := ttnpb.NewEndDeviceRegistryClient(is).Create(ctx, &ttnpb.CreateEndDeviceRequest{
-				EndDevice: device,
+				EndDevice: isDevice,
 			})
 			if err != nil {
 				return err
@@ -555,6 +562,10 @@ var (
 			paths := util.UpdateFieldMask(cmd.Flags(), setEndDeviceFlags, attributesFlags(), endDevicePictureFlags)
 			rawUnsetPaths, _ := cmd.Flags().GetStringSlice("unset")
 			unsetPaths := util.NormalizePaths(rawUnsetPaths)
+
+			if hasUpdateDeviceLocationFlags(cmd.Flags()) {
+				paths = append(paths, "locations")
+			}
 
 			if len(paths)+len(unsetPaths) == 0 {
 				logger.Warn("No fields selected, won't update anything")
@@ -639,6 +650,11 @@ var (
 
 			if nsMismatch, asMismatch, jsMismatch := compareServerAddressesEndDevice(existingDevice, config); nsMismatch || asMismatch || jsMismatch {
 				return errAddressMismatchEndDevice
+			}
+
+			if hasUpdateDeviceLocationFlags(cmd.Flags()) {
+				device.SetFields(existingDevice, "locations")
+				updateDeviceLocation(&device, cmd.Flags())
 			}
 
 			touch, _ := cmd.Flags().GetBool("touch")
@@ -851,10 +867,11 @@ values will be stored in the Join Server.`,
 				if joinEUI != nil || devEUI != nil {
 					logger.Warn("Either target JoinEUI or DevEUI specified but need both, not considering any and using scan mode")
 				}
-				if !io.IsPipe(os.Stdin) {
+				rd, ok := io.BufferedPipe(os.Stdin)
+				if !ok {
 					logger.Info("Scan QR code")
 				}
-				qrCode, err := bufio.NewReader(os.Stdin).ReadBytes('\n')
+				qrCode, err := rd.ReadBytes('\n')
 				if err != nil {
 					return err
 				}
@@ -1149,12 +1166,14 @@ func init() {
 	endDevicesCreateCommand.Flags().Bool("with-session", false, "generate ABP session DevAddr and keys")
 	endDevicesCreateCommand.Flags().Bool("with-claim-authentication-code", false, "generate claim authentication code of 4 bytes")
 	endDevicesCreateCommand.Flags().AddFlagSet(endDevicePictureFlags)
+	endDevicesCreateCommand.Flags().AddFlagSet(endDeviceLocationFlags)
 	endDevicesCommand.AddCommand(endDevicesCreateCommand)
 	endDevicesUpdateCommand.Flags().AddFlagSet(endDeviceIDFlags())
 	endDevicesUpdateCommand.Flags().AddFlagSet(setEndDeviceFlags)
 	endDevicesUpdateCommand.Flags().AddFlagSet(attributesFlags())
 	endDevicesUpdateCommand.Flags().Bool("touch", false, "set in all registries even if no fields are specified")
 	endDevicesUpdateCommand.Flags().AddFlagSet(endDevicePictureFlags)
+	endDevicesUpdateCommand.Flags().AddFlagSet(endDeviceLocationFlags)
 	endDevicesUpdateCommand.Flags().AddFlagSet(util.UnsetFlagSet())
 	endDevicesCommand.AddCommand(endDevicesUpdateCommand)
 	endDevicesProvisionCommand.Flags().AddFlagSet(applicationIDFlags())

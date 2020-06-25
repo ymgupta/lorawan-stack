@@ -66,11 +66,12 @@ const validationSchema = Yup.object().shape({
     .required(sharedMessages.validateRequired),
   name: Yup.string()
     .min(2, Yup.passValues(sharedMessages.validateTooShort))
-    .max(50, Yup.passValues(sharedMessages.validateTooLong)),
+    .max(2000, Yup.passValues(sharedMessages.validateTooLong)),
+  link: Yup.boolean(),
   description: Yup.string(),
   network_server_address: Yup.string().when('link', {
     is: true,
-    then: Yup.string().matches(address, sharedMessages.validateAddressFormat),
+    then: schema => schema.matches(address, sharedMessages.validateAddressFormat),
   }),
 })
 
