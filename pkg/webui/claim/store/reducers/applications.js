@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import { getApplicationId } from '@ttn-lw/lib/selectors/id'
+
 import {
   GET_APP,
   GET_APP_SUCCESS,

@@ -23,13 +23,17 @@ import Input from '@ttn-lw/components/input'
 import SubmitButton from '@ttn-lw/components/submit-button'
 import SubmitBar from '@ttn-lw/components/submit-bar'
 import QR from '@ttn-lw/components/qr'
+
 import withRequest from '@ttn-lw/lib/components/with-request'
 
 import sharedMessages from '@ttn-lw/lib/shared-messages'
 import errorMessages from '@ttn-lw/lib/errors/error-messages'
 import PropTypes from '@ttn-lw/lib/prop-types'
+
 import { readQr } from '@claim/lib/qr'
+
 import { getApplication } from '@claim/store/actions/applications'
+
 import {
   selectApplicationById,
   selectApplicationFetching,

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 import api from '@claim/api'
+
 import * as applications from '@claim/store/actions/applications'
 
 import createRequestLogic from './lib'

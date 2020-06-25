@@ -17,11 +17,14 @@ import { Row, Col, Container } from 'react-grid-system'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import { defineMessages } from 'react-intl'
-import api from '@claim/api'
-import PageTitle from '@ttn-lw/components/page-title'
-import DeviceClaimForm from '@claim/containers/device-claim-form'
-import PropTypes from '@ttn-lw/lib/prop-types'
 
+import api from '@claim/api'
+
+import PageTitle from '@ttn-lw/components/page-title'
+
+import DeviceClaimForm from '@claim/containers/device-claim-form'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
 import sharedMessages from '@ttn-lw/lib/shared-messages'
 
 import style from './device-claim.styl'

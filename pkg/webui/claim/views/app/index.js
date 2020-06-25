@@ -16,22 +16,25 @@ import { hot } from 'react-hot-loader/root'
 import React from 'react'
 import { connect } from 'react-redux'
 import { ConnectedRouter } from 'connected-react-router'
-
 import { Route, Switch } from 'react-router-dom'
 
 import Footer from '@ttn-lw/components/footer'
 import { ToastContainer } from '@ttn-lw/components/toast'
+
 import ErrorView from '@ttn-lw/lib/components/error-view'
 import { withEnv } from '@ttn-lw/lib/components/env'
 import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
 import WithAuth from '@ttn-lw/lib/components/with-auth'
+
 import Header from '@claim/containers/header'
+
 import Overview from '@claim/views/overview'
 import DeviceClaim from '@claim/views/device-claim'
 import FullViewError, { FullViewErrorInner } from '@claim/views/error'
-import dev from '@ttn-lw/lib/dev'
 
+import dev from '@ttn-lw/lib/dev'
 import PropTypes from '@ttn-lw/lib/prop-types'
+
 import {
   selectUser,
   selectUserFetching,

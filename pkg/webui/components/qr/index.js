@@ -18,6 +18,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import bind from 'autobind-decorator'
 import * as jsQR from 'jsqr'
+
 import Video from './input/video'
 import Capture from './input/capture'
 
