@@ -111,7 +111,7 @@ nfpms:
     files:
       "public/**/*": "/srv/ttn-lorawan/public"
 
-# TODO: Re-enable (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
+# TODO: Re-enable and rename (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
 #snapcrafts:
 #  - id: stack
 #    builds:
@@ -123,6 +123,13 @@ nfpms:
 #    grade: stable
 #    confinement: strict
 #    publish: true
+#    extra_files:
+#      - source: config/snap/ttn-lw-stack.wrapper
+#        destination: ttn-lw-stack.wrapper
+#        mode: 0755
+#      - source: config/snap/ttn-lw-cli.wrapper
+#        destination: ttn-lw-cli.wrapper
+#        mode: 0755
 #    apps:
 #      ttn-lw-stack:
 #        plugs: [ home, network, network-bind ]
