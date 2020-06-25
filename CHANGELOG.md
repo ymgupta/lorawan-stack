@@ -15,9 +15,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Service data messages published by integrations. Can be consumed using the bundled MQTT server, Webhooks or Pub/Sub integrations.
 - Application package application-wide associations support.
 - LoRaCloud DAS application package server URL overrides support.
-
-### Changed
-
 - Option to reset end device payload formatters in the Console.
 - Sentry reporting to device claiming frontend.
 - Service discovery using DNS SRV records for external Application Server linking.
@@ -71,7 +68,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Suppress a few unexpected EOF errors, in order to reduce noise in the logs for health checks.
->>>>>>> origin/master
 
 ### Fixed
 

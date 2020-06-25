@@ -9,39 +9,24 @@ import (
 	"github.com/magefile/mage/mg"
 )
 
-// BuildTTI runs all necessary commands to build the console bundles and files in TTI configuration.
-func (js Js) BuildTTI() {
-	mg.SerialDeps(js.Deps, JsSDK.Build, js.BuildDll, js.BuildMainTTI)
-}
-
-// BuildMainTTI runs the webpack command with the project config in TTI configuration.
-func (js Js) BuildMainTTI() error {
-	mg.Deps(js.Translations, js.BackendTranslations, js.BuildDll)
+// Build runs the webpack command with the project config in TTI configuration.
+func (js Js) BuildTTI() error {
+	mg.Deps(js.Deps, js.Translations, js.BackendTranslations, js.BuildDll)
 	if mg.Verbose() {
 		fmt.Println("Running Webpack")
 	}
-	webpack, err := js.webpack()
-	if err != nil {
-		return err
-	}
-	return webpack("--config", "config/webpack.config.tti.babel.js")
+	return js.runWebpack("config/webpack.config.tti.babel.js")
 }
 
-// ServeTTI builds necessary bundles and serves the console for development in TTI configuration.
-func (js Js) ServeTTI() {
-	mg.Deps(js.ServeMainTTI)
-}
-
-// ServeMainTTI runs webpack-dev-server in TTI configuration.
-func (js Js) ServeMainTTI() error {
-	mg.Deps(js.Translations, js.BackendTranslations, js.BuildDll)
+// Serve runs webpack-dev-server in TTI configuration.
+func (js Js) ServeTTI() error {
+	mg.Deps(js.Deps, js.Translations, js.BackendTranslations, js.BuildDll)
 	if mg.Verbose() {
-		fmt.Println("Running Webpack for Main Bundle in watch mode...")
-	}
-	webpackServe, err := js.webpackServe()
-	if err != nil {
-		return err
+		fmt.Println("Running Webpack for Main Bundle in watch mode")
 	}
 	os.Setenv("DEV_SERVER_BUILD", "true")
-	return webpackServe("--config", "config/webpack.config.tti.babel.js", "-w")
+	return js.runYarnCommandV("webpack-dev-server",
+		"--config", "config/webpack.config.tti.babel.js",
+		"-w",
+	)
 }

@@ -12,7 +12,6 @@ import (
 	"github.com/magefile/mage/mg"
 	"github.com/magefile/mage/sh"
 	"github.com/magefile/mage/target"
-	"golang.org/x/xerrors"
 )
 
 // TTIProto namespace.
@@ -33,7 +32,7 @@ func (p TTIProto) Go(context.Context) error {
 			fmt.Sprintf("--grpc-gateway_out=%s:%s", convStr, protocOut),
 			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
 		); err != nil {
-			return xerrors.Errorf("failed to generate protos: %w", err)
+			return fmt.Errorf("failed to generate protos: %w", err)
 		}
 		return nil
 	}); err != nil {
@@ -41,18 +40,18 @@ func (p TTIProto) Go(context.Context) error {
 	}
 
 	if err := sh.RunV(filepath.Join("tools", "mage", "scripts", "fix-grpc-gateway-names.sh"), "api", "api/tti"); err != nil {
-		return xerrors.Errorf("failed to fix gRPC-gateway names: %w", err)
+		return fmt.Errorf("failed to fix gRPC-gateway names: %w", err)
 	}
 
 	ttipb, err := filepath.Abs(filepath.Join("pkg", "ttipb"))
 	if err != nil {
-		return xerrors.Errorf("failed to construct absolute path to pkg/ttipb: %w", err)
+		return fmt.Errorf("failed to construct absolute path to pkg/ttipb: %w", err)
 	}
 	if err := runGoTool("golang.org/x/tools/cmd/goimports", "-w", ttipb); err != nil {
-		return xerrors.Errorf("failed to run goimports on generated code: %w", err)
+		return fmt.Errorf("failed to run goimports on generated code: %w", err)
 	}
 	if err := runUnconvert(ttipb); err != nil {
-		return xerrors.Errorf("failed to run unconvert on generated code: %w", err)
+		return fmt.Errorf("failed to run unconvert on generated code: %w", err)
 	}
 	return sh.RunV("gofmt", "-w", "-s", ttipb)
 }
@@ -79,7 +78,7 @@ func (p TTIProto) GoClean(context.Context) error {
 func (p TTIProto) Swagger(context.Context) error {
 	changed, err := target.Glob(filepath.Join("api", "tti", "api.swagger.json"), filepath.Join("api", "tti", "*.proto"))
 	if err != nil {
-		return xerrors.Errorf("failed checking modtime: %w", err)
+		return fmt.Errorf("failed checking modtime: %w", err)
 	}
 	if !changed {
 		return nil
@@ -89,7 +88,7 @@ func (p TTIProto) Swagger(context.Context) error {
 			fmt.Sprintf("--swagger_out=allow_merge,merge_file_name=api:%s/api/tti", pCtx.WorkingDirectory),
 			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
 		); err != nil {
-			return xerrors.Errorf("failed to generate protos: %w", err)
+			return fmt.Errorf("failed to generate protos: %w", err)
 		}
 		return nil
 	})
@@ -104,7 +103,7 @@ func (p TTIProto) SwaggerClean(context.Context) error {
 func (p TTIProto) Markdown(context.Context) error {
 	changed, err := target.Glob(filepath.Join("api", "tti", "api.md"), filepath.Join("api", "tti", "*.proto"))
 	if err != nil {
-		return xerrors.Errorf("failed checking modtime: %w", err)
+		return fmt.Errorf("failed checking modtime: %w", err)
 	}
 	if !changed {
 		return nil
@@ -114,7 +113,7 @@ func (p TTIProto) Markdown(context.Context) error {
 			fmt.Sprintf("--doc_opt=%s/api/api.md.tmpl,api.md --doc_out=%s/api/tti", pCtx.WorkingDirectory, pCtx.WorkingDirectory),
 			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
 		); err != nil {
-			return xerrors.Errorf("failed to generate protos: %w", err)
+			return fmt.Errorf("failed to generate protos: %w", err)
 		}
 		return nil
 	})
@@ -129,7 +128,7 @@ func (p TTIProto) MarkdownClean(context.Context) error {
 func (p TTIProto) JsSDK(context.Context) error {
 	changed, err := target.Glob(filepath.Join("sdk", "js", "generated", "api.tti.json"), filepath.Join("api", "tti", "*.proto"))
 	if err != nil {
-		return xerrors.Errorf("failed checking modtime: %w", err)
+		return fmt.Errorf("failed checking modtime: %w", err)
 	}
 	if !changed {
 		return nil
@@ -139,7 +138,7 @@ func (p TTIProto) JsSDK(context.Context) error {
 			fmt.Sprintf("--doc_opt=json,api.tti.json --doc_out=%s/v3/sdk/js/generated", pCtx.WorkingDirectory),
 			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
 		); err != nil {
-			return xerrors.Errorf("failed to generate protos: %w", err)
+			return fmt.Errorf("failed to generate protos: %w", err)
 		}
 		return nil
 	})

@@ -90,7 +90,7 @@ $ printenv | grep "TTN_LW_*"
 1. Build the frontend assets
 
 ```bash
-$ ./mage js:build
+$ tools/bin/mage js:build
 ```
 
 This will build the frontend assets and place it in the `public` folder.
@@ -98,7 +98,7 @@ This will build the frontend assets and place it in the `public` folder.
 2. Start the databases
 
 ```bash
-$ ./mage dev:dbStart # This requires Docker to be running.
+$ tools/bin/mage dev:dbStart # This requires Docker to be running.
 ```
 
 This will start one instance each of `CockroachDB` and `Redis` as Docker containers. To verify this, you can run
@@ -110,7 +110,6 @@ $ docker ps
 3. Initialize the database with defaults.
 
 ```bash
-$ tools/bin/mage dev:dbStart   # This requires Docker to be running.
 $ tools/bin/mage dev:initStack
 ```
 
@@ -289,7 +288,7 @@ Data for generated documentation like API and glossary is stored in `doc/data`.
 In order to build the documentation site with the right theme, you need to run
 `tools/bin/mage docs:deps` from time to time.
 
->Note: as a workaround for [this](https://github.com/gohugoio/hugo/issues/7083), `./mage docs:deps` also pulls the latest version of [frequency-plans.yml](https://github.com/TheThingsNetwork/lorawan-frequency-plans/).
+>Note: as a workaround for [this](https://github.com/gohugoio/hugo/issues/7083), `tools/bin/mage docs:deps` also pulls the latest version of [frequency-plans.yml](https://github.com/TheThingsNetwork/lorawan-frequency-plans/).
 
 You can start a development server with live reloading by running
 `tools/bin/mage docs:server`. This command will print the address of the server.
