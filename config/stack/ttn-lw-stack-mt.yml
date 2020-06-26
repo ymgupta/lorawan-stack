@@ -1,0 +1,41 @@
+# Example ttn-lw-stack configuration file for multi-tenant local development instances
+# Keep in sync with `doc/content/guides/getting-started/configuration.md`
+
+# Tenancy configuration
+tenancy:
+  base-domains:
+    - localhost
+  default-id: ''
+
+# Identity Server configuration
+is:
+  oauth:
+    ui:
+      canonical-url: 'http://localhost:1885/oauth'
+      is:
+        base-url: 'http://localhost:1885/api/v3'
+
+# Web UI configuration
+console:
+  ui:
+    canonical-url: 'http://localhost:1885/console'
+    is:
+      base-url: 'http://localhost:1885/api/v3'
+    gs:
+      base-url: 'http://localhost:1885/api/v3'
+    ns:
+      base-url: 'http://localhost:1885/api/v3'
+    as:
+      base-url: 'http://localhost:1885/api/v3'
+    js:
+      base-url: 'http://localhost:1885/api/v3'
+    qrg:
+      base-url: 'http://localhost:1885/api/v3'
+    edtc:
+      base-url: 'http://localhost:1885/api/v3'
+
+  oauth:
+    authorize-url: 'http://localhost:1885/oauth/authorize'
+    token-url: 'http://localhost:1885/oauth/token'
+    client-id: 'console'
+    client-secret: 'console'
