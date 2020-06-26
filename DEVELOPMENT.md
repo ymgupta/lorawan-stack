@@ -85,6 +85,16 @@ If you want to just run a docker image of The Things Stack, then check the [Inst
 $ printenv | grep "TTN_LW_*"
 ```
 
+### Additional steps for The Things Enterprise Stack
+
+Add `GOFLAGS="--tags=tti"` to your environment. You can set this for the current session of your terminal by running
+
+```bash
+$ export GOFLAGS="--tags=tti"
+```
+
+Also, to run TTES use `tti-lw-stack` instead of `ttn-lw-stack` in the following section.
+
 ### Steps
 
 1. Build the frontend assets
@@ -113,6 +123,13 @@ $ docker ps
 $ tools/bin/mage dev:initStack
 ```
 
+If you want to enable multi-tenancy, run the following instead;
+
+```bash
+$ ./mage dev:initMTStack
+```
+A default tenant `thethings` is created in the database.
+
 This creates a database, migrates tables and creates a user `admin` with password `admin`.
 
 4. Start an development instance of The Things Stack
@@ -135,31 +152,33 @@ You can now use the modified configuration with
 $ go run ./cmd/ttn-lw-stack -c <custom-location>/ttn-lw-stack.yml start
 ```
 
-## Starting The Things Enterprise Stack
-
-You can use `go run -tags tti ./cmd/tti-lw-stack start` to start The Things Enterprise Stack.
-
-> TIP: If you add `GOFLAGS="--tags=tti"` to your environment, you can omit `-tags tti`.
-
 ### Multi-Tenancy
 
-In order to work with multi-tenancy, you need to add some lines to `/etc/hosts`:
+In order to work with multi-tenancy, you need a multi-tenant developer license. Please ask for one of these before starting The Things Enterprise Stack.
+
+Once you have a license, add it to the environment
 
 ```
-127.0.0.1    default.localhost   # default tenant for The Things Enterprise Stack
-127.0.0.1    my-tenant.localhost # if you want to test an alternative tenant
-```
-
-> NOTE: The `default` tenant is created by Mage. Use the command `tti-lw-stack is-db create-tenant --id my-tenant` to create additional tenants. Add `--help` for details.
-
-You'll also need to set the following environment variables:
-
-```
-export TTN_LW_TENANCY_BASE_DOMAINS="localhost"
 export TTN_LW_LICENSE_KEY="..."
 ```
 
-If you don't have a license key for development, you can also add `MultiTenancy: true` to `cmd/ttn-lw-stack/commands/root.tti.go`.
+For your Console(browser)/CLI to communicate with your tenant, you need to add some lines to `/etc/hosts`:
+
+```
+127.0.0.1    thethings.localhost   # tenant created during the setup
+```
+
+If you want additional tenants, use the command `go run ./cmd/tti-lw-stack is-db create-tenant --id my-tenant`. Add `--help` for details.
+
+```
+127.0.0.1    my-tenant.localhost # if you want to test an alternative tenant
+```
+
+Now you can start The Things Enterprise Stack with the sample multi-tenant configuration in the repository; `config/stack/ttn-lw-stack-mt.yml`
+
+```bash
+$ go run ./cmd/ttn-lw-stack -c ./config/stack/ttn-lw-stack-mt.yml start
+```
 
 ## Using the CLI with the Development Environment
 
@@ -168,6 +187,36 @@ In order to login, you will need to use the correct OAuth Server Address:
 ```bash
 $ export TTN_LW_OAUTH_SERVER_ADDRESS=http://localhost:1885/oauth
 $ go run ./cmd/ttn-lw-cli login
+```
+
+### With Multi-tenancy
+
+It should be noted that you can login to only one tenant at a time via the CLI (or even console for that matter).
+
+If you have followed this guide, then you have a `thethings` tenant with TTES running on `localhost`.
+
+Create a `ttn-lw-cli.yml` in a desired location. A sample is shown below
+
+````yaml
+oauth-server-address: 'http://thethings.localhost:1885/oauth'
+identity-server-grpc-address: 'thethings.localhost:1884'
+
+gateway-server-grpc-address: 'thethings.localhost:1884'
+network-server-grpc-address: 'thethings.localhost:1884'
+application-server-grpc-address: 'thethings.localhost:1884'
+join-server-grpc-address: 'thethings.localhost:1884'
+device-claiming-server-grpc-address: 'thethings.localhost:1884'
+device-template-converter-grpc-address: 'thethings.localhost:1884'
+qr-code-generator-grpc-address: 'thethings.localhost:1884'
+
+credentials-id: 'thethings.localhost'
+````
+
+Now you can login to `thethings` tenant using
+
+```bash
+$ export TTN_LW_CONFIG=<some-location>/ttn-lw-cli.yml
+$ go run -tags=tti ./cmd/tti-lw-cli login
 ```
 
 ## Managing the Development Databases
