@@ -14,12 +14,16 @@
 
 import React, { Component } from 'react'
 import { Row, Col, Container } from 'react-grid-system'
-import PAGE_SIZES from '@claim/constants/page-sizes'
-import Notification from '@ttn-lw/components/notification'
-import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
-import ApplicationsTable from '@claim/containers/applications-table'
-import PropTypes from '@ttn-lw/lib/prop-types'
 
+import PAGE_SIZES from '@claim/constants/page-sizes'
+
+import Notification from '@ttn-lw/components/notification'
+
+import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
+
+import ApplicationsTable from '@claim/containers/applications-table'
+
+import PropTypes from '@ttn-lw/lib/prop-types'
 import sharedMessages from '@ttn-lw/lib/shared-messages'
 
 import style from './overview.styl'

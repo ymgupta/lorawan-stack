@@ -13,7 +13,6 @@
 // limitations under the License.
 
 import { createLogic } from 'redux-logic'
-
 import * as Sentry from '@sentry/browser'
 
 import { error } from '@ttn-lw/lib/log'

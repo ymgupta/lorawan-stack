@@ -17,7 +17,7 @@ replace github.com/Azure/go-autorest => github.com/Azure/go-autorest v13.3.1+inc
 // TODO: Remove once https://github.com/magefile/mage/pull/307 is merged.
 replace github.com/magefile/mage v1.9.1 => github.com/TheThingsIndustries/mage v1.9.1-0.20200520191129-8bccc5d0bd6f
 
-// Versions higher trigger google/protobuf update past v1.3.5.
+// Dependency of lorawan-stack.
 replace gocloud.dev => gocloud.dev v0.19.0
 
 require (
@@ -31,15 +31,13 @@ require (
 	github.com/client9/misspell v0.3.4
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gohugoio/hugo v0.71.0
-	github.com/goreleaser/goreleaser v0.135.0
+	github.com/goreleaser/goreleaser v0.138.0
 	github.com/magefile/mage v1.9.1
 	github.com/mattn/goveralls v0.0.5
 	github.com/mdempsky/unconvert v0.0.0-20200228143138-95ecdbfc0b5f
 	github.com/mgechev/revive v1.0.2
-	github.com/pkg/errors v0.9.1
 	go.thethings.network/lorawan-stack/v3 v3.0.0-00010101000000-000000000000
 	golang.org/x/tools v0.0.0-20200608174601-1b747fd94509
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )

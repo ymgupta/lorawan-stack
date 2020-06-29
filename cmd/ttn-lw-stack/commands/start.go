@@ -189,6 +189,9 @@ var startCommand = &cobra.Command{
 				is.SetRedisCache(redis.New(config.Cache.Redis.WithNamespace("is", "cache")))
 			}
 			if oauthMount := config.IS.OAuth.UI.MountPath(); oauthMount != "/" {
+				if !strings.HasSuffix(oauthMount, "/") {
+					oauthMount += "/"
+				}
 				rootRedirect = web.Redirect("/", http.StatusFound, oauthMount)
 			}
 		}
@@ -297,6 +300,9 @@ var startCommand = &cobra.Command{
 			}
 			_ = console
 			if consoleMount := config.Console.UI.MountPath(); consoleMount != "/" {
+				if !strings.HasSuffix(consoleMount, "/") {
+					consoleMount += "/"
+				}
 				rootRedirect = web.Redirect("/", http.StatusFound, consoleMount)
 			}
 		}

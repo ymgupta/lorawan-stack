@@ -13,8 +13,10 @@
 // limitations under the License.
 
 import api from '@claim/api'
+
 import * as user from '@claim/store/actions/user'
 import * as init from '@claim/store/actions/init'
+
 import createRequestLogic from './lib'
 
 const claimAppLogic = createRequestLogic({

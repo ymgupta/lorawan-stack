@@ -17,6 +17,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import bind from 'autobind-decorator'
+
 import FileInput from '../../../file-input'
 
 export default class Capture extends Component {

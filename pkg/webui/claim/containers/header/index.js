@@ -20,9 +20,12 @@ import bind from 'autobind-decorator'
 import HeaderComponent from '@ttn-lw/components/header'
 import NavigationBar from '@ttn-lw/components/navigation/bar'
 import Dropdown from '@ttn-lw/components/dropdown'
+
 import PropTypes from '@ttn-lw/lib/prop-types'
 import sharedMessages from '@ttn-lw/lib/shared-messages'
+
 import { logout } from '@claim/store/actions/user'
+
 import { selectUser } from '@claim/store/selectors/user'
 
 @withRouter
