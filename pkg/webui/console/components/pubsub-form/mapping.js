@@ -17,6 +17,11 @@ import { merge } from 'lodash'
 import { natsUrl as natsUrlRegexp } from '@console/lib/regexp'
 
 import providers from './providers'
+import {
+  blankValues as awsIoTBlankValues,
+  mapToFormValues as mapAWSIoTFormValues,
+  mapFromFormValues as mapFormValuesToAWSIoT,
+} from './aws-iot.tti'
 
 const natsBlankValues = {
   username: '',
@@ -67,11 +72,14 @@ const mapPubsubMessageTypeToFormValue = messageType =>
 export const mapPubsubToFormValues = function(pubsub) {
   const isNats = 'nats' in pubsub
   const isMqtt = 'mqtt' in pubsub
+  const isAWSIoT = 'aws_iot' in pubsub
   let provider = blankValues._provider
   if (isNats) {
     provider = providers.NATS
   } else if (isMqtt) {
     provider = providers.MQTT
+  } else if (isAWSIoT) {
+    provider = providers.AWS_IOT
   }
   const result = {
     pub_sub_id: pubsub.ids.pub_sub_id,
@@ -80,6 +88,7 @@ export const mapPubsubToFormValues = function(pubsub) {
     _provider: provider,
     nats: isNats ? mapNatsFormValues(pubsub.nats) : natsBlankValues,
     mqtt: isMqtt ? mapMqttFormValues(pubsub.mqtt) : mqttBlankValues,
+    aws_iot: isAWSIoT ? mapAWSIoTFormValues(pubsub.aws_iot) : awsIoTBlankValues,
     downlink_ack: mapPubsubMessageTypeToFormValue(pubsub.downlink_ack),
     downlink_failed: mapPubsubMessageTypeToFormValue(pubsub.downlink_failed),
     downlink_nack: mapPubsubMessageTypeToFormValue(pubsub.downlink_nack),
@@ -143,6 +152,10 @@ export const mapFormValuesToPubsub = function(values, appId) {
       result.mqtt = values.mqtt
       delete result.mqtt._use_credentials
       break
+    case providers.AWS_IOT:
+      result.aws_iot = values.aws_iot
+      mapFormValuesToAWSIoT(result)
+      break
   }
   return result
 }
@@ -154,6 +167,7 @@ export const blankValues = {
   _provider: providers.NATS,
   nats: natsBlankValues,
   mqtt: mqttBlankValues,
+  aws_iot: awsIoTBlankValues,
   downlink_ack: { enabled: false, value: '' },
   downlink_failed: { enabled: false, value: '' },
   downlink_nack: { enabled: false, value: '' },

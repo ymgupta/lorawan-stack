@@ -25,6 +25,7 @@ import {
 
 import { qosLevels } from './qos-options'
 import providers from './providers'
+import { validationSchema as awsIoT } from './aws-iot.tti'
 
 export default Yup.object().shape({
   pub_sub_id: Yup.string()
@@ -118,6 +119,11 @@ export default Yup.object().shape({
         otherwise: Yup.string().strip(),
       }),
     }),
+    otherwise: Yup.object().strip(),
+  }),
+  aws_iot: Yup.object().when('_provider', {
+    is: providers.AWS_IOT,
+    then: awsIoT,
     otherwise: Yup.object().strip(),
   }),
 })

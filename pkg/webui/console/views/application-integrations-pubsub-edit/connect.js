@@ -32,6 +32,7 @@ const pubsubEntitySelector = [
   'format',
   'provider.nats',
   'provider.mqtt',
+  'provider.aws_iot',
   'downlink_ack',
   'downlink_failed',
   'downlink_nack',
