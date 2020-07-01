@@ -39,6 +39,7 @@ var additionalRoles = [...]ttnpb.ClusterRole{
 	ttnpb.ClusterRole_CRYPTO_SERVER,
 	ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER,
 	ttnpb.ClusterRole_TENANT_BILLING_SERVER,
+	ttnpb.ClusterRole_EVENT_SERVER,
 }
 
 var (
@@ -49,6 +50,7 @@ var (
 	allComponents = pflag.Bool("all-components", false, "License all available components")
 	cs            = pflag.Bool("crypto-server", false, "License Crypto Server")
 	dcs           = pflag.Bool("device-claiming-server", false, "License Device Claiming Server")
+	es            = pflag.Bool("event-server", false, "License Event Server")
 	tbs           = pflag.Bool("tenant-billing-server", false, "License Tenant Billing Server")
 	multiTenancy  = pflag.Bool("multi-tenancy", false, "License multi-tenancy")
 
@@ -86,6 +88,8 @@ func main() {
 		components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
 	} else if *dcs {
 		components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
+	} else if *es {
+		components = append(components, ttnpb.ClusterRole_EVENT_SERVER)
 	} else if *tbs {
 		components = append(components, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
 	}
