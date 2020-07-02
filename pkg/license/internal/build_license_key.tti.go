@@ -35,15 +35,24 @@ var defaultRoles = [...]ttnpb.ClusterRole{
 	ttnpb.ClusterRole_PACKET_BROKER_AGENT,
 }
 
+var additionalRoles = [...]ttnpb.ClusterRole{
+	ttnpb.ClusterRole_CRYPTO_SERVER,
+	ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER,
+	ttnpb.ClusterRole_TENANT_BILLING_SERVER,
+	ttnpb.ClusterRole_EVENT_SERVER,
+}
+
 var (
-	id           = pflag.String("id", "", "License ID")
-	days         = pflag.Int("days", 180, "License expiry")
-	warn         = pflag.Duration("warn", 24*time.Hour, "Warn before expiry")
-	limit        = pflag.Duration("limit", 8*time.Hour, "Limit before expiry")
-	cs           = pflag.Bool("crypto-server", false, "License Crypto Server")
-	dcs          = pflag.Bool("device-claiming-server", false, "License Device Claiming Server")
-	tbs          = pflag.Bool("tenant-billing-server", false, "License Tenant Billing Server")
-	multiTenancy = pflag.Bool("multi-tenancy", false, "License multi-tenancy")
+	id            = pflag.String("id", "", "License ID")
+	days          = pflag.Int("days", 180, "License expiry")
+	warn          = pflag.Duration("warn", 24*time.Hour, "Warn before expiry")
+	limit         = pflag.Duration("limit", 8*time.Hour, "Limit before expiry")
+	allComponents = pflag.Bool("all-components", false, "License all available components")
+	cs            = pflag.Bool("crypto-server", false, "License Crypto Server")
+	dcs           = pflag.Bool("device-claiming-server", false, "License Device Claiming Server")
+	es            = pflag.Bool("event-server", false, "License Event Server")
+	tbs           = pflag.Bool("tenant-billing-server", false, "License Tenant Billing Server")
+	multiTenancy  = pflag.Bool("multi-tenancy", false, "License multi-tenancy")
 
 	addressRegexps  = pflag.StringSlice("address-regexps", nil, "Component address regexps")
 	devAddrPrefixes = pflag.StringSlice("dev-addr-prefixes", nil, "DevAddr prefixes")
@@ -71,14 +80,23 @@ func main() {
 	until = time.Date(until.Year(), until.Month(), until.Day(), 23, 59, 59, 0, time.UTC)
 
 	components := defaultRoles[:]
-	if *cs {
-		components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
-	}
-	if *dcs {
-		components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
-	}
-	if *tbs {
-		components = append(components, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
+	if *allComponents {
+		for _, role := range additionalRoles {
+			components = append(components, role)
+		}
+	} else {
+		if *cs {
+			components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
+		}
+		if *es {
+			components = append(components, ttnpb.ClusterRole_EVENT_SERVER)
+		}
+		if *dcs {
+			components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
+		}
+		if *tbs {
+			components = append(components, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
+		}
 	}
 
 	for _, re := range *addressRegexps {
