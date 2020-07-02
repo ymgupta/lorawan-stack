@@ -88,6 +88,9 @@ func main() {
 		if *cs {
 			components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
 		}
+		if *es {
+			components = append(components, ttnpb.ClusterRole_EVENT_SERVER)
+		}
 		if *dcs {
 			components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
 		}
