@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LORIX One gateway documentation.
 - Display own user name instead of ID in Console if possible.
 - Option to hide rarely used fields in the Join Settings step (end device wizard) in the Console.
+- Key vault caching mechanism (see `--key-vault.cache.size` and `--key-vault.cache.ttl` options).
 
 ### Changed
 
