@@ -84,14 +84,16 @@ func main() {
 		for _, role := range additionalRoles {
 			components = append(components, role)
 		}
-	} else if *cs {
-		components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
-	} else if *dcs {
-		components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
-	} else if *es {
-		components = append(components, ttnpb.ClusterRole_EVENT_SERVER)
-	} else if *tbs {
-		components = append(components, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
+	} else {
+		if *cs {
+			components = append(components, ttnpb.ClusterRole_CRYPTO_SERVER)
+		}
+		if *dcs {
+			components = append(components, ttnpb.ClusterRole_DEVICE_CLAIMING_SERVER)
+		}
+		if *tbs {
+			components = append(components, ttnpb.ClusterRole_TENANT_BILLING_SERVER)
+		}
 	}
 
 	for _, re := range *addressRegexps {
