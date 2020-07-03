@@ -101,7 +101,7 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 
 	ctxTntID := tenant.FromContext(ctx)
 	pb := &ttnpb.EndDevice{}
-	if err := ttnredis.FindProto(r.Redis, r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
+	if err := ttnredis.FindProto(r.Redis.ReadOnlyClient(), r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
 		tntID, err := unique.ToTenantID(uid)
 		if err != nil {
 			return "", err
@@ -129,7 +129,7 @@ func (r *DeviceRegistry) RangeByAddr(ctx context.Context, addr types.DevAddr, pa
 	defer trace.StartRegion(ctx, "range end devices by dev_addr").End()
 
 	ctxTntID := tenant.FromContext(ctx)
-	return ttnredis.FindProtosWithKeys(r.Redis, r.addrKey(addr), r.uidKey).Range(func(k string) (proto.Message, func() (bool, error)) {
+	return ttnredis.FindProtosWithKeys(r.Redis.ReadOnlyClient(), r.addrKey(addr), r.uidKey).Range(func(k string) (proto.Message, func() (bool, error)) {
 		tntID, err := unique.ToTenantID(k)
 		if err != nil {
 			return nil, nil

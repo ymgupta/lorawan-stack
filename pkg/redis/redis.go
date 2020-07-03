@@ -24,6 +24,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-redis/redis/v7"
@@ -76,6 +77,10 @@ func Key(ks ...string) string {
 type Client struct {
 	*redis.Client
 	namespace string
+
+	config         *Config
+	readClient     *Client
+	readClientOnce sync.Once
 }
 
 // Config represents Redis configuration.
@@ -150,7 +155,20 @@ func New(conf *Config) *Client {
 	return &Client{
 		namespace: Key(append(conf.RootNamespace, conf.namespace...)...),
 		Client:    newRedisClient(conf),
+		config:    conf,
 	}
+}
+
+// ReadOnlyClient returns a client with for read only operations.
+func (cl *Client) ReadOnlyClient() *Client {
+	cl.readClientOnce.Do(func() {
+		cl.readClient = New(cl.config)
+		if err := cl.readClient.ReadOnly(); err != nil {
+			cl.readClient.Close()
+			cl.readClient = cl
+		}
+	})
+	return cl.readClient
 }
 
 // Key constructs the full key for entity identified by ks by prepending the configured namespace and joining ks using the default separator.

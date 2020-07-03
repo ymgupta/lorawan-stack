@@ -115,7 +115,7 @@ func (r *GatewayConnectionStatsRegistry) Get(ctx context.Context, ids ttnpb.Gate
 	result := &ttnpb.GatewayConnectionStats{}
 	stats := &ttnpb.GatewayConnectionStats{}
 
-	retrieved, err := r.Redis.MGet(r.key(upKey, uid), r.key(downKey, uid), r.key(statusKey, uid)).Result()
+	retrieved, err := r.Redis.ReadOnlyClient().MGet(r.key(upKey, uid), r.key(downKey, uid), r.key(statusKey, uid)).Result()
 	if err != nil {
 		return nil, ttnredis.ConvertError(err)
 	}
