@@ -12,10 +12,16 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+func dialTenantCluster(ctx context.Context, role ttnpb.ClusterRole, target string, _ credentials.TransportCredentials, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
+	parts := strings.SplitN(target, ".", 2)
+	if len(parts) == 2 {
+		target = parts[1]
+	}
+	return grpc.DialContext(ctx, target, append(opts, grpc.WithInsecure())...)
+}
+
 func init() {
 	customSameHost = strings.EqualFold
-	customDialer = func(ctx context.Context, role ttnpb.ClusterRole, target string, _ credentials.TransportCredentials, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
-		return grpc.DialContext(ctx, target, append(opts, grpc.WithInsecure())...)
-	}
+	customDialer = dialTenantCluster
 	dialTimeout = 1 * time.Second
 }

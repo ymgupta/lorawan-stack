@@ -15,6 +15,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
+	"go.thethings.network/lorawan-stack/v3/pkg/license"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	"go.thethings.network/lorawan-stack/v3/pkg/qrcode"
 	"go.thethings.network/lorawan-stack/v3/pkg/rpcclient"
@@ -122,11 +123,17 @@ func getHost(address string) string {
 // This is useful for testing.
 var customSameHost func(address1, address2 string) bool
 
-func sameHost(address1, address2 string) bool {
+func sameHost(ctx context.Context, address1, address2 string) bool {
 	if customSameHost != nil {
 		return customSameHost(address1, address2)
 	}
-	return strings.EqualFold(getHost(address1), getHost(address2))
+	address1, address2 = getHost(address1), getHost(address2)
+	if license.RequireMultiTenancy(ctx) != nil {
+		return strings.EqualFold(address1, address2)
+	}
+	address1Parts, address2Parts := strings.SplitN(address1, ".", 2), strings.SplitN(address2, ".", 2)
+	return len(address1Parts) == len(address2Parts) &&
+		strings.EqualFold(address1Parts[len(address1Parts)-1], address2Parts[len(address2Parts)-1])
 }
 
 // customDialer allows for overriding dialing components.
@@ -448,12 +455,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		{
 			name:        "Application Server",
 			client:      sourceASClient,
-			failOnError: sameHost(sourceDev.ApplicationServerAddress, req.TargetApplicationServerAddress),
+			failOnError: sameHost(ctx, sourceDev.ApplicationServerAddress, req.TargetApplicationServerAddress),
 		},
 		{
 			name:        "Network Server",
 			client:      sourceNSClient,
-			failOnError: sameHost(sourceDev.NetworkServerAddress, req.TargetNetworkServerAddress),
+			failOnError: sameHost(ctx, sourceDev.NetworkServerAddress, req.TargetNetworkServerAddress),
 		},
 		{
 			name:        "Join Server",
@@ -504,6 +511,12 @@ func (s *endDeviceClaimingServer) Claim(ctx context.Context, req *ttnpb.ClaimEnd
 		targetDev.DeviceID = req.TargetDeviceID
 	}
 	logger = logger.WithField("target_device_uid", unique.ID(targetCtx, targetDev.EndDeviceIdentifiers))
+	if license.RequireMultiTenancy(ctx) == nil {
+		parts := strings.SplitN(targetDev.JoinServerAddress, ".", 2)
+		if len(parts) == 2 {
+			targetDev.JoinServerAddress = fmt.Sprintf("%s.%s", tenant.FromContext(targetCtx).TenantID, parts[1])
+		}
+	}
 	targetDev.NetworkServerAddress = req.TargetNetworkServerAddress
 	targetDev.NetworkServerKEKLabel = req.TargetNetworkServerKEKLabel
 	targetDev.ApplicationServerAddress = req.TargetApplicationServerAddress
