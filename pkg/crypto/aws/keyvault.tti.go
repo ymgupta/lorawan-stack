@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	kekTTL        = time.Minute
-	kekErrTTL     = time.Minute
+	kekTTL        = (1 << 4) * time.Minute
+	kekErrTTL     = (1 << 3) * time.Minute
 	kekCacheSize  = 1 << 10
 	certTTL       = time.Hour
 	certErrTTL    = time.Minute
