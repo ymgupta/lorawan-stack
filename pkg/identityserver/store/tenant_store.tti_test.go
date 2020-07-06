@@ -42,6 +42,20 @@ func TestTenantStore(t *testing.T) {
 			MaxGateways:      &pbtypes.UInt64Value{Value: 4},
 			MaxOrganizations: &pbtypes.UInt64Value{Value: 5},
 			MaxUsers:         nil,
+			Configuration: &ttipb.Configuration{
+				DefaultCluster: &ttipb.Configuration_Cluster{
+					UI: &ttipb.Configuration_UI{
+						BrandingBaseURL: "https://assets.thethings.example.com/branding",
+					},
+				},
+			},
+			Billing: &ttipb.Billing{
+				Provider: &ttipb.Billing_Stripe_{
+					Stripe: &ttipb.Billing_Stripe{
+						CustomerID: "cus_XXX",
+					},
+				},
+			},
 		})
 		a.So(err, should.BeNil)
 		a.So(created.TenantID, should.Equal, "foo")
@@ -57,12 +71,15 @@ func TestTenantStore(t *testing.T) {
 		a.So(created.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 4})
 		a.So(created.MaxOrganizations, should.Resemble, &pbtypes.UInt64Value{Value: 5})
 		a.So(created.MaxUsers, should.BeNil)
+		a.So(created.GetConfiguration().GetDefaultCluster().GetUI().GetBrandingBaseURL(), should.Equal, "https://assets.thethings.example.com/branding")
+		a.So(created.GetBilling().GetStripe().GetCustomerID(), should.Equal, "cus_XXX")
 
 		got, err := store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, &pbtypes.FieldMask{
 			Paths: []string{
 				"name", "attributes", "state", "max_applications",
 				"max_clients", "max_end_devices", "max_gateways",
 				"max_organizations", "max_users",
+				"configuration", "billing",
 			},
 		})
 		a.So(err, should.BeNil)
@@ -79,6 +96,8 @@ func TestTenantStore(t *testing.T) {
 		a.So(got.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 4})
 		a.So(got.MaxOrganizations, should.Resemble, &pbtypes.UInt64Value{Value: 5})
 		a.So(got.MaxUsers, should.BeNil)
+		a.So(got.GetConfiguration().GetDefaultCluster().GetUI().GetBrandingBaseURL(), should.Equal, "https://assets.thethings.example.com/branding")
+		a.So(got.GetBilling().GetStripe().GetCustomerID(), should.Equal, "cus_XXX")
 
 		_, err = store.UpdateTenant(ctx, &ttipb.Tenant{
 			TenantIdentifiers: ttipb.TenantIdentifiers{TenantID: "bar"},
@@ -103,11 +122,19 @@ func TestTenantStore(t *testing.T) {
 			MaxGateways:      &pbtypes.UInt64Value{Value: 5},
 			MaxOrganizations: nil,
 			MaxUsers:         &pbtypes.UInt64Value{Value: 7},
+			Billing: &ttipb.Billing{
+				Provider: &ttipb.Billing_Stripe_{
+					Stripe: &ttipb.Billing_Stripe{
+						PlanID: "plan_XXX",
+					},
+				},
+			},
 		}, &pbtypes.FieldMask{
 			Paths: []string{
 				"description", "attributes", "state", "max_applications",
 				"max_clients", "max_end_devices", "max_gateways",
 				"max_organizations", "max_users",
+				"configuration", "billing.provider.stripe.plan_id",
 			},
 		})
 		a.So(err, should.BeNil)
@@ -122,6 +149,8 @@ func TestTenantStore(t *testing.T) {
 		a.So(updated.MaxGateways, should.Resemble, &pbtypes.UInt64Value{Value: 5})
 		a.So(updated.MaxOrganizations, should.BeNil)
 		a.So(updated.MaxUsers, should.Resemble, &pbtypes.UInt64Value{Value: 7})
+		a.So(updated.Configuration, should.BeNil)
+		a.So(updated.GetBilling().GetStripe().GetPlanID(), should.Equal, "plan_XXX")
 
 		got, err = store.GetTenant(ctx, &ttipb.TenantIdentifiers{TenantID: "foo"}, nil)
 		a.So(err, should.BeNil)
@@ -131,6 +160,9 @@ func TestTenantStore(t *testing.T) {
 		a.So(got.Attributes, should.Resemble, updated.Attributes)
 		a.So(got.CreatedAt, should.Equal, created.CreatedAt)
 		a.So(got.UpdatedAt, should.Equal, updated.UpdatedAt)
+		a.So(got.Configuration, should.BeNil)
+		a.So(got.GetBilling().GetStripe().GetCustomerID(), should.Equal, "cus_XXX")
+		a.So(got.GetBilling().GetStripe().GetPlanID(), should.Equal, "plan_XXX")
 
 		list, err := store.FindTenants(ctx, nil, &pbtypes.FieldMask{Paths: []string{"name"}})
 		a.So(err, should.BeNil)

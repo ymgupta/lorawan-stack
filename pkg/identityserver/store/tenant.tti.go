@@ -78,6 +78,7 @@ func init() {
 	for path := range tenantPBSetters {
 		paths = append(paths, path)
 	}
+	paths = append(paths, "configuration", "billing")
 	defaultTenantFieldMask.Paths = paths
 }
 
@@ -167,7 +168,9 @@ func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns
 		if err := tmp.SetFields(pb, fieldMask.Paths...); err != nil {
 			return nil, err
 		}
-		if tnt.Configuration.RawMessage, err = json.Marshal(tmp.Configuration); err != nil {
+		if tmp.Configuration == nil {
+			tnt.Configuration.RawMessage = nil
+		} else if tnt.Configuration.RawMessage, err = json.Marshal(tmp.Configuration); err != nil {
 			return nil, err
 		}
 		columns = append(columns, configurationField)
@@ -183,7 +186,9 @@ func (tnt *Tenant) fromPB(pb *ttipb.Tenant, fieldMask *types.FieldMask) (columns
 		if err := tmp.SetFields(pb, fieldMask.Paths...); err != nil {
 			return nil, err
 		}
-		if tnt.Billing.RawMessage, err = jsonpb.TTN().Marshal(tmp.Billing); err != nil {
+		if tmp.Billing == nil {
+			tnt.Billing.RawMessage = nil
+		} else if tnt.Billing.RawMessage, err = jsonpb.TTN().Marshal(tmp.Billing); err != nil {
 			return nil, err
 		}
 		columns = append(columns, billingField)
