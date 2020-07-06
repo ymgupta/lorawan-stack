@@ -50,6 +50,7 @@ import (
 	nsredis "go.thethings.network/lorawan-stack/v3/pkg/networkserver/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/packetbrokeragent"
 	"go.thethings.network/lorawan-stack/v3/pkg/qrcodegenerator"
+	"go.thethings.network/lorawan-stack/v3/pkg/random"
 	"go.thethings.network/lorawan-stack/v3/pkg/redis"
 	"go.thethings.network/lorawan-stack/v3/pkg/tenantbillingserver"
 	"go.thethings.network/lorawan-stack/v3/pkg/web"
@@ -148,6 +149,20 @@ var startCommand = &cobra.Command{
 
 		if license != nil {
 			componentOptions = append(componentOptions, component.WithLicense(*license))
+		}
+
+		cookieHashKey, cookieBlockKey := config.ServiceBase.HTTP.Cookie.HashKey, config.ServiceBase.HTTP.Cookie.BlockKey
+
+		if len(cookieHashKey) == 0 || isZeros(cookieHashKey) {
+			cookieHashKey = random.Bytes(64)
+			config.ServiceBase.HTTP.Cookie.HashKey = cookieHashKey
+			logger.Warn("No cookie hash key configured, generated a random one")
+		}
+
+		if len(cookieBlockKey) == 0 || isZeros(cookieBlockKey) {
+			cookieBlockKey = random.Bytes(32)
+			config.ServiceBase.HTTP.Cookie.BlockKey = cookieBlockKey
+			logger.Warn("No cookie block key configured, generated a random one")
 		}
 
 		if config.ServiceBase.Cluster.Claim.Backend == "redis" {
@@ -407,6 +422,16 @@ var startCommand = &cobra.Command{
 
 		return c.Run()
 	},
+}
+
+func isZeros(buf []byte) bool {
+	for _, b := range buf {
+		if b != 0x00 {
+			return false
+		}
+	}
+
+	return true
 }
 
 func init() {

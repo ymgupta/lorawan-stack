@@ -802,7 +802,7 @@
           "$ref": "#/definitions/v3Picture"
         }
       },
-      "description": "User is the message that defines an user on the network."
+      "description": "User is the message that defines a user on the network."
     },
     "v3UserIdentifiers": {
       "type": "object",

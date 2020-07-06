@@ -45,6 +45,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e
 	github.com/golang/protobuf v1.3.5
 	github.com/google/wire v0.4.0 // indirect
+	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/handlers v1.4.2
 	github.com/gorilla/mux v1.7.4
 	github.com/gorilla/securecookie v1.1.1
