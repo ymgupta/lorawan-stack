@@ -70,7 +70,7 @@ func (r *WebhookRegistry) makeIDKeyFunc(appUID string) func(id string) string {
 // Get implements WebhookRegistry.
 func (r WebhookRegistry) Get(ctx context.Context, ids ttnpb.ApplicationWebhookIdentifiers, paths []string) (*ttnpb.ApplicationWebhook, error) {
 	pb := &ttnpb.ApplicationWebhook{}
-	if err := ttnredis.GetProto(r.Redis, r.idKey(unique.ID(ctx, ids.ApplicationIdentifiers), ids.WebhookID)).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.idKey(unique.ID(ctx, ids.ApplicationIdentifiers), ids.WebhookID)).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return applyWebhookFieldMask(nil, pb, appendImplicitWebhookGetPaths(paths...)...)
@@ -80,7 +80,7 @@ func (r WebhookRegistry) Get(ctx context.Context, ids ttnpb.ApplicationWebhookId
 func (r WebhookRegistry) List(ctx context.Context, ids ttnpb.ApplicationIdentifiers, paths []string) ([]*ttnpb.ApplicationWebhook, error) {
 	var pbs []*ttnpb.ApplicationWebhook
 	appUID := unique.ID(ctx, ids)
-	err := ttnredis.FindProtos(r.Redis, r.appKey(appUID), r.makeIDKeyFunc(appUID)).Range(func() (proto.Message, func() (bool, error)) {
+	err := ttnredis.FindProtos(r.Redis.ReadOnlyClient(), r.appKey(appUID), r.makeIDKeyFunc(appUID)).Range(func() (proto.Message, func() (bool, error)) {
 		pb := &ttnpb.ApplicationWebhook{}
 		return pb, func() (bool, error) {
 			pb, err := applyWebhookFieldMask(nil, pb, appendImplicitWebhookGetPaths(paths...)...)

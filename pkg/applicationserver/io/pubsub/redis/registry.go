@@ -76,7 +76,7 @@ func (r *PubSubRegistry) makeUIDKeyFunc(appUID string) func(id string) string {
 // Get implements pubsub.Registry.
 func (r PubSubRegistry) Get(ctx context.Context, ids ttnpb.ApplicationPubSubIdentifiers, paths []string) (*ttnpb.ApplicationPubSub, error) {
 	pb := &ttnpb.ApplicationPubSub{}
-	if err := ttnredis.GetProto(r.Redis, r.uidKey(unique.ID(ctx, ids.ApplicationIdentifiers), ids.PubSubID)).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.uidKey(unique.ID(ctx, ids.ApplicationIdentifiers), ids.PubSubID)).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return applyPubSubFieldMask(nil, pb, appendImplicitPubSubGetPaths(paths...)...)
@@ -101,7 +101,7 @@ func (r PubSubRegistry) Range(ctx context.Context, paths []string, f func(contex
 			return errApplicationUID.WithCause(err).WithAttributes("application_uid", appUID, "pub_sub_id", psID)
 		}
 		pb := &ttnpb.ApplicationPubSub{}
-		if err := ttnredis.GetProto(r.Redis, r.uidKey(appUID, psID)).ScanProto(pb); err != nil {
+		if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.uidKey(appUID, psID)).ScanProto(pb); err != nil {
 			return err
 		}
 		if err != nil {
