@@ -23,8 +23,8 @@ import (
 )
 
 const (
-	kekTTL        = time.Minute
-	kekErrTTL     = time.Minute
+	kekTTL        = (1 << 4) * time.Minute
+	kekErrTTL     = (1 << 3) * time.Minute
 	kekCacheSize  = 1 << 10
 	certTTL       = time.Hour
 	certErrTTL    = time.Minute
@@ -87,12 +87,15 @@ func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, er
 		id = fmt.Sprintf("%s/%s", k.secretIDPrefix, id)
 	}
 	if v, err := k.kekErrCache.Get(id); err == nil {
+		crypto.RegisterCacheHit(ctx, "aws_kek")
 		return nil, v.(error)
 	}
 	if v, err := k.kekCache.Get(id); err == nil {
+		crypto.RegisterCacheHit(ctx, "aws_kek")
 		return v.([]byte), nil
 	}
 	defer func() {
+		crypto.RegisterCacheMiss(ctx, "aws_kek")
 		if err != nil {
 			k.kekCache.Remove(id)
 			k.kekErrCache.Set(id, err)
