@@ -20,12 +20,16 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/crypto"
 	"go.thethings.network/lorawan-stack/v3/pkg/crypto/cryptoutil"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/types"
 )
 
 const (
 	kekTTL        = (1 << 4) * time.Minute
 	kekErrTTL     = (1 << 3) * time.Minute
 	kekCacheSize  = 1 << 10
+	keyTTL        = time.Minute
+	keyErrTTL     = time.Minute
+	keyCacheSize  = 1 << 10
 	certTTL       = time.Hour
 	certErrTTL    = time.Minute
 	certCacheSize = 1 << 7
@@ -40,11 +44,12 @@ type keyVault struct {
 	certs   *acm.ACM
 
 	kekCache, kekErrCache,
+	keyCache, keyErrCache,
 	certCache, certErrCache,
 	certExportCache, certExportErrCache gcache.Cache
 }
 
-type kekSecret struct {
+type secret struct {
 	Value []byte `json:"value"`
 }
 
@@ -68,6 +73,8 @@ func NewKeyVault(region, secretIDPrefix string) (crypto.KeyVault, error) {
 		certs:              acm.New(ses),
 		kekCache:           gcache.New(kekCacheSize).Expiration(kekTTL).LFU().Build(),
 		kekErrCache:        gcache.New(kekCacheSize).Expiration(kekErrTTL).LFU().Build(),
+		keyCache:           gcache.New(keyCacheSize).Expiration(keyTTL).LFU().Build(),
+		keyErrCache:        gcache.New(keyCacheSize).Expiration(keyErrTTL).LFU().Build(),
 		certCache:          gcache.New(certCacheSize).Expiration(certTTL).LFU().Build(),
 		certErrCache:       gcache.New(certCacheSize).Expiration(certErrTTL).LFU().Build(),
 		certExportCache:    gcache.New(certCacheSize).Expiration(certTTL).LFU().Build(),
@@ -81,30 +88,27 @@ var (
 	errSecretNotFound = errors.DefineNotFound("secret_not_found", "secret `{id}` not found")
 )
 
-func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, err error) {
-	id := kekLabel
-	if k.secretIDPrefix != "" {
-		id = fmt.Sprintf("%s/%s", k.secretIDPrefix, id)
+func loadSecret(ctx context.Context, secrets *secretsmanager.SecretsManager, secretIDPrefix string, id string, secretCache gcache.Cache, secretErrCache gcache.Cache) (key []byte, err error) {
+	if secretIDPrefix != "" {
+		id = fmt.Sprintf("%s/%s", secretIDPrefix, id)
 	}
-	if v, err := k.kekErrCache.Get(id); err == nil {
-		crypto.RegisterCacheHit(ctx, "aws_kek")
+	if v, err := secretErrCache.Get(id); err == nil {
 		return nil, v.(error)
 	}
-	if v, err := k.kekCache.Get(id); err == nil {
-		crypto.RegisterCacheHit(ctx, "aws_kek")
+	if v, err := secretCache.Get(id); err == nil {
 		return v.([]byte), nil
 	}
 	defer func() {
 		crypto.RegisterCacheMiss(ctx, "aws_kek")
 		if err != nil {
-			k.kekCache.Remove(id)
-			k.kekErrCache.Set(id, err)
+			secretCache.Remove(id)
+			secretErrCache.Set(id, err)
 		} else {
-			k.kekCache.Set(id, kek)
-			k.kekErrCache.Remove(id)
+			secretCache.Set(id, key)
+			secretErrCache.Remove(id)
 		}
 	}()
-	res, err := k.secrets.GetSecretValueWithContext(ctx, &secretsmanager.GetSecretValueInput{
+	res, err := secrets.GetSecretValueWithContext(ctx, &secretsmanager.GetSecretValueInput{
 		SecretId: aws.String(id),
 	})
 	if err != nil {
@@ -119,7 +123,7 @@ func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, er
 	if res.SecretString == nil {
 		return nil, errSecretContent.WithAttributes("id", id)
 	}
-	var secret kekSecret
+	var secret secret
 	if err := json.Unmarshal([]byte(*res.SecretString), &secret); err != nil {
 		return nil, errSecretContent.WithCause(err).WithAttributes("id", id)
 	}
@@ -127,7 +131,7 @@ func (k *keyVault) loadKEK(ctx context.Context, kekLabel string) (kek []byte, er
 }
 
 func (k *keyVault) Wrap(ctx context.Context, plaintext []byte, kekLabel string) ([]byte, error) {
-	kek, err := k.loadKEK(ctx, kekLabel)
+	kek, err := loadSecret(ctx, k.secrets, k.secretIDPrefix, kekLabel, k.kekCache, k.kekErrCache)
 	if err != nil {
 		return nil, err
 	}
@@ -135,11 +139,35 @@ func (k *keyVault) Wrap(ctx context.Context, plaintext []byte, kekLabel string) 
 }
 
 func (k *keyVault) Unwrap(ctx context.Context, ciphertext []byte, kekLabel string) ([]byte, error) {
-	kek, err := k.loadKEK(ctx, kekLabel)
+	kek, err := loadSecret(ctx, k.secrets, k.secretIDPrefix, kekLabel, k.kekCache, k.kekErrCache)
 	if err != nil {
 		return nil, err
 	}
 	return crypto.UnwrapKey(ciphertext, kek)
+}
+
+func (k *keyVault) Encrypt(ctx context.Context, plaintext []byte, id string) ([]byte, error) {
+	rawKey, err := loadSecret(ctx, k.secrets, k.secretIDPrefix, id, k.keyCache, k.keyErrCache)
+	if err != nil {
+		return nil, err
+	}
+	var key types.AES128Key
+	if err := key.UnmarshalBinary(rawKey); err != nil {
+		return nil, err
+	}
+	return crypto.Encrypt(key, plaintext)
+}
+
+func (k *keyVault) Decrypt(ctx context.Context, ciphertext []byte, id string) ([]byte, error) {
+	rawKey, err := loadSecret(ctx, k.secrets, k.secretIDPrefix, id, k.keyCache, k.keyErrCache)
+	if err != nil {
+		return nil, err
+	}
+	var key types.AES128Key
+	if err := key.UnmarshalBinary(rawKey); err != nil {
+		return nil, err
+	}
+	return crypto.Decrypt(key, ciphertext)
 }
 
 var errCertificate = errors.DefineAborted("certificate", "invalid certificate `{id}`")

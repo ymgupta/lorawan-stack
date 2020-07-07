@@ -23,6 +23,10 @@ import (
 // You can override the secret ID by setting TEST_AWS_KEYVAULT_KEK_SECRET_ID.
 // The key vault needs secretsmanager:GetSecretValue for key wrapping.
 //
+// For testing encryption, in AWS Secrets Manager, create a secret with ID `testing/key` with a field `value` set to `ABEiM0RVZneImaq7zN3u/w==`.
+// You can override the secret ID by setting TEST_AWS_KEYVAULT_KEK_SECRET_ID.
+// The key vault needs secretsmanager:GetSecretValue for encryption/decryption.
+//
 // For testing certificates, in AWS Secrets Manager, create a secret with ID `testing/certificate` with a field
 // `certificate` and `key` set to a PEM encoded certificate and private key.
 // You can override the secret ID by setting TEST_AWS_KEYVAULT_CERTIFICATE_SECRET_ID.
@@ -65,6 +69,27 @@ func TestKeyVault(t *testing.T) {
 
 		unwrapped, err := kv.Unwrap(test.Context(), wrapped, kekLabel)
 		if !a.So(err, should.BeNil) || !a.So(unwrapped, should.Resemble, plaintext) {
+			t.FailNow()
+		}
+	})
+
+	t.Run("Encryption", func(t *testing.T) {
+		a := assertions.New(t)
+
+		plaintext := []byte("thisisaveryimportantsecret")
+
+		keyID := os.Getenv("TEST_AWS_KEYVAULT_KEY_SECRET_ID")
+		if keyID == "" {
+			keyID = "testing/key"
+		}
+
+		encrypted, err := kv.Encrypt(test.Context(), plaintext, keyID)
+		if !a.So(err, should.BeNil) {
+			t.FailNow()
+		}
+
+		decrypted, err := kv.Decrypt(test.Context(), encrypted, keyID)
+		if !a.So(err, should.BeNil) || !a.So(decrypted, should.Resemble, plaintext) {
 			t.FailNow()
 		}
 	})
