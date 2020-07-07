@@ -142,6 +142,8 @@ $ go run ./cmd/ttn-lw-stack -c ./config/stack/ttn-lw-stack.yml start
 
 In a web browser, navigate to `http://localhost:1885/` and login using credentials from step 3.
 
+If you're using a multi-tenant setup, go to `http://tenant-id.localhost:1885/` instead. Ex; `http://thethings.localhost:1885`.
+
 6. Customizing configuration
 
 To customize the configuration, copy the configuration file `/config/stack/ttn-lw-stack.yml` to a different location (ex: the `.env` folder in your repo). The configuration is documented in the [Configuration Reference](https://thethingsstack.io/latest/reference/configuration/).
@@ -177,7 +179,7 @@ If you want additional tenants, use the command `go run ./cmd/tti-lw-stack is-db
 Now you can start The Things Enterprise Stack with the sample multi-tenant configuration in the repository; `config/stack/ttn-lw-stack-mt.yml`
 
 ```bash
-$ go run ./cmd/ttn-lw-stack -c ./config/stack/ttn-lw-stack-mt.yml start
+$ go run ./cmd/tti-lw-stack -c ./config/stack/ttn-lw-stack-mt.yml start
 ```
 
 ## Using the CLI with the Development Environment
