@@ -90,7 +90,7 @@ type Config struct {
 	Failover      FailoverConfig `name:"failover" description:"Redis failover configuration"`
 	namespace     []string
 
-	ReadOnly ReadOnlyConfig
+	ReadOnly ReadOnlyConfig `name:"readonly"`
 }
 
 func (c Config) WithNamespace(namespace ...string) *Config {
