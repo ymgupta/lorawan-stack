@@ -1124,6 +1124,15 @@
       "file": "errors.go"
     }
   },
+  "error:cmd/internal/shared:initialize_event_server": {
+    "translations": {
+      "en": "could not initialize Event Server"
+    },
+    "description": {
+      "package": "cmd/internal/shared",
+      "file": "errors.tti.go"
+    }
+  },
   "error:cmd/internal/shared:initialize_gateway_configuration_server": {
     "translations": {
       "en": "could not initialize Gateway Configuration Server"
@@ -1513,7 +1522,7 @@
   },
   "error:cmd/ttn-lw-cli/commands:no_pub_sub_id": {
     "translations": {
-      "en": "no pubsub ID set"
+      "en": "no pub/sub ID set"
     },
     "description": {
       "package": "cmd/ttn-lw-cli/commands",
@@ -1743,6 +1752,15 @@
     "description": {
       "package": "pkg/applicationserver/io/packages/loradms/v1",
       "file": "data.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages/loradms/v1:no_association": {
+    "translations": {
+      "en": "no association available"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1",
+      "file": "package.go"
     }
   },
   "error:pkg/applicationserver/io/packages/loradms/v1:uplink_request_failed": {
@@ -2129,7 +2147,7 @@
     },
     "description": {
       "package": "pkg/applicationserver",
-      "file": "grpc_deviceregistry.go"
+      "file": "registry.go"
     }
   },
   "error:pkg/applicationserver:formatter_not_configured": {
@@ -2234,6 +2252,15 @@
   "error:pkg/applicationserver:payload_crypto_disabled": {
     "translations": {
       "en": "payload crypto is disabled"
+    },
+    "description": {
+      "package": "pkg/applicationserver",
+      "file": "applicationserver.go"
+    }
+  },
+  "error:pkg/applicationserver:unknown_session": {
+    "translations": {
+      "en": "unknown session"
     },
     "description": {
       "package": "pkg/applicationserver",
@@ -3570,6 +3597,51 @@
     "description": {
       "package": "pkg/errors",
       "file": "validation.go"
+    }
+  },
+  "error:pkg/events/grpc:no_identifiers": {
+    "translations": {
+      "en": "no identifiers"
+    },
+    "description": {
+      "package": "pkg/events/grpc",
+      "file": "grpc.go"
+    }
+  },
+  "error:pkg/eventserver/redis:no_payload": {
+    "translations": {
+      "en": "no payload"
+    },
+    "description": {
+      "package": "pkg/eventserver/redis",
+      "file": "event_queue.tti.go"
+    }
+  },
+  "error:pkg/eventserver/redis:value_type": {
+    "translations": {
+      "en": "invalid value type for key `{key}`"
+    },
+    "description": {
+      "package": "pkg/eventserver/redis",
+      "file": "event_queue.tti.go"
+    }
+  },
+  "error:pkg/eventserver:configuration": {
+    "translations": {
+      "en": "invalid configuration"
+    },
+    "description": {
+      "package": "pkg/eventserver",
+      "file": "eventserver.tti.go"
+    }
+  },
+  "error:pkg/eventserver:no_identifiers": {
+    "translations": {
+      "en": "no identifiers"
+    },
+    "description": {
+      "package": "pkg/eventserver",
+      "file": "grpc_events.tti.go"
     }
   },
   "error:pkg/fetch:fetch_file": {
@@ -5005,7 +5077,7 @@
   },
   "error:pkg/identityserver:token_expired": {
     "translations": {
-      "en": "access token expired"
+      "en": "token expired"
     },
     "description": {
       "package": "pkg/identityserver",
@@ -5014,7 +5086,7 @@
   },
   "error:pkg/identityserver:token_not_found": {
     "translations": {
-      "en": "access token not found"
+      "en": "token not found"
     },
     "description": {
       "package": "pkg/identityserver",
@@ -7838,6 +7910,15 @@
       "file": "max_body.go"
     }
   },
+  "error:pkg/webmiddleware:secure_cookie_invalid_context": {
+    "translations": {
+      "en": "No secure cookie value in this context"
+    },
+    "description": {
+      "package": "pkg/webmiddleware",
+      "file": "cookie.go"
+    }
+  },
   "event:application.api-key.create": {
     "translations": {
       "en": "create application API key"
@@ -8232,24 +8313,6 @@
     "description": {
       "package": "pkg/identityserver",
       "file": "end_device_registry.go"
-    }
-  },
-  "event:events.stream.start": {
-    "translations": {
-      "en": "start event stream"
-    },
-    "description": {
-      "package": "pkg/events/grpc",
-      "file": "grpc.go"
-    }
-  },
-  "event:events.stream.stop": {
-    "translations": {
-      "en": "stop event stream"
-    },
-    "description": {
-      "package": "pkg/events/grpc",
-      "file": "grpc.go"
     }
   },
   "event:gateway.api-key.create": {

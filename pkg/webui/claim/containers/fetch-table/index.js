@@ -17,12 +17,12 @@ import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import bind from 'autobind-decorator'
 import classnames from 'classnames'
+
 import Tabular from '@ttn-lw/components/table'
 import Tabs from '@ttn-lw/components/tabs'
+
 import PropTypes from '@ttn-lw/lib/prop-types'
-
 import debounce from '@ttn-lw/lib/debounce'
-
 import sharedMessages from '@ttn-lw/lib/shared-messages'
 
 import style from './fetch-table.styl'

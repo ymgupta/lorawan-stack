@@ -134,10 +134,17 @@ type Rights struct {
 	TTL time.Duration `name:"ttl" description:"Validity of Identity Server responses"`
 }
 
+// KeyVaultCache represents the configuration for key vault caching.
+type KeyVaultCache struct {
+	Size int           `name:"size" description:"Cache size. Caching is disabled if size is 0"`
+	TTL  time.Duration `name:"ttl" description:"Cache elements time to live. No expiration mechanism is used if TTL is 0"`
+}
+
 // KeyVault represents configuration for key vaults.
 type KeyVault struct {
 	Provider string            `name:"provider" description:"Provider (static, aws)"`
-	Static   map[string][]byte `name:"static" description:"Static labeled key encryption keys"`
+	Cache    KeyVaultCache     `name:"cache"`
+	Static   map[string][]byte `name:"static"`
 
 	AWS struct {
 		Region         string `name:"region" description:"AWS region"`
@@ -147,17 +154,24 @@ type KeyVault struct {
 
 // KeyVault returns an initialized crypto.KeyVault based on the configuration.
 func (v KeyVault) KeyVault() (crypto.KeyVault, error) {
+	vault := cryptoutil.EmptyKeyVault
 	switch v.Provider {
 	case "static":
 		kv := cryptoutil.NewMemKeyVault(v.Static)
 		kv.Separator = ":"
 		kv.ReplaceOldNew = []string{":", "_"}
-		return kv, nil
+		vault = kv
 	case "aws":
-		return awscrypto.NewKeyVault(v.AWS.Region, v.AWS.SecretIDPrefix)
-	default:
-		return cryptoutil.EmptyKeyVault, nil
+		kv, err := awscrypto.NewKeyVault(v.AWS.Region, v.AWS.SecretIDPrefix)
+		if err != nil {
+			return nil, err
+		}
+		vault = kv
 	}
+	if v.Cache.Size > 0 {
+		vault = cryptoutil.NewCacheKeyVault(vault, v.Cache.TTL, v.Cache.Size)
+	}
+	return vault, nil
 }
 
 var (

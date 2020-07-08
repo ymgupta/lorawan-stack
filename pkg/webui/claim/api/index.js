@@ -17,6 +17,7 @@ import TTN from 'ttn-lw'
 
 import getCookieValue from '@ttn-lw/lib/cookie'
 import { selectStackConfig, selectApplicationRootPath } from '@ttn-lw/lib/selectors/env'
+
 import token from '@claim/lib/access-token'
 
 const stackConfig = selectStackConfig()

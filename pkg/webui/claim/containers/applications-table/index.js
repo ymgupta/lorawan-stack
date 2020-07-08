@@ -16,10 +16,13 @@ import React, { Component } from 'react'
 import bind from 'autobind-decorator'
 
 import Message from '@ttn-lw/lib/components/message'
+
 import FetchTable from '@claim/containers/fetch-table'
 
 import sharedMessages from '@ttn-lw/lib/shared-messages'
+
 import { getApplicationsList } from '@claim/store/actions/applications'
+
 import {
   selectApplications,
   selectApplicationsTotalCount,

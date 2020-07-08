@@ -23,6 +23,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/gogo/protobuf/types"
 	"github.com/smartystreets/assertions"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/formatters"
@@ -110,6 +111,9 @@ func TestWebhooks(t *testing.T) {
 						LocationSolved: &ttnpb.ApplicationWebhook_Message{
 							Path: tc.prefix + "location",
 						},
+						ServiceData: &ttnpb.ApplicationWebhook_Message{
+							Path: tc.prefix + "service/data",
+						},
 					},
 					[]string{
 						"base_url",
@@ -122,6 +126,7 @@ func TestWebhooks(t *testing.T) {
 						"format",
 						"headers",
 						"ids",
+						"service_data",
 						"join_accept",
 						"location_solved",
 						"uplink_message",
@@ -313,6 +318,28 @@ func TestWebhooks(t *testing.T) {
 								},
 								OK:  true,
 								URL: fmt.Sprintf("%s/location", baseURL),
+							},
+							{
+								Name: "ServiceData",
+								Message: &ttnpb.ApplicationUp{
+									EndDeviceIdentifiers: registeredDeviceID,
+									Up: &ttnpb.ApplicationUp_ServiceData{
+										ServiceData: &ttnpb.ApplicationServiceData{
+											Data: &types.Struct{
+												Fields: map[string]*types.Value{
+													"battery": {
+														Kind: &types.Value_NumberValue{
+															NumberValue: 42.0,
+														},
+													},
+												},
+											},
+											Service: "test",
+										},
+									},
+								},
+								OK:  true,
+								URL: fmt.Sprintf("%s/service/data", baseURL),
 							},
 						} {
 							t.Run(tc.Name, func(t *testing.T) {
