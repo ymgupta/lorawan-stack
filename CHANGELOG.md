@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Support for Redis read replicas, reducing the load on the read-write Redis master.
+- Payload formatter documentation.
+- CLI support for setting message payload formatters from a local file. (see `--formatters.down-formatter-parameter-local-file` and `--formatters.up-formatter-parameter-local-file` options).
 
 ### Changed
+
+- Gateway connection stats are now stored in a single key.
 
 ### Deprecated
 
