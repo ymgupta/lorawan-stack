@@ -88,7 +88,7 @@ func (r *ApplicationPackagesRegistry) makeAssociationKeyFunc(uid string) func(po
 func (r ApplicationPackagesRegistry) GetAssociation(ctx context.Context, ids ttnpb.ApplicationPackageAssociationIdentifiers, paths []string) (*ttnpb.ApplicationPackageAssociation, error) {
 	pb := &ttnpb.ApplicationPackageAssociation{}
 	defer trace.StartRegion(ctx, "get application package association by id").End()
-	if err := ttnredis.GetProto(r.Redis, r.associationKey(unique.ID(ctx, ids.EndDeviceIdentifiers), r.fPortStr(ids.FPort))).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.associationKey(unique.ID(ctx, ids.EndDeviceIdentifiers), r.fPortStr(ids.FPort))).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return applyAssociationFieldMask(nil, pb, appendImplicitAssociationGetPaths(paths...)...)

@@ -144,7 +144,7 @@ type KeyVaultCache struct {
 type KeyVault struct {
 	Provider string            `name:"provider" description:"Provider (static, aws)"`
 	Cache    KeyVaultCache     `name:"cache"`
-	Static   map[string][]byte `name:"static" description:"Static labeled key encryption keys"`
+	Static   map[string][]byte `name:"static"`
 
 	AWS struct {
 		Region         string `name:"region" description:"AWS region"`

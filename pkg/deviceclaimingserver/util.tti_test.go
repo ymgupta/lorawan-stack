@@ -4,7 +4,9 @@ package deviceclaimingserver_test
 
 import (
 	"context"
+	"fmt"
 	"net"
+	"strings"
 	"time"
 
 	pbtypes "github.com/gogo/protobuf/types"
@@ -24,6 +26,8 @@ func mustHavePeer(ctx context.Context, c *component.Component, role ttnpb.Cluste
 	}
 	panic("could not connect to peer")
 }
+
+var localAddressReplacer = strings.NewReplacer("127.0.0.1", "localhost")
 
 type mockAuthorizedApplicationsRegistry struct {
 	GetFunc func(context.Context, ttnpb.ApplicationIdentifiers, []string) (*ttipb.ApplicationAPIKey, error)
@@ -132,7 +136,7 @@ func (r *mockJsDeviceRegistry) Delete(ctx context.Context, in *ttnpb.EndDeviceId
 	return r.DeleteFunc(ctx, in, opts...)
 }
 
-func startMockNS(ctx context.Context, opts ...rpcserver.Option) (*mockNS, string) {
+func startMockNS(ctx context.Context, tntID ttipb.TenantIdentifiers, opts ...rpcserver.Option) (*mockNS, string) {
 	ns := &mockNS{}
 	srv := rpcserver.New(ctx, opts...)
 	ttnpb.RegisterNsEndDeviceRegistryServer(srv.Server, ns)
@@ -145,7 +149,8 @@ func startMockNS(ctx context.Context, opts ...rpcserver.Option) (*mockNS, string
 		<-ctx.Done()
 		lis.Close()
 	}()
-	return ns, lis.Addr().String()
+	addr := fmt.Sprintf("%s.%s", tntID.TenantID, localAddressReplacer.Replace(lis.Addr().String()))
+	return ns, addr
 }
 
 type mockNS struct {
@@ -175,7 +180,7 @@ func (ns *mockNS) Delete(ctx context.Context, in *ttnpb.EndDeviceIdentifiers) (*
 	return ns.DeleteFunc(ctx, in)
 }
 
-func startMockAS(ctx context.Context, opts ...rpcserver.Option) (*mockAS, string) {
+func startMockAS(ctx context.Context, tntID ttipb.TenantIdentifiers, opts ...rpcserver.Option) (*mockAS, string) {
 	as := &mockAS{}
 	srv := rpcserver.New(ctx, opts...)
 	ttnpb.RegisterAsEndDeviceRegistryServer(srv.Server, as)
@@ -188,7 +193,8 @@ func startMockAS(ctx context.Context, opts ...rpcserver.Option) (*mockAS, string
 		<-ctx.Done()
 		lis.Close()
 	}()
-	return as, lis.Addr().String()
+	addr := fmt.Sprintf("%s.%s", tntID.TenantID, localAddressReplacer.Replace(lis.Addr().String()))
+	return as, addr
 }
 
 type mockAS struct {
