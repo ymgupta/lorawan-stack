@@ -113,16 +113,9 @@ $ docker ps
 $ tools/bin/mage dev:initStack
 ```
 
-If you want to enable multi-tenancy, run the following instead;
-
-```bash
-$ ./mage dev:initMTStack
-```
-A default tenant `thethings` is created in the database.
-
 This creates a database, migrates tables and creates a user `admin` with password `admin`.
 
-4. Start an development instance of The Things Stack
+4. Start a development instance of The Things Stack
 
 ```bash
 $ go run ./cmd/ttn-lw-stack -c ./config/stack/ttn-lw-stack.yml start
@@ -170,7 +163,7 @@ Once you have a license, add it to the environment
 ```
 export TTN_LW_LICENSE_KEY="..."
 ```
-ß
+
 ### Steps
 
 1. Build the frontend assets
@@ -225,7 +218,7 @@ If you want additional tenants, use the command `go run ./cmd/tti-lw-stack is-db
 127.0.0.1    my-tenant.localhost # if you want to test an alternative tenant
 ```
 
-5. Start an development instance of The Things Stack
+5. Start a development instance of The Things Enterprise Stack
 
 a. Single-tenant
 
@@ -240,7 +233,7 @@ b. Multi-tenant
 $ go run ./cmd/tti-lw-stack -c ./config/stack/ttn-lw-stack-mt.yml start
 ```
 
-6. Login to The Things Stack via the Console
+6. Login to The Things Enterprise Stack via the Console
 
 
 In a web browser, navigate to `http://localhost:1885/` and login using credentials from step 3.
@@ -254,7 +247,7 @@ To customize the configuration, copy the configuration file `/config/stack/ttn-l
 You can now use the modified configuration with
 
 ```bash
-$ go run ./cmd/ttn-lw-stack -c <custom-location>/ttn-lw-stack.yml start
+$ go run ./cmd/tti-lw-stack -c <custom-location>/ttn-lw-stack.yml start
 ```
 
 ### CLI With Multi-tenancy
