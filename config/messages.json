@@ -3086,9 +3086,108 @@
       "file": "grpc.tti.go"
     }
   },
-  "error:pkg/deviceclaimingserver:claim_authentication_code": {
+  "error:pkg/deviceclaimingserver:claim_authentication_code_mismatch": {
     "translations": {
-      "en": "invalid claim authentication code"
+      "en": "claim authentication code mismatch"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:claim_too_early": {
+    "translations": {
+      "en": "claim authentication code not valid yet"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:claim_too_late": {
+    "translations": {
+      "en": "claim authentication code not valid anymore"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:create_target_end_device": {
+    "translations": {
+      "en": "create target end device on {target}"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:delete_source_end_device": {
+    "translations": {
+      "en": "delete source end device on {source}"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:dial_source": {
+    "translations": {
+      "en": "dial source {source}"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:dial_target": {
+    "translations": {
+      "en": "dial target {target}"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:get_source_authorization": {
+    "translations": {
+      "en": "get source authorization"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:get_source_end_device": {
+    "translations": {
+      "en": "get source end device from {source}"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:get_source_end_device_identifiers": {
+    "translations": {
+      "en": "get source end device identifiers"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:get_source_tenant": {
+    "translations": {
+      "en": "get source tenant"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:no_claim_authentication_code": {
+    "translations": {
+      "en": "no claim authentication code"
     },
     "description": {
       "package": "pkg/deviceclaimingserver",
@@ -3116,6 +3215,33 @@
   "error:pkg/deviceclaimingserver:qr_code_data": {
     "translations": {
       "en": "invalid QR code data"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:set_source_end_device_fields": {
+    "translations": {
+      "en": "set source {source} fields"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:set_target_end_device_fields": {
+    "translations": {
+      "en": "set target {target} fields"
+    },
+    "description": {
+      "package": "pkg/deviceclaimingserver",
+      "file": "grpc.tti.go"
+    }
+  },
+  "error:pkg/deviceclaimingserver:verify_source_authorization": {
+    "translations": {
+      "en": "verify source authorization"
     },
     "description": {
       "package": "pkg/deviceclaimingserver",

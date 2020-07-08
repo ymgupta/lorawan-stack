@@ -56,7 +56,7 @@ func (r *DeviceRegistry) Get(ctx context.Context, ids ttnpb.EndDeviceIdentifiers
 	defer trace.StartRegion(ctx, "get end device").End()
 
 	pb := &ttnpb.EndDevice{}
-	if err := ttnredis.GetProto(r.Redis, r.uidKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.uidKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return ttnpb.FilterGetEndDevice(pb, paths...)
@@ -251,7 +251,7 @@ func (r *LinkRegistry) Get(ctx context.Context, ids ttnpb.ApplicationIdentifiers
 	defer trace.StartRegion(ctx, "get link").End()
 
 	pb := &ttnpb.ApplicationLink{}
-	if err := ttnredis.GetProto(r.Redis, r.appKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.appKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return applyLinkFieldMask(nil, pb, paths...)
@@ -263,7 +263,7 @@ var errApplicationUID = errors.DefineCorruption("application_uid", "invalid appl
 func (r *LinkRegistry) Range(ctx context.Context, paths []string, f func(context.Context, ttnpb.ApplicationIdentifiers, *ttnpb.ApplicationLink) bool) error {
 	defer trace.StartRegion(ctx, "range links").End()
 
-	uids, err := r.Redis.SMembers(r.allKey(ctx)).Result()
+	uids, err := r.Redis.ReadOnlyClient().SMembers(r.allKey(ctx)).Result()
 	if err != nil {
 		return ttnredis.ConvertError(err)
 	}
@@ -277,7 +277,7 @@ func (r *LinkRegistry) Range(ctx context.Context, paths []string, f func(context
 			return errApplicationUID.WithCause(err).WithAttributes("application_uid", uid)
 		}
 		pb := &ttnpb.ApplicationLink{}
-		if err := ttnredis.GetProto(r.Redis, r.appKey(uid)).ScanProto(pb); err != nil {
+		if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.appKey(uid)).ScanProto(pb); err != nil {
 			return err
 		}
 		pb, err = applyLinkFieldMask(nil, pb, paths...)

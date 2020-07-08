@@ -55,7 +55,7 @@ func (r *GatewayConnectionStatsRegistry) Set(ctx context.Context, ids ttnpb.Gate
 func (r *GatewayConnectionStatsRegistry) Get(ctx context.Context, ids ttnpb.GatewayIdentifiers) (*ttnpb.GatewayConnectionStats, error) {
 	uid := unique.ID(ctx, ids)
 	result := &ttnpb.GatewayConnectionStats{}
-	if err := ttnredis.GetProto(r.Redis, r.key(uid)).ScanProto(result); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.key(uid)).ScanProto(result); err != nil {
 		return nil, ttnredis.ConvertError(err)
 	}
 	return result, nil

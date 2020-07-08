@@ -82,7 +82,7 @@ func (r *DeviceRegistry) GetByID(ctx context.Context, appID ttnpb.ApplicationIde
 	defer trace.StartRegion(ctx, "get end device by id").End()
 
 	pb := &ttnpb.EndDevice{}
-	if err := ttnredis.GetProto(r.Redis, r.uidKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.uidKey(unique.ID(ctx, ids))).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return ttnpb.FilterGetEndDevice(pb, paths...)
@@ -97,7 +97,7 @@ func (r *DeviceRegistry) GetByEUI(ctx context.Context, joinEUI, devEUI types.EUI
 	defer trace.StartRegion(ctx, "get end device by eui").End()
 
 	pb := &ttnpb.EndDevice{}
-	if err := ttnredis.FindProto(r.Redis, r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
+	if err := ttnredis.FindProto(r.Redis.ReadOnlyClient(), r.euiKey(joinEUI, devEUI), func(uid string) (string, error) {
 		tntID, err := unique.ToTenantID(uid)
 		if err != nil {
 			return "", err
@@ -394,7 +394,7 @@ func (r *KeyRegistry) GetByID(ctx context.Context, joinEUI, devEUI types.EUI64, 
 	defer trace.StartRegion(ctx, "get session keys").End()
 
 	pb := &ttnpb.SessionKeys{}
-	if err := ttnredis.GetProto(r.Redis, r.idKey(joinEUI, devEUI, id)).ScanProto(pb); err != nil {
+	if err := ttnredis.GetProto(r.Redis.ReadOnlyClient(), r.idKey(joinEUI, devEUI, id)).ScanProto(pb); err != nil {
 		return nil, err
 	}
 	return ttnpb.FilterGetSessionKeys(pb, paths...)

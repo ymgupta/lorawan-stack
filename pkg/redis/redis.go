@@ -76,6 +76,8 @@ func Key(ks ...string) string {
 type Client struct {
 	*redis.Client
 	namespace string
+
+	readClient *Client
 }
 
 // Config represents Redis configuration.
@@ -87,6 +89,8 @@ type Config struct {
 	PoolSize      int            `name:"pool-size" description:"The maximum number of database connections"`
 	Failover      FailoverConfig `name:"failover" description:"Redis failover configuration"`
 	namespace     []string
+
+	ReadOnly ReadOnlyConfig `name:"readonly"`
 }
 
 func (c Config) WithNamespace(namespace ...string) *Config {
@@ -147,10 +151,32 @@ func newRedisClient(conf *Config) *redis.Client {
 
 // New returns a new initialized Redis store.
 func New(conf *Config) *Client {
-	return &Client{
+	cl := &Client{
 		namespace: Key(append(conf.RootNamespace, conf.namespace...)...),
 		Client:    newRedisClient(conf),
 	}
+
+	readOnlyConfig := Config{
+		Address:  conf.ReadOnly.Address,
+		Database: conf.ReadOnly.Database,
+		Password: conf.ReadOnly.Password,
+		PoolSize: conf.ReadOnly.PoolSize,
+	}
+	if !readOnlyConfig.IsZero() {
+		cl.readClient = &Client{
+			namespace: Key(append(conf.RootNamespace, conf.namespace...)...),
+			Client:    newRedisClient(&readOnlyConfig),
+		}
+	}
+	return cl
+}
+
+// ReadOnlyClient returns a client with for read only operations.
+func (cl *Client) ReadOnlyClient() *Client {
+	if cl.readClient != nil {
+		return cl.readClient
+	}
+	return cl
 }
 
 // Key constructs the full key for entity identified by ks by prepending the configured namespace and joining ks using the default separator.

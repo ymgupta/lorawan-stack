@@ -119,7 +119,7 @@ func (r *RedisClaimRegistry) Unclaim(ctx context.Context, ids ttnpb.Identifiers)
 // GetPeerID looks up which from the given candidates has a claim on the given identifiers.
 func (r *RedisClaimRegistry) GetPeerID(ctx context.Context, ids ttnpb.Identifiers, candidateIDs ...string) (string, error) {
 	results := make([]*redis.BoolCmd, len(candidateIDs))
-	_, err := r.Redis.Pipelined(func(tx redis.Pipeliner) error {
+	_, err := r.Redis.ReadOnlyClient().Pipelined(func(tx redis.Pipeliner) error {
 		for i, candidateID := range candidateIDs {
 			if ids, ok := ids.Identifiers().(*ttnpb.GatewayIdentifiers); ok && ids.EUI != nil {
 				results[i] = tx.SIsMember(

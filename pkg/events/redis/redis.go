@@ -32,6 +32,8 @@ func WrapPubSub(wrapped events.PubSub, conf ttnredis.Config) (ps *PubSub) {
 		client:       ttnRedisClient.Client,
 		eventChannel: ttnRedisClient.Key("events"),
 		closeWait:    make(chan struct{}),
+
+		readClient: ttnRedisClient.ReadOnlyClient().Client,
 	}
 	return
 }
@@ -50,12 +52,14 @@ type PubSub struct {
 	subOnce      sync.Once
 	sub          *redis.PubSub
 	closeWait    chan struct{}
+
+	readClient *redis.Client
 }
 
 // Subscribe implements the events.Subscriber interface.
 func (ps *PubSub) Subscribe(name string, hdl events.Handler) error {
 	ps.subOnce.Do(func() {
-		ps.sub = ps.client.Subscribe(ps.eventChannel)
+		ps.sub = ps.readClient.Subscribe(ps.eventChannel)
 		go func() {
 			defer close(ps.closeWait)
 			for {
