@@ -66,7 +66,8 @@ type options struct {
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
 
-	tenant tenant.Config
+	tenant           tenant.Config
+	logIgnoreMethods []string
 }
 
 // Option for the gRPC server
@@ -104,6 +105,13 @@ func WithStreamInterceptors(interceptors ...grpc.StreamServerInterceptor) Option
 func WithUnaryInterceptors(interceptors ...grpc.UnaryServerInterceptor) Option {
 	return func(o *options) {
 		o.unaryInterceptors = append(o.unaryInterceptors, interceptors...)
+	}
+}
+
+// WithLogIgnoreMethods sets a list of methods for which no log messages are printed on success.
+func WithLogIgnoreMethods(methods []string) Option {
+	return func(o *options) {
+		o.logIgnoreMethods = methods
 	}
 }
 
@@ -145,7 +153,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		rpcmiddleware.RequestIDStreamServerInterceptor(),
 		grpc_opentracing.StreamServerInterceptor(),
 		events.StreamServerInterceptor,
-		rpclog.StreamServerInterceptor(ctx),
+		rpclog.StreamServerInterceptor(ctx, rpclog.WithIgnoreMethods(options.logIgnoreMethods)),
 		metrics.StreamServerInterceptor,
 		sentrymiddleware.StreamServerInterceptor(),
 		errors.StreamServerInterceptor(),
@@ -161,7 +169,7 @@ func New(ctx context.Context, opts ...Option) *Server {
 		rpcmiddleware.RequestIDUnaryServerInterceptor(),
 		grpc_opentracing.UnaryServerInterceptor(),
 		events.UnaryServerInterceptor,
-		rpclog.UnaryServerInterceptor(ctx),
+		rpclog.UnaryServerInterceptor(ctx, rpclog.WithIgnoreMethods(options.logIgnoreMethods)),
 		metrics.UnaryServerInterceptor,
 		sentrymiddleware.UnaryServerInterceptor(),
 		errors.UnaryServerInterceptor(),

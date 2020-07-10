@@ -35,6 +35,7 @@ func (c *Component) initGRPC() {
 		c.ctx,
 		rpcserver.WithContextFiller(c.FillContext),
 		rpcserver.WithTenantConfig(c.config.Tenancy),
+		rpcserver.WithLogIgnoreMethods(c.config.GRPC.LogIgnoreMethods),
 	)
 }
 

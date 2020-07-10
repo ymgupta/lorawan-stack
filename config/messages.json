@@ -1945,7 +1945,7 @@
   },
   "error:pkg/applicationserver/io/pubsub:integration_failed": {
     "translations": {
-      "en": "integration {pub_sub_id} failed"
+      "en": "integration `{pub_sub_id}` failed"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
@@ -2870,6 +2870,15 @@
       "file": "cryptoutil.go"
     }
   },
+  "error:pkg/crypto/cryptoutil:key_not_found": {
+    "translations": {
+      "en": "key with ID `{id}` not found"
+    },
+    "description": {
+      "package": "pkg/crypto/cryptoutil",
+      "file": "cryptoutil.go"
+    }
+  },
   "error:pkg/crypto:corrupt_key": {
     "translations": {
       "en": "corrupt key data"
@@ -2913,6 +2922,15 @@
     "description": {
       "package": "pkg/crypto",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/crypto:malformed_cipher_text": {
+    "translations": {
+      "en": "malformed cipher text"
+    },
+    "description": {
+      "package": "pkg/crypto",
+      "file": "encryption.go"
     }
   },
   "error:pkg/crypto:ping_period": {
@@ -8110,7 +8128,7 @@
   },
   "event:as.pubsub.delete": {
     "translations": {
-      "en": "delete pubsub"
+      "en": "delete pub/sub"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
@@ -8119,7 +8137,7 @@
   },
   "event:as.pubsub.fail": {
     "translations": {
-      "en": "fail pubsub"
+      "en": "fail pub/sub"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
@@ -8128,7 +8146,7 @@
   },
   "event:as.pubsub.set": {
     "translations": {
-      "en": "set pubsub"
+      "en": "set pub/sub"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
@@ -8137,7 +8155,7 @@
   },
   "event:as.pubsub.start": {
     "translations": {
-      "en": "start pubsub"
+      "en": "start pub/sub"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
@@ -8146,7 +8164,7 @@
   },
   "event:as.pubsub.stop": {
     "translations": {
-      "en": "stop pubsub"
+      "en": "stop pub/sub"
     },
     "description": {
       "package": "pkg/applicationserver/io/pubsub",
