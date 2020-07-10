@@ -22,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for Redis read replicas, reducing the load on the read-write Redis master.
 - Payload formatter documentation.
 - CLI support for setting message payload formatters from a local file. (see `--formatters.down-formatter-parameter-local-file` and `--formatters.up-formatter-parameter-local-file` options).
+- Generic encryption/decryption to KeyVault.
+- Option to ignore log messages for selected gRPC method on success (see `grpc.log-ignore-methods` option).
 
 ### Changed
 
@@ -36,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
+- Inconsistent error message responses when retrieving connection stats from GS if the gateway is not connected.
+- Empty form validation in the Console.
+- CLI crash when listing application package default associations without providing an application ID.
 
 ### Security
 
