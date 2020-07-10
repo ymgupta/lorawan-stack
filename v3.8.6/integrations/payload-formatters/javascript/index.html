@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Javascript | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/javascript/" />
+  <link rel="alternate icon" href="/v3.8.6/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.6/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.6/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.6/css/theme.min.f4286cd663df9fa8e80ffe6a16eb8e8677cfcc9248645e8aabd8e49007a52454.css" integrity="sha256-9Chs1mPfn6joD/5qFuuOhnfPzJJIZF6Kq9jkkAelJFQ="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Javascript">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Javascript">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/javascript/">
+  <meta name="twitter:title" content="Javascript" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.6/">
+        <img src="/v3.8.6/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.6</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.6/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.6/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.6/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.6/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.6/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.6/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<section class="search-container">
+    <div class="container">
+      <div class="columns is-vcentered">
+        <div class="column">
+          <div class="field has-addons has-addons-centered">
+            <div class="control">
+              <input class="input search-bar" id="search-input" type="text" placeholder="Search" type="text">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script type="text/javascript"> docsearch({
+apiKey: "4372282a02970d8402d43457bf95d486",
+indexName: "thethingsstack",
+inputSelector: '#search-input',
+debug: false 
+});
+</script>
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column is-one-third">
+
+
+<h2 class="title is-size-4">Payload Formatters</h2>
+
+<ul class="menu-list">
+<a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/" class="">Overview</a>
+<li>
+  <a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/console/" class="">Creating Payload Formatters in the Console</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/cli/" class="">Creating Payload Formatters with the CLI</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/cayenne/" class="">CayenneLPP</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/device-repo/" class="">Device Repository</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.6/integrations/payload-formatters/javascript/" class="is-active">Javascript</a>
+</li>
+</ul>
+
+
+
+
+
+      </div>
+      
+      <div class="column is-two-thirds">
+
+<h1 class="title is-size-2">Javascript</h1>
+
+<div class="content"><p>Javascript payload formatters allow you to write your own functions to encode or decode messages. Javascript functions are executed using the <a href="https://www.ecma-international.org/ecma-262/5.1/">JavaScript ECMAScript 5</a> engine.</p>
+<h2 id="decoder-function">Decoder Function</h2>
+<p>The Javascript <code>Decoder</code> function is called when an uplink is received from a device. The function has the following format:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Decoder</span><span class="p">(</span><span class="nx">bytes</span><span class="p">,</span> <span class="nx">f_port</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">{</span>
+    <span class="nx">raw</span><span class="o">:</span> <span class="nx">bytes</span><span class="p">,</span>
+    <span class="nx">f_port</span><span class="o">:</span> <span class="nx">f_port</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+</code></pre></div><p>The <code>Decoder</code> function receives the binary message payload as the first parameter (typically called <strong>bytes</strong>) and the port as the second parameter (typically called <strong>f_port</strong>).</p>
+<p>The <code>Decoder</code> function must return an object, which is appended to the uplink message. The following example is from The Things Node:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Decoder</span><span class="p">(</span><span class="nx">bytes</span><span class="p">,</span> <span class="nx">port</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kd">var</span> <span class="nx">decoded</span> <span class="o">=</span> <span class="p">{};</span>
+  <span class="kd">var</span> <span class="nx">events</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">1</span><span class="o">:</span> <span class="s1">&#39;setup&#39;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="o">:</span> <span class="s1">&#39;interval&#39;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="o">:</span> <span class="s1">&#39;motion&#39;</span><span class="p">,</span>
+    <span class="mi">4</span><span class="o">:</span> <span class="s1">&#39;button&#39;</span>
+  <span class="p">};</span>
+  <span class="nx">decoded</span><span class="p">.</span><span class="nx">event</span> <span class="o">=</span> <span class="nx">events</span><span class="p">[</span><span class="nx">port</span><span class="p">];</span>
+  <span class="nx">decoded</span><span class="p">.</span><span class="nx">battery</span> <span class="o">=</span> <span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="nx">bytes</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="nx">decoded</span><span class="p">.</span><span class="nx">light</span> <span class="o">=</span> <span class="p">(</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="nx">bytes</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+  <span class="nx">decoded</span><span class="p">.</span><span class="nx">temperature</span> <span class="o">=</span> <span class="p">((</span><span class="nx">bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="nx">bytes</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">/</span> <span class="mi">100</span><span class="p">;</span>
+  <span class="k">return</span> <span class="nx">decoded</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div><blockquote>
+<p>Note: the Decoder function should be simple and lightweight. Use arithmetic operations and bit shifts to convert binary data to fields. Avoid using non-trivial logic or polyfills.</p>
+</blockquote>
+<p>The following binary input data:</p>
+<pre><code>[0x15, 0x4B, 0xA2, 0xD0, 0x5E, 0xDB]
+</code></pre><p>produces the following JSON data, appended to the uplink message as a <code>decoded_payload</code> field:</p>
+<div class="highlight"><pre class="chroma"><code class="language-json" data-lang="json"><span class="p">{</span>
+  <span class="nt">&#34;uplink_message&#34;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&#34;f_port&#34;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">&#34;f_cnt&#34;</span><span class="p">:</span> <span class="mi">7825</span><span class="p">,</span>
+    <span class="nt">&#34;frm_payload&#34;</span><span class="p">:</span> <span class="s2">&#34;EiwDzQrL&#34;</span><span class="p">,</span>
+    <span class="nt">&#34;decoded_payload&#34;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&#34;battery&#34;</span><span class="p">:</span> <span class="mi">4652</span><span class="p">,</span>
+      <span class="nt">&#34;event&#34;</span><span class="p">:</span> <span class="s2">&#34;interval&#34;</span><span class="p">,</span>
+      <span class="nt">&#34;light&#34;</span><span class="p">:</span> <span class="mi">973</span><span class="p">,</span>
+      <span class="nt">&#34;temperature&#34;</span><span class="p">:</span> <span class="mf">27.63</span>
+    <span class="p">},</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div><h2 id="encoder-function">Encoder Function</h2>
+<p>The <code>Encoder</code> function is called when a downlink is scheduled. The <code>Encoder</code> has the following format</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Encoder</span><span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">f_port</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="p">[];</span>
+<span class="p">}</span>
+</code></pre></div><p>The <code>Encoder</code> function receives a JSON object as the first parameter (typically called <strong>payload</strong>) and the port as the second parameter (typically called <strong>f_port</strong>).</p>
+<p>The function must return a byte encoded array, which will be transmitted as the binary message payload.</p>
+<p>For example, if we wish to turn the light on a The Things Node red or green using a <code>color</code> field in our payload, we could use the following <code>Encoder</code> function:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="kd">function</span> <span class="nx">Encoder</span><span class="p">(</span><span class="nx">payload</span><span class="p">,</span> <span class="nx">f_port</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span><span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">color</span> <span class="o">===</span> <span class="s2">&#34;green&#34;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+  <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="nx">payload</span><span class="p">.</span><span class="nx">color</span> <span class="o">===</span> <span class="s2">&#34;red&#34;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+  <span class="k">else</span>
+    <span class="k">return</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div><blockquote>
+<p>Note: the Encoder function should be simple and lightweight. Use arithmetic operations and bit shifts to convert fields to binary data. Avoid using non-trivial logic or polyfills.</p>
+</blockquote>
+<p>Sending this object:</p>
+<div class="highlight"><pre class="chroma"><code class="language-javascript" data-lang="javascript"><span class="p">{</span>
+  <span class="nx">color</span><span class="o">:</span> <span class="s1">&#39;green&#39;</span>
+<span class="p">}</span>
+</code></pre></div><p>will result in the following binary payload being transmitted.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span> <span class="m">01</span> <span class="o">]</span>
+</code></pre></div></div>
+
+
+<div class="is-clearfix">
+<a class="button is-pulled-left" href="/v3.8.6/integrations/payload-formatters/device-repo/">← Device Repository</a>
+</div>
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.6/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.6/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.6/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.6/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.6/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by benolayinka on 02 Jul 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/7e42fc6fef540a414455b6d63a00ae3a113ac410">
+      doc: Add payload formatters
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/integrations/payload-formatters/javascript.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.6/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+</body>
+
+</html>
