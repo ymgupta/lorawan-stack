@@ -65,9 +65,9 @@ type options struct {
 	streamInterceptors []grpc.StreamServerInterceptor
 	unaryInterceptors  []grpc.UnaryServerInterceptor
 	serverOptions      []grpc.ServerOption
+	logIgnoreMethods   []string
 
-	tenant           tenant.Config
-	logIgnoreMethods []string
+	tenant tenant.Config
 }
 
 // Option for the gRPC server
