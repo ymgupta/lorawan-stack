@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Azure Setup | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/azure-setup/" />
+  <link rel="alternate icon" href="/v3.8.7/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.7/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.7/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.7/css/theme.min.f4286cd663df9fa8e80ffe6a16eb8e8677cfcc9248645e8aabd8e49007a52454.css" integrity="sha256-9Chs1mPfn6joD/5qFuuOhnfPzJJIZF6Kq9jkkAelJFQ="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Azure Setup">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Azure Setup">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/azure-setup/">
+  <meta name="twitter:title" content="Azure Setup" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.7/">
+        <img src="/v3.8.7/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.7</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.7/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.7/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.7/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.7/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.7/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.7/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<section class="search-container">
+    <div class="container">
+      <div class="columns is-vcentered">
+        <div class="column">
+          <div class="field has-addons has-addons-centered">
+            <div class="control">
+              <input class="input search-bar" id="search-input" type="text" placeholder="Search" type="text">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script type="text/javascript"> docsearch({
+apiKey: "4372282a02970d8402d43457bf95d486",
+indexName: "thethingsstack",
+inputSelector: '#search-input',
+debug: false 
+});
+</script>
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column is-one-third">
+
+
+<h2 class="title is-size-4">Microsoft Azure</h2>
+
+<ul class="menu-list">
+<a href="https://thethingsstack.io/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/" class="">Overview</a>
+<li>
+  <a href="https://thethingsstack.io/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/azure-setup/" class="is-active">Azure Setup</a>
+</li>
+<li>
+  <a href="https://thethingsstack.io/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/tts-setup/" class="">Creating a Webhook</a>
+</li>
+</ul>
+
+
+
+
+
+      </div>
+      
+      <div class="column is-two-thirds">
+
+<h1 class="title is-size-2">Azure Setup</h1>
+
+<div class="content"><p>Follow the instructions in this section to create a function in Azure and prepare the setup for integration with The Things Stack.</p>
+<blockquote>
+<p>Note: you can find more detailed instructions for creating Azure functions in the <a href="https://docs.microsoft.com/en-us/azure/azure-functions/functions-create-first-azure-function">official Azure documentation</a>.</p>
+</blockquote>
+<p>First, navigate to the Azure services dashboard and click on <strong>Function App</strong> service.</p>
+<figure>
+    <img src="azure-services-dashboard.png"
+         alt="Function app in Azure services dashboard"/> 
+</figure>
+
+<p>Once you are in <strong>Function App</strong> creation wizard, all the options that you will need for this guide are in the <strong>Basics</strong> tab.</p>
+<p>Fill in the <strong>Subscription</strong> and <strong>Resource Group</strong> fields according to your preferences. If it is your first time using the Azure, you will have to create a new resource group.</p>
+<p>Next, you have to provide a globally unique <strong>Function App name</strong>. After deploying your function, you can check if it is running by navigating to <code>https://{function_app_name}.azurewebsites.net/</code>.</p>
+<p>Choose <strong>Code</strong> for <strong>Publish</strong> to publish your code files (the alternative would be publishing a Docker container).</p>
+<p>Since you can use different programming languages for your function, you have to choose an appropriate <strong>Runtime stack</strong>. In this guide, we use a <strong>C#</strong> function, therefore we choose <strong>.NET Core</strong> runtime stack. Also, you need to choose the <strong>Version</strong> of the installed runtime. The most recent version will automatically be suggested to you.</p>
+<p>Choose a <strong>Region</strong> nearest to you, or near other services that your functions access.</p>
+<figure>
+    <img src="creating-a-function-app.png"
+         alt="Creating Azure function app"/> 
+</figure>
+
+<p>When finished, click on <strong>Review + create</strong> button, and then once again on <strong>Create</strong> button. At this point, you should see something like this:</p>
+<figure>
+    <img src="successfully-deployed-function-app.png"
+         alt="Function app deployment complete"/> 
+</figure>
+
+<p>To view and manage your function app, select <strong>Go to resource</strong>.</p>
+<p>In the next step, you will be creating a function inside your function app. From the left hand <strong>Functions</strong> menu, choose <strong>Functions</strong> and click on <strong>Add</strong> button.</p>
+<p>In the <strong>New Function</strong> pop-up menu, select <strong>HTTP trigger</strong>. Give your function a recognizable name and choose <strong>Function</strong> for <strong>Authorization level</strong>.</p>
+<blockquote>
+<p>Note: <strong>Authorization level</strong> defines whether the function requires an API key and if so, what kind (function or master key). Depending on this, an API key may be a part of the webhook URL.</p>
+</blockquote>
+<p>Select <strong>Create Function</strong> to finish.</p>
+<figure>
+    <img src="http-trigger-function-creation.png"
+         alt="Creating HTTP trigger function"/> 
+</figure>
+
+<p>After creating a function, click on it and select <strong>Code + Test</strong> in the <strong>Developer</strong> menu on the left. Modify the function code as shown below in order to show incoming messages in JSON format.</p>
+<p>Also make sure to copy the <strong>function URL</strong>, because you will need it when creating a Webhook integration on The Things Stack.</p>
+<figure>
+    <img src="http-trigger-function-code.png"
+         alt="HTTP trigger function code"/> 
+</figure>
+
+<p>Finally, expand the <strong>Logs</strong> in the bottom and click on the <strong>Start</strong> button.</p></div>
+
+
+
+
+
+
+<div class="is-clearfix">
+<a class="button is-pulled-left" href="/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/">← Microsoft Azure</a>
+<a class="button is-pulled-right" href="/v3.8.7/integrations/webhooks/cloud-integrations/microsoft-azure/tts-setup/">Creating a Webhook →</a>
+</div>
+
+
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.7/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.7/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.7/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.7/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.7/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by Nejra Selimović on 24 Jun 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/a3f39c0fd983626bf090b1d6f2244ce3975c2986">
+      doc: Add Azure integration guide (#2767)
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/integrations/webhooks/cloud-integrations/microsoft-azure/azure-setup/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.7/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+</body>
+
+</html>

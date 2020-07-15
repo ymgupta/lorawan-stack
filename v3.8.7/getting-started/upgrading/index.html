@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+
+<html class="has-navbar-fixed-top">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="generator" content="Hugo 0.70.0" />
+  <title>Upgrading | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/v3.8.7/getting-started/upgrading/" />
+  <link rel="alternate icon" href="/v3.8.7/favicon.ico">
+  <link rel="alternate icon" type="image/png" href="/v3.8.7/favicon.png">
+  <link rel="icon" type="image/svg+xml" href="/v3.8.7/favicon.svg">
+  <link rel="stylesheet" href="https://thethingsstack.io/v3.8.7/css/theme.min.f4286cd663df9fa8e80ffe6a16eb8e8677cfcc9248645e8aabd8e49007a52454.css" integrity="sha256-9Chs1mPfn6joD/5qFuuOhnfPzJJIZF6Kq9jkkAelJFQ="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta itemprop="name" content="Upgrading">
+  <meta itemprop="description" content="">
+  <meta itemprop="keywords" content="">
+  <meta property="og:title" content="Upgrading">
+  <meta property="og:description" content="">
+  <meta property="og:url" content="https://thethingsstack.io/v3.8.7/getting-started/upgrading/">
+  <meta name="twitter:title" content="Upgrading" />
+  <meta name="twitter:description" content="" />
+  <meta name="twitter:card" content="summary" />
+</head>
+
+
+<body>
+
+<nav class="navbar is-fixed-top" role="navigation" aria-label="main navigation">
+  <div class="container">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/v3.8.7/">
+        <img src="/v3.8.7/img/TTS-logo.svg">
+        <p class="navbar-item is-size-7">v3.8.7</p>
+      </a>
+      <span class="navbar-burger burger" data-target="topMenu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </div>
+    <div id="topMenu" class="navbar-menu">
+      <div class="navbar-start">
+        <a class="navbar-item" href="/v3.8.7/getting-started/">Getting Started</a>
+        <a class="navbar-item" href="/v3.8.7/devices/">Devices</a>
+        <a class="navbar-item" href="/v3.8.7/gateways/">Gateways</a>
+        <a class="navbar-item" href="/v3.8.7/integrations/">Integrations</a>
+        <a class="navbar-item" href="/v3.8.7/reference/">Reference</a>
+      </div>
+      <div class="navbar-end">
+        <a class="navbar-item" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a>
+        <a class="navbar-item" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a>
+        <div class="navbar-item">
+          <a class="button is-primary" href="/v3.8.7/download/">Get The Things Stack</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+<section class="search-container">
+    <div class="container">
+      <div class="columns is-vcentered">
+        <div class="column">
+          <div class="field has-addons has-addons-centered">
+            <div class="control">
+              <input class="input search-bar" id="search-input" type="text" placeholder="Search" type="text">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.js"></script>
+<script type="text/javascript"> docsearch({
+apiKey: "4372282a02970d8402d43457bf95d486",
+indexName: "thethingsstack",
+inputSelector: '#search-input',
+debug: false 
+});
+</script>
+
+<main>
+<section class="section">
+  <div class="container">
+    <div class="columns">
+      
+      <div class="column">
+
+<h1 class="title is-size-2">Upgrading</h1>
+
+<div class="content"><p>Follow these instructions to upgrade an existing The Things Stack instance.</p>
+<p>Replace the tag in your <strong>docker-compose.yml</strong> file with the newer version of The Things Stack:</p>
+<div class="highlight"><pre class="chroma"><code class="language-yaml" data-lang="yaml"><span class="c"># file: docker-compose.yml</span><span class="w">
+</span><span class="w"></span><span class="k">services</span><span class="p">:</span><span class="w">
+</span><span class="w">  </span><span class="c"># ...</span><span class="w">
+</span><span class="w">  </span><span class="k">stack</span><span class="p">:</span><span class="w">
+</span><span class="w">    </span><span class="k">image</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;thethingsnetwork/lorawan-stack:&lt;the tag&gt;&#39;</span><span class="w">
+</span><span class="w">  </span><span class="c"># ...</span><span class="w">
+</span><span class="w">
+</span></code></pre></div><p>Pull the new images:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ docker-compose pull
+Pulling cockroach ... <span class="k">done</span>
+Pulling redis     ... <span class="k">done</span>
+Pulling stack     ... <span class="k">done</span>
+</code></pre></div><p>Shut down the stack:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ docker-compose down
+Stopping root_stack_1     ... <span class="k">done</span>
+Stopping root_cockroach_1 ... <span class="k">done</span>
+Stopping root_redis_1     ... <span class="k">done</span>
+Removing root_stack_1     ... <span class="k">done</span>
+Removing root_cockroach_1 ... <span class="k">done</span>
+Removing root_redis_1     ... <span class="k">done</span>
+Removing network root_default
+</code></pre></div><p>Run migrations:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ docker-compose run --rm stack is-db migrate
+Creating network <span class="s2">&#34;root_default&#34;</span> with the default driver
+Creating root_cockroach_1 ... <span class="k">done</span>
+Creating root_redis_1     ... <span class="k">done</span>
+  INFO Connecting to Identity Server database...
+  INFO Detected database CockroachDB CCL v19.2.6 <span class="o">(</span>x86_64-unknown-linux-gnu, built 2020/04/06 18:05:31, go1.12.12<span class="o">)</span>
+  INFO Migrating tables...                     
+  INFO Successfully migrated  
+</code></pre></div><p>Start stack:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ docker-compose up -d
+root_cockroach_1 is up-to-date
+root_redis_1 is up-to-date
+Creating root_stack_1 ... <span class="k">done</span>
+</code></pre></div></div>
+
+
+<div class="is-clearfix">
+</div>
+
+
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer has-background-primary">
+  <div class="container">
+    <div class="columns">
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">The Things Stack</h3>
+        <p><a class="" href="/v3.8.7/getting-started/">Getting Started</a></p>
+        <p><a class="" href="/v3.8.7/devices/">Devices</a></p>
+        <p><a class="" href="/v3.8.7/gateways/">Gateways</a></p>
+        <p><a class="" href="/v3.8.7/integrations/">Integrations</a></p>
+        <p><a class="" href="/v3.8.7/reference/">Reference</a></p>
+      </nav>
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">Contributing</h3>
+        <p><a class="" href="https://github.com/TheThingsNetwork/lorawan-stack">GitHub</a></p>
+        <p><a class="" href="https://www.thethingsnetwork.org/forum/c/network-and-routing/v3">Forum</a></p>
+      </nav>
+      
+      <nav class="column is-one-quarter">
+        <h3 class="title is-6">About Us</h3>
+        <p><a class="" href="https://www.thethingsnetwork.org">The Things Network</a></p>
+        <p><a class="" href="https://www.thethingsindustries.com">The Things Industries</a></p>
+      </nav>
+      <div class="column is-one-quarter">
+        <h3 class="title is-6">About this page</h3>
+        <div class="content">
+<p class="has-text-light is-size-7">
+  Last changed by benolayinka on 28 Apr 2020.
+  <br>
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/b98063f6a5dd9383ab1b4a2c9912f6687c09766c">
+      doc: Add weight to upgrading guide
+    </a>
+</p>
+
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/edit/master/doc/content/getting-started/upgrading.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+</div>
+
+      </div>
+    </div>
+  </div>
+</footer>
+<script src="https://thethingsstack.io/v3.8.7/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script>
+
+</body>
+
+</html>
