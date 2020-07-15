@@ -188,6 +188,9 @@ func (m *Configuration_Cluster) GetNS() *Configuration_Cluster_NetworkServer {
 
 type Configuration_Cluster_IdentityServer struct {
 	UserRegistration     *Configuration_Cluster_IdentityServer_UserRegistration `protobuf:"bytes,3,opt,name=user_registration,json=userRegistration,proto3" json:"user_registration,omitempty"`
+	ProfilePicture       *Configuration_Cluster_IdentityServer_ProfilePicture   `protobuf:"bytes,4,opt,name=profile_picture,json=profilePicture,proto3" json:"profile_picture,omitempty"`
+	EndDevicePicture     *Configuration_Cluster_IdentityServer_EndDevicePicture `protobuf:"bytes,5,opt,name=end_device_picture,json=endDevicePicture,proto3" json:"end_device_picture,omitempty"`
+	UserRights           *Configuration_Cluster_IdentityServer_UserRights       `protobuf:"bytes,6,opt,name=user_rights,json=userRights,proto3" json:"user_rights,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
 	XXX_sizecache        int32                                                  `json:"-"`
 }
@@ -227,6 +230,27 @@ var xxx_messageInfo_Configuration_Cluster_IdentityServer proto.InternalMessageIn
 func (m *Configuration_Cluster_IdentityServer) GetUserRegistration() *Configuration_Cluster_IdentityServer_UserRegistration {
 	if m != nil {
 		return m.UserRegistration
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer) GetProfilePicture() *Configuration_Cluster_IdentityServer_ProfilePicture {
+	if m != nil {
+		return m.ProfilePicture
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer) GetEndDevicePicture() *Configuration_Cluster_IdentityServer_EndDevicePicture {
+	if m != nil {
+		return m.EndDevicePicture
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer) GetUserRights() *Configuration_Cluster_IdentityServer_UserRights {
+	if m != nil {
+		return m.UserRights
 	}
 	return nil
 }
@@ -530,6 +554,179 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequireme
 	return nil
 }
 
+type Configuration_Cluster_IdentityServer_ProfilePicture struct {
+	DisableUpload        *types.BoolValue `protobuf:"bytes,1,opt,name=disable_upload,json=disableUpload,proto3" json:"disable_upload,omitempty"`
+	UseGravatar          *types.BoolValue `protobuf:"bytes,2,opt,name=use_gravatar,json=useGravatar,proto3" json:"use_gravatar,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) Reset() {
+	*m = Configuration_Cluster_IdentityServer_ProfilePicture{}
+}
+func (*Configuration_Cluster_IdentityServer_ProfilePicture) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_ProfilePicture) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 1}
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_ProfilePicture.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_ProfilePicture.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_ProfilePicture.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_ProfilePicture proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) GetDisableUpload() *types.BoolValue {
+	if m != nil {
+		return m.DisableUpload
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) GetUseGravatar() *types.BoolValue {
+	if m != nil {
+		return m.UseGravatar
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_EndDevicePicture struct {
+	DisableUpload        *types.BoolValue `protobuf:"bytes,1,opt,name=disable_upload,json=disableUpload,proto3" json:"disable_upload,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) Reset() {
+	*m = Configuration_Cluster_IdentityServer_EndDevicePicture{}
+}
+func (*Configuration_Cluster_IdentityServer_EndDevicePicture) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_EndDevicePicture) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 2}
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_EndDevicePicture.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_EndDevicePicture.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_EndDevicePicture.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_EndDevicePicture proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) GetDisableUpload() *types.BoolValue {
+	if m != nil {
+		return m.DisableUpload
+	}
+	return nil
+}
+
+type Configuration_Cluster_IdentityServer_UserRights struct {
+	CreateApplications   *types.BoolValue `protobuf:"bytes,1,opt,name=create_applications,json=createApplications,proto3" json:"create_applications,omitempty"`
+	CreateClients        *types.BoolValue `protobuf:"bytes,2,opt,name=create_clients,json=createClients,proto3" json:"create_clients,omitempty"`
+	CreateGateways       *types.BoolValue `protobuf:"bytes,3,opt,name=create_gateways,json=createGateways,proto3" json:"create_gateways,omitempty"`
+	CreateOrganizations  *types.BoolValue `protobuf:"bytes,4,opt,name=create_organizations,json=createOrganizations,proto3" json:"create_organizations,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) Reset() {
+	*m = Configuration_Cluster_IdentityServer_UserRights{}
+}
+func (*Configuration_Cluster_IdentityServer_UserRights) ProtoMessage() {}
+func (*Configuration_Cluster_IdentityServer_UserRights) Descriptor() ([]byte, []int) {
+	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 3}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRights.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRights.Merge(m, src)
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) XXX_Size() int {
+	return m.Size()
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) XXX_DiscardUnknown() {
+	xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRights.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Configuration_Cluster_IdentityServer_UserRights proto.InternalMessageInfo
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) GetCreateApplications() *types.BoolValue {
+	if m != nil {
+		return m.CreateApplications
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) GetCreateClients() *types.BoolValue {
+	if m != nil {
+		return m.CreateClients
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) GetCreateGateways() *types.BoolValue {
+	if m != nil {
+		return m.CreateGateways
+	}
+	return nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) GetCreateOrganizations() *types.BoolValue {
+	if m != nil {
+		return m.CreateOrganizations
+	}
+	return nil
+}
+
 type Configuration_Cluster_NetworkServer struct {
 	DevAddrPrefixes      []go_thethings_network_lorawan_stack_v3_pkg_types.DevAddrPrefix `protobuf:"bytes,1,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
 	DeduplicationWindow  *time.Duration                                                  `protobuf:"bytes,2,opt,name=deduplication_window,json=deduplicationWindow,proto3,stdduration" json:"deduplication_window,omitempty"`
@@ -603,6 +800,12 @@ func init() {
 	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_AdminApproval)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval")
 	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements")
 	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequirements)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_ProfilePicture)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_ProfilePicture)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_EndDevicePicture)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_EndDevicePicture)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture")
+	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRights)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights")
+	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRights)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights")
 	proto.RegisterType((*Configuration_Cluster_NetworkServer)(nil), "tti.lorawan.v3.Configuration.Cluster.NetworkServer")
 	golang_proto.RegisterType((*Configuration_Cluster_NetworkServer)(nil), "tti.lorawan.v3.Configuration.Cluster.NetworkServer")
 }
@@ -615,69 +818,83 @@ func init() {
 }
 
 var fileDescriptor_1cc10cab306641c7 = []byte{
-	// 981 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0x3d, 0x6c, 0xdb, 0x46,
-	0x14, 0xe6, 0xd1, 0x8a, 0x23, 0x9f, 0x63, 0x49, 0x66, 0x6c, 0x54, 0x25, 0x8a, 0x93, 0x51, 0xa0,
-	0x80, 0x3b, 0x84, 0x02, 0xec, 0xa2, 0x28, 0x50, 0x04, 0x85, 0x65, 0x1b, 0x8d, 0x5c, 0xc3, 0x35,
-	0x68, 0x2b, 0x05, 0xd2, 0x81, 0x38, 0x91, 0x27, 0xfa, 0x60, 0xfa, 0x8e, 0xb9, 0x3b, 0x4a, 0x4e,
-	0xa7, 0x8c, 0x99, 0xda, 0x02, 0x5d, 0x32, 0x66, 0x09, 0x90, 0xa1, 0x43, 0xc6, 0x8c, 0x19, 0xbd,
-	0x35, 0x63, 0xd0, 0xc1, 0x8d, 0xa8, 0x25, 0x63, 0xb6, 0x66, 0x2c, 0x44, 0x52, 0x8a, 0x14, 0x1b,
-	0x89, 0x6a, 0x78, 0xd3, 0x7b, 0xf7, 0xfd, 0x9d, 0xde, 0xc3, 0x11, 0x7e, 0x19, 0x70, 0x81, 0x3b,
-	0x98, 0xdd, 0x90, 0x0a, 0xbb, 0x87, 0x55, 0x1c, 0xd2, 0xaa, 0x52, 0xb4, 0xea, 0x72, 0xd6, 0xa2,
-	0x7e, 0x24, 0xb0, 0xa2, 0x9c, 0x59, 0xa1, 0xe0, 0x8a, 0x1b, 0x05, 0xa5, 0xa8, 0x95, 0xc1, 0xad,
-	0xf6, 0xaa, 0x79, 0xc3, 0xa7, 0xea, 0x20, 0x6a, 0x5a, 0x2e, 0x3f, 0xaa, 0xfa, 0xdc, 0xe7, 0xd5,
-	0x04, 0xd6, 0x8c, 0x5a, 0x49, 0x95, 0x14, 0xc9, 0xaf, 0x94, 0x6e, 0x22, 0x9f, 0x73, 0x3f, 0x20,
-	0xef, 0x50, 0xde, 0x98, 0xfc, 0xd9, 0xf3, 0x8e, 0xc0, 0x61, 0x48, 0x84, 0x4c, 0xcf, 0x3f, 0xff,
-	0xb7, 0x08, 0xe7, 0xd6, 0x47, 0x63, 0x19, 0x3b, 0xb0, 0xe8, 0x91, 0x16, 0x8e, 0x02, 0xe5, 0xb8,
-	0x41, 0x24, 0x15, 0x11, 0x65, 0x7d, 0x09, 0x2c, 0xcf, 0xae, 0x7c, 0x61, 0x8d, 0x47, 0xb5, 0xc6,
-	0x78, 0xd6, 0x7a, 0x0a, 0xb6, 0x0b, 0x19, 0x3b, 0xab, 0xcd, 0x4d, 0xa8, 0x37, 0xea, 0xc6, 0x77,
-	0x70, 0xbe, 0x29, 0x30, 0xf3, 0x28, 0xf3, 0x9d, 0x26, 0x96, 0xc4, 0x89, 0x44, 0x50, 0x06, 0x4b,
-	0x60, 0x79, 0xa6, 0x76, 0x3d, 0x3e, 0xad, 0x14, 0x6b, 0xd9, 0x61, 0x0d, 0x4b, 0xd2, 0xb0, 0xb7,
-	0xed, 0x62, 0x73, 0xb4, 0x21, 0x02, 0xf3, 0xa4, 0x00, 0xaf, 0x66, 0x92, 0xc6, 0x37, 0x50, 0x8f,
-	0x68, 0xc2, 0x9e, 0x5d, 0x59, 0xfa, 0x70, 0xaa, 0x46, 0xbd, 0x36, 0x1d, 0x9f, 0x56, 0xf4, 0x46,
-	0xdd, 0xd6, 0x23, 0x6a, 0x6c, 0x43, 0x9d, 0xca, 0xec, 0x3e, 0x5f, 0x4d, 0x74, 0x1f, 0xab, 0xee,
-	0x11, 0xa6, 0xa8, 0xba, 0xb7, 0x47, 0x44, 0x9b, 0x88, 0x54, 0xad, 0xbe, 0x67, 0xeb, 0x54, 0x1a,
-	0x3f, 0x40, 0x9d, 0xc9, 0x72, 0x2e, 0x51, 0x5b, 0x9d, 0x4c, 0x6d, 0x87, 0xa8, 0x0e, 0x17, 0x87,
-	0xa3, 0x62, 0x3b, 0x7b, 0xb6, 0xce, 0xa4, 0xf9, 0x27, 0x84, 0x85, 0x71, 0x2f, 0x43, 0xc0, 0xf9,
-	0x48, 0x12, 0xe1, 0x08, 0xe2, 0x53, 0xa9, 0x52, 0xa5, 0xf2, 0x54, 0x62, 0xb7, 0x79, 0x91, 0xf0,
-	0x56, 0x43, 0x12, 0x61, 0x8f, 0x88, 0xd9, 0xa5, 0xe8, 0xbd, 0x8e, 0xf9, 0x78, 0x06, 0x96, 0xde,
-	0x87, 0x19, 0x21, 0x84, 0x94, 0xb5, 0xa9, 0x4a, 0x13, 0xa4, 0x7f, 0xfc, 0xee, 0xa5, 0x24, 0xb0,
-	0xea, 0x43, 0x5d, 0x7b, 0xc4, 0xc3, 0xf8, 0x03, 0xc0, 0x4f, 0x5c, 0xce, 0x14, 0x76, 0x95, 0x43,
-	0x59, 0x8b, 0x3b, 0x6d, 0x1c, 0x50, 0x2f, 0xf5, 0x4f, 0xc7, 0xf7, 0xf3, 0xe5, 0xf8, 0xaf, 0xa7,
-	0x26, 0x75, 0xd6, 0xe2, 0xb7, 0x87, 0x16, 0xf6, 0xa2, 0x7b, 0x5e, 0xdb, 0xf8, 0x05, 0x16, 0xb0,
-	0x77, 0x44, 0x99, 0x83, 0xc3, 0x50, 0xf0, 0x36, 0x0e, 0xb2, 0x69, 0xec, 0x5d, 0x4e, 0x96, 0xb5,
-	0xbe, 0xf6, 0x5a, 0x26, 0x6d, 0xcf, 0xe1, 0xd1, 0xd2, 0xf8, 0x0d, 0xc0, 0xc5, 0x10, 0x4b, 0xd9,
-	0xe1, 0xc2, 0x73, 0x04, 0xb9, 0x1b, 0x51, 0x41, 0x8e, 0x08, 0x53, 0x83, 0x05, 0xbc, 0x73, 0x39,
-	0x19, 0x76, 0x33, 0x0b, 0x7b, 0xc4, 0xc1, 0x5e, 0x08, 0xcf, 0xe9, 0x9a, 0xbf, 0x02, 0x08, 0xdf,
-	0x8d, 0xcf, 0xf8, 0x1a, 0xe6, 0xb3, 0x58, 0x5e, 0xb6, 0x22, 0xa6, 0x95, 0xbe, 0x3e, 0xd6, 0xe0,
-	0xf5, 0xb1, 0x6a, 0x9c, 0x07, 0xb7, 0x71, 0x10, 0x11, 0x7b, 0x88, 0x35, 0x6e, 0xc1, 0x19, 0xc5,
-	0x0f, 0x09, 0x73, 0x94, 0x0a, 0xb2, 0xd9, 0x7e, 0x7a, 0x86, 0xb8, 0x91, 0xdd, 0xa3, 0x56, 0x8a,
-	0x4f, 0x2b, 0xf9, 0xfd, 0x3e, 0x7e, 0x7f, 0x7f, 0xfb, 0xe1, 0x3f, 0x15, 0x60, 0xe7, 0x13, 0xf6,
-	0xbe, 0x0a, 0xcc, 0x1f, 0xe1, 0xe2, 0xb9, 0xe3, 0xbc, 0x68, 0x34, 0xf3, 0x7b, 0x38, 0x37, 0x36,
-	0x93, 0x0b, 0x0b, 0xfd, 0xa5, 0xc3, 0x85, 0xf3, 0xfe, 0x59, 0xe3, 0x5b, 0x08, 0xfb, 0xfb, 0x14,
-	0x10, 0xe6, 0xab, 0x83, 0x4c, 0xf2, 0xb3, 0x33, 0x92, 0x8d, 0x3a, 0x53, 0xab, 0x2b, 0xa9, 0xe8,
-	0xcc, 0x11, 0x65, 0xdb, 0x09, 0x3c, 0x21, 0xe3, 0xe3, 0x01, 0x59, 0x9f, 0x88, 0x8c, 0x8f, 0x33,
-	0xf2, 0x1a, 0x9c, 0xeb, 0x3b, 0x47, 0xfd, 0xaf, 0x81, 0x8b, 0x25, 0xc9, 0x56, 0xf9, 0xc3, 0xfc,
-	0x6b, 0x47, 0x94, 0x35, 0x06, 0x8c, 0x41, 0x78, 0x8f, 0xfa, 0x74, 0xb8, 0x86, 0x1f, 0x0f, 0xbf,
-	0x91, 0xc0, 0x8d, 0x9b, 0x70, 0xb6, 0x4f, 0x96, 0x21, 0x71, 0x29, 0x0e, 0xca, 0x57, 0x26, 0x60,
-	0xf7, 0xdd, 0xf6, 0x52, 0xbc, 0xf9, 0x48, 0x87, 0x73, 0x63, 0x8f, 0xa9, 0x71, 0x17, 0xce, 0x7b,
-	0xa4, 0xed, 0x60, 0xcf, 0x13, 0x4e, 0x28, 0x48, 0x8b, 0x1e, 0x13, 0x59, 0x06, 0x4b, 0x53, 0xcb,
-	0xd7, 0x6a, 0x9b, 0x27, 0xa7, 0x15, 0xed, 0xef, 0xd3, 0xca, 0x4d, 0x9f, 0x5b, 0xea, 0x80, 0xa8,
-	0x03, 0xca, 0x7c, 0x69, 0xb1, 0x94, 0x5e, 0x1d, 0xff, 0x58, 0xb7, 0x57, 0xab, 0xe1, 0xa1, 0x5f,
-	0x55, 0xf7, 0x42, 0x22, 0xad, 0x0d, 0xd2, 0x5e, 0xf3, 0x3c, 0xb1, 0x9b, 0xc8, 0xd9, 0x45, 0x6f,
-	0xb4, 0x24, 0xd2, 0xb0, 0xe1, 0x82, 0x47, 0xbc, 0x28, 0x0c, 0xa8, 0x9b, 0x2c, 0x9a, 0xd3, 0xa1,
-	0xcc, 0xe3, 0x9d, 0x8f, 0x6f, 0x71, 0x2e, 0xd9, 0xdc, 0xeb, 0x63, 0xe4, 0x9f, 0x12, 0xae, 0x71,
-	0x0b, 0x16, 0x5d, 0xce, 0x03, 0x8f, 0x77, 0x86, 0x72, 0x53, 0x93, 0xc9, 0x15, 0x06, 0xbc, 0x54,
-	0x69, 0x2b, 0x97, 0x9f, 0x2a, 0xe5, 0xb6, 0x72, 0xf9, 0x2b, 0xa5, 0xe9, 0xad, 0x5c, 0x7e, 0xba,
-	0x74, 0x75, 0x2b, 0x97, 0xbf, 0x5a, 0xca, 0xa7, 0xfd, 0xda, 0x63, 0x70, 0xd2, 0x45, 0xe0, 0x45,
-	0x17, 0x81, 0x97, 0x5d, 0xa4, 0xbd, 0xea, 0x22, 0xed, 0x75, 0x17, 0x69, 0x6f, 0xba, 0x48, 0x7b,
-	0xdb, 0x45, 0xe0, 0x7e, 0x8c, 0xc0, 0x83, 0x18, 0x69, 0x4f, 0x62, 0x04, 0x9e, 0xc6, 0x48, 0x7b,
-	0x16, 0x23, 0xed, 0x79, 0x8c, 0xb4, 0x93, 0x18, 0x81, 0x17, 0x31, 0x02, 0x2f, 0x63, 0xa4, 0xbd,
-	0x8a, 0x11, 0x78, 0x1d, 0x23, 0xed, 0x4d, 0x8c, 0xc0, 0xdb, 0x18, 0x69, 0xf7, 0x7b, 0x48, 0x7b,
-	0xd0, 0x43, 0xe0, 0xf7, 0x1e, 0xd2, 0x1e, 0xf6, 0x10, 0x78, 0xd4, 0x43, 0xda, 0x93, 0x1e, 0xd2,
-	0x9e, 0xf6, 0x10, 0x78, 0xd6, 0x43, 0xe0, 0x79, 0x0f, 0x81, 0x3b, 0xd5, 0xff, 0x31, 0x02, 0x45,
-	0xc3, 0x66, 0x73, 0x3a, 0xb9, 0xee, 0xea, 0x7f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x85, 0x79, 0xf4,
-	0x54, 0x54, 0x09, 0x00, 0x00,
+	// 1206 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x96, 0x3f, 0x6c, 0xdb, 0xc6,
+	0x17, 0xc7, 0x49, 0x5a, 0x71, 0xe4, 0x73, 0xf4, 0xc7, 0x17, 0xfb, 0xf7, 0x73, 0x89, 0xe2, 0x1c,
+	0x14, 0x28, 0x90, 0x0e, 0xa1, 0x80, 0xb8, 0x28, 0x0a, 0x14, 0x41, 0x60, 0xd9, 0x46, 0x22, 0xc7,
+	0x4d, 0x0c, 0xda, 0x4a, 0x81, 0x74, 0x60, 0x4f, 0xe4, 0x89, 0x3e, 0x98, 0xe6, 0x31, 0x77, 0x47,
+	0x29, 0xc9, 0x94, 0x31, 0x53, 0x1b, 0xb4, 0x4b, 0xc6, 0x2c, 0x01, 0x32, 0x74, 0xc8, 0x98, 0x31,
+	0x63, 0xb6, 0x66, 0x0c, 0x5a, 0xc0, 0x8d, 0xa8, 0x25, 0x63, 0xc6, 0x8c, 0x85, 0xc8, 0x93, 0x2c,
+	0x39, 0x86, 0xad, 0xba, 0xde, 0x74, 0xc7, 0xf7, 0xfd, 0x7c, 0xdf, 0xdd, 0x7b, 0x7c, 0x22, 0xf8,
+	0x2a, 0x60, 0x1c, 0xb7, 0x71, 0x78, 0x49, 0x48, 0xec, 0xee, 0x54, 0x70, 0x44, 0x2b, 0x52, 0xd2,
+	0x8a, 0xcb, 0xc2, 0x26, 0xf5, 0x63, 0x8e, 0x25, 0x65, 0xa1, 0x15, 0x71, 0x26, 0x19, 0x2c, 0x4a,
+	0x49, 0x2d, 0x15, 0x6e, 0xb5, 0x16, 0xcd, 0x4b, 0x3e, 0x95, 0xdb, 0x71, 0xc3, 0x72, 0xd9, 0x6e,
+	0xc5, 0x67, 0x3e, 0xab, 0xa4, 0x61, 0x8d, 0xb8, 0x99, 0xae, 0xd2, 0x45, 0xfa, 0x2b, 0x93, 0x9b,
+	0xc8, 0x67, 0xcc, 0x0f, 0xc8, 0x7e, 0x94, 0x37, 0x82, 0xff, 0xf4, 0x79, 0x9b, 0xe3, 0x28, 0x22,
+	0x5c, 0x64, 0xcf, 0xbf, 0xf8, 0xeb, 0x7f, 0xa0, 0xb0, 0x3c, 0x9c, 0x16, 0xbc, 0x09, 0x4a, 0x1e,
+	0x69, 0xe2, 0x38, 0x90, 0x8e, 0x1b, 0xc4, 0x42, 0x12, 0x3e, 0x6f, 0x5c, 0xd0, 0x2f, 0x4e, 0x5f,
+	0xfe, 0xd2, 0x1a, 0x4d, 0xd5, 0x1a, 0xd1, 0x59, 0xcb, 0x59, 0xb0, 0x5d, 0x54, 0x6a, 0xb5, 0x36,
+	0x57, 0x81, 0x51, 0xaf, 0xc1, 0xab, 0x60, 0xa6, 0xc1, 0x71, 0xe8, 0xd1, 0xd0, 0x77, 0x1a, 0x58,
+	0x10, 0x27, 0xe6, 0xc1, 0xbc, 0x7e, 0x41, 0xbf, 0x38, 0x55, 0x3d, 0x9f, 0xec, 0x2d, 0x94, 0xaa,
+	0xea, 0x61, 0x15, 0x0b, 0x52, 0xb7, 0xd7, 0xed, 0x52, 0x63, 0x78, 0x83, 0x07, 0xe6, 0xef, 0x73,
+	0xe0, 0xac, 0x42, 0xc2, 0x6f, 0x81, 0x11, 0xd3, 0x54, 0x3d, 0x7d, 0xf9, 0xc2, 0xd1, 0x59, 0xd5,
+	0x6b, 0xd5, 0xc9, 0x64, 0x6f, 0xc1, 0xa8, 0xd7, 0x6c, 0x23, 0xa6, 0x70, 0x1d, 0x18, 0x54, 0xa8,
+	0xf3, 0x7c, 0x3d, 0xd6, 0x79, 0xac, 0x9a, 0x47, 0x42, 0x49, 0xe5, 0xfd, 0x4d, 0xc2, 0x5b, 0x84,
+	0x67, 0xb4, 0xda, 0xa6, 0x6d, 0x50, 0x01, 0x6f, 0x00, 0x23, 0x14, 0xf3, 0xb9, 0x94, 0xb6, 0x38,
+	0x1e, 0xed, 0x26, 0x91, 0x6d, 0xc6, 0x77, 0x86, 0x61, 0x37, 0x37, 0x6d, 0x23, 0x14, 0xe6, 0xe3,
+	0x19, 0x50, 0x1c, 0xf5, 0x82, 0x1c, 0xcc, 0xc4, 0x82, 0x70, 0x87, 0x13, 0x9f, 0x0a, 0x99, 0x91,
+	0xe6, 0x27, 0x52, 0xbb, 0xd5, 0x93, 0x24, 0x6f, 0xd5, 0x05, 0xe1, 0xf6, 0x10, 0xcc, 0x2e, 0xc7,
+	0x07, 0x76, 0x60, 0x00, 0x4a, 0x11, 0x67, 0x4d, 0x1a, 0x10, 0x27, 0xa2, 0xae, 0x8c, 0x39, 0x51,
+	0x07, 0x5c, 0x3e, 0x91, 0xe3, 0x46, 0xc6, 0xda, 0xc8, 0x50, 0x76, 0x31, 0x1a, 0x59, 0x43, 0x01,
+	0x20, 0x09, 0x3d, 0xc7, 0x23, 0x2d, 0xea, 0xee, 0x1b, 0x9e, 0xf9, 0x0f, 0x47, 0x5c, 0x0d, 0xbd,
+	0x95, 0x94, 0xd6, 0xb7, 0x2c, 0x93, 0x03, 0x3b, 0xf0, 0x27, 0x30, 0x9d, 0x5d, 0x2b, 0xf5, 0xb7,
+	0xa5, 0x98, 0x9f, 0x4c, 0xdd, 0xae, 0x9e, 0xfc, 0x42, 0x53, 0x8c, 0x0d, 0xe2, 0xc1, 0x6f, 0xf3,
+	0xd9, 0x14, 0x28, 0x1f, 0xbc, 0x6b, 0x18, 0x01, 0x40, 0xc3, 0x16, 0x95, 0x59, 0x19, 0xb3, 0xee,
+	0xdd, 0x38, 0x95, 0x32, 0x5a, 0xb5, 0x01, 0xd7, 0x1e, 0xf2, 0x80, 0xbf, 0xe9, 0xe0, 0xff, 0x2e,
+	0x0b, 0x25, 0x76, 0xa5, 0x43, 0xc3, 0x26, 0x73, 0x5a, 0x38, 0xa0, 0x5e, 0xe6, 0x9f, 0xbd, 0x03,
+	0x3f, 0x9e, 0x8e, 0xff, 0x72, 0x66, 0x52, 0x0b, 0x9b, 0xec, 0xf6, 0xc0, 0xc2, 0x9e, 0x73, 0x0f,
+	0xdb, 0x86, 0x0f, 0x40, 0x11, 0x7b, 0xbb, 0x34, 0x74, 0x70, 0x14, 0x71, 0xd6, 0xc2, 0x81, 0x6a,
+	0xe9, 0xcd, 0xd3, 0xc9, 0x65, 0xa9, 0xc7, 0x5e, 0x52, 0x68, 0xbb, 0x80, 0x87, 0x97, 0xf0, 0x17,
+	0x1d, 0xcc, 0x45, 0x58, 0x88, 0x36, 0xe3, 0x9e, 0xc3, 0xc9, 0xdd, 0x98, 0x72, 0xb2, 0x4b, 0x42,
+	0xd9, 0x7f, 0x8b, 0xef, 0x9c, 0x4e, 0x0e, 0x1b, 0xca, 0xc2, 0x1e, 0x72, 0xb0, 0x67, 0xa3, 0x43,
+	0x76, 0xcd, 0x9f, 0x75, 0x00, 0xf6, 0xcb, 0x07, 0xbf, 0x01, 0x79, 0x95, 0x96, 0xa7, 0x5a, 0xc4,
+	0xb4, 0xb2, 0x11, 0x6e, 0xf5, 0x47, 0xb8, 0x55, 0x65, 0x2c, 0xb8, 0x8d, 0x83, 0x98, 0xd8, 0x83,
+	0x58, 0x78, 0x1d, 0x4c, 0x49, 0xb6, 0x43, 0x42, 0x47, 0xca, 0x40, 0xd5, 0xf6, 0xb3, 0x4f, 0x84,
+	0x2b, 0xea, 0x1c, 0xd5, 0x72, 0xb2, 0xb7, 0x90, 0xdf, 0xea, 0xc5, 0x6f, 0x6d, 0xad, 0x3f, 0xf9,
+	0x7b, 0x41, 0xb7, 0xf3, 0xa9, 0x7a, 0x4b, 0x06, 0xe6, 0x2d, 0x30, 0x77, 0x68, 0x39, 0x4f, 0x9a,
+	0x9a, 0x79, 0x0d, 0x14, 0x46, 0x6a, 0x72, 0x62, 0xd0, 0x1f, 0x06, 0x98, 0x3d, 0xec, 0x66, 0xe1,
+	0x77, 0x00, 0xf4, 0xfa, 0x29, 0x20, 0xa1, 0x2f, 0xb7, 0x15, 0xf2, 0xf3, 0x4f, 0x90, 0xf5, 0x5a,
+	0x28, 0x17, 0x2f, 0x67, 0xd0, 0xa9, 0x5d, 0x1a, 0xae, 0xa7, 0xe1, 0xa9, 0x18, 0xdf, 0xeb, 0x8b,
+	0x8d, 0xb1, 0xc4, 0xf8, 0x9e, 0x12, 0x2f, 0x81, 0x42, 0xcf, 0x39, 0xee, 0xfd, 0xa5, 0xba, 0x58,
+	0x10, 0xd5, 0xca, 0x47, 0xeb, 0xcf, 0xed, 0xd2, 0xb0, 0xde, 0x57, 0xf4, 0x93, 0xf7, 0xa8, 0x4f,
+	0x07, 0x6d, 0x78, 0x7c, 0xf2, 0x2b, 0x69, 0x38, 0xbc, 0x02, 0xa6, 0x7b, 0x62, 0x11, 0x11, 0x97,
+	0xe2, 0x40, 0x0d, 0xce, 0xa3, 0xd5, 0x3d, 0xb7, 0xcd, 0x2c, 0xde, 0xfc, 0x55, 0x07, 0xc5, 0xd1,
+	0x09, 0x0d, 0x97, 0x40, 0xd1, 0xa3, 0x02, 0x37, 0x02, 0xe2, 0xc4, 0x51, 0xc0, 0xf0, 0x38, 0x25,
+	0x2a, 0x28, 0x45, 0x3d, 0x15, 0xc0, 0x2b, 0xe0, 0x5c, 0x2c, 0x88, 0xe3, 0x73, 0xdc, 0xc2, 0x12,
+	0xf7, 0x3f, 0x1f, 0x8e, 0x02, 0xf4, 0xe6, 0xf1, 0x35, 0x15, 0x6e, 0xd6, 0x41, 0xf9, 0xe0, 0x10,
+	0x3f, 0x85, 0xac, 0xcc, 0x17, 0x06, 0x00, 0xfb, 0xe3, 0x1a, 0xde, 0x00, 0xe7, 0x5d, 0x4e, 0xb0,
+	0x24, 0xbd, 0x31, 0x14, 0x50, 0x37, 0xed, 0x71, 0x31, 0x06, 0x16, 0x66, 0xb2, 0xa5, 0x21, 0x55,
+	0x2f, 0x3d, 0x05, 0x73, 0x03, 0x9a, 0x8e, 0x93, 0xe3, 0xcf, 0x5c, 0xc8, 0x14, 0xcb, 0x99, 0x00,
+	0x2e, 0x83, 0x92, 0x42, 0xf8, 0x58, 0x92, 0x36, 0xbe, 0x2f, 0x54, 0x2f, 0x1d, 0xc5, 0x50, 0xae,
+	0xd7, 0x94, 0x02, 0x7e, 0x0f, 0x66, 0x15, 0x84, 0x71, 0x1f, 0x87, 0xf4, 0x81, 0x3a, 0x55, 0xee,
+	0x58, 0x92, 0xba, 0x8c, 0x5b, 0xc3, 0x32, 0xf3, 0xa9, 0x01, 0x0a, 0x23, 0x1f, 0x2c, 0xf0, 0x2e,
+	0x98, 0xf1, 0x48, 0xcb, 0xc1, 0x9e, 0xc7, 0x9d, 0x88, 0x93, 0x26, 0xbd, 0x47, 0x7a, 0x77, 0x36,
+	0x71, 0xf1, 0x5c, 0x75, 0xf5, 0xf5, 0xde, 0x82, 0xf6, 0xe7, 0xde, 0xc2, 0x15, 0x9f, 0x59, 0x72,
+	0x9b, 0xc8, 0x6d, 0x1a, 0xfa, 0xc2, 0x0a, 0x33, 0x79, 0x65, 0xf4, 0x83, 0xb8, 0xb5, 0x58, 0x89,
+	0x76, 0xfc, 0x8a, 0xbc, 0x1f, 0x11, 0x61, 0xad, 0x90, 0xd6, 0x92, 0xe7, 0xf1, 0x8d, 0x14, 0x67,
+	0x97, 0xbc, 0xe1, 0x25, 0x11, 0xd0, 0x06, 0xb3, 0x1e, 0xf1, 0xe2, 0xc1, 0x6d, 0x3b, 0x6d, 0x1a,
+	0x7a, 0xac, 0x7d, 0xfc, 0x90, 0xcb, 0xa5, 0x83, 0xed, 0xfc, 0x88, 0xf8, 0x87, 0x54, 0x0b, 0xaf,
+	0x83, 0x92, 0xcb, 0x58, 0xe0, 0xb1, 0xf6, 0x00, 0x37, 0x31, 0x1e, 0xae, 0xd8, 0xd7, 0x65, 0xa4,
+	0xb5, 0x5c, 0x7e, 0xa2, 0x9c, 0x5b, 0xcb, 0xe5, 0xcf, 0x94, 0x27, 0xd7, 0x72, 0xf9, 0xc9, 0xf2,
+	0xd9, 0xb5, 0x5c, 0xfe, 0x6c, 0x39, 0x9f, 0xed, 0x57, 0x9f, 0xe9, 0xaf, 0x3b, 0x48, 0x7f, 0xd3,
+	0x41, 0xfa, 0xdb, 0x0e, 0xd2, 0xde, 0x75, 0x90, 0xf6, 0xbe, 0x83, 0xb4, 0x0f, 0x1d, 0xa4, 0x7d,
+	0xec, 0x20, 0xfd, 0x61, 0x82, 0xf4, 0x47, 0x09, 0xd2, 0x9e, 0x27, 0x48, 0x7f, 0x91, 0x20, 0xed,
+	0x65, 0x82, 0xb4, 0x57, 0x09, 0xd2, 0x5e, 0x27, 0x48, 0x7f, 0x93, 0x20, 0xfd, 0x6d, 0x82, 0xb4,
+	0x77, 0x09, 0xd2, 0xdf, 0x27, 0x48, 0xfb, 0x90, 0x20, 0xfd, 0x63, 0x82, 0xb4, 0x87, 0x5d, 0xa4,
+	0x3d, 0xea, 0x22, 0xfd, 0x71, 0x17, 0x69, 0x4f, 0xba, 0x48, 0x7f, 0xda, 0x45, 0xda, 0xf3, 0x2e,
+	0xd2, 0x5e, 0x74, 0x91, 0xfe, 0xb2, 0x8b, 0xf4, 0x57, 0x5d, 0xa4, 0xdf, 0xa9, 0xfc, 0x8b, 0x12,
+	0x48, 0x1a, 0x35, 0x1a, 0x93, 0xe9, 0x71, 0x17, 0xff, 0x09, 0x00, 0x00, 0xff, 0xff, 0xb3, 0xde,
+	0x91, 0x32, 0xb8, 0x0c, 0x00, 0x00,
 }
 
 func (this *Configuration) Equal(that interface{}) bool {
@@ -778,6 +995,15 @@ func (this *Configuration_Cluster_IdentityServer) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.UserRegistration.Equal(that1.UserRegistration) {
+		return false
+	}
+	if !this.ProfilePicture.Equal(that1.ProfilePicture) {
+		return false
+	}
+	if !this.EndDevicePicture.Equal(that1.EndDevicePicture) {
+		return false
+	}
+	if !this.UserRights.Equal(that1.UserRights) {
 		return false
 	}
 	return true
@@ -928,6 +1154,90 @@ func (this *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequir
 		return false
 	}
 	if !this.MinSpecial.Equal(that1.MinSpecial) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_ProfilePicture) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_ProfilePicture)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_ProfilePicture)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.DisableUpload.Equal(that1.DisableUpload) {
+		return false
+	}
+	if !this.UseGravatar.Equal(that1.UseGravatar) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_EndDevicePicture) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_EndDevicePicture)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_EndDevicePicture)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.DisableUpload.Equal(that1.DisableUpload) {
+		return false
+	}
+	return true
+}
+func (this *Configuration_Cluster_IdentityServer_UserRights) Equal(that interface{}) bool {
+	if that == nil {
+		return this == nil
+	}
+
+	that1, ok := that.(*Configuration_Cluster_IdentityServer_UserRights)
+	if !ok {
+		that2, ok := that.(Configuration_Cluster_IdentityServer_UserRights)
+		if ok {
+			that1 = &that2
+		} else {
+			return false
+		}
+	}
+	if that1 == nil {
+		return this == nil
+	} else if this == nil {
+		return false
+	}
+	if !this.CreateApplications.Equal(that1.CreateApplications) {
+		return false
+	}
+	if !this.CreateClients.Equal(that1.CreateClients) {
+		return false
+	}
+	if !this.CreateGateways.Equal(that1.CreateGateways) {
+		return false
+	}
+	if !this.CreateOrganizations.Equal(that1.CreateOrganizations) {
 		return false
 	}
 	return true
@@ -1123,6 +1433,42 @@ func (m *Configuration_Cluster_IdentityServer) MarshalToSizedBuffer(dAtA []byte)
 	_ = i
 	var l int
 	_ = l
+	if m.UserRights != nil {
+		{
+			size, err := m.UserRights.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.EndDevicePicture != nil {
+		{
+			size, err := m.EndDevicePicture.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.ProfilePicture != nil {
+		{
+			size, err := m.ProfilePicture.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
 	if m.UserRegistration != nil {
 		{
 			size, err := m.UserRegistration.MarshalToSizedBuffer(dAtA[:i])
@@ -1230,12 +1576,12 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Marsh
 	var l int
 	_ = l
 	if m.TokenTTL != nil {
-		n10, err10 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.TokenTTL, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL):])
-		if err10 != nil {
-			return 0, err10
+		n13, err13 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.TokenTTL, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL):])
+		if err13 != nil {
+			return 0, err13
 		}
-		i -= n10
-		i = encodeVarintConfiguration(dAtA, i, uint64(n10))
+		i -= n13
+		i = encodeVarintConfiguration(dAtA, i, uint64(n13))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1407,6 +1753,159 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequireme
 	return len(dAtA) - i, nil
 }
 
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.UseGravatar != nil {
+		{
+			size, err := m.UseGravatar.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.DisableUpload != nil {
+		{
+			size, err := m.DisableUpload.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.DisableUpload != nil {
+		{
+			size, err := m.DisableUpload.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.CreateOrganizations != nil {
+		{
+			size, err := m.CreateOrganizations.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.CreateGateways != nil {
+		{
+			size, err := m.CreateGateways.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.CreateClients != nil {
+		{
+			size, err := m.CreateClients.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.CreateApplications != nil {
+		{
+			size, err := m.CreateApplications.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintConfiguration(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *Configuration_Cluster_NetworkServer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1428,22 +1927,22 @@ func (m *Configuration_Cluster_NetworkServer) MarshalToSizedBuffer(dAtA []byte) 
 	var l int
 	_ = l
 	if m.CooldownWindow != nil {
-		n19, err19 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.CooldownWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.CooldownWindow):])
-		if err19 != nil {
-			return 0, err19
+		n29, err29 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.CooldownWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.CooldownWindow):])
+		if err29 != nil {
+			return 0, err29
 		}
-		i -= n19
-		i = encodeVarintConfiguration(dAtA, i, uint64(n19))
+		i -= n29
+		i = encodeVarintConfiguration(dAtA, i, uint64(n29))
 		i--
 		dAtA[i] = 0x1a
 	}
 	if m.DeduplicationWindow != nil {
-		n20, err20 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.DeduplicationWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.DeduplicationWindow):])
-		if err20 != nil {
-			return 0, err20
+		n30, err30 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.DeduplicationWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.DeduplicationWindow):])
+		if err30 != nil {
+			return 0, err30
 		}
-		i -= n20
-		i = encodeVarintConfiguration(dAtA, i, uint64(n20))
+		i -= n30
+		i = encodeVarintConfiguration(dAtA, i, uint64(n30))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -1513,6 +2012,15 @@ func NewPopulatedConfiguration_Cluster_IdentityServer(r randyConfiguration, easy
 	this := &Configuration_Cluster_IdentityServer{}
 	if r.Intn(5) != 0 {
 		this.UserRegistration = NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.ProfilePicture = NewPopulatedConfiguration_Cluster_IdentityServer_ProfilePicture(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.EndDevicePicture = NewPopulatedConfiguration_Cluster_IdentityServer_EndDevicePicture(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.UserRights = NewPopulatedConfiguration_Cluster_IdentityServer_UserRights(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -1587,6 +2095,48 @@ func NewPopulatedConfiguration_Cluster_IdentityServer_UserRegistration_PasswordR
 	}
 	if r.Intn(5) != 0 {
 		this.MinSpecial = types.NewPopulatedUInt32Value(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_ProfilePicture(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_ProfilePicture {
+	this := &Configuration_Cluster_IdentityServer_ProfilePicture{}
+	if r.Intn(5) != 0 {
+		this.DisableUpload = types.NewPopulatedBoolValue(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.UseGravatar = types.NewPopulatedBoolValue(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_EndDevicePicture(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_EndDevicePicture {
+	this := &Configuration_Cluster_IdentityServer_EndDevicePicture{}
+	if r.Intn(5) != 0 {
+		this.DisableUpload = types.NewPopulatedBoolValue(r, easy)
+	}
+	if !easy && r.Intn(10) != 0 {
+	}
+	return this
+}
+
+func NewPopulatedConfiguration_Cluster_IdentityServer_UserRights(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_UserRights {
+	this := &Configuration_Cluster_IdentityServer_UserRights{}
+	if r.Intn(5) != 0 {
+		this.CreateApplications = types.NewPopulatedBoolValue(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.CreateClients = types.NewPopulatedBoolValue(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.CreateGateways = types.NewPopulatedBoolValue(r, easy)
+	}
+	if r.Intn(5) != 0 {
+		this.CreateOrganizations = types.NewPopulatedBoolValue(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -1741,6 +2291,18 @@ func (m *Configuration_Cluster_IdentityServer) Size() (n int) {
 		l = m.UserRegistration.Size()
 		n += 1 + l + sovConfiguration(uint64(l))
 	}
+	if m.ProfilePicture != nil {
+		l = m.ProfilePicture.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.EndDevicePicture != nil {
+		l = m.EndDevicePicture.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.UserRights != nil {
+		l = m.UserRights.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
 	return n
 }
 
@@ -1841,6 +2403,61 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequireme
 	return n
 }
 
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.DisableUpload != nil {
+		l = m.DisableUpload.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.UseGravatar != nil {
+		l = m.UseGravatar.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.DisableUpload != nil {
+		l = m.DisableUpload.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
+func (m *Configuration_Cluster_IdentityServer_UserRights) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.CreateApplications != nil {
+		l = m.CreateApplications.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.CreateClients != nil {
+		l = m.CreateClients.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.CreateGateways != nil {
+		l = m.CreateGateways.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	if m.CreateOrganizations != nil {
+		l = m.CreateOrganizations.Size()
+		n += 1 + l + sovConfiguration(uint64(l))
+	}
+	return n
+}
+
 func (m *Configuration_Cluster_NetworkServer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -1908,6 +2525,9 @@ func (this *Configuration_Cluster_IdentityServer) String() string {
 	}
 	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer{`,
 		`UserRegistration:` + strings.Replace(fmt.Sprintf("%v", this.UserRegistration), "Configuration_Cluster_IdentityServer_UserRegistration", "Configuration_Cluster_IdentityServer_UserRegistration", 1) + `,`,
+		`ProfilePicture:` + strings.Replace(fmt.Sprintf("%v", this.ProfilePicture), "Configuration_Cluster_IdentityServer_ProfilePicture", "Configuration_Cluster_IdentityServer_ProfilePicture", 1) + `,`,
+		`EndDevicePicture:` + strings.Replace(fmt.Sprintf("%v", this.EndDevicePicture), "Configuration_Cluster_IdentityServer_EndDevicePicture", "Configuration_Cluster_IdentityServer_EndDevicePicture", 1) + `,`,
+		`UserRights:` + strings.Replace(fmt.Sprintf("%v", this.UserRights), "Configuration_Cluster_IdentityServer_UserRights", "Configuration_Cluster_IdentityServer_UserRights", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -1966,6 +2586,40 @@ func (this *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequir
 		`MinUppercase:` + strings.Replace(fmt.Sprintf("%v", this.MinUppercase), "UInt32Value", "types.UInt32Value", 1) + `,`,
 		`MinDigits:` + strings.Replace(fmt.Sprintf("%v", this.MinDigits), "UInt32Value", "types.UInt32Value", 1) + `,`,
 		`MinSpecial:` + strings.Replace(fmt.Sprintf("%v", this.MinSpecial), "UInt32Value", "types.UInt32Value", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_ProfilePicture) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_ProfilePicture{`,
+		`DisableUpload:` + strings.Replace(fmt.Sprintf("%v", this.DisableUpload), "BoolValue", "types.BoolValue", 1) + `,`,
+		`UseGravatar:` + strings.Replace(fmt.Sprintf("%v", this.UseGravatar), "BoolValue", "types.BoolValue", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_EndDevicePicture) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_EndDevicePicture{`,
+		`DisableUpload:` + strings.Replace(fmt.Sprintf("%v", this.DisableUpload), "BoolValue", "types.BoolValue", 1) + `,`,
+		`}`,
+	}, "")
+	return s
+}
+func (this *Configuration_Cluster_IdentityServer_UserRights) String() string {
+	if this == nil {
+		return "nil"
+	}
+	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_UserRights{`,
+		`CreateApplications:` + strings.Replace(fmt.Sprintf("%v", this.CreateApplications), "BoolValue", "types.BoolValue", 1) + `,`,
+		`CreateClients:` + strings.Replace(fmt.Sprintf("%v", this.CreateClients), "BoolValue", "types.BoolValue", 1) + `,`,
+		`CreateGateways:` + strings.Replace(fmt.Sprintf("%v", this.CreateGateways), "BoolValue", "types.BoolValue", 1) + `,`,
+		`CreateOrganizations:` + strings.Replace(fmt.Sprintf("%v", this.CreateOrganizations), "BoolValue", "types.BoolValue", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -2387,6 +3041,114 @@ func (m *Configuration_Cluster_IdentityServer) Unmarshal(dAtA []byte) error {
 				m.UserRegistration = &Configuration_Cluster_IdentityServer_UserRegistration{}
 			}
 			if err := m.UserRegistration.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProfilePicture", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ProfilePicture == nil {
+				m.ProfilePicture = &Configuration_Cluster_IdentityServer_ProfilePicture{}
+			}
+			if err := m.ProfilePicture.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndDevicePicture", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.EndDevicePicture == nil {
+				m.EndDevicePicture = &Configuration_Cluster_IdentityServer_EndDevicePicture{}
+			}
+			if err := m.EndDevicePicture.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserRights", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.UserRights == nil {
+				m.UserRights = &Configuration_Cluster_IdentityServer_UserRights{}
+			}
+			if err := m.UserRights.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -3120,6 +3882,417 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_PasswordRequireme
 				m.MinSpecial = &types.UInt32Value{}
 			}
 			if err := m.MinSpecial.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ProfilePicture: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ProfilePicture: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DisableUpload", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DisableUpload == nil {
+				m.DisableUpload = &types.BoolValue{}
+			}
+			if err := m.DisableUpload.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UseGravatar", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.UseGravatar == nil {
+				m.UseGravatar = &types.BoolValue{}
+			}
+			if err := m.UseGravatar.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: EndDevicePicture: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: EndDevicePicture: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DisableUpload", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DisableUpload == nil {
+				m.DisableUpload = &types.BoolValue{}
+			}
+			if err := m.DisableUpload.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipConfiguration(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Configuration_Cluster_IdentityServer_UserRights) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowConfiguration
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: UserRights: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: UserRights: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreateApplications", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.CreateApplications == nil {
+				m.CreateApplications = &types.BoolValue{}
+			}
+			if err := m.CreateApplications.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreateClients", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.CreateClients == nil {
+				m.CreateClients = &types.BoolValue{}
+			}
+			if err := m.CreateClients.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreateGateways", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.CreateGateways == nil {
+				m.CreateGateways = &types.BoolValue{}
+			}
+			if err := m.CreateGateways.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreateOrganizations", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowConfiguration
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthConfiguration
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.CreateOrganizations == nil {
+				m.CreateOrganizations = &types.BoolValue{}
+			}
+			if err := m.CreateOrganizations.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex

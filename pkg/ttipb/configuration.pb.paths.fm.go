@@ -5,6 +5,11 @@ package ttipb
 var ConfigurationFieldPathsNested = []string{
 	"default_cluster",
 	"default_cluster.is",
+	"default_cluster.is.end_device_picture",
+	"default_cluster.is.end_device_picture.disable_upload",
+	"default_cluster.is.profile_picture",
+	"default_cluster.is.profile_picture.disable_upload",
+	"default_cluster.is.profile_picture.use_gravatar",
 	"default_cluster.is.user_registration",
 	"default_cluster.is.user_registration.admin_approval",
 	"default_cluster.is.user_registration.admin_approval.required",
@@ -19,6 +24,11 @@ var ConfigurationFieldPathsNested = []string{
 	"default_cluster.is.user_registration.password_requirements.min_length",
 	"default_cluster.is.user_registration.password_requirements.min_special",
 	"default_cluster.is.user_registration.password_requirements.min_uppercase",
+	"default_cluster.is.user_rights",
+	"default_cluster.is.user_rights.create_applications",
+	"default_cluster.is.user_rights.create_clients",
+	"default_cluster.is.user_rights.create_gateways",
+	"default_cluster.is.user_rights.create_organizations",
 	"default_cluster.ns",
 	"default_cluster.ns.cooldown_window",
 	"default_cluster.ns.deduplication_window",
@@ -39,6 +49,11 @@ var Configuration_UIFieldPathsTopLevel = []string{
 }
 var Configuration_ClusterFieldPathsNested = []string{
 	"is",
+	"is.end_device_picture",
+	"is.end_device_picture.disable_upload",
+	"is.profile_picture",
+	"is.profile_picture.disable_upload",
+	"is.profile_picture.use_gravatar",
 	"is.user_registration",
 	"is.user_registration.admin_approval",
 	"is.user_registration.admin_approval.required",
@@ -53,6 +68,11 @@ var Configuration_ClusterFieldPathsNested = []string{
 	"is.user_registration.password_requirements.min_length",
 	"is.user_registration.password_requirements.min_special",
 	"is.user_registration.password_requirements.min_uppercase",
+	"is.user_rights",
+	"is.user_rights.create_applications",
+	"is.user_rights.create_clients",
+	"is.user_rights.create_gateways",
+	"is.user_rights.create_organizations",
 	"ns",
 	"ns.cooldown_window",
 	"ns.deduplication_window",
@@ -67,6 +87,11 @@ var Configuration_ClusterFieldPathsTopLevel = []string{
 	"ui",
 }
 var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
+	"end_device_picture",
+	"end_device_picture.disable_upload",
+	"profile_picture",
+	"profile_picture.disable_upload",
+	"profile_picture.use_gravatar",
 	"user_registration",
 	"user_registration.admin_approval",
 	"user_registration.admin_approval.required",
@@ -81,10 +106,18 @@ var Configuration_Cluster_IdentityServerFieldPathsNested = []string{
 	"user_registration.password_requirements.min_length",
 	"user_registration.password_requirements.min_special",
 	"user_registration.password_requirements.min_uppercase",
+	"user_rights",
+	"user_rights.create_applications",
+	"user_rights.create_clients",
+	"user_rights.create_gateways",
+	"user_rights.create_organizations",
 }
 
 var Configuration_Cluster_IdentityServerFieldPathsTopLevel = []string{
+	"end_device_picture",
+	"profile_picture",
 	"user_registration",
+	"user_rights",
 }
 var Configuration_Cluster_NetworkServerFieldPathsNested = []string{
 	"cooldown_window",
@@ -118,6 +151,35 @@ var Configuration_Cluster_IdentityServer_UserRegistrationFieldPathsTopLevel = []
 	"contact_info_validation",
 	"invitation",
 	"password_requirements",
+}
+var Configuration_Cluster_IdentityServer_ProfilePictureFieldPathsNested = []string{
+	"disable_upload",
+	"use_gravatar",
+}
+
+var Configuration_Cluster_IdentityServer_ProfilePictureFieldPathsTopLevel = []string{
+	"disable_upload",
+	"use_gravatar",
+}
+var Configuration_Cluster_IdentityServer_EndDevicePictureFieldPathsNested = []string{
+	"disable_upload",
+}
+
+var Configuration_Cluster_IdentityServer_EndDevicePictureFieldPathsTopLevel = []string{
+	"disable_upload",
+}
+var Configuration_Cluster_IdentityServer_UserRightsFieldPathsNested = []string{
+	"create_applications",
+	"create_clients",
+	"create_gateways",
+	"create_organizations",
+}
+
+var Configuration_Cluster_IdentityServer_UserRightsFieldPathsTopLevel = []string{
+	"create_applications",
+	"create_clients",
+	"create_gateways",
+	"create_organizations",
 }
 var Configuration_Cluster_IdentityServer_UserRegistration_InvitationFieldPathsNested = []string{
 	"required",

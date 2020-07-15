@@ -351,6 +351,42 @@ func (m *Configuration_Cluster_IdentityServer) ValidateFields(paths ...string) e
 				}
 			}
 
+		case "profile_picture":
+
+			if v, ok := interface{}(m.GetProfilePicture()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServerValidationError{
+						field:  "profile_picture",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "end_device_picture":
+
+			if v, ok := interface{}(m.GetEndDevicePicture()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServerValidationError{
+						field:  "end_device_picture",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "user_rights":
+
+			if v, ok := interface{}(m.GetUserRights()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServerValidationError{
+						field:  "user_rights",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		default:
 			return Configuration_Cluster_IdentityServerValidationError{
 				field:  name,
@@ -665,6 +701,360 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = Configuration_Cluster_IdentityServer_UserRegistrationValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_ProfilePicture with the rules defined
+// in the proto definition for this message. If any rules are violated, an
+// error is returned.
+func (m *Configuration_Cluster_IdentityServer_ProfilePicture) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_ProfilePictureFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "disable_upload":
+
+			if v, ok := interface{}(m.GetDisableUpload()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_ProfilePictureValidationError{
+						field:  "disable_upload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "use_gravatar":
+
+			if v, ok := interface{}(m.GetUseGravatar()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_ProfilePictureValidationError{
+						field:  "use_gravatar",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_ProfilePictureValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_ProfilePictureValidationError is the
+// validation error returned by
+// Configuration_Cluster_IdentityServer_ProfilePicture.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_ProfilePictureValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_ProfilePictureValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_ProfilePictureValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_ProfilePicture.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_ProfilePictureValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_ProfilePictureValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_EndDevicePicture with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, an error is returned.
+func (m *Configuration_Cluster_IdentityServer_EndDevicePicture) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_EndDevicePictureFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "disable_upload":
+
+			if v, ok := interface{}(m.GetDisableUpload()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_EndDevicePictureValidationError{
+						field:  "disable_upload",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_EndDevicePictureValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_EndDevicePictureValidationError is the
+// validation error returned by
+// Configuration_Cluster_IdentityServer_EndDevicePicture.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_EndDevicePictureValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) Cause() error {
+	return e.cause
+}
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) Key() bool {
+	return e.key
+}
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_EndDevicePictureValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_EndDevicePictureValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_EndDevicePicture.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_EndDevicePictureValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_EndDevicePictureValidationError{}
+
+// ValidateFields checks the field values on
+// Configuration_Cluster_IdentityServer_UserRights with the rules defined in
+// the proto definition for this message. If any rules are violated, an error
+// is returned.
+func (m *Configuration_Cluster_IdentityServer_UserRights) ValidateFields(paths ...string) error {
+	if m == nil {
+		return nil
+	}
+
+	if len(paths) == 0 {
+		paths = Configuration_Cluster_IdentityServer_UserRightsFieldPathsNested
+	}
+
+	for name, subs := range _processPaths(append(paths[:0:0], paths...)) {
+		_ = subs
+		switch name {
+		case "create_applications":
+
+			if v, ok := interface{}(m.GetCreateApplications()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRightsValidationError{
+						field:  "create_applications",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "create_clients":
+
+			if v, ok := interface{}(m.GetCreateClients()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRightsValidationError{
+						field:  "create_clients",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "create_gateways":
+
+			if v, ok := interface{}(m.GetCreateGateways()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRightsValidationError{
+						field:  "create_gateways",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		case "create_organizations":
+
+			if v, ok := interface{}(m.GetCreateOrganizations()).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return Configuration_Cluster_IdentityServer_UserRightsValidationError{
+						field:  "create_organizations",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
+		default:
+			return Configuration_Cluster_IdentityServer_UserRightsValidationError{
+				field:  name,
+				reason: "invalid field path",
+			}
+		}
+	}
+	return nil
+}
+
+// Configuration_Cluster_IdentityServer_UserRightsValidationError is the
+// validation error returned by
+// Configuration_Cluster_IdentityServer_UserRights.ValidateFields if the
+// designated constraints aren't met.
+type Configuration_Cluster_IdentityServer_UserRightsValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) Field() string {
+	return e.field
+}
+
+// Reason function returns reason value.
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) Reason() string {
+	return e.reason
+}
+
+// Cause function returns cause value.
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) ErrorName() string {
+	return "Configuration_Cluster_IdentityServer_UserRightsValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e Configuration_Cluster_IdentityServer_UserRightsValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sConfiguration_Cluster_IdentityServer_UserRights.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = Configuration_Cluster_IdentityServer_UserRightsValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = Configuration_Cluster_IdentityServer_UserRightsValidationError{}
 
 // ValidateFields checks the field values on
 // Configuration_Cluster_IdentityServer_UserRegistration_Invitation with the

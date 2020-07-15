@@ -13,11 +13,14 @@
   - [Message `Configuration`](#tti.lorawan.v3.Configuration)
   - [Message `Configuration.Cluster`](#tti.lorawan.v3.Configuration.Cluster)
   - [Message `Configuration.Cluster.IdentityServer`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer)
+  - [Message `Configuration.Cluster.IdentityServer.EndDevicePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture)
+  - [Message `Configuration.Cluster.IdentityServer.ProfilePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.AdminApproval)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.ContactInfoValidation)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.Invitation`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.Invitation)
   - [Message `Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration.PasswordRequirements)
+  - [Message `Configuration.Cluster.IdentityServer.UserRights`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights)
   - [Message `Configuration.Cluster.NetworkServer`](#tti.lorawan.v3.Configuration.Cluster.NetworkServer)
   - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
@@ -115,6 +118,22 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `user_registration` | [`Configuration.Cluster.IdentityServer.UserRegistration`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration) |  |  |
+| `profile_picture` | [`Configuration.Cluster.IdentityServer.ProfilePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture) |  |  |
+| `end_device_picture` | [`Configuration.Cluster.IdentityServer.EndDevicePicture`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture) |  |  |
+| `user_rights` | [`Configuration.Cluster.IdentityServer.UserRights`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture">Message `Configuration.Cluster.IdentityServer.EndDevicePicture`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `disable_upload` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture">Message `Configuration.Cluster.IdentityServer.ProfilePicture`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `disable_upload` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `use_gravatar` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration">Message `Configuration.Cluster.IdentityServer.UserRegistration`</a>
 
@@ -153,6 +172,15 @@
 | `min_uppercase` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
 | `min_digits` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
 | `min_special` | [`google.protobuf.UInt32Value`](#google.protobuf.UInt32Value) |  |  |
+
+### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights">Message `Configuration.Cluster.IdentityServer.UserRights`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `create_applications` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `create_clients` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `create_gateways` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
+| `create_organizations` | [`google.protobuf.BoolValue`](#google.protobuf.BoolValue) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.NetworkServer">Message `Configuration.Cluster.NetworkServer`</a>
 

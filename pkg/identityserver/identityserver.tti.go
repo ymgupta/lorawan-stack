@@ -60,6 +60,30 @@ func (conf Config) Apply(ctx context.Context) Config {
 	if w := userRegistration.GetPasswordRequirements().GetMinSpecial(); w != nil {
 		deriv.UserRegistration.PasswordRequirements.MinSpecial = int(w.Value)
 	}
+	profilePicture := tenantConf.GetProfilePicture()
+	if w := profilePicture.GetDisableUpload(); w != nil {
+		deriv.ProfilePicture.DisableUpload = w.Value
+	}
+	if w := profilePicture.GetUseGravatar(); w != nil {
+		deriv.ProfilePicture.UseGravatar = w.Value
+	}
+	endDevicePicture := tenantConf.GetEndDevicePicture()
+	if w := endDevicePicture.GetDisableUpload(); w != nil {
+		deriv.EndDevicePicture.DisableUpload = w.Value
+	}
+	userRights := tenantConf.GetUserRights()
+	if w := userRights.GetCreateApplications(); w != nil {
+		deriv.UserRights.CreateApplications = w.Value
+	}
+	if w := userRights.GetCreateClients(); w != nil {
+		deriv.UserRights.CreateClients = w.Value
+	}
+	if w := userRights.GetCreateGateways(); w != nil {
+		deriv.UserRights.CreateGateways = w.Value
+	}
+	if w := userRights.GetCreateOrganizations(); w != nil {
+		deriv.UserRights.CreateOrganizations = w.Value
+	}
 	return deriv
 }
 
