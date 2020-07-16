@@ -102,10 +102,19 @@ func NewRedis(t testing.TB, namespace ...string) (*ttnredis.Client, func()) {
 			return nil, nil
 		}
 	}
+	if addr := os.Getenv("REDIS_READONLY_ADDRESS"); addr != "" {
+		conf.ReadOnly.Address = addr
+		conf.ReadOnly.Database = conf.Database
+	}
 
 	cl := ttnredis.New(conf)
 	if err := cl.Ping().Err(); err != nil {
 		t.Fatalf("Failed to ping Redis: `%s`", err)
+	}
+	if conf.ReadOnly.Address != "" {
+		if err := cl.ReadOnlyClient().Ping().Err(); err != nil {
+			t.Fatalf("Failed to ping read-only Redis: `%s`", err)
+		}
 	}
 
 	cl.Client.AddHook(redisHook{
