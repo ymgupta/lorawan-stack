@@ -886,7 +886,7 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 		return err
 	}
 	ctx = matched.Context
-	pld.FCnt = matched.FCnt
+	pld.FullFCnt = matched.FCnt
 	up.DeviceChannelIndex = uint32(matched.ChannelIndex)
 	up.Settings.DataRateIndex = matched.DataRateIndex
 	ctx = log.NewContextWithFields(ctx, log.Fields(
@@ -957,7 +957,7 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 				matched = rematched
 
 				ctx = matched.Context
-				pld.FCnt = matched.FCnt
+				pld.FullFCnt = matched.FCnt
 				up.DeviceChannelIndex = uint32(matched.ChannelIndex)
 				up.Settings.DataRateIndex = matched.DataRateIndex
 				logger = log.FromContext(ctx).WithFields(log.Fields(
@@ -1019,7 +1019,7 @@ func (ns *NetworkServer) handleDataUplink(ctx context.Context, up *ttnpb.UplinkM
 			Up: &ttnpb.ApplicationUp_UplinkMessage{
 				UplinkMessage: &ttnpb.ApplicationUplink{
 					Confirmed:    up.Payload.MType == ttnpb.MType_CONFIRMED_UP,
-					FCnt:         pld.FCnt,
+					FCnt:         pld.FullFCnt,
 					FPort:        pld.FPort,
 					FRMPayload:   pld.FRMPayload,
 					RxMetadata:   up.RxMetadata,
