@@ -1505,7 +1505,7 @@ func TestClaim(t *testing.T) {
 
 			var creates, deletes int64
 			withTestCounters := func(ctx context.Context) context.Context {
-				ctx = test.ContextWithT(ctx, t)
+				ctx = test.ContextWithTB(ctx, t)
 				ctx = test.ContextWithCounterRef(ctx, createsKey, &creates)
 				ctx = test.ContextWithCounterRef(ctx, deletesKey, &deletes)
 				return ctx
@@ -1566,7 +1566,7 @@ func TestClaim(t *testing.T) {
 			)).(*DeviceClaimingServer)
 
 			dcs.AddContextFiller(func(ctx context.Context) context.Context {
-				ctx = test.ContextWithT(ctx, t)
+				ctx = test.ContextWithTB(ctx, t)
 				ctx = rights.NewContext(ctx, rights.Rights{
 					ApplicationRights: tc.ApplicationRights,
 				})
