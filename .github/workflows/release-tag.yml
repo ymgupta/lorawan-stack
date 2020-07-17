@@ -45,10 +45,10 @@ jobs:
     - name: Build documentation
       run: tools/bin/mage docs:build
       env:
-        HUGO_BASE_URL: https://thethingsstack.io/
+        HUGO_BASE_URL: https://enterprise.thethingsstack.io/
         HUGO_PARAMS_SEARCH_APIKEY: ${{ secrets.HUGO_PARAMS_SEARCH_APIKEY }}
         HUGO_PARAMS_SEARCH_ENABLED: true
-        HUGO_PARAMS_SEARCH_INDEX: thethingsstack
+        HUGO_PARAMS_SEARCH_INDEX: thethingsstack_enterprise
     - name: Deploy documentation to Github pages
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
@@ -102,7 +102,7 @@ jobs:
     - name: Build documentation
       run: tools/bin/mage docs:build
       env:
-        HUGO_BASE_URL: https://thethingsstack.io/
+        HUGO_BASE_URL: https://enterprise.thethingsstack.io/
         HUGO_GOOGLEANALYTICS: ${{ secrets.HUGO_GOOGLEANALYTICS }}
         HUGO_PARAMS_FEEDBACK_CAMPAIGN: ${{ HUGO_PARAMS_FEEDBACK_CAMPAIGN }}
         HUGO_PARAMS_FEEDBACK_ENABLED: true
@@ -110,7 +110,7 @@ jobs:
         HUGO_PARAMS_INTERCOM_ENABLED: true
         HUGO_PARAMS_SEARCH_APIKEY: ${{ secrets.HUGO_PARAMS_SEARCH_APIKEY }}
         HUGO_PARAMS_SEARCH_ENABLED: true
-        HUGO_PARAMS_SEARCH_INDEX: thethingsstack
+        HUGO_PARAMS_SEARCH_INDEX: thethingsstack_enterprise
     - name: File versioning
       run: tools/bin/mage version:files
     - name: Check for diff
@@ -139,6 +139,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        DOCKER_IMAGE: thethingsnetwork/lorawan-stack
-        DOCKER_IMAGE_DEV: thethingsnetwork/lorawan-stack-dev
+        DOCKER_IMAGE: thethingsindustries/lorawan-stack
+        DOCKER_IMAGE_DEV: thethingsindustries/lorawan-stack-dev
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
