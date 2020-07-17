@@ -41,7 +41,7 @@ import {
 import { qosOptions } from './qos-options'
 import providers from './providers'
 import validationSchema from './validation-schema'
-import AWSIoTSettings from './aws-iot.tti'
+import AWSIoTSettings from './aws-iot/index.tti'
 
 const pathPlaceholder = 'sub-topic'
 

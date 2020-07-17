@@ -21,7 +21,7 @@ import {
   blankValues as awsIoTBlankValues,
   mapToFormValues as mapAWSIoTFormValues,
   mapFromFormValues as mapFormValuesToAWSIoT,
-} from './aws-iot.tti'
+} from './aws-iot/mapping.tti'
 
 const natsBlankValues = {
   username: '',
