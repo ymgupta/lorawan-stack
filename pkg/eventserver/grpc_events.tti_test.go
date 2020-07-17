@@ -223,7 +223,7 @@ func TestStream(t *testing.T) {
 			},
 		} {
 			t.Run(fmt.Sprintf("open stream/tail:%v,after:%v,identifiers:%v,rights:%+v", tc.Request.Tail, tc.Request.After, tc.Request.Identifiers, tc.Rights), func(t *testing.T) {
-				ctx := test.ContextWithT(ctx, t)
+				ctx := test.ContextWithTB(ctx, t)
 				a := assertions.New(t)
 
 				var opts []grpc.CallOption
@@ -353,7 +353,7 @@ func TestStream(t *testing.T) {
 				}
 				for _, rightTC := range rightTCs {
 					t.Run(fmt.Sprintf("stream rights:%v", rightTC.Rights), func(t *testing.T) {
-						ctx := test.ContextWithT(ctx, t)
+						ctx := test.ContextWithTB(ctx, t)
 						a := assertions.New(t)
 
 						expectedEv := NewProtoEvent(ctx, tc.Identifiers, MakeEventData(t), tc.RequiredRights...)

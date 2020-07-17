@@ -204,7 +204,7 @@ func StartTest(t *testing.T, esConf Config, timeout time.Duration) (*EventServer
 	componenttest.StartComponent(t, es.Component)
 	wg.Wait()
 
-	ctx := test.ContextWithT(test.Context(), t)
+	ctx := test.ContextWithTB(test.Context(), t)
 	ctx = log.NewContext(ctx, es.Logger())
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	return es, ctx, env, func() {
