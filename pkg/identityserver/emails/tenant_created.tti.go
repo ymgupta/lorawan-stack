@@ -52,7 +52,7 @@ https://enterprise.thethingsstack.io/latest/getting-started/cli/
 Other users of your tenant can register accounts, but they can not use their accounts
 until the accounts are approved by an admin user (you). You can read how to do this
 in the user management guide:
-https://enterprise.thethingsstack.io/latest/user-management/
+https://enterprise.thethingsstack.io/latest/getting-started/user-management/
 
 If at any point you have questions, you can reach out to us using the support
 button that is shown in the console.

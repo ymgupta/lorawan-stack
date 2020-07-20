@@ -47,7 +47,7 @@ var DefaultConsoleConfig = console.Config{
 			JSFiles:       []string{"console.js"},
 		},
 		FrontendConfig: console.FrontendConfig{
-			DocumentationBaseURL: fmt.Sprintf("https://thethingsstack.io/%s", strings.TrimSuffix(strings.TrimPrefix(version.TTN, "v"), "-dev")),
+			DocumentationBaseURL: fmt.Sprintf("https://enterprise.thethingsstack.io/%s", strings.TrimSuffix(strings.TrimPrefix(version.TTN, "v"), "-dev")),
 			StackConfig: console.StackConfig{
 				IS:   webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},
 				GS:   webui.APIConfig{Enabled: true, BaseURL: shared.DefaultPublicURL + "/api/v3"},

@@ -79,10 +79,10 @@ jobs:
     - name: Build documentation
       run: tools/bin/mage docs:build
       env:
-        HUGO_BASE_URL: https://thethingsstack.io/
+        HUGO_BASE_URL: https://enterprise.thethingsstack.io/
         HUGO_PARAMS_SEARCH_APIKEY: ${{ secrets.HUGO_PARAMS_SEARCH_APIKEY }}
         HUGO_PARAMS_SEARCH_ENABLED: true
-        HUGO_PARAMS_SEARCH_INDEX: thethingsstack
+        HUGO_PARAMS_SEARCH_INDEX: thethingsstack_enterprise
     - name: File versioning
       run: tools/bin/mage version:files
     - name: Check for diff
@@ -93,11 +93,11 @@ jobs:
     - name: Run Goreleaser
       uses: goreleaser/goreleaser-action@v2
       env:
-        DOCKER_IMAGE: thethingsnetwork/lorawan-stack
-        DOCKER_IMAGE_DEV: thethingsnetwork/lorawan-stack-dev
+        DOCKER_IMAGE: thethingsindustries/lorawan-stack
+        DOCKER_IMAGE_DEV: thethingsindustries/lorawan-stack-dev
       with:
         version: ${{ steps.goreleaser_version.outputs.value }}
         args: release --snapshot
     - name: Push Docker image
       run: |
-        docker push thethingsnetwork/lorawan-stack-dev:${{ github.sha }}
+        docker push thethingsindustries/lorawan-stack-dev:${{ github.sha }}
