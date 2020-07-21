@@ -878,7 +878,11 @@ func TestTraffic(t *testing.T) {
 
 			InputDownlinkPath: &ttnpb.DownlinkPath{
 				Path: &ttnpb.DownlinkPath_UplinkToken{
-					UplinkToken: io.MustUplinkToken(ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID}, 1553759666),
+					UplinkToken: io.MustUplinkToken(
+						ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
+						1553759666,
+						time.Unix(0, 1553759666*1000),
+					),
 				},
 			},
 			ExpectedBSDownstream: messages.DownlinkMessage{
@@ -1117,7 +1121,11 @@ func TestRTT(t *testing.T) {
 
 			InputDownlinkPath: &ttnpb.DownlinkPath{
 				Path: &ttnpb.DownlinkPath_UplinkToken{
-					UplinkToken: io.MustUplinkToken(ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID}, 1553759666),
+					UplinkToken: io.MustUplinkToken(
+						ttnpb.GatewayAntennaIdentifiers{GatewayIdentifiers: registeredGatewayID},
+						1553759666,
+						time.Unix(0, 1553759666*1000),
+					),
 				},
 			},
 		},
