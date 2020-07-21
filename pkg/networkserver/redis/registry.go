@@ -129,7 +129,7 @@ func (r *DeviceRegistry) RangeByAddr(ctx context.Context, addr types.DevAddr, pa
 	defer trace.StartRegion(ctx, "range end devices by dev_addr").End()
 
 	ctxTntID := tenant.FromContext(ctx)
-	return ttnredis.FindProtosWithKeys(r.Redis.ReadOnlyClient(), r.addrKey(addr), r.uidKey).Range(func(k string) (proto.Message, func() (bool, error)) {
+	return ttnredis.FindProtosWithKeys(r.Redis, r.addrKey(addr), r.uidKey).Range(func(k string) (proto.Message, func() (bool, error)) {
 		tntID, err := unique.ToTenantID(k)
 		if err != nil {
 			return nil, nil
