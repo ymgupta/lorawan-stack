@@ -119,6 +119,7 @@
   "console.components.pubsub-form.aws-iot.messages.accessKeySessionToken": "Xxxxxxx xxxxx",
   "console.components.pubsub-form.aws-iot.messages.assumeRole": "Xxxxxx xxxx",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleArn": "Xxxx XXX",
+  "console.components.pubsub-form.aws-iot.messages.assumeRoleArnPlaceholder": "xxx:xxx:xxx::xxxxxxxxxxxx:xxxx/...",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleExternalID": "Xxxxxxxx XX",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleSessionDuration": "Xxxxxxx xxxxxxxx",
   "console.components.pubsub-form.aws-iot.messages.defaultStackName": "XxxxxXxxxxxxxx xxxxx xxxx",

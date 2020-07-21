@@ -17,6 +17,7 @@ export default defineMessages({
   accessKeySessionToken: 'Session token',
   assumeRole: 'Assume role',
   assumeRoleArn: 'Role ARN',
+  assumeRoleArnPlaceholder: 'arn:aws:iam::123456789012:role/...',
   assumeRoleExternalID: 'External ID',
   assumeRoleSessionDuration: 'Session duration',
   defaultStackName: 'CloudFormation stack name',

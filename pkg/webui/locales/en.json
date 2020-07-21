@@ -119,6 +119,7 @@
   "console.components.pubsub-form.aws-iot.messages.accessKeySessionToken": "Session token",
   "console.components.pubsub-form.aws-iot.messages.assumeRole": "Assume role",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleArn": "Role ARN",
+  "console.components.pubsub-form.aws-iot.messages.assumeRoleArnPlaceholder": "arn:aws:iam::123456789012:role/...",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleExternalID": "External ID",
   "console.components.pubsub-form.aws-iot.messages.assumeRoleSessionDuration": "Session duration",
   "console.components.pubsub-form.aws-iot.messages.defaultStackName": "CloudFormation stack name",
