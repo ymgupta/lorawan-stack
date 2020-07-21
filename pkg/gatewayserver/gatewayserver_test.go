@@ -1198,11 +1198,15 @@ func TestGatewayServer(t *testing.T) {
 										DownlinkPaths: []*ttnpb.DownlinkPath{
 											{
 												Path: &ttnpb.DownlinkPath_UplinkToken{
-													UplinkToken: io.MustUplinkToken(ttnpb.GatewayAntennaIdentifiers{
-														GatewayIdentifiers: ttnpb.GatewayIdentifiers{
-															GatewayID: registeredGatewayID,
+													UplinkToken: io.MustUplinkToken(
+														ttnpb.GatewayAntennaIdentifiers{
+															GatewayIdentifiers: ttnpb.GatewayIdentifiers{
+																GatewayID: registeredGatewayID,
+															},
 														},
-													}, 10000000),
+														10000000,
+														time.Unix(0, 10000000*1000),
+													),
 												},
 											},
 										},
@@ -1225,11 +1229,15 @@ func TestGatewayServer(t *testing.T) {
 										DownlinkPaths: []*ttnpb.DownlinkPath{
 											{
 												Path: &ttnpb.DownlinkPath_UplinkToken{
-													UplinkToken: io.MustUplinkToken(ttnpb.GatewayAntennaIdentifiers{
-														GatewayIdentifiers: ttnpb.GatewayIdentifiers{
-															GatewayID: registeredGatewayID,
+													UplinkToken: io.MustUplinkToken(
+														ttnpb.GatewayAntennaIdentifiers{
+															GatewayIdentifiers: ttnpb.GatewayIdentifiers{
+																GatewayID: registeredGatewayID,
+															},
 														},
-													}, 20000000),
+														20000000,
+														time.Unix(0, 20000000*1000),
+													),
 												},
 											},
 										},
@@ -1251,11 +1259,15 @@ func TestGatewayServer(t *testing.T) {
 										DownlinkPaths: []*ttnpb.DownlinkPath{
 											{
 												Path: &ttnpb.DownlinkPath_UplinkToken{
-													UplinkToken: io.MustUplinkToken(ttnpb.GatewayAntennaIdentifiers{
-														GatewayIdentifiers: ttnpb.GatewayIdentifiers{
-															GatewayID: registeredGatewayID,
+													UplinkToken: io.MustUplinkToken(
+														ttnpb.GatewayAntennaIdentifiers{
+															GatewayIdentifiers: ttnpb.GatewayIdentifiers{
+																GatewayID: registeredGatewayID,
+															},
 														},
-													}, 10000000),
+														10000000,
+														time.Unix(0, 10000000*1000),
+													),
 												},
 											},
 										},
