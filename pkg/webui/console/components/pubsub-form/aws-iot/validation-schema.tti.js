@@ -21,7 +21,7 @@ export default Yup.object().shape({
     is: true,
     then: Yup.object().shape({
       access_key_id: Yup.string()
-        .matches(accessKeyIDRegexp, m.validateAccessKeyIDFormat)
+        .matches(accessKeyIDRegexp, Yup.passValues(m.validateAccessKeyIDFormat))
         .min(16, Yup.passValues(sharedMessages.validateTooShort))
         .max(128, Yup.passValues(sharedMessages.validateTooLong))
         .required(sharedMessages.validateRequired),
@@ -38,7 +38,7 @@ export default Yup.object().shape({
       if (useDefault) {
         return schema.shape({
           arn: Yup.string()
-            .matches(assumeRoleArnRegexp, m.validateRoleArnFormat)
+            .matches(assumeRoleArnRegexp, Yup.passValues(m.validateRoleArnFormat))
             .required(sharedMessages.validateRequired),
           external_id: Yup.string().strip(),
           session_duration: Yup.string().strip(),
@@ -47,15 +47,15 @@ export default Yup.object().shape({
       if (useAssumeRole) {
         return schema.shape({
           arn: Yup.string()
-            .matches(assumeRoleArnRegexp, m.validateRoleArnFormat)
+            .matches(assumeRoleArnRegexp, Yup.passValues(m.validateRoleArnFormat))
             .required(sharedMessages.validateRequired),
           external_id: Yup.string()
-            .matches(externalIDRegexp, m.validateExternalIDFormat)
+            .matches(externalIDRegexp, Yup.passValues(m.validateExternalIDFormat))
             .min(2, Yup.passValues(sharedMessages.validateTooShort))
             .max(1224, Yup.passValues(sharedMessages.validateTooLong)),
           session_duration: Yup.string().matches(
             sessionDurationRegexp,
-            m.validateSessionDurationFormat,
+            Yup.passValues(m.validateSessionDurationFormat),
           ),
         })
       }
@@ -65,7 +65,10 @@ export default Yup.object().shape({
   endpoint_address: Yup.object().shape({
     value: Yup.string().when('enabled', {
       is: true,
-      then: Yup.string().matches(endpointAddressRegexp, m.validateEndpointAddressFormat),
+      then: Yup.string().matches(
+        endpointAddressRegexp,
+        Yup.passValues(m.validateEndpointAddressFormat),
+      ),
       otherwise: Yup.string().strip(),
     }),
   }),
@@ -73,7 +76,7 @@ export default Yup.object().shape({
     is: true,
     then: Yup.object().shape({
       stack_name: Yup.string()
-        .matches(stackNameRegexp, m.validateStackNameFormat)
+        .matches(stackNameRegexp, Yup.passValues(m.validateStackNameFormat))
         .required(sharedMessages.validateRequired),
     }),
     otherwise: Yup.object().strip(),
