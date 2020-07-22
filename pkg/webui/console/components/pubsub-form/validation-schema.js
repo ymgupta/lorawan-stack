@@ -33,7 +33,12 @@ export default Yup.object().shape({
     .min(2, Yup.passValues(sharedMessages.validateTooShort))
     .max(25, Yup.passValues(sharedMessages.validateTooLong))
     .required(sharedMessages.validateRequired),
-  format: Yup.string().required(sharedMessages.validateRequired),
+  format: Yup.string().when(['_provider', 'aws_iot'], (provider, awsIoT) => {
+    if (provider === providers.AWS_IOT && awsIoT._use_default) {
+      return Yup.string()
+    }
+    return Yup.string().required(sharedMessages.validateRequired)
+  }),
   base_topic: Yup.string(),
   nats: Yup.object().when('_provider', {
     is: providers.NATS,
