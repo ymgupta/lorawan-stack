@@ -8,9 +8,9 @@ export default defineMessages({
   defaultInfo:
     'The default AWS IoT integration can be deployed via CloudFormation in your AWS account. {moreInformation}',
   region: 'Region',
-  endpointAddress: 'Endpoint address',
+  endpointAddress: 'Custom endpoint address',
   endpointAddressDescription:
-    'If the endpoint address is left empty, the integration will try to discover it',
+    'If no custom IoT Core endpoint address is set, the integration will try to discover it',
   accessKey: 'Access key',
   accessKeyID: 'Access key ID',
   accessKeySecret: 'Secret access key',

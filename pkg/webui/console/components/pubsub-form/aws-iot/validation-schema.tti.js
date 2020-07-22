@@ -62,7 +62,13 @@ export default Yup.object().shape({
       return schema.strip()
     },
   ),
-  endpoint_address: Yup.string().matches(endpointAddressRegexp, m.validateEndpointAddressFormat),
+  endpoint_address: Yup.object().shape({
+    value: Yup.string().when('enabled', {
+      is: true,
+      then: Yup.string().matches(endpointAddressRegexp, m.validateEndpointAddressFormat),
+      otherwise: Yup.string().strip(),
+    }),
+  }),
   default: Yup.object().when('_use_default', {
     is: true,
     then: Yup.object().shape({

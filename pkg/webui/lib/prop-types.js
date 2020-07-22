@@ -150,7 +150,10 @@ PropTypes.pubsubAWSIoT = PropTypes.shape({
     external_id: PropTypes.string,
     session_duration: PropTypes.string,
   }),
-  endpoint_address: PropTypes.string,
+  endpoint_address: PropTypes.shape({
+    enabled: PropTypes.bool,
+    value: PropTypes.value,
+  }),
   default: PropTypes.shape({
     stack_name: PropTypes.string,
   }),

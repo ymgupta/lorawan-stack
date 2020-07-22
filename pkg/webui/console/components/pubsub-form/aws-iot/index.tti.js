@@ -72,6 +72,7 @@ const AWSIoTSettings = props => {
             name="aws_iot.default.stack_name"
             title={m.defaultStackName}
             component={Input}
+            required
           />
           <Form.Field
             name="aws_iot.assume_role.arn"
@@ -79,6 +80,7 @@ const AWSIoTSettings = props => {
             component={Input}
             description={m.defaultRoleArnDescription}
             placeholder={m.assumeRoleArnPlaceholder}
+            required
           />
         </>
       )}
@@ -86,8 +88,9 @@ const AWSIoTSettings = props => {
         <>
           <Form.Field
             name="aws_iot.endpoint_address"
+            type="toggled-input"
             title={m.endpointAddress}
-            component={Input}
+            component={Input.Toggled}
             description={m.endpointAddressDescription}
           />
           <Form.SubTitle title={m.accessKey} />
@@ -97,25 +100,26 @@ const AWSIoTSettings = props => {
             component={Checkbox}
             onChange={handleUseAccessKeyChange}
           />
-          <Form.Field
-            name="aws_iot.access_key.access_key_id"
-            title={m.accessKeyID}
-            component={Input}
-            required={useAccessKey}
-            disabled={!useAccessKey}
-          />
-          <Form.Field
-            name="aws_iot.access_key.secret_access_key"
-            title={m.accessKeySecret}
-            component={Input}
-            disabled={!useAccessKey}
-          />
-          <Form.Field
-            name="aws_iot.access_key.session_token"
-            title={m.accessKeySessionToken}
-            component={Input}
-            disabled={!useAccessKey}
-          />
+          {useAccessKey && (
+            <>
+              <Form.Field
+                name="aws_iot.access_key.access_key_id"
+                title={m.accessKeyID}
+                component={Input}
+                required
+              />
+              <Form.Field
+                name="aws_iot.access_key.secret_access_key"
+                title={m.accessKeySecret}
+                component={Input}
+              />
+              <Form.Field
+                name="aws_iot.access_key.session_token"
+                title={m.accessKeySessionToken}
+                component={Input}
+              />
+            </>
+          )}
           <Form.SubTitle title={m.assumeRole} />
           <Form.Field
             name="aws_iot._use_assume_role"
@@ -123,29 +127,30 @@ const AWSIoTSettings = props => {
             component={Checkbox}
             onChange={handleUseAssumeRoleChange}
           />
-          <Form.Field
-            name="aws_iot.assume_role.arn"
-            title={m.assumeRoleArn}
-            component={Input}
-            required={useAssumeRole}
-            disabled={!useAssumeRole}
-          />
-          <Form.Field
-            name="aws_iot.assume_role.external_id"
-            title={m.assumeRoleExternalID}
-            component={Input}
-            disabled={!useAssumeRole}
-          />
-          <Form.Field
-            name="aws_iot.assume_role.session_duration"
-            title={m.assumeRoleSessionDuration}
-            component={UnitInput}
-            units={[
-              { label: sharedMessages.minutes, value: 'm' },
-              { label: sharedMessages.hours, value: 'h' },
-            ]}
-            disabled={!useAssumeRole}
-          />
+          {useAssumeRole && (
+            <>
+              <Form.Field
+                name="aws_iot.assume_role.arn"
+                title={m.assumeRoleArn}
+                component={Input}
+                required
+              />
+              <Form.Field
+                name="aws_iot.assume_role.external_id"
+                title={m.assumeRoleExternalID}
+                component={Input}
+              />
+              <Form.Field
+                name="aws_iot.assume_role.session_duration"
+                title={m.assumeRoleSessionDuration}
+                component={UnitInput}
+                units={[
+                  { label: sharedMessages.minutes, value: 'm' },
+                  { label: sharedMessages.hours, value: 'h' },
+                ]}
+              />
+            </>
+          )}
         </>
       )}
     </>

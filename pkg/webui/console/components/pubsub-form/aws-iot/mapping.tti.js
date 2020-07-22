@@ -16,7 +16,10 @@ export const blankValues = {
     session_duration: '',
   },
   _use_assume_role: false,
-  endpoint_address: '',
+  endpoint_address: {
+    enabled: false,
+    value: '',
+  },
   default: {
     stack_name: '',
   },
@@ -25,13 +28,19 @@ export const blankValues = {
 
 export const mapToFormValues = function(awsIoT) {
   return merge(
+    blankValues,
     {
       _use_access_key: 'access_key' in awsIoT,
       _use_assume_role: 'assume_role' in awsIoT,
       _use_default: 'default' in awsIoT,
     },
-    blankValues,
     awsIoT,
+    {
+      endpoint_address: {
+        enabled: Boolean(awsIoT.endpoint_address),
+        value: awsIoT.endpoint_address,
+      },
+    },
   )
 }
 
@@ -40,5 +49,8 @@ export const mapFromFormValues = function(result) {
   delete result.aws_iot._use_access_key
   delete result.aws_iot._use_assume_role
   delete result.aws_iot._use_default
+  result.aws_iot.endpoint_address = result.aws_iot.endpoint_address.enabled
+    ? result.aws_iot.endpoint_address.value
+    : ''
   return result
 }
