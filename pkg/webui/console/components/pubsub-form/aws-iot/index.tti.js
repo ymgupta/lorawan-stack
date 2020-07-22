@@ -63,8 +63,8 @@ const AWSIoTSettings = props => {
         title={m.region}
         component={Select}
         options={Object.keys(regions)
-          .sort()
-          .map(region => ({ value: region, label: `${region} (${regions[region]})` }))}
+          .map(region => ({ value: region, label: `${regions[region]} (${region})` }))
+          .sort((a, b) => a.label.localeCompare(b.label))}
       />
       {useDefault && (
         <>

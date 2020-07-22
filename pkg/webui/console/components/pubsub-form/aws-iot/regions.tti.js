@@ -9,7 +9,7 @@ export default Object.freeze({
   'ap-south-1': 'Asia Pacific, Mumbai',
   'ap-southeast-1': 'Asia Pacific, Singapore',
   'ap-southeast-2': 'Asia Pacific, Sydney',
-  'ca-central-1': 'Canada',
+  'ca-central-1': 'Canada, Central',
   'eu-central-1': 'Europe, Frankfurt',
   'eu-north-1': 'Europe, Stockholm',
   'eu-south-1': 'Europe, Milan',
