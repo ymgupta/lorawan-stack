@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -17,11 +18,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/iot"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub/provider/mqtt"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 type impl struct {
 }
+
+var (
+	errSession          = errors.DefineAborted("session", "configure session: {message}")
+	errDescribeEndpoint = errors.DefineAborted("describe_endpoint", "describe endpoint: {message}")
+	errSign             = errors.DefinePermissionDenied("sign", "sign: {message}")
+)
 
 // OpenConnection implements provider.Provider using the MQTT driver.
 func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *provider.Connection, err error) {
@@ -42,6 +50,9 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	}
 	ses, err := session.NewSession(awsConfig)
 	if err != nil {
+		if awserr, ok := err.(awserr.Error); ok {
+			return nil, errSession.WithAttributes("message", awserr.Message())
+		}
 		return nil, err
 	}
 	if settings.AWSIoT.AssumeRole != nil {
@@ -63,6 +74,9 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	if endpointAddress == "" {
 		res, err := iot.New(ses).DescribeEndpointWithContext(ctx, &iot.DescribeEndpointInput{})
 		if err != nil {
+			if awserr, ok := err.(awserr.Error); ok {
+				return nil, errDescribeEndpoint.WithAttributes("message", awserr.Message())
+			}
 			return nil, err
 		}
 		endpointAddress = *res.EndpointAddress
@@ -74,6 +88,9 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	})
 	_, err = signer.Sign(req, nil, "iotdevicegateway", settings.AWSIoT.Region, time.Now())
 	if err != nil {
+		if awserr, ok := err.(awserr.Error); ok {
+			return nil, errSign.WithAttributes("message", awserr.Message())
+		}
 		return nil, err
 	}
 	headers := make(map[string]string)
