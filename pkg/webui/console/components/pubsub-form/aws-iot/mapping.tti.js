@@ -1,6 +1,6 @@
 // Copyright © 2020 The Things Industries B.V.
 
-import { merge } from 'lodash'
+import { cloneDeep, merge } from 'lodash'
 
 export const blankValues = {
   region: '',
@@ -27,21 +27,15 @@ export const blankValues = {
 }
 
 export const mapToFormValues = function(awsIoT) {
-  return merge(
-    blankValues,
-    {
-      _use_access_key: 'access_key' in awsIoT,
-      _use_assume_role: 'assume_role' in awsIoT,
-      _use_default: 'default' in awsIoT,
+  return merge(cloneDeep(blankValues), awsIoT, {
+    _use_access_key: 'access_key' in awsIoT,
+    _use_assume_role: 'assume_role' in awsIoT,
+    _use_default: 'default' in awsIoT,
+    endpoint_address: {
+      enabled: Boolean(awsIoT.endpoint_address),
+      value: awsIoT.endpoint_address,
     },
-    awsIoT,
-    {
-      endpoint_address: {
-        enabled: Boolean(awsIoT.endpoint_address),
-        value: awsIoT.endpoint_address,
-      },
-    },
-  )
+  })
 }
 
 export const mapFromFormValues = function(result) {
