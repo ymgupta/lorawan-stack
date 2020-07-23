@@ -90,7 +90,7 @@
     "intl-pluralrules": "^1.0.3",
     "jsqr": "^1.2.0",
     "leaflet": "^1.5.1",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "lottie-web": "^5.5.7",
     "prop-types": "^15.6.0",
     "query-string": "^5.0.1",

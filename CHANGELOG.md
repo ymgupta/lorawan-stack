@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Options to allow/deny non-admin users to create applications, gateways, etc. (the the `is.user-rights.*` options).
 - Admins now receive emails about requested user accounts that need approval.
 - Support for synchronizing gateway clocks via uplink tokens. UDP gateways may not connect to the same Gateway Server instance.
+- Consistent command aliases for CLI commands.
 
 ### Changed
 
@@ -37,6 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Gateway connection stats are now stored in a single key.
 - The example configuration for deployments with custom certificates now also uses a CA certificate.
 - Increase Network Server application uplink buffer queue size.
+- `ttn-lw-cli use` command no longer adds default HTTP ports (80/443) to the OAuth Server address.
 
 ### Deprecated
 
