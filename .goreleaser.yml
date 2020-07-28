@@ -75,6 +75,7 @@ archives:
       - LICENSE
       - README.md
       - public/**/*
+      - config/completion/*/*
     wrap_in_directory: true
     format_overrides:
       - goos: windows
@@ -87,6 +88,7 @@ archives:
     files:
       - LICENSE
       - README.md
+      - config/completion/*/*tti-lw-cli*
     wrap_in_directory: true
     format_overrides:
       - goos: windows
@@ -110,31 +112,38 @@ nfpms:
       - cockroach
     files:
       "public/**/*": "/srv/ttn-lorawan/public"
+      "config/completion/bash/*": "/usr/share/bash-completion/completions"
+      "config/completion/fish/*": "/usr/share/fish/vendor_completions.d"
+      "config/completion/zsh/*": "/usr/share/zsh/vendor-completions"
 
 # TODO: Re-enable and rename (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
-#snapcrafts:
-#  - id: stack
-#    builds:
-#      - cli
-#      - stack
-#    name: ttn-lw-stack
-#    summary: The Things Stack for LoRaWAN
-#    description: The Things Stack for LoRaWAN
-#    grade: stable
-#    confinement: strict
-#    publish: true
-#    extra_files:
-#      - source: config/snap/ttn-lw-stack.wrapper
-#        destination: ttn-lw-stack.wrapper
-#        mode: 0755
-#      - source: config/snap/ttn-lw-cli.wrapper
-#        destination: ttn-lw-cli.wrapper
-#        mode: 0755
-#    apps:
-#      ttn-lw-stack:
-#        plugs: [ home, network, network-bind ]
-#      ttn-lw-cli:
-#        plugs: [ home, network, network-bind ]
+# snapcrafts:
+#   - id: stack
+#     builds:
+#       - cli
+#       - stack
+#     name: ttn-lw-stack
+#     summary: The Things Stack for LoRaWAN
+#     description: The Things Stack for LoRaWAN
+#     grade: stable
+#     confinement: strict
+#     publish: true
+#     extra_files:
+#       - source: config/snap/ttn-lw-stack.wrapper
+#         destination: ttn-lw-stack.wrapper
+#         mode: 0755
+#       - source: config/snap/ttn-lw-cli.wrapper
+#         destination: ttn-lw-cli.wrapper
+#         mode: 0755
+#     apps:
+#       ttn-lw-stack:
+#         plugs: [ home, network, network-bind ]
+#         command: ttn-lw-stack.wrapper
+#         completer: config/completion/bash/ttn-lw-stack
+#       ttn-lw-cli:
+#         plugs: [ home, network, network-bind ]
+#         command: ttn-lw-cli.wrapper
+#         completer: config/completion/bash/ttn-lw-cli-snap
 
 brews:
   - name: tti-lw-stack
@@ -158,6 +167,12 @@ brews:
           :TTN_LW_HTTP_STATIC_SEARCH_PATH => libexec/"public"
       }
       (bin/"tti-lw-stack").write_env_script libexec/"tti-lw-stack", env
+      bash_completion.install "config/completion/bash/tti-lw-cli"
+      zsh_completion.install "config/completion/zsh/_tti-lw-cli"
+      fish_completion.install "config/completion/fish/tti-lw-cli.fish"
+      bash_completion.install "config/completion/bash/tti-lw-stack"
+      zsh_completion.install "config/completion/zsh/_tti-lw-stack"
+      fish_completion.install "config/completion/fish/tti-lw-stack.fish"
 
   - name: tti-lw-cli
     ids:
@@ -175,6 +190,9 @@ brews:
     skip_upload: auto
     install: |
       bin.install "tti-lw-cli"
+      bash_completion.install "config/completion/bash/tti-lw-cli"
+      zsh_completion.install "config/completion/zsh/_tti-lw-cli"
+      fish_completion.install "config/completion/fish/tti-lw-cli.fish"
 
 blobs:
   - provider: s3

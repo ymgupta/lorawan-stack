@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI support for setting message payload formatters from a local file. (see `--formatters.down-formatter-parameter-local-file` and `--formatters.up-formatter-parameter-local-file` options).
 - Generic encryption/decryption to KeyVault.
 - Option to ignore log messages for selected gRPC method on success (see `grpc.log-ignore-methods` option).
-- CLI auto-completion support (see `ttn-lw-cli complete` command).
+- CLI auto-completion support (automatically enabled for installable packages, also see `ttn-lw-cli complete` command).
 - Options to disable profile picture and end device picture uploads (`is.profile-picture.disable-upload` and `is.end-device-picture.disable-upload`).
 - Options to allow/deny non-admin users to create applications, gateways, etc. (the the `is.user-rights.*` options).
 - Admins now receive emails about requested user accounts that need approval.
@@ -67,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix an issue that frequently caused event data views crashing in the Console.
 - Application Server contacting Join Server via interop for fetching the AppSKey.
 - Low color contrast situations in the Console.
+- Application Server pub/sub integrations race condition during shutdown.
 
 ### Security
 
