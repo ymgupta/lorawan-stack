@@ -127,7 +127,7 @@ func TestStream(t *testing.T) {
 				},
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
 					a := assertions.New(test.MustTFromContext(ctx))
-					if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer,
+					return a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer,
 						func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
 							return test.AllTrue(
 								a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS),
@@ -137,10 +137,7 @@ func TestStream(t *testing.T) {
 						test.ClusterGetPeerResponse{
 							Peer: NewISPeer(ctx, &test.MockApplicationAccessServer{}),
 						},
-					), should.BeTrue) {
-						return false
-					}
-					return true
+					), should.BeTrue)
 				},
 				ErrorAssertion: AssertErrorIsUnauthenticated,
 			},
@@ -158,6 +155,10 @@ func TestStream(t *testing.T) {
 					},
 				},
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
+					ev, err := cl.Recv()
+					if a.So(err, should.BeNil) {
+						a.So(ev.Name, should.Equal, "events.stream.start")
+					}
 					appIDStreams = append(appIDStreams, cl)
 					return true
 				},
@@ -176,6 +177,10 @@ func TestStream(t *testing.T) {
 					},
 				},
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
+					ev, err := cl.Recv()
+					if a.So(err, should.BeNil) {
+						a.So(ev.Name, should.Equal, "events.stream.start")
+					}
 					devIDStreams = append(devIDStreams, cl)
 					return true
 				},
@@ -198,6 +203,10 @@ func TestStream(t *testing.T) {
 					},
 				},
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
+					ev, err := cl.Recv()
+					if a.So(err, should.BeNil) {
+						a.So(ev.Name, should.Equal, "events.stream.start")
+					}
 					appIDStreams = append(appIDStreams, cl)
 					devIDStreams = append(devIDStreams, cl)
 					return true
@@ -217,6 +226,10 @@ func TestStream(t *testing.T) {
 					},
 				},
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
+					ev, err := cl.Recv()
+					if a.So(err, should.BeNil) {
+						a.So(ev.Name, should.Equal, "events.stream.start")
+					}
 					devIDStreams = append(devIDStreams, cl)
 					return true
 				},

@@ -3,6 +3,9 @@
 package eventserver
 
 import (
+	"os"
+	"time"
+
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights/rightsutil"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
@@ -44,6 +47,19 @@ func (es *EventServer) Stream(req *ttnpb.StreamEventsRequest, stream ttnpb.Event
 
 	if err := stream.SendHeader(metadata.MD{}); err != nil {
 		logger.WithError(err).Warn("Failed to send header, drop stream")
+		return err
+	}
+	hostname, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	if err := stream.Send(&ttnpb.Event{
+		Name:           "events.stream.start",
+		Time:           time.Now().UTC(),
+		Identifiers:    req.Identifiers,
+		Origin:         hostname,
+		CorrelationIDs: events.CorrelationIDsFromContext(ctx),
+	}); err != nil {
 		return err
 	}
 
