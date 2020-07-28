@@ -1826,6 +1826,33 @@
       "file": "registration.go"
     }
   },
+  "error:pkg/applicationserver/io/pubsub/provider/awsiot:describe_endpoint": {
+    "translations": {
+      "en": "describe endpoint: {message}"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/pubsub/provider/awsiot",
+      "file": "provider.tti.go"
+    }
+  },
+  "error:pkg/applicationserver/io/pubsub/provider/awsiot:session": {
+    "translations": {
+      "en": "configure session: {message}"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/pubsub/provider/awsiot",
+      "file": "provider.tti.go"
+    }
+  },
+  "error:pkg/applicationserver/io/pubsub/provider/awsiot:sign": {
+    "translations": {
+      "en": "sign: {message}"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/pubsub/provider/awsiot",
+      "file": "provider.tti.go"
+    }
+  },
   "error:pkg/applicationserver/io/pubsub/provider/mqtt:ca_pem_data": {
     "translations": {
       "en": "CA PEM data is invalid"

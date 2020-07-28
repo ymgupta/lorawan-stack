@@ -14,7 +14,11 @@
 
 import Marshaler from '../util/marshaler'
 
-const remaps = [['nats', 'provider.nats'], ['mqtt', 'provider.mqtt']]
+const remaps = [
+  ['nats', 'provider.nats'],
+  ['mqtt', 'provider.mqtt'],
+  ['aws_iot', 'provider.aws_iot'],
+]
 
 class PubSub {
   constructor(registry) {

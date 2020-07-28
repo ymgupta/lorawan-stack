@@ -25,6 +25,7 @@ import {
 
 import { qosLevels } from './qos-options'
 import providers from './providers'
+import awsIoT from './aws-iot/validation-schema.tti'
 
 export default Yup.object().shape({
   pub_sub_id: Yup.string()
@@ -32,7 +33,12 @@ export default Yup.object().shape({
     .min(2, Yup.passValues(sharedMessages.validateTooShort))
     .max(25, Yup.passValues(sharedMessages.validateTooLong))
     .required(sharedMessages.validateRequired),
-  format: Yup.string().required(sharedMessages.validateRequired),
+  format: Yup.string().when(['_provider', 'aws_iot'], (provider, awsIoT) => {
+    if (provider === providers.AWS_IOT && awsIoT._use_default) {
+      return Yup.string()
+    }
+    return Yup.string().required(sharedMessages.validateRequired)
+  }),
   base_topic: Yup.string(),
   nats: Yup.object().when('_provider', {
     is: providers.NATS,
@@ -118,6 +124,11 @@ export default Yup.object().shape({
         otherwise: Yup.string().strip(),
       }),
     }),
+    otherwise: Yup.object().strip(),
+  }),
+  aws_iot: Yup.object().when('_provider', {
+    is: providers.AWS_IOT,
+    then: awsIoT,
     otherwise: Yup.object().strip(),
   }),
 })

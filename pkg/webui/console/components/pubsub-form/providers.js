@@ -15,4 +15,5 @@
 export default Object.freeze({
   NATS: 'NATS',
   MQTT: 'MQTT',
+  AWS_IOT: 'AWS_IOT',
 })

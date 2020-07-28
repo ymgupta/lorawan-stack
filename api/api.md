@@ -52,6 +52,7 @@
   - [Message `ApplicationPubSub.AWSIoTProvider`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider)
   - [Message `ApplicationPubSub.AWSIoTProvider.AccessKey`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AccessKey)
   - [Message `ApplicationPubSub.AWSIoTProvider.AssumeRole`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AssumeRole)
+  - [Message `ApplicationPubSub.AWSIoTProvider.DefaultIntegration`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.DefaultIntegration)
   - [Message `ApplicationPubSub.MQTTProvider`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider)
   - [Message `ApplicationPubSub.MQTTProvider.HeadersEntry`](#ttn.lorawan.v3.ApplicationPubSub.MQTTProvider.HeadersEntry)
   - [Message `ApplicationPubSub.Message`](#ttn.lorawan.v3.ApplicationPubSub.Message)
@@ -1094,12 +1095,14 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | `access_key` | [`ApplicationPubSub.AWSIoTProvider.AccessKey`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AccessKey) |  | If set, the integration will use an AWS access key. |
 | `assume_role` | [`ApplicationPubSub.AWSIoTProvider.AssumeRole`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AssumeRole) |  | If set, the integration will assume the given role during operation. |
 | `endpoint_address` | [`string`](#string) |  | The endpoint address to connect to. If the endpoint address is left empty, the integration will try to discover it. |
+| `default` | [`ApplicationPubSub.AWSIoTProvider.DefaultIntegration`](#ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.DefaultIntegration) |  | Enable the default integration. This overrides custom base topic and message topics of the pub/sub integration. |
 
 #### Field Rules
 
 | Field | Validations |
 | ----- | ----------- |
-| `region` | <p>`string.in`: `[ap-east-1 ap-northeast-1 ap-northeast-2 ap-south-1 ap-southeast-1 ap-southeast-2 ca-central-1 eu-central-1 eu-north-1 eu-west-1 eu-west-2 eu-west-3 me-south-1 sa-east-1 us-east-1 us-east-2 us-west-1 us-west-2]`</p> |
+| `region` | <p>`string.in`: `[af-south-1 ap-east-1 ap-northeast-1 ap-northeast-2 ap-south-1 ap-southeast-1 ap-southeast-2 ca-central-1 eu-central-1 eu-north-1 eu-south-1 eu-west-1 eu-west-2 eu-west-3 me-south-1 sa-east-1 us-east-1 us-east-2 us-west-1 us-west-2]`</p> |
+| `endpoint_address` | <p>`string.max_len`: `128`</p><p>`string.pattern`: `^((([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])|)$`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AccessKey">Message `ApplicationPubSub.AWSIoTProvider.AccessKey`</a>
 
@@ -1109,6 +1112,14 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | `secret_access_key` | [`string`](#string) |  |  |
 | `session_token` | [`string`](#string) |  |  |
 
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `access_key_id` | <p>`string.min_len`: `16`</p><p>`string.max_len`: `128`</p><p>`string.pattern`: `^[\w]*$`</p> |
+| `secret_access_key` | <p>`string.max_len`: `40`</p> |
+| `session_token` | <p>`string.max_len`: `256`</p> |
+
 ### <a name="ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.AssumeRole">Message `ApplicationPubSub.AWSIoTProvider.AssumeRole`</a>
 
 | Field | Type | Label | Description |
@@ -1116,6 +1127,25 @@ The AsEndDeviceRegistry service allows clients to manage their end devices on th
 | `arn` | [`string`](#string) |  |  |
 | `external_id` | [`string`](#string) |  |  |
 | `session_duration` | [`google.protobuf.Duration`](#google.protobuf.Duration) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `arn` | <p>`string.pattern`: `^arn:aws:iam::[0-9]{12}:role\/[A-Za-z0-9_+=,.@-]+$`</p> |
+| `external_id` | <p>`string.max_len`: `1224`</p><p>`string.pattern`: `^[\w+=,.@:\/-]*$`</p> |
+
+### <a name="ttn.lorawan.v3.ApplicationPubSub.AWSIoTProvider.DefaultIntegration">Message `ApplicationPubSub.AWSIoTProvider.DefaultIntegration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `stack_name` | [`string`](#string) |  | The stack name that is associated with the CloudFormation deployment of The Things Enterprise Stack integration. |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `stack_name` | <p>`string.max_len`: `128`</p><p>`string.pattern`: `^[A-Za-z][A-Za-z0-9\-]*$`</p> |
 
 ### <a name="ttn.lorawan.v3.ApplicationPubSub.MQTTProvider">Message `ApplicationPubSub.MQTTProvider`</a>
 

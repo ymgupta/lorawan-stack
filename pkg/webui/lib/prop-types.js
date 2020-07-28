@@ -135,6 +135,28 @@ PropTypes.pubsub = PropTypes.shape({
     tls_client_cert: PropTypes.string,
     tls_client_key: PropTypes.string,
   }),
+  aws_iot: PropTypes.pubsubAWSIoT,
+})
+
+PropTypes.pubsubAWSIoT = PropTypes.shape({
+  region: PropTypes.string.isRequired,
+  access_key: PropTypes.shape({
+    access_key_id: PropTypes.string,
+    secret_access_key: PropTypes.string,
+    session_token: PropTypes.string,
+  }),
+  assume_role: PropTypes.shape({
+    arn: PropTypes.string,
+    external_id: PropTypes.string,
+    session_duration: PropTypes.string,
+  }),
+  endpoint_address: PropTypes.shape({
+    enabled: PropTypes.bool,
+    value: PropTypes.value,
+  }),
+  default: PropTypes.shape({
+    stack_name: PropTypes.string,
+  }),
 })
 
 PropTypes.user = PropTypes.shape({

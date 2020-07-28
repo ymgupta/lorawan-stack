@@ -50,11 +50,13 @@ const headers = [
         return res ? res[8] : ''
       } else if (row.mqtt) {
         return row.mqtt.server_url
+      } else if (row.aws_iot) {
+        return row.aws_iot.default ? row.aws_iot.default.stack_name : row.aws_iot.endpoint_address
       }
       return ''
     },
     displayName: m.host,
-    width: 33,
+    width: 30,
   },
   {
     name: 'base_topic',
@@ -67,11 +69,13 @@ const headers = [
         return 'NATS'
       } else if (row.mqtt) {
         return 'MQTT'
+      } else if (row.aws_iot) {
+        return 'AWS IoT'
       }
       return 'Not set'
     },
     displayName: sharedMessages.provider,
-    width: 9,
+    width: 12,
   },
   {
     name: 'format',

@@ -41,6 +41,7 @@ import {
 import { qosOptions } from './qos-options'
 import providers from './providers'
 import validationSchema from './validation-schema'
+import AWSIoTSettings from './aws-iot/index.tti'
 
 const pathPlaceholder = 'sub-topic'
 
@@ -78,6 +79,7 @@ export default class PubsubForm extends Component {
       provider: blankValues._provider,
       mqttUseCredentials: true,
       natsUseCredentials: true,
+      awsIoTUseProviderDefaults: true,
     }
 
     if (update && 'nats' in initialPubsubValue) {
@@ -90,6 +92,9 @@ export default class PubsubForm extends Component {
       this.state.mqttUseCredentials = Boolean(
         initialPubsubValue.mqtt.username || initialPubsubValue.mqtt.password,
       )
+    } else if (update && 'aws_iot' in initialPubsubValue) {
+      this.state.provider = providers.AWS_IOT
+      this.state.awsIoTUseProviderDefaults = 'default' in initialPubsubValue.aws_iot
     }
   }
 
@@ -146,6 +151,11 @@ export default class PubsubForm extends Component {
   @bind
   handleUseCredentialsChangeMqtt(event) {
     this.setState({ mqttUseCredentials: event.target.checked })
+  }
+
+  @bind
+  handleAWSIoTUseDefaultsChange(value) {
+    this.setState({ awsIoTUseProviderDefaults: value })
   }
 
   get natsSection() {
@@ -378,6 +388,16 @@ export default class PubsubForm extends Component {
     )
   }
 
+  get useProviderDefaults() {
+    const { provider, awsIoTUseProviderDefaults } = this.state
+    switch (provider) {
+      case providers.AWS_IOT:
+        return awsIoTUseProviderDefaults
+      default:
+        return false
+    }
+  }
+
   render() {
     const { update, initialPubsubValue } = this.props
     const { error, provider } = this.state
@@ -407,10 +427,17 @@ export default class PubsubForm extends Component {
         <Form.Field title={sharedMessages.provider} name="_provider" component={Radio.Group}>
           <Radio label="NATS" value={providers.NATS} onChange={this.handleProviderSelect} />
           <Radio label="MQTT" value={providers.MQTT} onChange={this.handleProviderSelect} />
+          <Radio label="AWS IoT" value={providers.AWS_IOT} onChange={this.handleProviderSelect} />
         </Form.Field>
         {provider === providers.NATS && this.natsSection}
         {provider === providers.MQTT && this.mqttSection}
-        {this.messageTypesSection}
+        {provider === providers.AWS_IOT && (
+          <AWSIoTSettings
+            value={initialValues.aws_iot}
+            onUseDefaultsChange={this.handleAWSIoTUseDefaultsChange}
+          />
+        )}
+        {!this.useProviderDefaults && this.messageTypesSection}
         <SubmitBar>
           <Form.Submit
             component={SubmitButton}
