@@ -48,6 +48,7 @@ func Complete() *cobra.Command {
 					return err
 				}
 				script := strings.Replace(buf.String(), "__ttn-lw-", "__ttn_lw_", -1)
+				script = strings.Replace(script, "__tti-lw-", "__tti_lw_", -1)
 				_, err := fmt.Print(script)
 				return err
 			case "powershell":

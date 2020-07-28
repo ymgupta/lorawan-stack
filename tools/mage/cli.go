@@ -33,26 +33,27 @@ func (Cli) Autocomplete() error {
 		filename   string
 		executable string
 	}{
+		// TODO: Re-enable and rename (https://github.com/TheThingsIndustries/lorawan-stack/issues/1700).
+		// {
+		// 	"tti-lw-cli", "bash", "tti-lw-cli-snap", "ttn-lw-stack.tti-lw-cli",
+		// },
 		{
-			"ttn-lw-cli", "bash", "ttn-lw-cli-snap", "ttn-lw-stack.ttn-lw-cli",
+			"tti-lw-cli", "bash", "tti-lw-cli", "tti-lw-cli",
 		},
 		{
-			"ttn-lw-cli", "bash", "ttn-lw-cli", "ttn-lw-cli",
+			"tti-lw-cli", "fish", "tti-lw-cli.fish", "tti-lw-cli",
 		},
 		{
-			"ttn-lw-cli", "fish", "ttn-lw-cli.fish", "ttn-lw-cli",
+			"tti-lw-cli", "zsh", "_tti-lw-cli", "tti-lw-cli",
 		},
 		{
-			"ttn-lw-cli", "zsh", "_ttn-lw-cli", "ttn-lw-cli",
+			"tti-lw-stack", "bash", "tti-lw-stack", "tti-lw-stack",
 		},
 		{
-			"ttn-lw-stack", "bash", "ttn-lw-stack", "ttn-lw-stack",
+			"tti-lw-stack", "fish", "tti-lw-stack.fish", "tti-lw-stack",
 		},
 		{
-			"ttn-lw-stack", "fish", "ttn-lw-stack.fish", "ttn-lw-stack",
-		},
-		{
-			"ttn-lw-stack", "zsh", "_ttn-lw-stack", "ttn-lw-stack",
+			"tti-lw-stack", "zsh", "_tti-lw-stack", "tti-lw-stack",
 		},
 	} {
 		f, err := os.Create(path.Join("config", "completion", cfg.shell, cfg.filename))

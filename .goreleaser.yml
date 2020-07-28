@@ -88,7 +88,7 @@ archives:
     files:
       - LICENSE
       - README.md
-      - config/completion/*/*ttn-lw-cli*
+      - config/completion/*/*tti-lw-cli*
     wrap_in_directory: true
     format_overrides:
       - goos: windows
