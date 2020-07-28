@@ -18,6 +18,8 @@ package gatewayserver
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	stdlog "log"
 	"math"
 	"net"
 	"net/http"
@@ -255,7 +257,11 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 	if conf.BasicStation.FallbackFrequencyPlanID != "" {
 		bsCtx = frequencyplans.WithFallbackID(bsCtx, conf.BasicStation.FallbackFrequencyPlanID)
 	}
-	bsWebServer := basicstationlns.New(bsCtx, gs, conf.BasicStation.UseTrafficTLSAddress, conf.BasicStation.WSPingInterval)
+	bsWebServer := basicstationlns.New(bsCtx, gs, basicstationlns.Config{
+		UseTrafficTLSAddress: conf.BasicStation.UseTrafficTLSAddress,
+		WSPingInterval:       conf.BasicStation.WSPingInterval,
+		AllowUnauthenticated: conf.BasicStation.AllowUnauthenticated,
+	})
 	for _, endpoint := range []component.Endpoint{
 		component.NewTCPEndpoint(conf.BasicStation.Listen, "Basic Station"),
 		component.NewTLSEndpoint(conf.BasicStation.ListenTLS, "Basic Station", component.WithNextProtos("h2", "http/1.1")),
@@ -283,6 +289,7 @@ func New(c *component.Component, conf *Config, opts ...Option) (gs *GatewayServe
 					Handler:           bsWebServer,
 					ReadTimeout:       120 * time.Second,
 					ReadHeaderTimeout: 5 * time.Second,
+					ErrorLog:          stdlog.New(ioutil.Discard, "", 0),
 				}
 				go func() {
 					<-ctx.Done()

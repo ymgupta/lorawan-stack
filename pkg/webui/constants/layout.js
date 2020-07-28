@@ -12,16 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-.column
-  &-id
-    min-width: 6rem
+// Layout configurations. Keep these in line with
+// `styles/variables/generic.less`.
 
-  &-time
-    min-width: 4rem
-
-  &-type
-    min-width: 14rem
-
-  &-data
-    flex-grow: 1
-    text-align: center
+export default Object.freeze({
+  BREAKPOINTS: {
+    '3XS': 376,
+    XXS: 480,
+    XS: 620,
+    S: 768,
+    M: 1080,
+    L: 1280,
+    XL: 1600,
+  },
+  CONTAINER_WIDTHS: {
+    XS: 768,
+    S: 1000,
+    M: 1140,
+    L: 1140,
+  },
+  GUTTER_WIDTH: 28,
+})

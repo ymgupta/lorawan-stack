@@ -21,6 +21,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/cmd/internal/shared"
 	"go.thethings.network/lorawan-stack/v3/pkg/config"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/basicstationlns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/udp"
 )
 
@@ -50,9 +51,9 @@ var DefaultGatewayServerConfig = gatewayserver.Config{
 		PublicTLSAddress: fmt.Sprintf("%s:8882", shared.DefaultPublicHost),
 	},
 	BasicStation: gatewayserver.BasicStationConfig{
-		Listen:         ":1887",
-		ListenTLS:      ":8887",
-		WSPingInterval: 30 * time.Second,
+		Config:    basicstationlns.DefaultConfig,
+		Listen:    ":1887",
+		ListenTLS: ":8887",
 	},
 	UpdateConnectionStatsDebounceTime: 3 * time.Second,
 }
