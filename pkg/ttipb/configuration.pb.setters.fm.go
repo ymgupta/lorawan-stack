@@ -175,6 +175,81 @@ func (dst *Configuration_Cluster_IdentityServer) SetFields(src *Configuration_Cl
 					dst.UserRegistration = nil
 				}
 			}
+		case "profile_picture":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_ProfilePicture
+				if (src == nil || src.ProfilePicture == nil) && dst.ProfilePicture == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.ProfilePicture
+				}
+				if dst.ProfilePicture != nil {
+					newDst = dst.ProfilePicture
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_ProfilePicture{}
+					dst.ProfilePicture = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.ProfilePicture = src.ProfilePicture
+				} else {
+					dst.ProfilePicture = nil
+				}
+			}
+		case "end_device_picture":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_EndDevicePicture
+				if (src == nil || src.EndDevicePicture == nil) && dst.EndDevicePicture == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.EndDevicePicture
+				}
+				if dst.EndDevicePicture != nil {
+					newDst = dst.EndDevicePicture
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_EndDevicePicture{}
+					dst.EndDevicePicture = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.EndDevicePicture = src.EndDevicePicture
+				} else {
+					dst.EndDevicePicture = nil
+				}
+			}
+		case "user_rights":
+			if len(subs) > 0 {
+				var newDst, newSrc *Configuration_Cluster_IdentityServer_UserRights
+				if (src == nil || src.UserRights == nil) && dst.UserRights == nil {
+					continue
+				}
+				if src != nil {
+					newSrc = src.UserRights
+				}
+				if dst.UserRights != nil {
+					newDst = dst.UserRights
+				} else {
+					newDst = &Configuration_Cluster_IdentityServer_UserRights{}
+					dst.UserRights = newDst
+				}
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
+			} else {
+				if src != nil {
+					dst.UserRights = src.UserRights
+				} else {
+					dst.UserRights = nil
+				}
+			}
 
 		default:
 			return fmt.Errorf("invalid field: '%s'", name)
@@ -323,6 +398,102 @@ func (dst *Configuration_Cluster_IdentityServer_UserRegistration) SetFields(src 
 				} else {
 					dst.PasswordRequirements = nil
 				}
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_ProfilePicture) SetFields(src *Configuration_Cluster_IdentityServer_ProfilePicture, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "disable_upload":
+			if len(subs) > 0 {
+				return fmt.Errorf("'disable_upload' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DisableUpload = src.DisableUpload
+			} else {
+				dst.DisableUpload = nil
+			}
+		case "use_gravatar":
+			if len(subs) > 0 {
+				return fmt.Errorf("'use_gravatar' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.UseGravatar = src.UseGravatar
+			} else {
+				dst.UseGravatar = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_EndDevicePicture) SetFields(src *Configuration_Cluster_IdentityServer_EndDevicePicture, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "disable_upload":
+			if len(subs) > 0 {
+				return fmt.Errorf("'disable_upload' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.DisableUpload = src.DisableUpload
+			} else {
+				dst.DisableUpload = nil
+			}
+
+		default:
+			return fmt.Errorf("invalid field: '%s'", name)
+		}
+	}
+	return nil
+}
+
+func (dst *Configuration_Cluster_IdentityServer_UserRights) SetFields(src *Configuration_Cluster_IdentityServer_UserRights, paths ...string) error {
+	for name, subs := range _processPaths(paths) {
+		switch name {
+		case "create_applications":
+			if len(subs) > 0 {
+				return fmt.Errorf("'create_applications' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.CreateApplications = src.CreateApplications
+			} else {
+				dst.CreateApplications = nil
+			}
+		case "create_clients":
+			if len(subs) > 0 {
+				return fmt.Errorf("'create_clients' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.CreateClients = src.CreateClients
+			} else {
+				dst.CreateClients = nil
+			}
+		case "create_gateways":
+			if len(subs) > 0 {
+				return fmt.Errorf("'create_gateways' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.CreateGateways = src.CreateGateways
+			} else {
+				dst.CreateGateways = nil
+			}
+		case "create_organizations":
+			if len(subs) > 0 {
+				return fmt.Errorf("'create_organizations' has no subfields, but %s were specified", subs)
+			}
+			if src != nil {
+				dst.CreateOrganizations = src.CreateOrganizations
+			} else {
+				dst.CreateOrganizations = nil
 			}
 
 		default:

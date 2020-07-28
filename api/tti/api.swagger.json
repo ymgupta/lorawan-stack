@@ -295,6 +295,15 @@
       "properties": {
         "user_registration": {
           "$ref": "#/definitions/IdentityServerUserRegistration"
+        },
+        "profile_picture": {
+          "$ref": "#/definitions/IdentityServerProfilePicture"
+        },
+        "end_device_picture": {
+          "$ref": "#/definitions/IdentityServerEndDevicePicture"
+        },
+        "user_rights": {
+          "$ref": "#/definitions/IdentityServerUserRights"
         }
       }
     },
@@ -339,6 +348,28 @@
         }
       }
     },
+    "IdentityServerEndDevicePicture": {
+      "type": "object",
+      "properties": {
+        "disable_upload": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "IdentityServerProfilePicture": {
+      "type": "object",
+      "properties": {
+        "disable_upload": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "use_gravatar": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
     "IdentityServerUserRegistration": {
       "type": "object",
       "properties": {
@@ -374,6 +405,27 @@
         },
         "token_ttl": {
           "type": "string"
+        }
+      }
+    },
+    "IdentityServerUserRights": {
+      "type": "object",
+      "properties": {
+        "create_applications": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "create_clients": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "create_gateways": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "create_organizations": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     },

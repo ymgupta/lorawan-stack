@@ -270,6 +270,88 @@
               "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRegistration",
               "ismap": false,
               "defaultValue": ""
+            },
+            {
+              "name": "profile_picture",
+              "description": "",
+              "label": "",
+              "type": "ProfilePicture",
+              "longType": "Configuration.Cluster.IdentityServer.ProfilePicture",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "end_device_picture",
+              "description": "",
+              "label": "",
+              "type": "EndDevicePicture",
+              "longType": "Configuration.Cluster.IdentityServer.EndDevicePicture",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "user_rights",
+              "description": "",
+              "label": "",
+              "type": "UserRights",
+              "longType": "Configuration.Cluster.IdentityServer.UserRights",
+              "fullType": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "EndDevicePicture",
+          "longName": "Configuration.Cluster.IdentityServer.EndDevicePicture",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "disable_upload",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "ProfilePicture",
+          "longName": "Configuration.Cluster.IdentityServer.ProfilePicture",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.ProfilePicture",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "disable_upload",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "use_gravatar",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
             }
           ]
         },
@@ -453,6 +535,57 @@
               "type": "UInt32Value",
               "longType": "google.protobuf.UInt32Value",
               "fullType": "google.protobuf.UInt32Value",
+              "ismap": false,
+              "defaultValue": ""
+            }
+          ]
+        },
+        {
+          "name": "UserRights",
+          "longName": "Configuration.Cluster.IdentityServer.UserRights",
+          "fullName": "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights",
+          "description": "",
+          "hasExtensions": false,
+          "hasFields": true,
+          "extensions": [],
+          "fields": [
+            {
+              "name": "create_applications",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_clients",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_gateways",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "create_organizations",
+              "description": "",
+              "label": "",
+              "type": "BoolValue",
+              "longType": "google.protobuf.BoolValue",
+              "fullType": "google.protobuf.BoolValue",
               "ismap": false,
               "defaultValue": ""
             }

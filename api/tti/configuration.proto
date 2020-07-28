@@ -45,6 +45,22 @@ message Configuration {
         PasswordRequirements password_requirements = 4;
       }
       UserRegistration user_registration = 3;
+      message ProfilePicture {
+        google.protobuf.BoolValue disable_upload = 1;
+        google.protobuf.BoolValue use_gravatar = 2;
+      }
+      ProfilePicture profile_picture = 4;
+      message EndDevicePicture {
+        google.protobuf.BoolValue disable_upload = 1;
+      }
+      EndDevicePicture end_device_picture = 5;
+      message UserRights {
+        google.protobuf.BoolValue create_applications = 1;
+        google.protobuf.BoolValue create_clients = 2;
+        google.protobuf.BoolValue create_gateways = 3;
+        google.protobuf.BoolValue create_organizations = 4;
+      }
+      UserRights user_rights = 6;
     }
 
     // Identity Server configuration.
