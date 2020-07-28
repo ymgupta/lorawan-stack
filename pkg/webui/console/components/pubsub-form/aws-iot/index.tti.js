@@ -96,7 +96,7 @@ const AWSIoTSettings = props => {
           <Form.SubTitle title={m.accessKey} />
           <Form.Field
             name="aws_iot._use_access_key"
-            title={m.accessKey}
+            title={m.useAccessKey}
             component={Checkbox}
             onChange={handleUseAccessKeyChange}
           />
@@ -123,7 +123,7 @@ const AWSIoTSettings = props => {
           <Form.SubTitle title={m.assumeRole} />
           <Form.Field
             name="aws_iot._use_assume_role"
-            title={m.assumeRole}
+            title={m.useAssumeRole}
             component={Checkbox}
             onChange={handleUseAssumeRoleChange}
           />

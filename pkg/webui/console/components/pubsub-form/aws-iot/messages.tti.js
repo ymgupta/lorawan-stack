@@ -12,10 +12,12 @@ export default defineMessages({
   endpointAddressDescription:
     'If no custom IoT Core endpoint address is set, the integration will try to discover it',
   accessKey: 'Access key',
+  useAccessKey: 'Use access key',
   accessKeyID: 'Access key ID',
   accessKeySecret: 'Secret access key',
   accessKeySessionToken: 'Session token',
-  assumeRole: 'Assume role',
+  assumeRole: 'Cross-account role',
+  useAssumeRole: 'Use cross-account role',
   assumeRoleArn: 'Role ARN',
   assumeRoleArnPlaceholder: 'arn:aws:iam::123456789012:role/...',
   assumeRoleExternalID: 'External ID',
