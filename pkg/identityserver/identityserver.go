@@ -91,6 +91,7 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 		ctx:       log.NewContextWithField(c.Context(), "namespace", "identityserver"),
 		config:    config,
 	}
+	is.ctx = withOAuthConfigPatcher(is.ctx)
 	is.db, err = store.Open(is.Context(), is.config.DatabaseURI)
 	if err != nil {
 		return nil, err
