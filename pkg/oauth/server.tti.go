@@ -4,10 +4,9 @@ package oauth
 
 import (
 	"context"
-	"net/url"
 
-	"go.thethings.network/lorawan-stack/v3/pkg/license"
-	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
+	"go.thethings.network/lorawan-stack/v3/pkg/oauth/oidc"
+	"go.thethings.network/lorawan-stack/v3/pkg/webui"
 )
 
 // ConfigurationPatcher is a configuration patcher for the OAuth configuration.
@@ -58,23 +57,6 @@ func (conf ProvidersConfig) Apply(ctx context.Context) ProvidersConfig {
 }
 
 // Apply the context to the config.
-func (conf OIDCConfig) Apply(ctx context.Context) OIDCConfig {
-	if license.RequireMultiTenancy(ctx) != nil {
-		return conf
-	}
-	tenantID := tenant.FromContext(ctx)
-	if tenantID.TenantID == "" {
-		return conf
-	}
-	deriv := conf
-	if redirect, err := url.Parse(conf.RedirectURL); err == nil {
-		redirect.Host = tenantID.TenantID + "." + redirect.Host
-		deriv.RedirectURL = redirect.String()
-	}
-	return deriv
-}
-
-// Apply the context to the config.
 func (conf UIConfig) Apply(ctx context.Context) UIConfig {
 	deriv := conf
 	deriv.TemplateData = conf.TemplateData.Apply(ctx)
@@ -94,4 +76,14 @@ func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
 	deriv := conf
 	deriv.StackConfig = conf.StackConfig.Apply(ctx)
 	return deriv
+}
+
+// GetOIDCConfig returns the OIDC provider configuration.
+func (s *server) GetOIDCConfig(ctx context.Context) oidc.Config {
+	return s.configProvider(ctx).Apply(ctx).Providers.OIDC
+}
+
+// GetTemplateData returns the web template configuration.
+func (s *server) GetTemplateData(ctx context.Context) webui.TemplateData {
+	return s.configProvider(ctx).Apply(ctx).UI.TemplateData
 }

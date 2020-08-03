@@ -70,6 +70,7 @@ type mockStore struct {
 	store.UserSessionStore
 	store.ClientStore
 	store.OAuthStore
+	store.ExternalUserStore
 
 	mockStoreContents
 }

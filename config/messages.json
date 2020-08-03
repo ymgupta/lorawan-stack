@@ -6740,6 +6740,33 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/oauth/oidc:invalid_state": {
+    "translations": {
+      "en": "invalid state `{state}` provided"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:no_id_token": {
+    "translations": {
+      "en": "no ID token found"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:registrations_disabled": {
+    "translations": {
+      "en": "account registrations are disabled"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
   "error:pkg/oauth:access_denied": {
     "translations": {
       "en": "access denied"
@@ -6828,6 +6855,15 @@
     "description": {
       "package": "pkg/oauth",
       "file": "user.go"
+    }
+  },
+  "error:pkg/oauth:invalid_provider": {
+    "translations": {
+      "en": "the provider `{provider_id}` is invalid"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.tti.go"
     }
   },
   "error:pkg/oauth:invalid_redirect_uri": {

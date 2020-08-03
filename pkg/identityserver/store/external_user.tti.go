@@ -12,7 +12,7 @@ type ExternalUser struct {
 	TenantID string `gorm:"unique_index:uix_external_users_user_id;type:VARCHAR(36)"`
 
 	User   *User
-	UserID string `gorm:"type:UUID;index;not null"`
+	UserID string `gorm:"type:UUID;index:uix_external_users_user_id;not null"`
 
 	Provider int32 `gorm:"not null"`
 
