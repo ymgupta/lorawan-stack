@@ -35,10 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to allow unauthenticated Basic Station connections. Unset `gs.basic-station.allow-unauthenticated` to enforce auth check for production clusters. Please note that unauthenticated connections in existing connections will not be allowed unless this is set.
 - Option to require TLS on connections to Redis servers (see `redis.tls.require` and related options).
 - Documentation for `cache` options.
+- Documentation for the Gateway Server MQTT protocol.
 
 ### Changed
 
-- Event stream start and stop events are not published anymore.
 - Remove version from hosted documentation paths.
 - Gateway connection stats are now stored in a single key.
 - The example configuration for deployments with custom certificates now also uses a CA certificate.
@@ -49,6 +49,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The header of the sidebar is now clickable in the Console.
 - Overall layout and behavior of the sidebar in the Console improved.
 - Improved layout and screen space utilization of event data views in the Console.
+- Allow setting all default MAC settings of the Network Server. Support setting enum values using strings where applicable.
 
 ### Deprecated
 
