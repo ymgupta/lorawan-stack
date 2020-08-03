@@ -18,6 +18,7 @@ import bind from 'autobind-decorator'
 import Query from 'query-string'
 import { defineMessages } from 'react-intl'
 import { replace } from 'connected-react-router'
+import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 
 import api from '@oauth/api'
@@ -117,6 +118,9 @@ export default class OAuth extends React.PureComponent {
     const { info } = this.props.location.state || ''
     const { siteName } = this.props
 
+    const oidcURL = new URL(window.location.href)
+    oidcURL.pathname += '/oidc'
+
     return (
       <div className={style.fullHeightCenter}>
         <IntlHelmet title={sharedMessages.login} />
@@ -154,6 +158,7 @@ export default class OAuth extends React.PureComponent {
                 required
               />
               <Form.Submit component={SubmitButton} message={sharedMessages.login} />
+              <Button.AnchorLink message="Login with OIDC" href={`${oidcURL.href}`} />
               <Button naked message={m.createAccount} onClick={this.navigateToRegister} />
               <Button naked message={m.forgotPassword} onClick={this.navigateToResetPassword} />
             </Form>
