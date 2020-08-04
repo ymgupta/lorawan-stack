@@ -72,8 +72,7 @@ message Configuration {
             Shared shared = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false];
             string client_id = 2 [(gogoproto.customname) = "ClientID"];
             string client_secret = 3 [(gogoproto.customname) = "ClientSecret"];
-            string redirect_url = 4 [(gogoproto.customname) = "RedirectURL"];
-            string provider_url = 5 [(gogoproto.customname) = "ProviderURL"];
+            string provider_url = 4 [(gogoproto.customname) = "ProviderURL"];
           }
 
           OpenIDConnect oidc = 1 [(gogoproto.customname) = "OIDC"];

@@ -45,14 +45,6 @@ func (conf Config) Apply(ctx context.Context) Config {
 		deriv = patcher.Apply(ctx, deriv)
 	}
 	deriv.UI = conf.UI.Apply(ctx)
-	deriv.Providers = conf.Providers.Apply(ctx)
-	return deriv
-}
-
-// Apply the context to the config.
-func (conf ProvidersConfig) Apply(ctx context.Context) ProvidersConfig {
-	deriv := conf
-	deriv.OIDC = conf.OIDC.Apply(ctx)
 	return deriv
 }
 

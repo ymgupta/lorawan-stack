@@ -797,16 +797,6 @@ func (dst *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnec
 				var zero string
 				dst.ClientSecret = zero
 			}
-		case "redirect_url":
-			if len(subs) > 0 {
-				return fmt.Errorf("'redirect_url' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.RedirectURL = src.RedirectURL
-			} else {
-				var zero string
-				dst.RedirectURL = zero
-			}
 		case "provider_url":
 			if len(subs) > 0 {
 				return fmt.Errorf("'provider_url' has no subfields, but %s were specified", subs)

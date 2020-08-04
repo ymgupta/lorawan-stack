@@ -155,7 +155,6 @@
 | `shared` | [`Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared) |  |  |
 | `client_id` | [`string`](#string) |  |  |
 | `client_secret` | [`string`](#string) |  |  |
-| `redirect_url` | [`string`](#string) |  |  |
 | `provider_url` | [`string`](#string) |  |  |
 
 ### <a name="tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared">Message `Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared`</a>

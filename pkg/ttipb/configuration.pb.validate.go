@@ -1870,8 +1870,6 @@ func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect)
 			// no validation rules for ClientID
 		case "client_secret":
 			// no validation rules for ClientSecret
-		case "redirect_url":
-			// no validation rules for RedirectURL
 		case "provider_url":
 			// no validation rules for ProviderURL
 		default:

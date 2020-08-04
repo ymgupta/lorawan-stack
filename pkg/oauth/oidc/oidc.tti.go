@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/coreos/go-oidc"
@@ -37,11 +38,13 @@ func (s *server) oidc(ctx context.Context) (*oauth2.Config, *oidc.Provider, erro
 	if err != nil {
 		return nil, nil, err
 	}
+	uiConfig := s.GetTemplateData(ctx)
+	redirectURL := fmt.Sprintf("%s/login/oidc/callback", strings.TrimSuffix(uiConfig.CanonicalURL, "/"))
 	return &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
 		Endpoint:     provider.Endpoint(),
-		RedirectURL:  config.RedirectURL,
+		RedirectURL:  redirectURL,
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}, provider, nil
 }

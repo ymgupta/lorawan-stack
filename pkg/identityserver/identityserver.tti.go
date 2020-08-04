@@ -138,7 +138,6 @@ func withOAuthConfigPatcher(ctx context.Context) context.Context {
 				deriv.Providers.OIDC.AllowRegistrations = oidc.AllowRegistrations
 				deriv.Providers.OIDC.ClientID = oidc.ClientID
 				deriv.Providers.OIDC.ClientSecret = oidc.ClientSecret
-				deriv.Providers.OIDC.RedirectURL = oidc.RedirectURL
 				deriv.Providers.OIDC.ProviderURL = oidc.ProviderURL
 			}
 			return deriv

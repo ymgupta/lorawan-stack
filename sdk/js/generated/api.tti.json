@@ -416,16 +416,6 @@
               "defaultValue": ""
             },
             {
-              "name": "redirect_url",
-              "description": "",
-              "label": "",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
               "name": "provider_url",
               "description": "",
               "label": "",
