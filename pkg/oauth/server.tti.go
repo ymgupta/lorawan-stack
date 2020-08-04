@@ -9,41 +9,9 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/webui"
 )
 
-// ConfigurationPatcher is a configuration patcher for the OAuth configuration.
-type ConfigurationPatcher interface {
-	Apply(context.Context, Config) Config
-}
-
-// ConfigurationPatcherFunc is a ConfigurationPatcher in functional form.
-type ConfigurationPatcherFunc func(context.Context, Config) Config
-
-// Apply patches the configuration using the function.
-func (f ConfigurationPatcherFunc) Apply(ctx context.Context, conf Config) Config {
-	return f(ctx, conf)
-}
-
-type configPatchKeyType struct{}
-
-var configPatchKey configPatchKeyType
-
-// WithConfigurationPatcher adds the configuration patcher to the context.
-func WithConfigurationPatcher(ctx context.Context, patcher ConfigurationPatcher) context.Context {
-	return context.WithValue(ctx, configPatchKey, patcher)
-}
-
-func configurationPatcherFromContext(ctx context.Context) ConfigurationPatcher {
-	if patcher, ok := ctx.Value(configPatchKey).(ConfigurationPatcher); ok {
-		return patcher
-	}
-	return nil
-}
-
 // Apply the context to the config.
 func (conf Config) Apply(ctx context.Context) Config {
 	deriv := conf
-	if patcher := configurationPatcherFromContext(ctx); patcher != nil {
-		deriv = patcher.Apply(ctx, deriv)
-	}
 	deriv.UI = conf.UI.Apply(ctx)
 	return deriv
 }
@@ -72,10 +40,10 @@ func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
 
 // GetOIDCConfig returns the OIDC provider configuration.
 func (s *server) GetOIDCConfig(ctx context.Context) oidc.Config {
-	return s.configProvider(ctx).Apply(ctx).Providers.OIDC
+	return s.configFromContext(ctx).Providers.OIDC
 }
 
 // GetTemplateData returns the web template configuration.
 func (s *server) GetTemplateData(ctx context.Context) webui.TemplateData {
-	return s.configProvider(ctx).Apply(ctx).UI.TemplateData
+	return s.configFromContext(ctx).UI.TemplateData
 }

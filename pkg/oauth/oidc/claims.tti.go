@@ -3,8 +3,6 @@
 package oidc
 
 type claimsToken struct {
-	Audience string `json:"aud"`
-
 	ExpiresAt uint64 `json:"exp"`
 	IssuedAt  uint64 `json:"iat"`
 

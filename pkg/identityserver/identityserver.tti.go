@@ -10,7 +10,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
-	"go.thethings.network/lorawan-stack/v3/pkg/oauth"
 	"go.thethings.network/lorawan-stack/v3/pkg/random"
 	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
@@ -85,6 +84,14 @@ func (conf Config) Apply(ctx context.Context) Config {
 	if w := userRights.GetCreateOrganizations(); w != nil {
 		deriv.UserRights.CreateOrganizations = w.Value
 	}
+	oauth := tenantConf.GetOAuth()
+	if oidc := oauth.GetProviders().GetOIDC(); oidc != nil {
+		deriv.OAuth.Providers.OIDC.Name = oidc.Name
+		deriv.OAuth.Providers.OIDC.AllowRegistrations = oidc.AllowRegistrations
+		deriv.OAuth.Providers.OIDC.ClientID = oidc.ClientID
+		deriv.OAuth.Providers.OIDC.ClientSecret = oidc.ClientSecret
+		deriv.OAuth.Providers.OIDC.ProviderURL = oidc.ProviderURL
+	}
 	return deriv
 }
 
@@ -121,26 +128,4 @@ func (is *IdentityServer) withReadDatabase(ctx context.Context, f func(*gorm.DB)
 		db = is.readDB
 	}
 	return store.ReadOnly(ctx, db, f)
-}
-
-func withOAuthConfigPatcher(ctx context.Context) context.Context {
-	return oauth.WithConfigurationPatcher(ctx, oauth.ConfigurationPatcherFunc(
-		func(ctx context.Context, conf oauth.Config) oauth.Config {
-			deriv := conf
-			isConf, ok := tenantConfigFromContext(ctx)
-			if !ok {
-				return deriv
-			}
-			oauth := isConf.GetOAuth()
-			providers := oauth.GetProviders()
-			if oidc := providers.GetOIDC(); oidc != nil {
-				deriv.Providers.OIDC.Name = oidc.Name
-				deriv.Providers.OIDC.AllowRegistrations = oidc.AllowRegistrations
-				deriv.Providers.OIDC.ClientID = oidc.ClientID
-				deriv.Providers.OIDC.ClientSecret = oidc.ClientSecret
-				deriv.Providers.OIDC.ProviderURL = oidc.ProviderURL
-			}
-			return deriv
-		},
-	))
 }

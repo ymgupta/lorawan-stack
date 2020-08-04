@@ -95,7 +95,11 @@ func NewServer(c *component.Component, store Store, config Config) (Server, erro
 		RetainTokenAfterRefresh:   false,
 	}
 
-	s.oidc = oidc.New(s, store)
+	var err error
+	s.oidc, err = oidc.New(c, s, store)
+	if err != nil {
+		return nil, err
+	}
 
 	return s, nil
 }
