@@ -27,7 +27,11 @@ var ConsumerIDs = [...]string{
 }
 
 func NewProtoEvent(ctx context.Context, ids ttnpb.Identifiers, data interface{}, rights ...ttnpb.Right) *ttnpb.Event {
-	return test.Must(events.Proto(events.New(ctx, test.MustTFromContext(ctx).Name(), ids, data, rights...))).(*ttnpb.Event)
+	testName := test.MustTFromContext(ctx).Name()
+	return test.Must(events.Proto(events.New(
+		ctx, testName, testName,
+		events.WithIdentifiers(ids), events.WithData(data), events.WithVisibility(rights...),
+	))).(*ttnpb.Event)
 }
 
 func MakeEventData(t *testing.T) interface{} {

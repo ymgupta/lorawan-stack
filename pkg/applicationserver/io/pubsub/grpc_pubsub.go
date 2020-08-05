@@ -100,7 +100,7 @@ func (ps *PubSub) Set(ctx context.Context, req *ttnpb.SetApplicationPubSubReques
 		)).WithError(err).Warn("Failed to cancel pub/sub")
 	}
 	ps.startTask(tenant.NewContext(ps.ctx, tenant.FromContext(ctx)), req.ApplicationPubSubIdentifiers)
-	events.Publish(evtSetPubSub(ctx, req.ApplicationIdentifiers, req.ApplicationPubSubIdentifiers))
+	events.Publish(evtSetPubSub.NewWithIdentifiersAndData(ctx, req.ApplicationIdentifiers, req.ApplicationPubSubIdentifiers))
 	return pubsub, nil
 }
 
@@ -127,6 +127,6 @@ func (ps *PubSub) Delete(ctx context.Context, ids *ttnpb.ApplicationPubSubIdenti
 	if err != nil {
 		return nil, err
 	}
-	events.Publish(evtDeletePubSub(ctx, ids.ApplicationIdentifiers, *ids))
+	events.Publish(evtDeletePubSub.NewWithIdentifiersAndData(ctx, ids.ApplicationIdentifiers, *ids))
 	return ttnpb.Empty, nil
 }
