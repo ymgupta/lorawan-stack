@@ -801,13 +801,15 @@
           "type": "object",
           "additionalProperties": {
             "type": "string"
-          }
+          },
+          "description": "Key-value attributes for this users. Typically used for storing integration-specific data."
         },
         "contact_info": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/v3ContactInfo"
-          }
+          },
+          "description": "Contact information for this user. Typically used to indicate who to contact with security/billing questions about the user."
         },
         "primary_email_address": {
           "type": "string",
@@ -815,11 +817,12 @@
         },
         "primary_email_address_validated_at": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "When the primary email address was validated. Note that email address validation is not required on all networks."
         },
         "password": {
           "type": "string",
-          "description": "Only used on create; never returned on API calls."
+          "description": "The password field is only considered when creating a user.\nIt is not returned on API calls, and can not be updated by updating the User.\nSee the UpdatePassword method of the UserRegistry service for more information."
         },
         "password_updated_at": {
           "type": "string",
@@ -840,7 +843,7 @@
         },
         "temporary_password": {
           "type": "string",
-          "description": "The temporary password can only be used to update a user's password; never returned on API calls."
+          "description": "The temporary password can only be used to update a user's password; never returned on API calls.\nIt is not returned on API calls, and can not be updated by updating the User.\nSee the CreateTemporaryPassword method of the UserRegistry service for more information."
         },
         "temporary_password_created_at": {
           "type": "string",
