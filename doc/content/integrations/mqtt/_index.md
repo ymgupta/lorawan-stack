@@ -21,6 +21,8 @@ You can now click on the **Generate new API key** button in order to generate an
 
 Make sure to copy your API key now, since it will no longer be visible after leaving the page for security reasons. You can now login using an MQTT client with the application ID `app1` as user name and the newly generated API key as password.
 
+>Note: If using Cloud Hosted, login using an MQTT client with the application ID and tenant ID `app1@tenant1` as user name and the newly generated API key as password. See the [Cloud Hosted MQTT instructions]({{< relref src="/cloud-hosted" >}}) for more information.
+
 ## MQTT Clients
 
 There are many MQTT clients available. Great clients are `mosquitto_pub` and `mosquitto_sub`, part of [Mosquitto](https://mosquitto.org).
@@ -132,6 +134,8 @@ When the device sends an uplink message, a message will be published to the topi
 ```
 </details>
 
+>Note: If using Cloud Hosted, Uplink topics are published to `{application id}@{tenant id}` rather than `{application id}`. See the [Cloud Hosted MQTT instructions]({{< relref src="/cloud-hosted" >}}) for more information.
+
 ## Publishing Downlink Traffic
 
 Downlinks can be scheduled by publishing the message to the topic `v3/{application id}/devices/{device id}/down/push`.
@@ -213,3 +217,5 @@ Once the downlink gets acknowledged, a message is published to the topic `v3/{ap
 </details>
 
 You see the correlation ID `my-correlation-id` of your downlink message. You can add multiple custom correlation IDs, for example to reference events or identifiers of your application.
+
+>Note: If using Cloud Hosted, Downlink messages are published to `{application id}@{tenant id}` rather than `{application id}`. See the [Cloud Hosted MQTT instructions]({{< relref src="/cloud-hosted" >}}) for more information.

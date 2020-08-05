@@ -2,6 +2,7 @@
 title: "Certificates"
 description: ""
 weight: 2
+distribution: ["Open Source"]
 ---
 
 ## Trusted Certificates
