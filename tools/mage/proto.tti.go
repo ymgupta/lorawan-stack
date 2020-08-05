@@ -124,6 +124,37 @@ func (p TTIProto) MarkdownClean(context.Context) error {
 	return sh.Rm(filepath.Join("api", "tti", "api.md"))
 }
 
+// HugoData generates Hugo data files.
+func (p TTIProto) HugoData(context.Context) error {
+	return withProtoc(func(pCtx *protocContext, protoc func(...string) error) error {
+		if err := protoc(
+			fmt.Sprintf("--hugodata_out=output_path=%[1]s:%[1]s", filepath.Join(pCtx.WorkingDirectory, "doc", "data")),
+			fmt.Sprintf("%s/api/tti/*.proto", pCtx.WorkingDirectory),
+		); err != nil {
+			return fmt.Errorf("failed to generate protos: %w", err)
+		}
+		return nil
+	})
+}
+
+// HugoDataClean removes generated Hugo data files.
+func (p TTIProto) HugoDataClean(context.Context) error {
+	return filepath.Walk(filepath.Join("doc", "data", "api", "tti.lorawan.v3"), func(path string, _ os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		for _, ext := range []string{"enums.yml", "messages.yml", "services.yml"} {
+			if strings.HasSuffix(path, ext) {
+				if err := sh.Rm(path); err != nil {
+					return err
+				}
+				return nil
+			}
+		}
+		return nil
+	})
+}
+
 // JsSDK generates javascript SDK protos.
 func (p TTIProto) JsSDK(context.Context) error {
 	changed, err := target.Glob(filepath.Join("sdk", "js", "generated", "api.tti.json"), filepath.Join("api", "tti", "*.proto"))
@@ -151,10 +182,10 @@ func (p TTIProto) JsSDKClean(context.Context) error {
 
 // All generates protos.
 func (p TTIProto) All(ctx context.Context) {
-	mg.CtxDeps(ctx, TTIProto.Go, TTIProto.Swagger, TTIProto.Markdown, TTIProto.JsSDK)
+	mg.CtxDeps(ctx, TTIProto.Go, TTIProto.Swagger, TTIProto.Markdown, TTIProto.HugoData, TTIProto.JsSDK)
 }
 
 // Clean removes generated protos.
 func (p TTIProto) Clean(ctx context.Context) {
-	mg.CtxDeps(ctx, TTIProto.GoClean, TTIProto.SwaggerClean, TTIProto.MarkdownClean, TTIProto.JsSDKClean)
+	mg.CtxDeps(ctx, TTIProto.GoClean, TTIProto.SwaggerClean, TTIProto.MarkdownClean, TTIProto.HugoDataClean, TTIProto.JsSDKClean)
 }
