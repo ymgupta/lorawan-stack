@@ -15,16 +15,18 @@ import (
 var (
 	evtClaimEndDeviceSuccess = events.Define(
 		"dcs.end_device.claim.success", "claim end device successful",
-		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+		events.WithVisibility(ttnpb.RIGHT_APPLICATION_DEVICES_READ),
 	)
 	evtClaimEndDeviceAbort = events.Define(
 		"dcs.end_device.claim.abort", "claim end device abort",
-		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+		events.WithVisibility(ttnpb.RIGHT_APPLICATION_DEVICES_READ),
 	)
 	evtClaimEndDeviceFail = events.Define(
 		"dcs.end_device.claim.fail", "claim end device fail",
-		ttnpb.RIGHT_APPLICATION_DEVICES_READ,
-		ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+		events.WithVisibility(
+			ttnpb.RIGHT_APPLICATION_DEVICES_READ,
+			ttnpb.RIGHT_APPLICATION_DEVICES_READ_KEYS,
+		),
 	)
 )
 
@@ -84,12 +86,12 @@ func (m claimMetrics) Collect(ch chan<- prometheus.Metric) {
 }
 
 func registerSuccessClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers) {
-	events.Publish(evtClaimEndDeviceSuccess(ctx, ids, nil))
+	events.Publish(evtClaimEndDeviceSuccess.NewWithIdentifiersAndData(ctx, ids, nil))
 	dcsMetrics.endDevicesClaimSucceeded.WithLabelValues(ctx, ids.ApplicationID).Inc()
 }
 
 func registerAbortClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentifiers, err error) {
-	events.Publish(evtClaimEndDeviceAbort(ctx, ids, err))
+	events.Publish(evtClaimEndDeviceAbort.NewWithIdentifiersAndData(ctx, ids, err))
 	if ttnErr, ok := errors.From(err); ok {
 		dcsMetrics.endDevicesClaimAborted.WithLabelValues(ctx, ids.ApplicationID, ttnErr.FullName()).Inc()
 	} else {
@@ -98,7 +100,7 @@ func registerAbortClaimEndDevice(ctx context.Context, ids ttnpb.EndDeviceIdentif
 }
 
 func registerFailClaimEndDevice(ctx context.Context, dev *ttnpb.EndDevice, err error) {
-	events.Publish(evtClaimEndDeviceFail(ctx, dev.EndDeviceIdentifiers, dev))
+	events.Publish(evtClaimEndDeviceFail.NewWithIdentifiersAndData(ctx, dev.EndDeviceIdentifiers, dev))
 	if ttnErr, ok := errors.From(err); ok {
 		dcsMetrics.endDevicesClaimFailed.WithLabelValues(ctx, dev.ApplicationID, ttnErr.FullName()).Inc()
 	} else {
