@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.0-rc4</p>
+        <p class="navbar-item is-size-7">v3.9.0</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -124,7 +124,7 @@ debug: false
 config/
 └── stack/
     └── ttn-lw-stack-docker.yml    <span class="c1"># configuration file for The Things Stack</span>
-</code></pre></div><p>You can find the example <a href="https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.9.0-rc4/docker-compose.yml">docker-compose.yml</a> and <a href="https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.9.0-rc4/config/stack/ttn-lw-stack-docker.yml">ttn-lw-stack-docker.yml</a> files <a href="https://github.com/TheThingsNetwork/lorawan-stack">in the Github repository of The Things Stack</a>.</p>
+</code></pre></div><p>You can find the example <a href="https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.9.0/docker-compose.yml">docker-compose.yml</a> and <a href="https://github.com/TheThingsNetwork/lorawan-stack/raw/v3.9.0/config/stack/ttn-lw-stack-docker.yml">ttn-lw-stack-docker.yml</a> files <a href="https://github.com/TheThingsNetwork/lorawan-stack">in the Github repository of The Things Stack</a>.</p>
 <p>We will configure these files for a production deployment on <code>thethings.example.com</code>.</p>
 <h2 id="databases">Databases</h2>
 <p>We need to configure an SQL database, in this guide we&rsquo;ll use a single instance of <a href="https://www.cockroachlabs.com/">CockroachDB</a>. Make sure to find a recent tag of the <a href="https://hub.docker.com/r/cockroachdb/cockroach/tags">cockroachdb/cockroach image on Docker Hub</a> and update it in the <code>docker-compose.yml</code> file. Make sure that the <code>volumes</code> are set up correctly so that the database is persisted on your server&rsquo;s disk.</p>
@@ -378,8 +378,8 @@ by the console client (see the <code>console</code> section).</p>
 <p class="has-text-light is-size-7">
   Last changed by Hylke Visser on 06 Aug 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/154ed01e7606072106b0a3b906e6a6254c55c745">
-      all: Bump to version 3.9.0-rc4
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/f2316b56126c6f4e84f43fb3da632b743f4871e3">
+      Merge pull request #3040 from TheThingsNetwork/release/v3.9.0
     </a>
 </p>
 
