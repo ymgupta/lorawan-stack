@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v3.[0-9]+.[0-9]+'
+      - 'v3.[0-9]+.[0-9]+-rc[0-9]'
 
 env:
   NODE_ENV: production
@@ -30,8 +31,6 @@ jobs:
         go mod download
     - name: Make Mage
       run: make tools/bin/mage
-    - name: Auto-completion scripts
-      run: tools/bin/mage cli:autocomplete
     - name: Install JS SDK dependencies
       run: tools/bin/mage jsSDK:deps
     - name: Build JS SDK
@@ -48,6 +47,11 @@ jobs:
       run: tools/bin/mage docs:build
       env:
         HUGO_BASE_URL: https://enterprise.thethingsstack.io/
+        HUGO_GOOGLEANALYTICS: ${{ secrets.HUGO_GOOGLEANALYTICS }}
+        HUGO_PARAMS_FEEDBACK_CAMPAIGN: ${{ secrets.HUGO_PARAMS_FEEDBACK_CAMPAIGN }}
+        HUGO_PARAMS_FEEDBACK_ENABLED: true
+        HUGO_PARAMS_INTERCOM_APPID: ${{ secrets.HUGO_PARAMS_INTERCOM_APPID }}
+        HUGO_PARAMS_INTERCOM_ENABLED: true
         HUGO_PARAMS_SEARCH_APIKEY: ${{ secrets.HUGO_PARAMS_SEARCH_APIKEY }}
         HUGO_PARAMS_SEARCH_ENABLED: true
         HUGO_PARAMS_SEARCH_INDEX: thethingsstack_enterprise
@@ -91,6 +95,8 @@ jobs:
         go mod download
     - name: Make Mage
       run: make tools/bin/mage
+    - name: Auto-completion scripts
+      run: tools/bin/mage cli:autocomplete
     - name: Install JS SDK dependencies
       run: tools/bin/mage jsSDK:deps
     - name: Build JS SDK
@@ -103,16 +109,6 @@ jobs:
       run: tools/bin/mage docs:deps
     - name: Build documentation
       run: tools/bin/mage docs:build
-      env:
-        HUGO_BASE_URL: https://enterprise.thethingsstack.io/
-        HUGO_GOOGLEANALYTICS: ${{ secrets.HUGO_GOOGLEANALYTICS }}
-        HUGO_PARAMS_FEEDBACK_CAMPAIGN: ${{ HUGO_PARAMS_FEEDBACK_CAMPAIGN }}
-        HUGO_PARAMS_FEEDBACK_ENABLED: true
-        HUGO_PARAMS_INTERCOM_APPID: ${{ secrets.HUGO_PARAMS_INTERCOM_APPID }}
-        HUGO_PARAMS_INTERCOM_ENABLED: true
-        HUGO_PARAMS_SEARCH_APIKEY: ${{ secrets.HUGO_PARAMS_SEARCH_APIKEY }}
-        HUGO_PARAMS_SEARCH_ENABLED: true
-        HUGO_PARAMS_SEARCH_INDEX: thethingsstack_enterprise
     - name: File versioning
       run: tools/bin/mage version:files
     - name: Check for diff
