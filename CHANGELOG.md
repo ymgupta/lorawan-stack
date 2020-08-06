@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [3.9.0] - 2020-08-06
+
+### Added
+
 - API Authentication and authorization via session cookie.
   - This requires a database schema migration (`ttn-lw-stack is-db migrate`) because of the added and modified columns.
   - This changes the `AuthInfo` API response.
@@ -40,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Troubleshooting guide.
 - API to get configuration from the Identity Server (including user registration options and password requirements).
 - Synchronize gateway time by uplink token on downstream in case the Gateway Server instance is not handling the upstream gateway connection.
+- Work-around for Basic Station gateways sending uplink frames with no `xtime`.
 
 ### Changed
 
@@ -59,8 +74,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - End device `skip_payload_crypto` field: it gets replaced by `skip_payload_crypto_override`.
 
-### Removed
-
 ### Fixed
 
 - Inconsistent error message responses when retrieving connection stats from GS if the gateway is not connected.
@@ -77,8 +90,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Console MQTT URL validation.
 - AFCntDown from the application-layer is respected when skipping application payload crypto.
 - RTT usage for calculating downlink delta.
-
-### Security
+- Synchronize concentrator timestamp when uplink messages arrive out-of-order.
 
 ## [3.8.6] - 2020-07-10
 
@@ -1011,7 +1023,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.6...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.0...HEAD
+[3.9.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.6...v3.9.0
 [3.8.6]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.5...v3.8.6
 [3.8.5]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.4...v3.8.5
 [3.8.4]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.3...v3.8.4
