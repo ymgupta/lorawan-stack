@@ -46,7 +46,7 @@ const AWSIoTSettings = props => {
         content={m.defaultInfo}
         messageValues={{
           moreInformation: (
-            <Link.DocLink path="/integrations/pubsub/aws-iot/">
+            <Link.DocLink path="/integrations/aws-iot/default/">
               <Message content={sharedMessages.moreInformation} />
             </Link.DocLink>
           ),
