@@ -55,7 +55,13 @@ func New(c *component.Component, conf *Config, opts ...Option) (*TenantBillingSe
 	}
 
 	if tbs.config.PullInterval != 0 {
-		c.RegisterTask(tbs.ctx, "collect_metering_data", tbs.run, component.TaskRestartOnFailure)
+		c.RegisterTask(&component.TaskConfig{
+			Context: tbs.ctx,
+			ID:      "collect_metering_data",
+			Func:    tbs.run,
+			Restart: component.TaskRestartOnFailure,
+			Backoff: component.DefaultTaskBackoffConfig,
+		})
 	}
 
 	tenantAuth := grpc.PerRPCCredentials(rpcmetadata.MD{
