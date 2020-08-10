@@ -46,35 +46,41 @@ func (as *ApplicationServer) linkAll(ctx context.Context) error {
 
 func (as *ApplicationServer) startLinkTask(ctx context.Context, ids ttnpb.ApplicationIdentifiers) {
 	ctx = log.NewContextWithField(ctx, "application_uid", unique.ID(ctx, ids))
-	as.StartTask(ctx, "link", func(ctx context.Context) error {
-		target, err := as.linkRegistry.Get(ctx, ids, []string{
-			"network_server_address",
-			"api_key",
-			"default_formatters",
-			"skip_payload_crypto",
-		})
-		if err != nil {
-			if !errors.IsNotFound(err) {
-				log.FromContext(ctx).WithError(err).Error("Failed to get link")
+	as.StartTask(&component.TaskConfig{
+		Context: ctx,
+		ID:      "link",
+		Func: func(ctx context.Context) error {
+			target, err := as.linkRegistry.Get(ctx, ids, []string{
+				"network_server_address",
+				"api_key",
+				"default_formatters",
+				"skip_payload_crypto",
+			})
+			if err != nil {
+				if !errors.IsNotFound(err) {
+					log.FromContext(ctx).WithError(err).Error("Failed to get link")
+				}
+				return nil
 			}
-			return nil
-		}
 
-		err = as.link(ctx, ids, target)
-		switch {
-		case errors.IsFailedPrecondition(err),
-			errors.IsUnauthenticated(err),
-			errors.IsPermissionDenied(err),
-			errors.IsInvalidArgument(err):
-			log.FromContext(ctx).WithError(err).Warn("Failed to link")
-			return nil
-		case errors.IsCanceled(err),
-			errors.IsAlreadyExists(err):
-			return nil
-		default:
-			return err
-		}
-	}, component.TaskRestartOnFailure, 0.1, component.TaskBackoffDial...)
+			err = as.link(ctx, ids, target)
+			switch {
+			case errors.IsFailedPrecondition(err),
+				errors.IsUnauthenticated(err),
+				errors.IsPermissionDenied(err),
+				errors.IsInvalidArgument(err):
+				log.FromContext(ctx).WithError(err).Warn("Failed to link")
+				return nil
+			case errors.IsCanceled(err),
+				errors.IsAlreadyExists(err):
+				return nil
+			default:
+				return err
+			}
+		},
+		Restart: component.TaskRestartOnFailure,
+		Backoff: component.DialTaskBackoffConfig,
+	})
 }
 
 type upstreamTrafficHandler func(context.Context, *ttnpb.ApplicationUp, *link) (pass bool, err error)
@@ -301,8 +307,23 @@ func (as *ApplicationServer) getLink(ctx context.Context, ids ttnpb.ApplicationI
 	}
 }
 
+func (l *link) observeSubscribe(correlationID string, sub *io.Subscription) {
+	registerSubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
+	log.FromContext(sub.Context()).Debug("Subscribed")
+}
+
+func (l *link) observeUnsubscribe(correlationID string, sub *io.Subscription) {
+	registerUnsubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
+	log.FromContext(sub.Context()).Debug("Unsubscribed")
+}
+
 func (l *link) run() {
 	subscribers := make(map[*io.Subscription]string)
+	defer func() {
+		for sub, correlationID := range subscribers {
+			l.observeUnsubscribe(correlationID, sub)
+		}
+	}()
 	for {
 		select {
 		case <-l.ctx.Done():
@@ -310,13 +331,11 @@ func (l *link) run() {
 		case sub := <-l.subscribeCh:
 			correlationID := fmt.Sprintf("as:subscriber:%s", events.NewCorrelationID())
 			subscribers[sub] = correlationID
-			registerSubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
-			log.FromContext(sub.Context()).Debug("Subscribed")
+			l.observeSubscribe(correlationID, sub)
 		case sub := <-l.unsubscribeCh:
 			if correlationID, ok := subscribers[sub]; ok {
 				delete(subscribers, sub)
-				registerUnsubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
-				log.FromContext(sub.Context()).Debug("Unsubscribed")
+				l.observeUnsubscribe(correlationID, sub)
 			}
 		case up := <-l.upCh:
 			for sub := range subscribers {
