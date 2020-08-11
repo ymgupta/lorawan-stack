@@ -71,6 +71,7 @@ export default defineMessages({
   attributesValidateRequired:
     'All attribute entry values are required. Please remove empty entries.',
   automaticUpdates: 'Automatic updates',
+  backToOverview: 'Back to overview',
   brand: 'Brand',
   cancel: 'Cancel',
   changeLocation: 'Change location settings',
@@ -259,7 +260,6 @@ export default defineMessages({
   pubsubs: 'Pub/Subs',
   redirecting: 'Redirecting…',
   refresh: 'Refresh',
-  refreshPage: 'Refresh page',
   removeCollaborator: 'Remove collaborator',
   resetsFCnt: 'Resets frame counters',
   resetsJoinNonces: 'Resets join nonces',
