@@ -109,7 +109,7 @@
   "console.components.payload-formatters-form.index.appFormatterWarning": "This option sets both uplink and downlink formatters to application link defaults",
   "console.components.pubsub-form.aws-iot.messages.config": "AWS IoT configuration",
   "console.components.pubsub-form.aws-iot.messages.useDefault": "Use default integration",
-  "console.components.pubsub-form.aws-iot.messages.defaultInfo": "The default AWS IoT integration can be deployed via CloudFormation in your AWS account. {moreInformation}",
+  "console.components.pubsub-form.aws-iot.messages.defaultInfo": "The default AWS IoT integration can be deployed via CloudFormation in your AWS account. See also our documentation: {awsIoTDoc}",
   "console.components.pubsub-form.aws-iot.messages.region": "Region",
   "console.components.pubsub-form.aws-iot.messages.endpointAddress": "Custom endpoint address",
   "console.components.pubsub-form.aws-iot.messages.endpointAddressDescription": "If no custom IoT Core endpoint address is set, the integration will try to discover it",

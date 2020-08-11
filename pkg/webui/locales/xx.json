@@ -109,7 +109,7 @@
   "console.components.payload-formatters-form.index.appFormatterWarning": "Xxxx xxxxxx xxxx xxxx xxxxxx xxx xxxxxxxx xxxxxxxxxx xx xxxxxxxxxxx xxxx xxxxxxxx",
   "console.components.pubsub-form.aws-iot.messages.config": "XXX XxX xxxxxxxxxxxxx",
   "console.components.pubsub-form.aws-iot.messages.useDefault": "Xxx xxxxxxx xxxxxxxxxxx",
-  "console.components.pubsub-form.aws-iot.messages.defaultInfo": "Xxx xxxxxxx XXX XxX xxxxxxxxxxx xxx xx xxxxxxxx xxx XxxxxXxxxxxxxx xx xxxx XXX xxxxxxx. {moreInformation}",
+  "console.components.pubsub-form.aws-iot.messages.defaultInfo": "Xxx xxxxxxx XXX XxX xxxxxxxxxxx xxx xx xxxxxxxx xxx XxxxxXxxxxxxxx xx xxxx XXX xxxxxxx. Xxx xxxx xxx xxxxxxxxxxxxx: {awsIoTDoc}",
   "console.components.pubsub-form.aws-iot.messages.region": "Xxxxxx",
   "console.components.pubsub-form.aws-iot.messages.endpointAddress": "Xxxxxx xxxxxxxx xxxxxxx",
   "console.components.pubsub-form.aws-iot.messages.endpointAddressDescription": "Xx xx xxxxxx XxX Xxxx xxxxxxxx xxxxxxx xx xxx, xxx xxxxxxxxxxx xxxx xxx xx xxxxxxxx xx",
