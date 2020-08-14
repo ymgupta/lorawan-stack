@@ -690,6 +690,8 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 		for _, host := range hosts {
 			host := host
 			select {
+			case <-ctx.Done():
+				return
 			case host.handleCh <- item:
 			default:
 				if atomic.LoadInt32(&host.handlers) < maxUpstreamHandlers {
@@ -703,7 +705,11 @@ func (gs *GatewayServer) handleUpstream(conn connectionEntry) {
 						handleFn(ctx, host)
 					}()
 					go func() {
-						host.handleCh <- item
+						select {
+						case <-ctx.Done():
+							return
+						case host.handleCh <- item:
+						}
 					}()
 					continue
 				}
