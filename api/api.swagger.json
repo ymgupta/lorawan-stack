@@ -7572,9 +7572,6 @@
         },
         "token_id": {
           "type": "string"
-        },
-        "remote_ip": {
-          "type": "string"
         }
       }
     },
@@ -10544,6 +10541,12 @@
         },
         "authentication": {
           "$ref": "#/definitions/EventAuthentication"
+        },
+        "remote_ip": {
+          "type": "string"
+        },
+        "user_agent": {
+          "type": "string"
         }
       }
     },
@@ -11744,7 +11747,7 @@
           "description": "Time when the last downlink message was scheduled."
         }
       },
-      "description": "MACState represents the state of MAC layer of the device.\nMACState is reset on each join for OTAA or ResetInd for ABP devices.\nThis is used internally by the Network Server and is read only."
+      "description": "MACState represents the state of MAC layer of the device.\nMACState is reset on each join for OTAA or ResetInd for ABP devices.\nThis is used internally by the Network Server."
     },
     "v3MACVersion": {
       "type": "string",

@@ -2388,7 +2388,7 @@ This is used internally by the Network Server.
 
 MACState represents the state of MAC layer of the device.
 MACState is reset on each join for OTAA or ResetInd for ABP devices.
-This is used internally by the Network Server and is read only.
+This is used internally by the Network Server.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
@@ -2610,6 +2610,8 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 | `context` | [`Event.ContextEntry`](#ttn.lorawan.v3.Event.ContextEntry) | repeated |  |
 | `visibility` | [`Rights`](#ttn.lorawan.v3.Rights) |  | The event will be visible to a caller that has any of these rights. |
 | `authentication` | [`Event.Authentication`](#ttn.lorawan.v3.Event.Authentication) |  |  |
+| `remote_ip` | [`string`](#string) |  |  |
+| `user_agent` | [`string`](#string) |  |  |
 
 #### Field Rules
 
@@ -2625,7 +2627,6 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 | `type` | [`string`](#string) |  |  |
 | `token_type` | [`string`](#string) |  |  |
 | `token_id` | [`string`](#string) |  |  |
-| `remote_ip` | [`string`](#string) |  |  |
 
 ### <a name="ttn.lorawan.v3.Event.ContextEntry">Message `Event.ContextEntry`</a>
 

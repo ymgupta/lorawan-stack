@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - AWS IoT Integration.
 - LoRaCloud DAS integration page in the Console.
+- User Agent metadata on published events (when available).
+- Option to override server name used in TLS handshake with cluster peers (`cluster.tls-server-name`).
 
 ### Changed
 
 - Network Server now only publishes payload-related downlink events if scheduling succeeds.
+- Moved remote IP event metadata outside authentication.
 
 ### Deprecated
 
@@ -23,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Authentication metadata missing from published events.
+- Under some circumstances, CLI would mistakenly import ABP devices as OTAA.
 
 ### Security
 
@@ -62,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API to get configuration from the Identity Server (including user registration options and password requirements).
 - Synchronize gateway time by uplink token on downstream in case the Gateway Server instance is not handling the upstream gateway connection.
 - Work-around for Basic Station gateways sending uplink frames with no `xtime`.
+- Document Network Server API Key requirement for Basic Station.
 
 ### Changed
 
