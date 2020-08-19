@@ -273,35 +273,6 @@
     }
   },
   "definitions": {
-    "AuthProvidersOpenIDConnect": {
-      "type": "object",
-      "properties": {
-        "shared": {
-          "$ref": "#/definitions/AuthProvidersShared"
-        },
-        "client_id": {
-          "type": "string"
-        },
-        "client_secret": {
-          "type": "string"
-        },
-        "provider_url": {
-          "type": "string"
-        }
-      }
-    },
-    "AuthProvidersShared": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "allow_registrations": {
-          "type": "boolean",
-          "format": "boolean"
-        }
-      }
-    },
     "BillingStripe": {
       "type": "object",
       "properties": {
@@ -333,9 +304,6 @@
         },
         "user_rights": {
           "$ref": "#/definitions/IdentityServerUserRights"
-        },
-        "oauth": {
-          "$ref": "#/definitions/IdentityServerOAuth"
         }
       }
     },
@@ -386,14 +354,6 @@
         "disable_upload": {
           "type": "boolean",
           "format": "boolean"
-        }
-      }
-    },
-    "IdentityServerOAuth": {
-      "type": "object",
-      "properties": {
-        "providers": {
-          "$ref": "#/definitions/OAuthAuthProviders"
         }
       }
     },
@@ -480,14 +440,6 @@
         }
       }
     },
-    "OAuthAuthProviders": {
-      "type": "object",
-      "properties": {
-        "oidc": {
-          "$ref": "#/definitions/AuthProvidersOpenIDConnect"
-        }
-      }
-    },
     "PictureEmbedded": {
       "type": "object",
       "properties": {
@@ -533,6 +485,15 @@
         "min_special": {
           "type": "integer",
           "format": "int64"
+        }
+      }
+    },
+    "lorawanv3Configuration": {
+      "type": "object",
+      "properties": {
+        "default_cluster": {
+          "$ref": "#/definitions/ConfigurationCluster",
+          "description": "Default cluster configuration."
         }
       }
     },
@@ -596,15 +557,6 @@
       "properties": {
         "stripe": {
           "$ref": "#/definitions/BillingStripe"
-        }
-      }
-    },
-    "v3Configuration": {
-      "type": "object",
-      "properties": {
-        "default_cluster": {
-          "$ref": "#/definitions/ConfigurationCluster",
-          "description": "Default cluster configuration."
         }
       }
     },
@@ -758,7 +710,7 @@
           "type": "object"
         },
         "configuration": {
-          "$ref": "#/definitions/v3Configuration"
+          "$ref": "#/definitions/lorawanv3Configuration"
         },
         "billing": {
           "$ref": "#/definitions/v3Billing"

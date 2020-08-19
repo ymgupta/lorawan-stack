@@ -26,10 +26,17 @@ func (s *externalUserStore) CreateExternalUser(ctx context.Context, eu *ttipb.Ex
 	if err != nil {
 		return nil, err
 	}
+	provider := &AuthenticationProvider{}
+	if err := s.query(ctx, AuthenticationProvider{}, withProviderID(eu.ProviderIDs.ProviderID)).Select("id").First(provider).Error; err != nil {
+		if gorm.IsRecordNotFoundError(err) {
+			return nil, errAuthenticationProviderNotFound.WithAttributes("provider_id", eu.ProviderIDs.ProviderID)
+		}
+		return nil, err
+	}
 	model := ExternalUser{
-		UserID:     user.PrimaryKey(),
-		Provider:   int32(eu.Provider),
-		ExternalID: eu.ExternalID,
+		UserID:                   user.PrimaryKey(),
+		AuthenticationProviderID: provider.ID,
+		ExternalID:               eu.ExternalID,
 	}
 	model.CreatedAt = cleanTime(eu.CreatedAt)
 	if err := s.createEntity(ctx, &model); err != nil {
@@ -37,14 +44,8 @@ func (s *externalUserStore) CreateExternalUser(ctx context.Context, eu *ttipb.Ex
 	}
 	proto := model.toPB()
 	proto.UserIDs = eu.UserIDs
+	proto.ProviderIDs = eu.ProviderIDs
 	return proto, nil
-}
-
-func withPreload(column string, conditions ...interface{}) func(*gorm.DB) *gorm.DB {
-	return func(db *gorm.DB) *gorm.DB {
-		db = db.Preload(column, conditions...)
-		return db
-	}
 }
 
 type friendlyExternalUser struct {
@@ -65,8 +66,9 @@ func (s *externalUserStore) GetExternalUserByUserID(ctx context.Context, ids *tt
 	err := s.optimizedQuery(ctx).Where(Account{UID: ids.GetUserID()}).Scan(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errExternalUserNotFound.New()
+			return nil, errExternalUserNotFound.WithAttributes("user_id", ids.GetUserID())
 		}
+		return nil, err
 	}
 	proto := model.toPB()
 	proto.UserIDs.UserID = model.FriendlyUserID
@@ -79,8 +81,9 @@ func (s *externalUserStore) GetExternalUserByExternalID(ctx context.Context, id 
 	err := s.optimizedQuery(ctx).Where(ExternalUser{ExternalID: id}).Scan(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errExternalUserNotFound.New()
+			return nil, errExternalUserNotFound.WithAttributes("user_id", id)
 		}
+		return nil, err
 	}
 	proto := model.toPB()
 	proto.UserIDs.UserID = model.FriendlyUserID
@@ -92,8 +95,9 @@ func (s *externalUserStore) DeleteExternalUser(ctx context.Context, id string) e
 	err := s.query(ctx, ExternalUser{}).Where(ExternalUser{ExternalID: id}).Delete(ExternalUser{}).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return errExternalUserNotFound.New()
+			return errExternalUserNotFound.WithAttributes("user_id", id)
 		}
+		return err
 	}
 	return nil
 }

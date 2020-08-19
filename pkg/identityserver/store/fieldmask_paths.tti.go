@@ -4,14 +4,15 @@ package store
 
 const (
 	// NOTE: please keep this sorted
-	billingField          = "billing"
-	configurationField    = "configuration"
-	maxApplicationsField  = "max_applications"
-	maxClientsField       = "max_clients"
-	maxEndDevicesField    = "max_end_devices"
-	maxGatewaysField      = "max_gateways"
-	maxOrganizationsField = "max_organizations"
-	maxUsersField         = "max_users"
+	allowRegistrationsField = "allow_registrations"
+	billingField            = "billing"
+	configurationField      = "configuration"
+	maxApplicationsField    = "max_applications"
+	maxClientsField         = "max_clients"
+	maxEndDevicesField      = "max_end_devices"
+	maxGatewaysField        = "max_gateways"
+	maxOrganizationsField   = "max_organizations"
+	maxUsersField           = "max_users"
 )
 
 var entityQuotasFields = []string{

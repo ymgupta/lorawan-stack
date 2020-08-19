@@ -14,7 +14,8 @@ type ExternalUser struct {
 	User   *User
 	UserID string `gorm:"type:UUID;index:uix_external_users_user_id;not null"`
 
-	Provider int32 `gorm:"not null"`
+	AuthenticationProvider   *AuthenticationProvider
+	AuthenticationProviderID string `gorm:"type:UUID;not null"`
 
 	ExternalID string `gorm:"not null"`
 }
@@ -25,11 +26,13 @@ func (eu ExternalUser) toPB() *ttipb.ExternalUser {
 	pb := &ttipb.ExternalUser{
 		CreatedAt:  cleanTime(eu.CreatedAt),
 		UpdatedAt:  cleanTime(eu.UpdatedAt),
-		Provider:   ttipb.ExternalUser_Provider(eu.Provider),
 		ExternalID: eu.ExternalID,
 	}
 	if eu.User != nil {
 		pb.UserIDs.UserID = eu.User.Account.UID
+	}
+	if eu.AuthenticationProvider != nil {
+		pb.ProviderIDs.ProviderID = eu.AuthenticationProvider.ProviderID
 	}
 	return pb
 }

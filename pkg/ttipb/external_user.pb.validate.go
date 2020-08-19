@@ -62,8 +62,18 @@ func (m *ExternalUser) ValidateFields(paths ...string) error {
 				}
 			}
 
-		case "provider":
-			// no validation rules for Provider
+		case "provider_ids":
+
+			if v, ok := interface{}(&m.ProviderIDs).(interface{ ValidateFields(...string) error }); ok {
+				if err := v.ValidateFields(subs...); err != nil {
+					return ExternalUserValidationError{
+						field:  "provider_ids",
+						reason: "embedded message failed validation",
+						cause:  err,
+					}
+				}
+			}
+
 		case "created_at":
 
 			if v, ok := interface{}(&m.CreatedAt).(interface{ ValidateFields(...string) error }); ok {

@@ -191,7 +191,6 @@ type Configuration_Cluster_IdentityServer struct {
 	ProfilePicture       *Configuration_Cluster_IdentityServer_ProfilePicture   `protobuf:"bytes,4,opt,name=profile_picture,json=profilePicture,proto3" json:"profile_picture,omitempty"`
 	EndDevicePicture     *Configuration_Cluster_IdentityServer_EndDevicePicture `protobuf:"bytes,5,opt,name=end_device_picture,json=endDevicePicture,proto3" json:"end_device_picture,omitempty"`
 	UserRights           *Configuration_Cluster_IdentityServer_UserRights       `protobuf:"bytes,6,opt,name=user_rights,json=userRights,proto3" json:"user_rights,omitempty"`
-	OAuth                *Configuration_Cluster_IdentityServer_OAuth            `protobuf:"bytes,7,opt,name=oauth,proto3" json:"oauth,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                                               `json:"-"`
 	XXX_sizecache        int32                                                  `json:"-"`
 }
@@ -252,13 +251,6 @@ func (m *Configuration_Cluster_IdentityServer) GetEndDevicePicture() *Configurat
 func (m *Configuration_Cluster_IdentityServer) GetUserRights() *Configuration_Cluster_IdentityServer_UserRights {
 	if m != nil {
 		return m.UserRights
-	}
-	return nil
-}
-
-func (m *Configuration_Cluster_IdentityServer) GetOAuth() *Configuration_Cluster_IdentityServer_OAuth {
-	if m != nil {
-		return m.OAuth
 	}
 	return nil
 }
@@ -735,219 +727,6 @@ func (m *Configuration_Cluster_IdentityServer_UserRights) GetCreateOrganizations
 	return nil
 }
 
-type Configuration_Cluster_IdentityServer_OAuth struct {
-	Providers            *Configuration_Cluster_IdentityServer_OAuth_AuthProviders `protobuf:"bytes,1,opt,name=providers,proto3" json:"providers,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                                                  `json:"-"`
-	XXX_sizecache        int32                                                     `json:"-"`
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth) Reset() {
-	*m = Configuration_Cluster_IdentityServer_OAuth{}
-}
-func (*Configuration_Cluster_IdentityServer_OAuth) ProtoMessage() {}
-func (*Configuration_Cluster_IdentityServer_OAuth) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 4}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth.Merge(m, src)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) XXX_Size() int {
-	return m.Size()
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) XXX_DiscardUnknown() {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth proto.InternalMessageInfo
-
-func (m *Configuration_Cluster_IdentityServer_OAuth) GetProviders() *Configuration_Cluster_IdentityServer_OAuth_AuthProviders {
-	if m != nil {
-		return m.Providers
-	}
-	return nil
-}
-
-type Configuration_Cluster_IdentityServer_OAuth_AuthProviders struct {
-	OIDC                 *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect `protobuf:"bytes,1,opt,name=oidc,proto3" json:"oidc,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}                                                                `json:"-"`
-	XXX_sizecache        int32                                                                   `json:"-"`
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Reset() {
-	*m = Configuration_Cluster_IdentityServer_OAuth_AuthProviders{}
-}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders) ProtoMessage() {}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 4, 0}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders.Merge(m, src)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) XXX_Size() int {
-	return m.Size()
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) XXX_DiscardUnknown() {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders proto.InternalMessageInfo
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) GetOIDC() *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect {
-	if m != nil {
-		return m.OIDC
-	}
-	return nil
-}
-
-type Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared struct {
-	Name                 string   `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	AllowRegistrations   bool     `protobuf:"varint,2,opt,name=allow_registrations,json=allowRegistrations,proto3" json:"allow_registrations,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Reset() {
-	*m = Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared{}
-}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) ProtoMessage() {}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 4, 0, 0}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.Merge(m, src)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) XXX_Size() int {
-	return m.Size()
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) XXX_DiscardUnknown() {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared proto.InternalMessageInfo
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) GetName() string {
-	if m != nil {
-		return m.Name
-	}
-	return ""
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) GetAllowRegistrations() bool {
-	if m != nil {
-		return m.AllowRegistrations
-	}
-	return false
-}
-
-type Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect struct {
-	Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared `protobuf:"bytes,1,opt,name=shared,proto3,embedded=shared" json:"shared"`
-	ClientID                                                        string   `protobuf:"bytes,2,opt,name=client_id,json=clientId,proto3" json:"client_id,omitempty"`
-	ClientSecret                                                    string   `protobuf:"bytes,3,opt,name=client_secret,json=clientSecret,proto3" json:"client_secret,omitempty"`
-	ProviderURL                                                     string   `protobuf:"bytes,4,opt,name=provider_url,json=providerUrl,proto3" json:"provider_url,omitempty"`
-	XXX_NoUnkeyedLiteral                                            struct{} `json:"-"`
-	XXX_sizecache                                                   int32    `json:"-"`
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Reset() {
-	*m = Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect{}
-}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) ProtoMessage() {}
-func (*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Descriptor() ([]byte, []int) {
-	return fileDescriptor_1cc10cab306641c7, []int{0, 1, 0, 4, 0, 1}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect.Merge(m, src)
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) XXX_Size() int {
-	return m.Size()
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) XXX_DiscardUnknown() {
-	xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect proto.InternalMessageInfo
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) GetClientID() string {
-	if m != nil {
-		return m.ClientID
-	}
-	return ""
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) GetClientSecret() string {
-	if m != nil {
-		return m.ClientSecret
-	}
-	return ""
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) GetProviderURL() string {
-	if m != nil {
-		return m.ProviderURL
-	}
-	return ""
-}
-
 type Configuration_Cluster_NetworkServer struct {
 	DevAddrPrefixes      []go_thethings_network_lorawan_stack_v3_pkg_types.DevAddrPrefix `protobuf:"bytes,1,rep,name=dev_addr_prefixes,json=devAddrPrefixes,proto3,customtype=go.thethings.network/lorawan-stack/v3/pkg/types.DevAddrPrefix" json:"dev_addr_prefixes"`
 	DeduplicationWindow  *time.Duration                                                  `protobuf:"bytes,2,opt,name=deduplication_window,json=deduplicationWindow,proto3,stdduration" json:"deduplication_window,omitempty"`
@@ -1027,14 +806,6 @@ func init() {
 	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_EndDevicePicture)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.EndDevicePicture")
 	proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRights)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights")
 	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_UserRights)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights")
-	proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth")
-	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth")
-	proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders")
-	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders")
-	proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared")
-	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.Shared")
-	proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect")
-	golang_proto.RegisterType((*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect)(nil), "tti.lorawan.v3.Configuration.Cluster.IdentityServer.OAuth.AuthProviders.OpenIDConnect")
 	proto.RegisterType((*Configuration_Cluster_NetworkServer)(nil), "tti.lorawan.v3.Configuration.Cluster.NetworkServer")
 	golang_proto.RegisterType((*Configuration_Cluster_NetworkServer)(nil), "tti.lorawan.v3.Configuration.Cluster.NetworkServer")
 }
@@ -1047,98 +818,83 @@ func init() {
 }
 
 var fileDescriptor_1cc10cab306641c7 = []byte{
-	// 1450 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x57, 0x3f, 0x6c, 0xdb, 0xcc,
-	0x15, 0x27, 0x65, 0xd9, 0x96, 0xce, 0xd6, 0x9f, 0x9c, 0x9d, 0xd6, 0x25, 0x02, 0x2a, 0x28, 0x50,
-	0x20, 0x19, 0x42, 0x01, 0x76, 0x5b, 0x14, 0x2d, 0x82, 0xc0, 0x92, 0x8d, 0x44, 0x8e, 0x13, 0x1b,
-	0xb4, 0x95, 0x02, 0xc9, 0xc0, 0x9e, 0xc8, 0x13, 0x75, 0x30, 0xcd, 0x63, 0xc8, 0xa3, 0x94, 0x64,
-	0xca, 0x98, 0xa9, 0x2d, 0xda, 0x25, 0x43, 0x87, 0x2c, 0x01, 0x32, 0x66, 0xcc, 0x98, 0x31, 0x5b,
-	0xd3, 0x2d, 0xe8, 0xa0, 0x46, 0xd4, 0x92, 0xa5, 0xf8, 0x32, 0x66, 0xfc, 0xc0, 0xbb, 0x93, 0x2d,
-	0x39, 0x86, 0xed, 0xcf, 0x9f, 0x17, 0x82, 0x77, 0xf7, 0x7e, 0xbf, 0xdf, 0x7b, 0xf7, 0xde, 0xdd,
-	0x23, 0xc1, 0x75, 0x8f, 0x86, 0xa8, 0x87, 0xfc, 0x1b, 0x11, 0x43, 0xf6, 0x5e, 0x15, 0x05, 0xa4,
-	0xca, 0x18, 0xa9, 0xda, 0xd4, 0x6f, 0x13, 0x37, 0x0e, 0x11, 0x23, 0xd4, 0x37, 0x82, 0x90, 0x32,
-	0x0a, 0x8b, 0x8c, 0x11, 0x43, 0x9a, 0x1b, 0xdd, 0x15, 0xed, 0x86, 0x4b, 0x58, 0x27, 0x6e, 0x19,
-	0x36, 0xdd, 0xaf, 0xba, 0xd4, 0xa5, 0x55, 0x6e, 0xd6, 0x8a, 0xdb, 0x7c, 0xc4, 0x07, 0xfc, 0x4d,
-	0xc0, 0x35, 0xdd, 0xa5, 0xd4, 0xf5, 0xf0, 0xa1, 0x95, 0x33, 0x41, 0xff, 0xfd, 0x7a, 0x2f, 0x44,
-	0x41, 0x80, 0xc3, 0x48, 0xac, 0xff, 0xfa, 0x5f, 0x57, 0x40, 0xa1, 0x3e, 0xee, 0x16, 0xbc, 0x0f,
-	0x4a, 0x0e, 0x6e, 0xa3, 0xd8, 0x63, 0x96, 0xed, 0xc5, 0x11, 0xc3, 0xe1, 0x52, 0xe6, 0xaa, 0x7a,
-	0x6d, 0x6e, 0xf9, 0x37, 0xc6, 0xa4, 0xab, 0xc6, 0x04, 0xce, 0xa8, 0x0b, 0x63, 0xb3, 0x28, 0xd1,
-	0x72, 0xac, 0xad, 0x83, 0x4c, 0xb3, 0x01, 0x6f, 0x81, 0x4b, 0xad, 0x10, 0xf9, 0x0e, 0xf1, 0x5d,
-	0xab, 0x85, 0x22, 0x6c, 0xc5, 0xa1, 0xb7, 0xa4, 0x5e, 0x55, 0xaf, 0xe5, 0x6b, 0x0b, 0x49, 0xbf,
-	0x52, 0xaa, 0xc9, 0xc5, 0x1a, 0x8a, 0x70, 0xd3, 0xdc, 0x34, 0x4b, 0xad, 0xf1, 0x89, 0xd0, 0xd3,
-	0xfe, 0xaf, 0x81, 0x59, 0x49, 0x09, 0xff, 0x00, 0x32, 0x31, 0xe1, 0xe8, 0xb9, 0xe5, 0xab, 0x27,
-	0x7b, 0xd5, 0x6c, 0xd4, 0x66, 0x92, 0x7e, 0x25, 0xd3, 0x6c, 0x98, 0x99, 0x98, 0xc0, 0x4d, 0x90,
-	0x21, 0x91, 0x8c, 0xe7, 0xb7, 0x67, 0x8a, 0xc7, 0x68, 0x38, 0xd8, 0x67, 0x84, 0x3d, 0xdd, 0xc1,
-	0x61, 0x17, 0x87, 0x82, 0xad, 0xb1, 0x63, 0x66, 0x48, 0x04, 0xef, 0x82, 0x8c, 0x1f, 0x2d, 0x65,
-	0x39, 0xdb, 0xca, 0xd9, 0xd8, 0xee, 0x63, 0xd6, 0xa3, 0xe1, 0xde, 0x38, 0xd9, 0xfd, 0x1d, 0x33,
-	0xe3, 0x47, 0xda, 0x7f, 0x7e, 0x01, 0x8a, 0x93, 0x5a, 0x30, 0x04, 0x97, 0xe2, 0x08, 0x87, 0x56,
-	0x88, 0x5d, 0x12, 0x31, 0xc1, 0xb4, 0x34, 0xc5, 0xe5, 0xd6, 0xcf, 0xe3, 0xbc, 0xd1, 0x8c, 0x70,
-	0x68, 0x8e, 0x91, 0x99, 0xe5, 0xf8, 0xc8, 0x0c, 0xf4, 0x40, 0x29, 0x08, 0x69, 0x9b, 0x78, 0xd8,
-	0x0a, 0x88, 0xcd, 0xe2, 0x10, 0xcb, 0x00, 0xeb, 0xe7, 0x52, 0xdc, 0x16, 0x5c, 0xdb, 0x82, 0xca,
-	0x2c, 0x06, 0x13, 0x63, 0x18, 0x01, 0x88, 0x7d, 0xc7, 0x72, 0x70, 0x97, 0xd8, 0x87, 0x82, 0xd3,
-	0x3f, 0x23, 0xc4, 0x75, 0xdf, 0x59, 0xe3, 0x6c, 0x23, 0xc9, 0x32, 0x3e, 0x32, 0x03, 0xff, 0x02,
-	0xe6, 0xc4, 0xb6, 0x12, 0xb7, 0xc3, 0xa2, 0xa5, 0x19, 0xae, 0x76, 0xeb, 0xfc, 0x1b, 0xca, 0x69,
-	0x4c, 0x10, 0x1f, 0xbc, 0xc3, 0x47, 0x60, 0x9a, 0xa2, 0x98, 0x75, 0x96, 0x66, 0x39, 0xf7, 0x1f,
-	0xcf, 0xc5, 0xbd, 0xb5, 0x1a, 0xb3, 0x4e, 0x2d, 0x9f, 0xf4, 0x2b, 0xd3, 0xfc, 0xd5, 0x14, 0x9c,
-	0xda, 0xeb, 0x3c, 0x28, 0x1f, 0x4d, 0x24, 0x0c, 0x00, 0x20, 0x7e, 0x97, 0x30, 0x51, 0x23, 0xe2,
-	0x68, 0x6c, 0x5f, 0x48, 0x8d, 0x18, 0x8d, 0x03, 0x5e, 0x73, 0x4c, 0x03, 0xfe, 0x53, 0x05, 0xbf,
-	0xb4, 0xa9, 0xcf, 0x90, 0xcd, 0x2c, 0xe2, 0xb7, 0xa9, 0xd5, 0x45, 0x1e, 0x71, 0x84, 0xbe, 0x38,
-	0x60, 0x8f, 0x2e, 0x46, 0xbf, 0x2e, 0x44, 0x1a, 0x7e, 0x9b, 0x3e, 0x38, 0x90, 0x30, 0x2f, 0xdb,
-	0xc7, 0x4d, 0xc3, 0x67, 0xa0, 0x88, 0x9c, 0x7d, 0xe2, 0x5b, 0x28, 0x08, 0x42, 0xda, 0x45, 0x9e,
-	0x3c, 0x2f, 0x3b, 0x17, 0xe3, 0xcb, 0x6a, 0xca, 0xbd, 0x2a, 0xa9, 0xcd, 0x02, 0x1a, 0x1f, 0xc2,
-	0xbf, 0xa9, 0xe0, 0x72, 0x80, 0xa2, 0xa8, 0x47, 0x43, 0xc7, 0x0a, 0xf1, 0xe3, 0x98, 0x84, 0x78,
-	0x1f, 0xfb, 0x6c, 0x74, 0x45, 0x3c, 0xbc, 0x18, 0x1f, 0xb6, 0xa5, 0x84, 0x39, 0xa6, 0x60, 0x2e,
-	0x06, 0xc7, 0xcc, 0x6a, 0x7f, 0x55, 0x01, 0x38, 0x4c, 0x1f, 0xfc, 0x3d, 0xc8, 0x49, 0xb7, 0x1c,
-	0x59, 0x22, 0x9a, 0x21, 0xfa, 0x83, 0x31, 0xea, 0x0f, 0x46, 0x8d, 0x52, 0xef, 0x01, 0xf2, 0x62,
-	0x6c, 0x1e, 0xd8, 0xc2, 0x3b, 0x20, 0xcf, 0xe8, 0x1e, 0xf6, 0x2d, 0xc6, 0x3c, 0x99, 0xdb, 0x5f,
-	0x7d, 0x07, 0x5c, 0x93, 0x71, 0xd4, 0xca, 0x49, 0xbf, 0x92, 0xdb, 0x4d, 0xed, 0x77, 0x77, 0x37,
-	0x5f, 0xfe, 0xaf, 0xa2, 0x9a, 0x39, 0x8e, 0xde, 0x65, 0x9e, 0xb6, 0x05, 0x2e, 0x1f, 0x9b, 0xce,
-	0xf3, 0xba, 0xa6, 0xdd, 0x06, 0x85, 0x89, 0x9c, 0x9c, 0x9b, 0xe8, 0xdf, 0x19, 0xb0, 0x78, 0xdc,
-	0xce, 0xc2, 0x3f, 0x01, 0x90, 0xd6, 0x93, 0x87, 0x7d, 0x97, 0x75, 0x24, 0xe5, 0x95, 0xef, 0x28,
-	0x9b, 0x0d, 0x9f, 0xad, 0x2c, 0x0b, 0xd2, 0xfc, 0x3e, 0xf1, 0x37, 0xb9, 0x39, 0x07, 0xa3, 0x27,
-	0x23, 0x70, 0xe6, 0x4c, 0x60, 0xf4, 0x44, 0x82, 0x57, 0x41, 0x21, 0x55, 0x8e, 0xd3, 0x7e, 0x6d,
-	0xa3, 0x08, 0xcb, 0x52, 0x3e, 0x19, 0x3f, 0xbf, 0x4f, 0xfc, 0xe6, 0x08, 0x31, 0x72, 0xde, 0x21,
-	0x2e, 0x39, 0x28, 0xc3, 0xd3, 0x9d, 0x5f, 0xe3, 0xe6, 0xf0, 0x26, 0x98, 0x4b, 0xc1, 0x51, 0x80,
-	0x6d, 0x82, 0x3c, 0x79, 0x2b, 0x9f, 0x8c, 0x4e, 0xd5, 0x76, 0x84, 0xbd, 0xf6, 0x0f, 0x15, 0x14,
-	0x27, 0xaf, 0x7f, 0xb8, 0x0a, 0x8a, 0x0e, 0x89, 0x50, 0xcb, 0xc3, 0x56, 0x1c, 0x78, 0x14, 0x9d,
-	0x25, 0x45, 0x05, 0x89, 0x68, 0x72, 0x00, 0xbc, 0x09, 0xe6, 0xe3, 0x08, 0x5b, 0x6e, 0x88, 0xba,
-	0x88, 0xa1, 0xd1, 0xb7, 0xc9, 0x49, 0x04, 0xe9, 0x65, 0x7f, 0x5b, 0x9a, 0x6b, 0x4d, 0x50, 0x3e,
-	0xda, 0x21, 0x2e, 0xc0, 0x2b, 0xed, 0x6d, 0x06, 0x80, 0xc3, 0x5e, 0x00, 0xef, 0x82, 0x05, 0x3b,
-	0xc4, 0x88, 0xe1, 0xf4, 0x1a, 0xf2, 0x88, 0xcd, 0x6b, 0x3c, 0x3a, 0x03, 0x2d, 0x14, 0xb0, 0xd5,
-	0x31, 0x54, 0xea, 0x9e, 0x24, 0xb3, 0x3d, 0xc2, 0xaf, 0x93, 0xd3, 0x63, 0x2e, 0x08, 0x44, 0x5d,
-	0x00, 0x60, 0x1d, 0x94, 0x24, 0x85, 0x8b, 0x18, 0xee, 0xa1, 0xa7, 0x91, 0xac, 0xa5, 0x93, 0x38,
-	0xa4, 0xea, 0x6d, 0x89, 0x80, 0xf7, 0xc0, 0xa2, 0x24, 0xa1, 0xa1, 0x8b, 0x7c, 0xf2, 0x4c, 0x46,
-	0x95, 0x3d, 0x95, 0x49, 0x6e, 0xc6, 0xd6, 0x38, 0x4c, 0x1b, 0x64, 0x81, 0xe8, 0x6b, 0xb0, 0x0d,
-	0xf2, 0xe9, 0xe1, 0x25, 0x0e, 0x0e, 0x47, 0x7b, 0x74, 0xe7, 0xfc, 0x1d, 0xd3, 0x48, 0x1f, 0xdb,
-	0x23, 0x3e, 0xf3, 0x90, 0x5a, 0xfb, 0x61, 0x0a, 0x14, 0x26, 0x16, 0x21, 0x03, 0x59, 0x4a, 0x1c,
-	0x5b, 0x8a, 0x3e, 0xb8, 0x28, 0x51, 0x63, 0x2b, 0xc0, 0x7e, 0x63, 0xad, 0x4e, 0x7d, 0x1f, 0xdb,
-	0xac, 0x96, 0x4b, 0xfa, 0x95, 0xec, 0x56, 0x63, 0xad, 0x6e, 0x72, 0x35, 0xed, 0x1e, 0x98, 0xd9,
-	0xe9, 0xa0, 0xf4, 0x62, 0x85, 0x20, 0xeb, 0xa3, 0x7d, 0x2c, 0x3e, 0x84, 0x4d, 0xfe, 0x0e, 0xab,
-	0x60, 0x01, 0x79, 0x1e, 0xed, 0x4d, 0x7c, 0xf5, 0x89, 0x9c, 0xe7, 0x4c, 0xc8, 0x97, 0xc6, 0xdb,
-	0x41, 0xa4, 0xbd, 0xcc, 0x80, 0xc2, 0x84, 0x20, 0x7c, 0x0c, 0x66, 0x22, 0x2e, 0x20, 0x03, 0xdb,
-	0xba, 0xb0, 0xc0, 0x84, 0xdf, 0xb5, 0xdc, 0x87, 0x7e, 0x45, 0xf9, 0xd8, 0xaf, 0xa8, 0xa6, 0x14,
-	0x82, 0xd7, 0x41, 0x5e, 0x54, 0xa7, 0x45, 0x1c, 0xee, 0x6b, 0xbe, 0x36, 0x9f, 0xf6, 0x01, 0x51,
-	0x81, 0x8d, 0x35, 0x33, 0x27, 0x96, 0x1b, 0x0e, 0xfc, 0x1d, 0x28, 0x48, 0xd3, 0x08, 0xdb, 0x21,
-	0x66, 0xbc, 0x14, 0xf3, 0xbc, 0x6d, 0xcc, 0x0b, 0xf3, 0x1d, 0x3e, 0x6f, 0xce, 0xdb, 0x63, 0x23,
-	0xb8, 0x0c, 0xe6, 0x47, 0xa9, 0xe4, 0x3f, 0x0f, 0x59, 0x8e, 0x2a, 0x25, 0xfd, 0xca, 0xdc, 0xc8,
-	0xbf, 0xf4, 0xc7, 0x61, 0x6e, 0x64, 0x94, 0xfe, 0x34, 0xbc, 0xca, 0x80, 0xc2, 0xc4, 0x17, 0x37,
-	0x7c, 0x0c, 0x2e, 0x39, 0xb8, 0x6b, 0x21, 0xc7, 0x09, 0xad, 0x20, 0xc4, 0x6d, 0xf2, 0x04, 0xa7,
-	0x35, 0x37, 0x75, 0x6d, 0xbe, 0xb6, 0x9e, 0x06, 0xf5, 0xdf, 0x7e, 0xe5, 0xa6, 0x4b, 0x0d, 0xd6,
-	0xc1, 0xac, 0x43, 0x7c, 0x37, 0x32, 0x7c, 0x01, 0xaf, 0x4e, 0xfe, 0xd1, 0x75, 0x57, 0xaa, 0xc1,
-	0x9e, 0x5b, 0x65, 0x4f, 0x03, 0x1c, 0x19, 0x6b, 0xb8, 0xbb, 0xea, 0x38, 0xe1, 0x36, 0xa7, 0x33,
-	0x4b, 0xce, 0xf8, 0x10, 0x47, 0xd0, 0x04, 0x8b, 0x0e, 0x76, 0xe2, 0x83, 0x13, 0x6d, 0xf5, 0x88,
-	0xef, 0xd0, 0xde, 0xe9, 0x8d, 0x34, 0xcb, 0x9b, 0xe7, 0xc2, 0x04, 0xf8, 0xcf, 0x1c, 0x0b, 0xef,
-	0x80, 0x92, 0x4d, 0xa9, 0xe7, 0xd0, 0xde, 0x01, 0xdd, 0xd4, 0xd9, 0xe8, 0x8a, 0x23, 0x9c, 0x60,
-	0xda, 0xc8, 0xe6, 0xa6, 0xca, 0xd9, 0x8d, 0x6c, 0x6e, 0xba, 0x3c, 0xb3, 0x91, 0xcd, 0xcd, 0x94,
-	0x67, 0x37, 0xb2, 0xb9, 0xd9, 0x72, 0x4e, 0xcc, 0xd7, 0x5e, 0xab, 0x1f, 0x06, 0xba, 0xfa, 0x71,
-	0xa0, 0xab, 0x9f, 0x06, 0xba, 0xf2, 0x79, 0xa0, 0x2b, 0x5f, 0x06, 0xba, 0xf2, 0x75, 0xa0, 0x2b,
-	0xdf, 0x06, 0xba, 0xfa, 0x3c, 0xd1, 0xd5, 0x17, 0x89, 0xae, 0xbc, 0x49, 0x74, 0xf5, 0x6d, 0xa2,
-	0x2b, 0xef, 0x12, 0x5d, 0x79, 0x9f, 0xe8, 0xca, 0x87, 0x44, 0x57, 0x3f, 0x26, 0xba, 0xfa, 0x29,
-	0xd1, 0x95, 0xcf, 0x89, 0xae, 0x7e, 0x49, 0x74, 0xe5, 0x6b, 0xa2, 0xab, 0xdf, 0x12, 0x5d, 0x79,
-	0x3e, 0xd4, 0x95, 0x17, 0x43, 0x5d, 0xfd, 0xfb, 0x50, 0x57, 0x5e, 0x0e, 0x75, 0xf5, 0xd5, 0x50,
-	0x57, 0xde, 0x0c, 0x75, 0xe5, 0xed, 0x50, 0x57, 0xdf, 0x0d, 0x75, 0xf5, 0xfd, 0x50, 0x57, 0x1f,
-	0x56, 0x7f, 0x42, 0x0a, 0x18, 0x09, 0x5a, 0xad, 0x19, 0x1e, 0xee, 0xca, 0x8f, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0xa6, 0xe2, 0xa8, 0x91, 0x79, 0x0f, 0x00, 0x00,
+	// 1206 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x96, 0x3f, 0x6c, 0xdb, 0xc6,
+	0x17, 0xc7, 0x49, 0x5a, 0x71, 0xe4, 0x73, 0xf4, 0xc7, 0x17, 0xfb, 0xf7, 0x73, 0x89, 0xe2, 0x1c,
+	0x14, 0x28, 0x90, 0x0e, 0xa1, 0x80, 0xb8, 0x28, 0x0a, 0x14, 0x41, 0x60, 0xd9, 0x46, 0x22, 0xc7,
+	0x4d, 0x0c, 0xda, 0x4a, 0x81, 0x74, 0x60, 0x4f, 0xe4, 0x89, 0x3e, 0x98, 0xe6, 0x31, 0x77, 0x47,
+	0x29, 0xc9, 0x94, 0x31, 0x53, 0x1b, 0xb4, 0x4b, 0xc6, 0x2c, 0x01, 0x32, 0x74, 0xc8, 0x98, 0x31,
+	0x63, 0xb6, 0x66, 0x0c, 0x5a, 0xc0, 0x8d, 0xa8, 0x25, 0x63, 0xc6, 0x8c, 0x85, 0xc8, 0x93, 0x2c,
+	0x39, 0x86, 0xad, 0xba, 0xde, 0x74, 0xc7, 0xf7, 0xfd, 0x7c, 0xdf, 0xdd, 0x7b, 0x7c, 0x22, 0xf8,
+	0x2a, 0x60, 0x1c, 0xb7, 0x71, 0x78, 0x49, 0x48, 0xec, 0xee, 0x54, 0x70, 0x44, 0x2b, 0x52, 0xd2,
+	0x8a, 0xcb, 0xc2, 0x26, 0xf5, 0x63, 0x8e, 0x25, 0x65, 0xa1, 0x15, 0x71, 0x26, 0x19, 0x2c, 0x4a,
+	0x49, 0x2d, 0x15, 0x6e, 0xb5, 0x16, 0xcd, 0x4b, 0x3e, 0x95, 0xdb, 0x71, 0xc3, 0x72, 0xd9, 0x6e,
+	0xc5, 0x67, 0x3e, 0xab, 0xa4, 0x61, 0x8d, 0xb8, 0x99, 0xae, 0xd2, 0x45, 0xfa, 0x2b, 0x93, 0x9b,
+	0xc8, 0x67, 0xcc, 0x0f, 0xc8, 0x7e, 0x94, 0x37, 0x82, 0xff, 0xf4, 0x79, 0x9b, 0xe3, 0x28, 0x22,
+	0x5c, 0x64, 0xcf, 0xbf, 0xf8, 0xeb, 0x7f, 0xa0, 0xb0, 0x3c, 0x9c, 0x16, 0xbc, 0x09, 0x4a, 0x1e,
+	0x69, 0xe2, 0x38, 0x90, 0x8e, 0x1b, 0xc4, 0x42, 0x12, 0x3e, 0x6f, 0x5c, 0xd0, 0x2f, 0x4e, 0x5f,
+	0xfe, 0xd2, 0x1a, 0x4d, 0xd5, 0x1a, 0xd1, 0x59, 0xcb, 0x59, 0xb0, 0x5d, 0x54, 0x6a, 0xb5, 0x36,
+	0x57, 0x81, 0x51, 0xaf, 0xc1, 0xab, 0x60, 0xa6, 0xc1, 0x71, 0xe8, 0xd1, 0xd0, 0x77, 0x1a, 0x58,
+	0x10, 0x27, 0xe6, 0xc1, 0xbc, 0x7e, 0x41, 0xbf, 0x38, 0x55, 0x3d, 0x9f, 0xec, 0x2d, 0x94, 0xaa,
+	0xea, 0x61, 0x15, 0x0b, 0x52, 0xb7, 0xd7, 0xed, 0x52, 0x63, 0x78, 0x83, 0x07, 0xe6, 0xef, 0x73,
+	0xe0, 0xac, 0x42, 0xc2, 0x6f, 0x81, 0x11, 0xd3, 0x54, 0x3d, 0x7d, 0xf9, 0xc2, 0xd1, 0x59, 0xd5,
+	0x6b, 0xd5, 0xc9, 0x64, 0x6f, 0xc1, 0xa8, 0xd7, 0x6c, 0x23, 0xa6, 0x70, 0x1d, 0x18, 0x54, 0xa8,
+	0xf3, 0x7c, 0x3d, 0xd6, 0x79, 0xac, 0x9a, 0x47, 0x42, 0x49, 0xe5, 0xfd, 0x4d, 0xc2, 0x5b, 0x84,
+	0x67, 0xb4, 0xda, 0xa6, 0x6d, 0x50, 0x01, 0x6f, 0x00, 0x23, 0x14, 0xf3, 0xb9, 0x94, 0xb6, 0x38,
+	0x1e, 0xed, 0x26, 0x91, 0x6d, 0xc6, 0x77, 0x86, 0x61, 0x37, 0x37, 0x6d, 0x23, 0x14, 0xe6, 0xe3,
+	0x19, 0x50, 0x1c, 0xf5, 0x82, 0x1c, 0xcc, 0xc4, 0x82, 0x70, 0x87, 0x13, 0x9f, 0x0a, 0x99, 0x91,
+	0xe6, 0x27, 0x52, 0xbb, 0xd5, 0x93, 0x24, 0x6f, 0xd5, 0x05, 0xe1, 0xf6, 0x10, 0xcc, 0x2e, 0xc7,
+	0x07, 0x76, 0x60, 0x00, 0x4a, 0x11, 0x67, 0x4d, 0x1a, 0x10, 0x27, 0xa2, 0xae, 0x8c, 0x39, 0x51,
+	0x07, 0x5c, 0x3e, 0x91, 0xe3, 0x46, 0xc6, 0xda, 0xc8, 0x50, 0x76, 0x31, 0x1a, 0x59, 0x43, 0x01,
+	0x20, 0x09, 0x3d, 0xc7, 0x23, 0x2d, 0xea, 0xee, 0x1b, 0x9e, 0xf9, 0x0f, 0x47, 0x5c, 0x0d, 0xbd,
+	0x95, 0x94, 0xd6, 0xb7, 0x2c, 0x93, 0x03, 0x3b, 0xf0, 0x27, 0x30, 0x9d, 0x5d, 0x2b, 0xf5, 0xb7,
+	0xa5, 0x98, 0x9f, 0x4c, 0xdd, 0xae, 0x9e, 0xfc, 0x42, 0x53, 0x8c, 0x0d, 0xe2, 0xc1, 0x6f, 0xf3,
+	0xd9, 0x14, 0x28, 0x1f, 0xbc, 0x6b, 0x18, 0x01, 0x40, 0xc3, 0x16, 0x95, 0x59, 0x19, 0xb3, 0xee,
+	0xdd, 0x38, 0x95, 0x32, 0x5a, 0xb5, 0x01, 0xd7, 0x1e, 0xf2, 0x80, 0xbf, 0xe9, 0xe0, 0xff, 0x2e,
+	0x0b, 0x25, 0x76, 0xa5, 0x43, 0xc3, 0x26, 0x73, 0x5a, 0x38, 0xa0, 0x5e, 0xe6, 0x9f, 0xbd, 0x03,
+	0x3f, 0x9e, 0x8e, 0xff, 0x72, 0x66, 0x52, 0x0b, 0x9b, 0xec, 0xf6, 0xc0, 0xc2, 0x9e, 0x73, 0x0f,
+	0xdb, 0x86, 0x0f, 0x40, 0x11, 0x7b, 0xbb, 0x34, 0x74, 0x70, 0x14, 0x71, 0xd6, 0xc2, 0x81, 0x6a,
+	0xe9, 0xcd, 0xd3, 0xc9, 0x65, 0xa9, 0xc7, 0x5e, 0x52, 0x68, 0xbb, 0x80, 0x87, 0x97, 0xf0, 0x17,
+	0x1d, 0xcc, 0x45, 0x58, 0x88, 0x36, 0xe3, 0x9e, 0xc3, 0xc9, 0xdd, 0x98, 0x72, 0xb2, 0x4b, 0x42,
+	0xd9, 0x7f, 0x8b, 0xef, 0x9c, 0x4e, 0x0e, 0x1b, 0xca, 0xc2, 0x1e, 0x72, 0xb0, 0x67, 0xa3, 0x43,
+	0x76, 0xcd, 0x9f, 0x75, 0x00, 0xf6, 0xcb, 0x07, 0xbf, 0x01, 0x79, 0x95, 0x96, 0xa7, 0x5a, 0xc4,
+	0xb4, 0xb2, 0x11, 0x6e, 0xf5, 0x47, 0xb8, 0x55, 0x65, 0x2c, 0xb8, 0x8d, 0x83, 0x98, 0xd8, 0x83,
+	0x58, 0x78, 0x1d, 0x4c, 0x49, 0xb6, 0x43, 0x42, 0x47, 0xca, 0x40, 0xd5, 0xf6, 0xb3, 0x4f, 0x84,
+	0x2b, 0xea, 0x1c, 0xd5, 0x72, 0xb2, 0xb7, 0x90, 0xdf, 0xea, 0xc5, 0x6f, 0x6d, 0xad, 0x3f, 0xf9,
+	0x7b, 0x41, 0xb7, 0xf3, 0xa9, 0x7a, 0x4b, 0x06, 0xe6, 0x2d, 0x30, 0x77, 0x68, 0x39, 0x4f, 0x9a,
+	0x9a, 0x79, 0x0d, 0x14, 0x46, 0x6a, 0x72, 0x62, 0xd0, 0x1f, 0x06, 0x98, 0x3d, 0xec, 0x66, 0xe1,
+	0x77, 0x00, 0xf4, 0xfa, 0x29, 0x20, 0xa1, 0x2f, 0xb7, 0x15, 0xf2, 0xf3, 0x4f, 0x90, 0xf5, 0x5a,
+	0x28, 0x17, 0x2f, 0x67, 0xd0, 0xa9, 0x5d, 0x1a, 0xae, 0xa7, 0xe1, 0xa9, 0x18, 0xdf, 0xeb, 0x8b,
+	0x8d, 0xb1, 0xc4, 0xf8, 0x9e, 0x12, 0x2f, 0x81, 0x42, 0xcf, 0x39, 0xee, 0xfd, 0xa5, 0xba, 0x58,
+	0x10, 0xd5, 0xca, 0x47, 0xeb, 0xcf, 0xed, 0xd2, 0xb0, 0xde, 0x57, 0xf4, 0x93, 0xf7, 0xa8, 0x4f,
+	0x07, 0x6d, 0x78, 0x7c, 0xf2, 0x2b, 0x69, 0x38, 0xbc, 0x02, 0xa6, 0x7b, 0x62, 0x11, 0x11, 0x97,
+	0xe2, 0x40, 0x0d, 0xce, 0xa3, 0xd5, 0x3d, 0xb7, 0xcd, 0x2c, 0xde, 0xfc, 0x55, 0x07, 0xc5, 0xd1,
+	0x09, 0x0d, 0x97, 0x40, 0xd1, 0xa3, 0x02, 0x37, 0x02, 0xe2, 0xc4, 0x51, 0xc0, 0xf0, 0x38, 0x25,
+	0x2a, 0x28, 0x45, 0x3d, 0x15, 0xc0, 0x2b, 0xe0, 0x5c, 0x2c, 0x88, 0xe3, 0x73, 0xdc, 0xc2, 0x12,
+	0xf7, 0x3f, 0x1f, 0x8e, 0x02, 0xf4, 0xe6, 0xf1, 0x35, 0x15, 0x6e, 0xd6, 0x41, 0xf9, 0xe0, 0x10,
+	0x3f, 0x85, 0xac, 0xcc, 0x17, 0x06, 0x00, 0xfb, 0xe3, 0x1a, 0xde, 0x00, 0xe7, 0x5d, 0x4e, 0xb0,
+	0x24, 0xbd, 0x31, 0x14, 0x50, 0x37, 0xed, 0x71, 0x31, 0x06, 0x16, 0x66, 0xb2, 0xa5, 0x21, 0x55,
+	0x2f, 0x3d, 0x05, 0x73, 0x03, 0x9a, 0x8e, 0x93, 0xe3, 0xcf, 0x5c, 0xc8, 0x14, 0xcb, 0x99, 0x00,
+	0x2e, 0x83, 0x92, 0x42, 0xf8, 0x58, 0x92, 0x36, 0xbe, 0x2f, 0x54, 0x2f, 0x1d, 0xc5, 0x50, 0xae,
+	0xd7, 0x94, 0x02, 0x7e, 0x0f, 0x66, 0x15, 0x84, 0x71, 0x1f, 0x87, 0xf4, 0x81, 0x3a, 0x55, 0xee,
+	0x58, 0x92, 0xba, 0x8c, 0x5b, 0xc3, 0x32, 0xf3, 0xa9, 0x01, 0x0a, 0x23, 0x1f, 0x2c, 0xf0, 0x2e,
+	0x98, 0xf1, 0x48, 0xcb, 0xc1, 0x9e, 0xc7, 0x9d, 0x88, 0x93, 0x26, 0xbd, 0x47, 0x7a, 0x77, 0x36,
+	0x71, 0xf1, 0x5c, 0x75, 0xf5, 0xf5, 0xde, 0x82, 0xf6, 0xe7, 0xde, 0xc2, 0x15, 0x9f, 0x59, 0x72,
+	0x9b, 0xc8, 0x6d, 0x1a, 0xfa, 0xc2, 0x0a, 0x33, 0x79, 0x65, 0xf4, 0x83, 0xb8, 0xb5, 0x58, 0x89,
+	0x76, 0xfc, 0x8a, 0xbc, 0x1f, 0x11, 0x61, 0xad, 0x90, 0xd6, 0x92, 0xe7, 0xf1, 0x8d, 0x14, 0x67,
+	0x97, 0xbc, 0xe1, 0x25, 0x11, 0xd0, 0x06, 0xb3, 0x1e, 0xf1, 0xe2, 0xc1, 0x6d, 0x3b, 0x6d, 0x1a,
+	0x7a, 0xac, 0x7d, 0xfc, 0x90, 0xcb, 0xa5, 0x83, 0xed, 0xfc, 0x88, 0xf8, 0x87, 0x54, 0x0b, 0xaf,
+	0x83, 0x92, 0xcb, 0x58, 0xe0, 0xb1, 0xf6, 0x00, 0x37, 0x31, 0x1e, 0xae, 0xd8, 0xd7, 0x65, 0xa4,
+	0xb5, 0x5c, 0x7e, 0xa2, 0x9c, 0x5b, 0xcb, 0xe5, 0xcf, 0x94, 0x27, 0xd7, 0x72, 0xf9, 0xc9, 0xf2,
+	0xd9, 0xb5, 0x5c, 0xfe, 0x6c, 0x39, 0x9f, 0xed, 0x57, 0x9f, 0xe9, 0xaf, 0x3b, 0x48, 0x7f, 0xd3,
+	0x41, 0xfa, 0xdb, 0x0e, 0xd2, 0xde, 0x75, 0x90, 0xf6, 0xbe, 0x83, 0xb4, 0x0f, 0x1d, 0xa4, 0x7d,
+	0xec, 0x20, 0xfd, 0x61, 0x82, 0xf4, 0x47, 0x09, 0xd2, 0x9e, 0x27, 0x48, 0x7f, 0x91, 0x20, 0xed,
+	0x65, 0x82, 0xb4, 0x57, 0x09, 0xd2, 0x5e, 0x27, 0x48, 0x7f, 0x93, 0x20, 0xfd, 0x6d, 0x82, 0xb4,
+	0x77, 0x09, 0xd2, 0xdf, 0x27, 0x48, 0xfb, 0x90, 0x20, 0xfd, 0x63, 0x82, 0xb4, 0x87, 0x5d, 0xa4,
+	0x3d, 0xea, 0x22, 0xfd, 0x71, 0x17, 0x69, 0x4f, 0xba, 0x48, 0x7f, 0xda, 0x45, 0xda, 0xf3, 0x2e,
+	0xd2, 0x5e, 0x74, 0x91, 0xfe, 0xb2, 0x8b, 0xf4, 0x57, 0x5d, 0xa4, 0xdf, 0xa9, 0xfc, 0x8b, 0x12,
+	0x48, 0x1a, 0x35, 0x1a, 0x93, 0xe9, 0x71, 0x17, 0xff, 0x09, 0x00, 0x00, 0xff, 0xff, 0xb3, 0xde,
+	0x91, 0x32, 0xb8, 0x0c, 0x00, 0x00,
 }
 
 func (this *Configuration) Equal(that interface{}) bool {
@@ -1248,9 +1004,6 @@ func (this *Configuration_Cluster_IdentityServer) Equal(that interface{}) bool {
 		return false
 	}
 	if !this.UserRights.Equal(that1.UserRights) {
-		return false
-	}
-	if !this.OAuth.Equal(that1.OAuth) {
 		return false
 	}
 	return true
@@ -1489,114 +1242,6 @@ func (this *Configuration_Cluster_IdentityServer_UserRights) Equal(that interfac
 	}
 	return true
 }
-func (this *Configuration_Cluster_IdentityServer_OAuth) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Configuration_Cluster_IdentityServer_OAuth)
-	if !ok {
-		that2, ok := that.(Configuration_Cluster_IdentityServer_OAuth)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !this.Providers.Equal(that1.Providers) {
-		return false
-	}
-	return true
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Configuration_Cluster_IdentityServer_OAuth_AuthProviders)
-	if !ok {
-		that2, ok := that.(Configuration_Cluster_IdentityServer_OAuth_AuthProviders)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !this.OIDC.Equal(that1.OIDC) {
-		return false
-	}
-	return true
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared)
-	if !ok {
-		that2, ok := that.(Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if this.Name != that1.Name {
-		return false
-	}
-	if this.AllowRegistrations != that1.AllowRegistrations {
-		return false
-	}
-	return true
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Equal(that interface{}) bool {
-	if that == nil {
-		return this == nil
-	}
-
-	that1, ok := that.(*Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect)
-	if !ok {
-		that2, ok := that.(Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect)
-		if ok {
-			that1 = &that2
-		} else {
-			return false
-		}
-	}
-	if that1 == nil {
-		return this == nil
-	} else if this == nil {
-		return false
-	}
-	if !this.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.Equal(&that1.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) {
-		return false
-	}
-	if this.ClientID != that1.ClientID {
-		return false
-	}
-	if this.ClientSecret != that1.ClientSecret {
-		return false
-	}
-	if this.ProviderURL != that1.ProviderURL {
-		return false
-	}
-	return true
-}
 func (this *Configuration_Cluster_NetworkServer) Equal(that interface{}) bool {
 	if that == nil {
 		return this == nil
@@ -1788,18 +1433,6 @@ func (m *Configuration_Cluster_IdentityServer) MarshalToSizedBuffer(dAtA []byte)
 	_ = i
 	var l int
 	_ = l
-	if m.OAuth != nil {
-		{
-			size, err := m.OAuth.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintConfiguration(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0x3a
-	}
 	if m.UserRights != nil {
 		{
 			size, err := m.UserRights.MarshalToSizedBuffer(dAtA[:i])
@@ -1943,12 +1576,12 @@ func (m *Configuration_Cluster_IdentityServer_UserRegistration_Invitation) Marsh
 	var l int
 	_ = l
 	if m.TokenTTL != nil {
-		n14, err14 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.TokenTTL, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL):])
-		if err14 != nil {
-			return 0, err14
+		n13, err13 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.TokenTTL, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.TokenTTL):])
+		if err13 != nil {
+			return 0, err13
 		}
-		i -= n14
-		i = encodeVarintConfiguration(dAtA, i, uint64(n14))
+		i -= n13
+		i = encodeVarintConfiguration(dAtA, i, uint64(n13))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -2273,170 +1906,6 @@ func (m *Configuration_Cluster_IdentityServer_UserRights) MarshalToSizedBuffer(d
 	return len(dAtA) - i, nil
 }
 
-func (m *Configuration_Cluster_IdentityServer_OAuth) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Providers != nil {
-		{
-			size, err := m.Providers.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintConfiguration(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.OIDC != nil {
-		{
-			size, err := m.OIDC.MarshalToSizedBuffer(dAtA[:i])
-			if err != nil {
-				return 0, err
-			}
-			i -= size
-			i = encodeVarintConfiguration(dAtA, i, uint64(size))
-		}
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.AllowRegistrations {
-		i--
-		if m.AllowRegistrations {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i--
-		dAtA[i] = 0x10
-	}
-	if len(m.Name) > 0 {
-		i -= len(m.Name)
-		copy(dAtA[i:], m.Name)
-		i = encodeVarintConfiguration(dAtA, i, uint64(len(m.Name)))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.ProviderURL) > 0 {
-		i -= len(m.ProviderURL)
-		copy(dAtA[i:], m.ProviderURL)
-		i = encodeVarintConfiguration(dAtA, i, uint64(len(m.ProviderURL)))
-		i--
-		dAtA[i] = 0x22
-	}
-	if len(m.ClientSecret) > 0 {
-		i -= len(m.ClientSecret)
-		copy(dAtA[i:], m.ClientSecret)
-		i = encodeVarintConfiguration(dAtA, i, uint64(len(m.ClientSecret)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if len(m.ClientID) > 0 {
-		i -= len(m.ClientID)
-		copy(dAtA[i:], m.ClientID)
-		i = encodeVarintConfiguration(dAtA, i, uint64(len(m.ClientID)))
-		i--
-		dAtA[i] = 0x12
-	}
-	{
-		size, err := m.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.MarshalToSizedBuffer(dAtA[:i])
-		if err != nil {
-			return 0, err
-		}
-		i -= size
-		i = encodeVarintConfiguration(dAtA, i, uint64(size))
-	}
-	i--
-	dAtA[i] = 0xa
-	return len(dAtA) - i, nil
-}
-
 func (m *Configuration_Cluster_NetworkServer) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -2458,22 +1927,22 @@ func (m *Configuration_Cluster_NetworkServer) MarshalToSizedBuffer(dAtA []byte) 
 	var l int
 	_ = l
 	if m.CooldownWindow != nil {
-		n33, err33 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.CooldownWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.CooldownWindow):])
-		if err33 != nil {
-			return 0, err33
+		n29, err29 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.CooldownWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.CooldownWindow):])
+		if err29 != nil {
+			return 0, err29
 		}
-		i -= n33
-		i = encodeVarintConfiguration(dAtA, i, uint64(n33))
+		i -= n29
+		i = encodeVarintConfiguration(dAtA, i, uint64(n29))
 		i--
 		dAtA[i] = 0x1a
 	}
 	if m.DeduplicationWindow != nil {
-		n34, err34 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.DeduplicationWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.DeduplicationWindow):])
-		if err34 != nil {
-			return 0, err34
+		n30, err30 := github_com_gogo_protobuf_types.StdDurationMarshalTo(*m.DeduplicationWindow, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdDuration(*m.DeduplicationWindow):])
+		if err30 != nil {
+			return 0, err30
 		}
-		i -= n34
-		i = encodeVarintConfiguration(dAtA, i, uint64(n34))
+		i -= n30
+		i = encodeVarintConfiguration(dAtA, i, uint64(n30))
 		i--
 		dAtA[i] = 0x12
 	}
@@ -2552,9 +2021,6 @@ func NewPopulatedConfiguration_Cluster_IdentityServer(r randyConfiguration, easy
 	}
 	if r.Intn(5) != 0 {
 		this.UserRights = NewPopulatedConfiguration_Cluster_IdentityServer_UserRights(r, easy)
-	}
-	if r.Intn(5) != 0 {
-		this.OAuth = NewPopulatedConfiguration_Cluster_IdentityServer_OAuth(r, easy)
 	}
 	if !easy && r.Intn(10) != 0 {
 	}
@@ -2677,54 +2143,13 @@ func NewPopulatedConfiguration_Cluster_IdentityServer_UserRights(r randyConfigur
 	return this
 }
 
-func NewPopulatedConfiguration_Cluster_IdentityServer_OAuth(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_OAuth {
-	this := &Configuration_Cluster_IdentityServer_OAuth{}
-	if r.Intn(5) != 0 {
-		this.Providers = NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders(r, easy)
-	}
-	if !easy && r.Intn(10) != 0 {
-	}
-	return this
-}
-
-func NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_OAuth_AuthProviders {
-	this := &Configuration_Cluster_IdentityServer_OAuth_AuthProviders{}
-	if r.Intn(5) != 0 {
-		this.OIDC = NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect(r, easy)
-	}
-	if !easy && r.Intn(10) != 0 {
-	}
-	return this
-}
-
-func NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders_Shared(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared {
-	this := &Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared{}
-	this.Name = randStringConfiguration(r)
-	this.AllowRegistrations = bool(r.Intn(2) == 0)
-	if !easy && r.Intn(10) != 0 {
-	}
-	return this
-}
-
-func NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect(r randyConfiguration, easy bool) *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect {
-	this := &Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect{}
-	v1 := NewPopulatedConfiguration_Cluster_IdentityServer_OAuth_AuthProviders_Shared(r, easy)
-	this.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared = *v1
-	this.ClientID = randStringConfiguration(r)
-	this.ClientSecret = randStringConfiguration(r)
-	this.ProviderURL = randStringConfiguration(r)
-	if !easy && r.Intn(10) != 0 {
-	}
-	return this
-}
-
 func NewPopulatedConfiguration_Cluster_NetworkServer(r randyConfiguration, easy bool) *Configuration_Cluster_NetworkServer {
 	this := &Configuration_Cluster_NetworkServer{}
-	v2 := r.Intn(10)
-	this.DevAddrPrefixes = make([]go_thethings_network_lorawan_stack_v3_pkg_types.DevAddrPrefix, v2)
-	for i := 0; i < v2; i++ {
-		v3 := go_thethings_network_lorawan_stack_v3_pkg_types.NewPopulatedDevAddrPrefix(r)
-		this.DevAddrPrefixes[i] = *v3
+	v1 := r.Intn(10)
+	this.DevAddrPrefixes = make([]go_thethings_network_lorawan_stack_v3_pkg_types.DevAddrPrefix, v1)
+	for i := 0; i < v1; i++ {
+		v2 := go_thethings_network_lorawan_stack_v3_pkg_types.NewPopulatedDevAddrPrefix(r)
+		this.DevAddrPrefixes[i] = *v2
 	}
 	if r.Intn(5) != 0 {
 		this.DeduplicationWindow = github_com_gogo_protobuf_types.NewPopulatedStdDuration(r, easy)
@@ -2756,9 +2181,9 @@ func randUTF8RuneConfiguration(r randyConfiguration) rune {
 	return rune(ru + 61)
 }
 func randStringConfiguration(r randyConfiguration) string {
-	v4 := r.Intn(100)
-	tmps := make([]rune, v4)
-	for i := 0; i < v4; i++ {
+	v3 := r.Intn(100)
+	tmps := make([]rune, v3)
+	for i := 0; i < v3; i++ {
 		tmps[i] = randUTF8RuneConfiguration(r)
 	}
 	return string(tmps)
@@ -2780,11 +2205,11 @@ func randFieldConfiguration(dAtA []byte, r randyConfiguration, fieldNumber int, 
 	switch wire {
 	case 0:
 		dAtA = encodeVarintPopulateConfiguration(dAtA, uint64(key))
-		v5 := r.Int63()
+		v4 := r.Int63()
 		if r.Intn(2) == 0 {
-			v5 *= -1
+			v4 *= -1
 		}
-		dAtA = encodeVarintPopulateConfiguration(dAtA, uint64(v5))
+		dAtA = encodeVarintPopulateConfiguration(dAtA, uint64(v4))
 	case 1:
 		dAtA = encodeVarintPopulateConfiguration(dAtA, uint64(key))
 		dAtA = append(dAtA, byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)), byte(r.Intn(256)))
@@ -2876,10 +2301,6 @@ func (m *Configuration_Cluster_IdentityServer) Size() (n int) {
 	}
 	if m.UserRights != nil {
 		l = m.UserRights.Size()
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	if m.OAuth != nil {
-		l = m.OAuth.Size()
 		n += 1 + l + sovConfiguration(uint64(l))
 	}
 	return n
@@ -3037,71 +2458,6 @@ func (m *Configuration_Cluster_IdentityServer_UserRights) Size() (n int) {
 	return n
 }
 
-func (m *Configuration_Cluster_IdentityServer_OAuth) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Providers != nil {
-		l = m.Providers.Size()
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	return n
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.OIDC != nil {
-		l = m.OIDC.Size()
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	return n
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = len(m.Name)
-	if l > 0 {
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	if m.AllowRegistrations {
-		n += 2
-	}
-	return n
-}
-
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	l = m.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.Size()
-	n += 1 + l + sovConfiguration(uint64(l))
-	l = len(m.ClientID)
-	if l > 0 {
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	l = len(m.ClientSecret)
-	if l > 0 {
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	l = len(m.ProviderURL)
-	if l > 0 {
-		n += 1 + l + sovConfiguration(uint64(l))
-	}
-	return n
-}
-
 func (m *Configuration_Cluster_NetworkServer) Size() (n int) {
 	if m == nil {
 		return 0
@@ -3172,7 +2528,6 @@ func (this *Configuration_Cluster_IdentityServer) String() string {
 		`ProfilePicture:` + strings.Replace(fmt.Sprintf("%v", this.ProfilePicture), "Configuration_Cluster_IdentityServer_ProfilePicture", "Configuration_Cluster_IdentityServer_ProfilePicture", 1) + `,`,
 		`EndDevicePicture:` + strings.Replace(fmt.Sprintf("%v", this.EndDevicePicture), "Configuration_Cluster_IdentityServer_EndDevicePicture", "Configuration_Cluster_IdentityServer_EndDevicePicture", 1) + `,`,
 		`UserRights:` + strings.Replace(fmt.Sprintf("%v", this.UserRights), "Configuration_Cluster_IdentityServer_UserRights", "Configuration_Cluster_IdentityServer_UserRights", 1) + `,`,
-		`OAuth:` + strings.Replace(fmt.Sprintf("%v", this.OAuth), "Configuration_Cluster_IdentityServer_OAuth", "Configuration_Cluster_IdentityServer_OAuth", 1) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -3265,50 +2620,6 @@ func (this *Configuration_Cluster_IdentityServer_UserRights) String() string {
 		`CreateClients:` + strings.Replace(fmt.Sprintf("%v", this.CreateClients), "BoolValue", "types.BoolValue", 1) + `,`,
 		`CreateGateways:` + strings.Replace(fmt.Sprintf("%v", this.CreateGateways), "BoolValue", "types.BoolValue", 1) + `,`,
 		`CreateOrganizations:` + strings.Replace(fmt.Sprintf("%v", this.CreateOrganizations), "BoolValue", "types.BoolValue", 1) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_OAuth{`,
-		`Providers:` + strings.Replace(fmt.Sprintf("%v", this.Providers), "Configuration_Cluster_IdentityServer_OAuth_AuthProviders", "Configuration_Cluster_IdentityServer_OAuth_AuthProviders", 1) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_OAuth_AuthProviders{`,
-		`OIDC:` + strings.Replace(fmt.Sprintf("%v", this.OIDC), "Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect", "Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect", 1) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared{`,
-		`Name:` + fmt.Sprintf("%v", this.Name) + `,`,
-		`AllowRegistrations:` + fmt.Sprintf("%v", this.AllowRegistrations) + `,`,
-		`}`,
-	}, "")
-	return s
-}
-func (this *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) String() string {
-	if this == nil {
-		return "nil"
-	}
-	s := strings.Join([]string{`&Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect{`,
-		`Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared:` + strings.Replace(strings.Replace(fmt.Sprintf("%v", this.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared), "Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared", "Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared", 1), `&`, ``, 1) + `,`,
-		`ClientID:` + fmt.Sprintf("%v", this.ClientID) + `,`,
-		`ClientSecret:` + fmt.Sprintf("%v", this.ClientSecret) + `,`,
-		`ProviderURL:` + fmt.Sprintf("%v", this.ProviderURL) + `,`,
 		`}`,
 	}, "")
 	return s
@@ -3838,42 +3149,6 @@ func (m *Configuration_Cluster_IdentityServer) Unmarshal(dAtA []byte) error {
 				m.UserRights = &Configuration_Cluster_IdentityServer_UserRights{}
 			}
 			if err := m.UserRights.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 7:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OAuth", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.OAuth == nil {
-				m.OAuth = &Configuration_Cluster_IdentityServer_OAuth{}
-			}
-			if err := m.OAuth.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
 			iNdEx = postIndex
@@ -5020,471 +4295,6 @@ func (m *Configuration_Cluster_IdentityServer_UserRights) Unmarshal(dAtA []byte)
 			if err := m.CreateOrganizations.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
 				return err
 			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipConfiguration(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowConfiguration
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: OAuth: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: OAuth: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Providers", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.Providers == nil {
-				m.Providers = &Configuration_Cluster_IdentityServer_OAuth_AuthProviders{}
-			}
-			if err := m.Providers.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipConfiguration(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowConfiguration
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AuthProviders: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AuthProviders: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field OIDC", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.OIDC == nil {
-				m.OIDC = &Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect{}
-			}
-			if err := m.OIDC.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipConfiguration(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowConfiguration
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: Shared: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: Shared: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Name", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Name = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field AllowRegistrations", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.AllowRegistrations = bool(v != 0)
-		default:
-			iNdEx = preIndex
-			skippy, err := skipConfiguration(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *Configuration_Cluster_IdentityServer_OAuth_AuthProviders_OpenIDConnect) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowConfiguration
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: OpenIDConnect: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: OpenIDConnect: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if err := m.Configuration_Cluster_IdentityServer_OAuth_AuthProviders_Shared.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ClientID", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ClientID = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ClientSecret", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ClientSecret = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ProviderURL", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowConfiguration
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthConfiguration
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.ProviderURL = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex

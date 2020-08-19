@@ -61,25 +61,6 @@ message Configuration {
         google.protobuf.BoolValue create_organizations = 4;
       }
       UserRights user_rights = 6;
-      message OAuth {
-        message AuthProviders {
-          message Shared {
-            string name = 1;
-            bool allow_registrations = 2;
-          }
-
-          message OpenIDConnect {
-            Shared shared = 1 [(gogoproto.embed) = true, (gogoproto.nullable) = false];
-            string client_id = 2 [(gogoproto.customname) = "ClientID"];
-            string client_secret = 3 [(gogoproto.customname) = "ClientSecret"];
-            string provider_url = 4 [(gogoproto.customname) = "ProviderURL"];
-          }
-
-          OpenIDConnect oidc = 1 [(gogoproto.customname) = "OIDC"];
-        }
-        AuthProviders providers = 1;
-      }
-      OAuth oauth = 7 [(gogoproto.customname) = "OAuth"];
     }
 
     // Identity Server configuration.

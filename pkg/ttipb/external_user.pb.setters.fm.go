@@ -22,15 +22,23 @@ func (dst *ExternalUser) SetFields(src *ExternalUser, paths ...string) error {
 				var zero ttnpb.UserIdentifiers
 				dst.UserIDs = zero
 			}
-		case "provider":
+		case "provider_ids":
 			if len(subs) > 0 {
-				return fmt.Errorf("'provider' has no subfields, but %s were specified", subs)
-			}
-			if src != nil {
-				dst.Provider = src.Provider
+				var newDst, newSrc *AuthenticationProviderIdentifiers
+				if src != nil {
+					newSrc = &src.ProviderIDs
+				}
+				newDst = &dst.ProviderIDs
+				if err := newDst.SetFields(newSrc, subs...); err != nil {
+					return err
+				}
 			} else {
-				var zero ExternalUser_Provider
-				dst.Provider = zero
+				if src != nil {
+					dst.ProviderIDs = src.ProviderIDs
+				} else {
+					var zero AuthenticationProviderIdentifiers
+					dst.ProviderIDs = zero
+				}
 			}
 		case "created_at":
 			if len(subs) > 0 {

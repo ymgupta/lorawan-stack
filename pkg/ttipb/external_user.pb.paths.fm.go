@@ -5,7 +5,8 @@ package ttipb
 var ExternalUserFieldPathsNested = []string{
 	"created_at",
 	"external_id",
-	"provider",
+	"provider_ids",
+	"provider_ids.provider_id",
 	"updated_at",
 	"user_ids",
 }
@@ -13,7 +14,7 @@ var ExternalUserFieldPathsNested = []string{
 var ExternalUserFieldPathsTopLevel = []string{
 	"created_at",
 	"external_id",
-	"provider",
+	"provider_ids",
 	"updated_at",
 	"user_ids",
 }

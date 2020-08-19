@@ -37,3 +37,15 @@ type ExternalUserStore interface {
 	GetExternalUserByExternalID(ctx context.Context, id string) (*ttipb.ExternalUser, error)
 	DeleteExternalUser(ctx context.Context, id string) error
 }
+
+// AuthenticationProviderStore interface for storing federated authentication providers.
+//
+// All functions assume the input and fieldMask to be validated, and assume
+// sufficient rights to perform the action.
+type AuthenticationProviderStore interface {
+	CreateAuthenticationProvider(ctx context.Context, ap *ttipb.AuthenticationProvider) (*ttipb.AuthenticationProvider, error)
+	FindAuthenticationProviders(ctx context.Context, ids []*ttipb.AuthenticationProviderIdentifiers, fieldMask *ptypes.FieldMask) ([]*ttipb.AuthenticationProvider, error)
+	GetAuthenticationProvider(ctx context.Context, ids *ttipb.AuthenticationProviderIdentifiers, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error)
+	UpdateAuthenticationprovider(ctx context.Context, ap *ttipb.AuthenticationProvider, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error)
+	DeleteAuthenticationProvider(ctx context.Context, ids *ttipb.AuthenticationProviderIdentifiers) error
+}
