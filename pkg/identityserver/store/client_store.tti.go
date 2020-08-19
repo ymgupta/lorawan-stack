@@ -48,5 +48,23 @@ func (s *clientStore) getClientWithoutTenant(ctx context.Context, id *ttnpb.Clie
 			cliProto.RedirectURIs = append(cliProto.RedirectURIs, tenantRedirectURIs...)
 		}
 	}
+
+	// Add tenant ID as prefix in Logout Redirect URIs:
+	if fieldPaths := fieldMask.GetPaths(); len(fieldPaths) == 0 || ttnpb.HasAnyField(fieldPaths, "logout_redirect_uris") {
+		var tenantLogoutRedirectURIs []string
+		for _, logoutRedirectURI := range cliProto.LogoutRedirectURIs {
+			if !strings.Contains(logoutRedirectURI, "://") {
+				continue
+			}
+			if uri, err := url.Parse(logoutRedirectURI); err == nil {
+				uri.Host = tenantID + "." + uri.Host
+				tenantLogoutRedirectURIs = append(tenantLogoutRedirectURIs, uri.String())
+			}
+		}
+		if len(tenantLogoutRedirectURIs) > 0 {
+			cliProto.LogoutRedirectURIs = append(cliProto.LogoutRedirectURIs, tenantLogoutRedirectURIs...)
+		}
+	}
+
 	return cliProto, nil
 }
