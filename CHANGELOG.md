@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Network Server now only publishes payload-related downlink events if scheduling succeeds.
 - Moved remote IP event metadata outside authentication.
+- Admins can now set the expiration time of temporary passwords of users.
 
 ### Deprecated
 
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Authentication metadata missing from published events.
 - Under some circumstances, CLI would mistakenly import ABP devices as OTAA.
+- Gateway Server could include the gateway antenna location on messages forwarded to the Network Server even if the gateway location was not public.
 
 ### Security
 
