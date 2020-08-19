@@ -11,7 +11,7 @@
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.08df4526998ab57907578af8d3ec2c3104a920c02da5880da9e66ce32a6fd133.css" integrity="sha256-CN9FJpmKtXkHV4r40&#43;wsMQSpIMAtpYgNqeZs4ypv0TM="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.1cea41ee39aef5a4fbe2bdbc671825f58a33d9ba6f3d9f4160af48ba5c798495.css" integrity="sha256-HOpB7jmu9aT74r28Zxgl9Yoz2bpvPZ9BYK9Iulx5hJU="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta itemprop="name" content="Troubleshooting LBS">
@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.0</p>
+        <p class="navbar-item is-size-7">v3.9.1</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -115,23 +115,20 @@ debug: false
 
 <h1 class="title is-size-2">Troubleshooting LBS</h1>
 
-<div class="content"><p>This section contains help for common problems you may encounter when using LoRa Basics™ Station
-to connect to The Things Stack.</p>
+<div class="content"><p>This section contains help for common problems you may encounter when using LoRa Basics™ Station to connect to The Things Stack.</p>
 <h2 id="what-is-my-server-address">What is my server address?</h2>
 <p>This is the address you use to access The Things Stack. If you followed the <a href="https://thethingsstack.io/getting-started/">Getting Started guide</a> this is the same as what you use instead of <code>thethings.example.com</code>.</p>
 <p>CUPS uses the URI: <code>https://&lt;server-address&gt;:443</code></p>
 <p>LNS uses the URI: <code>wss://&lt;server-address&gt;:8887</code></p>
 <h2 id="how-do-i-find-the-ca-trust">How do I find the CA Trust?</h2>
 <p>Some device manufacturers include <a href="https://www.ccadb.org/">common CAs</a> in device firmware, and these devices should connect automatically to The Things Stack.</p>
-<p>If your device does not contain common CAs, and you are using Let&rsquo;s Encrypt to secure your domain, you may download the Let&rsquo;s Encrypt DST X3 Trust file <a href="https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt">here</a>. Save the contents of the file as <code>cert.pem</code> and upload it as the Server Certificate on your gateway when connecting to LoRa Basics™ Station
-.</p>
+<p>If your device does not contain common CAs, and you are using Let&rsquo;s Encrypt to secure your domain, you may download the Let&rsquo;s Encrypt DST X3 Trust file <a href="https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt">here</a>. Save the contents of the file as <code>cert.pem</code> and upload it as the Server Certificate on your gateway when connecting to LoRa Basics™ Station.</p>
 <p>If you are using self signed certificates, you are your own Trust. You may generate a Root Certificate from your private key using openssl:</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ openssl req -x509 -new -nodes -key &lt;rootCA.key&gt; -sha256 -days <span class="m">1024</span>  -out &lt;rootCA.pem&gt;
 </code></pre></div><h2 id="how-do-i-use-an-api-key">How do I use an API Key?</h2>
 <p>This varies from device to device. If your device allows you to upload a <code>.key</code> file, copy your gateway API Key in to a <code>gateway-api.key</code> file (the filename is not important) as an HTTP header in the following format:</p>
 <pre><code>Authorization: &lt;gateway-api-key&gt;
-</code></pre><p>See the <a href="https://doc.sm.tc/station/authmodes.html">LoRa Basics™ Station
-Authorization documentation</a> or your manufacturers guidelines for additional information.</p>
+</code></pre><p>See the <a href="https://doc.sm.tc/station/authmodes.html">LoRa Basics™ Station Authorization documentation</a> or your manufacturers guidelines for additional information.</p>
 <h2 id="is-an-api-key-required">Is an API Key required?</h2>
 <p>CUPS requires an API Key with the following rights:</p>
 <ul>
@@ -141,7 +138,11 @@ Authorization documentation</a> or your manufacturers guidelines for additional 
 <p>LNS does not require an API Key. If you wish to use Token Authentication, create an API Key with the following rights:</p>
 <ul>
 <li>Link as Gateway to a Gateway Server for traffic exchange, i.e. write uplink and read downlink</li>
-</ul></div>
+</ul>
+<h2 id="my-gateway-wont-connect-using-a-key-file">My gateway won&rsquo;t connect using a <code>.key</code> file</h2>
+<p>Some gateways require that <code>.key</code> files are terminated with a Carriage Return Line Feed (<code>0x0D0A</code>) character. To easily add a CRLF character and save the file, use the following command:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Authorization: Bearer &lt;gateway-api-key&gt;&#34;</span> <span class="p">|</span> perl -p -e <span class="s1">&#39;s/\r\n|\n|\r/\r\n/g&#39;</span>  &gt; file.key
+</code></pre></div><p>See the <a href="https://doc.sm.tc/station/authmodes.html#tls-server-authentication-and-client-token">LoRa Basics™ Station documentation</a> for more information.</p></div>
 
 <script>window.emojicom_widget = { campaign: "NEDHszRC2r2KaGj1mhj7" };</script>
 <script src="https://cdn.emojicom.io/embed/widget.js" async></script>
@@ -186,10 +187,10 @@ Authorization documentation</a> or your manufacturers guidelines for additional 
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Hylke Visser on 06 Aug 2020.
+  Last changed by Hylke Visser on 19 Aug 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/f2316b56126c6f4e84f43fb3da632b743f4871e3">
-      Merge pull request #3040 from TheThingsNetwork/release/v3.9.0
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fe25d274f3c38f028593df6807f7006ee0a5909b">
+      Merge pull request #3101 from TheThingsNetwork/release/v3.9.1
     </a>
 </p>
 

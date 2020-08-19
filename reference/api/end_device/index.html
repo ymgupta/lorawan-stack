@@ -11,7 +11,7 @@
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.08df4526998ab57907578af8d3ec2c3104a920c02da5880da9e66ce32a6fd133.css" integrity="sha256-CN9FJpmKtXkHV4r40&#43;wsMQSpIMAtpYgNqeZs4ypv0TM="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.1cea41ee39aef5a4fbe2bdbc671825f58a33d9ba6f3d9f4160af48ba5c798495.css" integrity="sha256-HOpB7jmu9aT74r28Zxgl9Yoz2bpvPZ9BYK9Iulx5hJU="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta itemprop="name" content="End Device APIs">
@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.0</p>
+        <p class="navbar-item is-size-7">v3.9.1</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -116,6 +116,9 @@ debug: false
   <a href="https://thethingsstack.io/reference/api/end_device_claiming/" class="">End Device Claiming APIs</a>
 </li>
 <li>
+  <a href="https://thethingsstack.io/reference/api/events/" class="">Events API</a>
+</li>
+<li>
   <a href="https://thethingsstack.io/reference/api/gateway/" class="">Gateway APIs</a>
 </li>
 <li>
@@ -196,6 +199,7 @@ needs to be created in the NsEndDeviceRegistry, AsEndDeviceRegistry and JsEndDev
       </th>
       <td>
         <a href="#message:CreateEndDeviceRequest"><code>CreateEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -204,6 +208,7 @@ needs to be created in the NsEndDeviceRegistry, AsEndDeviceRegistry and JsEndDev
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -244,6 +249,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:GetEndDeviceRequest"><code>GetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -252,6 +258,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -292,6 +299,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:ListEndDevicesRequest"><code>ListEndDevicesRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -300,6 +308,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:EndDevices"><code>EndDevices</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -338,6 +347,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:UpdateEndDeviceRequest"><code>UpdateEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -346,6 +356,7 @@ More or less fields may be returned, depending on the rights of the caller.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -387,6 +398,7 @@ This is NOT done automatically.
       </th>
       <td>
         <a href="#message:EndDeviceIdentifiers"><code>EndDeviceIdentifiers</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -395,6 +407,7 @@ This is NOT done automatically.
       </th>
       <td>
         <code>google.protobuf.Empty</code>
+        
       </td>
     </tr>
     <tr>
@@ -456,6 +469,7 @@ This is NOT done automatically.
       </th>
       <td>
         <a href="#message:SetEndDeviceRequest"><code>SetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -464,6 +478,7 @@ This is NOT done automatically.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -504,6 +519,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:GetEndDeviceRequest"><code>GetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -512,6 +528,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -551,6 +568,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDeviceIdentifiers"><code>EndDeviceIdentifiers</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -559,6 +577,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <code>google.protobuf.Empty</code>
+        
       </td>
     </tr>
     <tr>
@@ -621,6 +640,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:SetEndDeviceRequest"><code>SetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -629,6 +649,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -669,6 +690,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:GetEndDeviceRequest"><code>GetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -677,6 +699,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -716,6 +739,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDeviceIdentifiers"><code>EndDeviceIdentifiers</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -724,6 +748,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <code>google.protobuf.Empty</code>
+        
       </td>
     </tr>
     <tr>
@@ -783,6 +808,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:SetEndDeviceRequest"><code>SetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -791,6 +817,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -831,6 +858,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:GetEndDeviceRequest"><code>GetEndDeviceRequest</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -839,6 +867,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDevice"><code>EndDevice</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -878,6 +907,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <a href="#message:EndDeviceIdentifiers"><code>EndDeviceIdentifiers</code></a>
+        
       </td>
     </tr>
     <tr>
@@ -886,6 +916,7 @@ If there are multiple matches, an error will be returned.
       </th>
       <td>
         <code>google.protobuf.Empty</code>
+        
       </td>
     </tr>
     <tr>
@@ -2510,7 +2541,7 @@ If unset, the default value from Network Server configuration will be used.</p>
 <h3 id="message:MACState">Message <code>MACState</code></h3>
 <p>MACState represents the state of MAC layer of the device.
 MACState is reset on each join for OTAA or ResetInd for ABP devices.
-This is used internally by the Network Server and is read only.</p>
+This is used internally by the Network Server.</p>
 
 <table>
   <thead>
@@ -3135,6 +3166,100 @@ See the API reference for which fields can be set on the different services.</p>
 
 <h2 id="enums">Enums</h2>
 
+<h3 id="enum:AggregatedDutyCycle">Enum <code>AggregatedDutyCycle</code></h3>
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Value</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>DUTY_CYCLE_1</code></td>
+      <td><code>0</code></td>
+      <td> 100%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_2</code></td>
+      <td><code>1</code></td>
+      <td> 50%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_4</code></td>
+      <td><code>2</code></td>
+      <td> 25%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_8</code></td>
+      <td><code>3</code></td>
+      <td> 12.5%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_16</code></td>
+      <td><code>4</code></td>
+      <td> 6.25%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_32</code></td>
+      <td><code>5</code></td>
+      <td> 3.125%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_64</code></td>
+      <td><code>6</code></td>
+      <td> 1.5625%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_128</code></td>
+      <td><code>7</code></td>
+      <td> Roughly 0.781%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_256</code></td>
+      <td><code>8</code></td>
+      <td> Roughly 0.390%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_512</code></td>
+      <td><code>9</code></td>
+      <td> Roughly 0.195%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_1024</code></td>
+      <td><code>10</code></td>
+      <td> Roughly 0.098%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_2048</code></td>
+      <td><code>11</code></td>
+      <td> Roughly 0.049%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_4096</code></td>
+      <td><code>12</code></td>
+      <td> Roughly 0.024%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_8192</code></td>
+      <td><code>13</code></td>
+      <td> Roughly 0.012%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_16384</code></td>
+      <td><code>14</code></td>
+      <td> Roughly 0.006%.</td>
+    </tr>
+    <tr>
+      <td><code>DUTY_CYCLE_32768</code></td>
+      <td><code>15</code></td>
+      <td> Roughly 0.003%.</td>
+    </tr>
+  </tbody>
+</table>
+
+
 <h3 id="enum:MACVersion">Enum <code>MACVersion</code></h3>
 <table>
   <thead>
@@ -3313,10 +3438,10 @@ See the API reference for which fields can be set on the different services.</p>
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Hylke Visser on 06 Aug 2020.
+  Last changed by Hylke Visser on 19 Aug 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/f2316b56126c6f4e84f43fb3da632b743f4871e3">
-      Merge pull request #3040 from TheThingsNetwork/release/v3.9.0
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fe25d274f3c38f028593df6807f7006ee0a5909b">
+      Merge pull request #3101 from TheThingsNetwork/release/v3.9.1
     </a>
 </p>
 
