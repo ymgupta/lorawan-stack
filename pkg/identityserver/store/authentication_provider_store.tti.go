@@ -115,7 +115,7 @@ func (s *authenticationProviderStore) GetAuthenticationProvider(ctx context.Cont
 	return proto, nil
 }
 
-func (s *authenticationProviderStore) UpdateAuthenticationprovider(ctx context.Context, ap *ttipb.AuthenticationProvider, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error) {
+func (s *authenticationProviderStore) UpdateAuthenticationProvider(ctx context.Context, ap *ttipb.AuthenticationProvider, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error) {
 	defer trace.StartRegion(ctx, "update authentication provider").End()
 	query := s.query(ctx, AuthenticationProvider{}, withProviderID(ap.GetProviderID()))
 	query = selectAuthenticationProviderFields(ctx, query, fieldMask)

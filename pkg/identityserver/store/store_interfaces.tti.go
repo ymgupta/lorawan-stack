@@ -46,6 +46,6 @@ type AuthenticationProviderStore interface {
 	CreateAuthenticationProvider(ctx context.Context, ap *ttipb.AuthenticationProvider) (*ttipb.AuthenticationProvider, error)
 	FindAuthenticationProviders(ctx context.Context, ids []*ttipb.AuthenticationProviderIdentifiers, fieldMask *ptypes.FieldMask) ([]*ttipb.AuthenticationProvider, error)
 	GetAuthenticationProvider(ctx context.Context, ids *ttipb.AuthenticationProviderIdentifiers, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error)
-	UpdateAuthenticationprovider(ctx context.Context, ap *ttipb.AuthenticationProvider, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error)
+	UpdateAuthenticationProvider(ctx context.Context, ap *ttipb.AuthenticationProvider, fieldMask *ptypes.FieldMask) (*ttipb.AuthenticationProvider, error)
 	DeleteAuthenticationProvider(ctx context.Context, ids *ttipb.AuthenticationProviderIdentifiers) error
 }

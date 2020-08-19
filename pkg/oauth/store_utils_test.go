@@ -19,6 +19,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver/store"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -39,6 +40,7 @@ type mockStoreContents struct {
 		token             *ttnpb.OAuthAccessToken
 		previousID        string
 		tokenID           string
+		providerIDs       []*ttipb.AuthenticationProviderIdentifiers
 	}
 	res struct {
 		session           *ttnpb.UserSession
@@ -47,21 +49,23 @@ type mockStoreContents struct {
 		authorization     *ttnpb.OAuthClientAuthorization
 		authorizationCode *ttnpb.OAuthAuthorizationCode
 		accessToken       *ttnpb.OAuthAccessToken
+		providers         []*ttipb.AuthenticationProvider
 	}
 	err struct {
-		getUser                 error
-		createSession           error
-		getSession              error
-		deleteSession           error
-		getClient               error
-		getAuthorization        error
-		authorize               error
-		createAuthorizationCode error
-		getAuthorizationCode    error
-		deleteAuthorizationCode error
-		createAccessToken       error
-		getAccessToken          error
-		deleteAccessToken       error
+		getUser                     error
+		createSession               error
+		getSession                  error
+		deleteSession               error
+		getClient                   error
+		getAuthorization            error
+		authorize                   error
+		createAuthorizationCode     error
+		getAuthorizationCode        error
+		deleteAuthorizationCode     error
+		createAccessToken           error
+		getAccessToken              error
+		deleteAccessToken           error
+		findAuthenticationProviders error
 	}
 }
 
@@ -71,6 +75,7 @@ type mockStore struct {
 	store.ClientStore
 	store.OAuthStore
 	store.ExternalUserStore
+	store.AuthenticationProviderStore
 
 	mockStoreContents
 }
@@ -163,4 +168,10 @@ func (s *mockStore) DeleteAccessToken(ctx context.Context, tokenID string) error
 	}
 	s.calls = append(s.calls, "DeleteAccessToken")
 	return s.err.deleteAccessToken
+}
+
+func (s *mockStore) FindAuthenticationProviders(ctx context.Context, ids []*ttipb.AuthenticationProviderIdentifiers, fieldMask *types.FieldMask) ([]*ttipb.AuthenticationProvider, error) {
+	s.req.ctx, s.req.providerIDs, s.req.fieldMask = ctx, ids, fieldMask
+	s.calls = append(s.calls, "FindAuthenticationProviders")
+	return s.res.providers, s.err.findAuthenticationProviders
 }

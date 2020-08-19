@@ -5,7 +5,6 @@ package oauth
 import (
 	"context"
 
-	"go.thethings.network/lorawan-stack/v3/pkg/oauth/oidc"
 	"go.thethings.network/lorawan-stack/v3/pkg/webui"
 )
 
@@ -36,11 +35,6 @@ func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
 	deriv := conf
 	deriv.StackConfig = conf.StackConfig.Apply(ctx)
 	return deriv
-}
-
-// GetOIDCConfig returns the OIDC provider configuration.
-func (s *server) GetOIDCConfig(ctx context.Context) oidc.Config {
-	return s.configFromContext(ctx).Providers.OIDC
 }
 
 // GetTemplateData returns the web template configuration.

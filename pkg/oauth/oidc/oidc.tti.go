@@ -23,15 +23,16 @@ import (
 	"golang.org/x/oauth2"
 )
 
-type server struct {
+// Server is an OIDC federated authentication Server.
+type Server struct {
 	UpstreamServer
 	store Store
 	oc    *oauthclient.OAuthClient
 }
 
 // New creates a new OIDC federated authentication provider wraping the provided upstream.
-func New(c *component.Component, upstream UpstreamServer, store Store) (Server, error) {
-	s := &server{
+func New(c *component.Component, upstream UpstreamServer, store Store) (*Server, error) {
+	s := &Server{
 		UpstreamServer: upstream,
 		store:          store,
 	}
@@ -52,14 +53,14 @@ func New(c *component.Component, upstream UpstreamServer, store Store) (Server, 
 	return s, nil
 }
 
-func (s *server) oidc(ctx context.Context) (*oauth2.Config, *oidc.Provider, error) {
-	config := s.GetOIDCConfig(ctx)
+func (s *Server) oidc(ctx context.Context) (*oauth2.Config, *oidc.Provider, error) {
+	config := configFromContext(ctx)
 	provider, err := oidc.NewProvider(ctx, config.ProviderURL)
 	if err != nil {
 		return nil, nil, err
 	}
 	uiConfig := s.GetTemplateData(ctx)
-	redirectURL := fmt.Sprintf("%s/login/oidc/callback", strings.TrimSuffix(uiConfig.CanonicalURL, "/"))
+	redirectURL := fmt.Sprintf("%s/login/%s/callback", strings.TrimSuffix(uiConfig.CanonicalURL, "/"), config.ID)
 	return &oauth2.Config{
 		ClientID:     config.ClientID,
 		ClientSecret: config.ClientSecret,
@@ -69,7 +70,7 @@ func (s *server) oidc(ctx context.Context) (*oauth2.Config, *oidc.Provider, erro
 	}, provider, nil
 }
 
-func (s *server) oauth(c echo.Context) *oauth2.Config {
+func (s *Server) oauth(c echo.Context) *oauth2.Config {
 	ctx := c.Request().Context()
 	conf, _, err := s.oidc(ctx)
 	if err != nil {
@@ -84,7 +85,7 @@ var (
 	errNoIDToken    = errors.DefineNotFound("no_id_token", "no ID token found")
 )
 
-func (s *server) callback(c echo.Context, token *oauth2.Token, next string) error {
+func (s *Server) callback(c echo.Context, token *oauth2.Token, next string) error {
 	ctx := c.Request().Context()
 	config, provider, err := s.oidc(ctx)
 	if err != nil {
@@ -125,14 +126,14 @@ func (s *server) callback(c echo.Context, token *oauth2.Token, next string) erro
 	return c.Redirect(http.StatusFound, fmt.Sprintf("%s?%s", url.Path, url.RawQuery))
 }
 
-func (s *server) username(ct *claimsToken) string {
+func (s *Server) username(ct *claimsToken) string {
 	return fmt.Sprintf("oidc%v", ct.Subject)
 }
 
 var errRegistrationsDisabled = errors.DefineFailedPrecondition("registrations_disabled", "account registrations are disabled")
 
-func (s *server) createExternalUser(ctx context.Context, claims *claimsToken) (*ttipb.ExternalUser, error) {
-	config := s.GetOIDCConfig(ctx)
+func (s *Server) createExternalUser(ctx context.Context, claims *claimsToken) (*ttipb.ExternalUser, error) {
+	config := configFromContext(ctx)
 	if !config.AllowRegistrations {
 		return nil, errRegistrationsDisabled.New()
 	}
@@ -155,16 +156,18 @@ func (s *server) createExternalUser(ctx context.Context, claims *claimsToken) (*
 		return nil, err
 	}
 	return s.store.CreateExternalUser(ctx, &ttipb.ExternalUser{
-		UserIDs:    ids,
-		Provider:   ttipb.ExternalUser_OIDC,
+		UserIDs: ids,
+		ProviderIDs: ttipb.AuthenticationProviderIdentifiers{
+			ProviderID: config.ID,
+		},
 		ExternalID: claims.Subject,
 	})
 }
 
-func (s *server) Login(c echo.Context) error {
+func (s *Server) Login(c echo.Context) error {
 	return s.oc.HandleLogin(c)
 }
 
-func (s *server) Callback(c echo.Context) error {
+func (s *Server) Callback(c echo.Context) error {
 	return s.oc.HandleCallback(c)
 }

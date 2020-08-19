@@ -84,14 +84,6 @@ func (conf Config) Apply(ctx context.Context) Config {
 	if w := userRights.GetCreateOrganizations(); w != nil {
 		deriv.UserRights.CreateOrganizations = w.Value
 	}
-	oauth := tenantConf.GetOAuth()
-	if oidc := oauth.GetProviders().GetOIDC(); oidc != nil {
-		deriv.OAuth.Providers.OIDC.Name = oidc.Name
-		deriv.OAuth.Providers.OIDC.AllowRegistrations = oidc.AllowRegistrations
-		deriv.OAuth.Providers.OIDC.ClientID = oidc.ClientID
-		deriv.OAuth.Providers.OIDC.ClientSecret = oidc.ClientSecret
-		deriv.OAuth.Providers.OIDC.ProviderURL = oidc.ProviderURL
-	}
 	return deriv
 }
 

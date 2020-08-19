@@ -17,15 +17,8 @@ type Store interface {
 	store.ExternalUserStore
 }
 
-// Server is an OIDC federated authentication provider.
-type Server interface {
-	Login(echo.Context) error
-	Callback(echo.Context) error
-}
-
 // UpstreamServer is an upstream authentication server.
 type UpstreamServer interface {
-	GetOIDCConfig(context.Context) Config
 	GetTemplateData(context.Context) webui.TemplateData
 	CreateUserSession(echo.Context, ttnpb.UserIdentifiers) error
 }

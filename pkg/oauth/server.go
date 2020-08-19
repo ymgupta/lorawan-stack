@@ -49,7 +49,10 @@ type server struct {
 	config     Config
 	osinConfig *osin.ServerConfig
 	store      Store
-	oidc       oidc.Server
+
+	providers struct {
+		oidc *oidc.Server
+	}
 }
 
 // Store used by the OAuth server.
@@ -61,8 +64,9 @@ type Store interface {
 	store.ClientStore
 	// OAuth is needed for OAuth authorizations.
 	store.OAuthStore
-	// ExternalUser is needed for federated authentication.
+	// ExternalUserStore and AuthenticationProviderStore are needed for federated authentication.
 	store.ExternalUserStore
+	store.AuthenticationProviderStore
 }
 
 // NewServer returns a new OAuth server on top of the given store.
@@ -96,7 +100,7 @@ func NewServer(c *component.Component, store Store, config Config) (Server, erro
 	}
 
 	var err error
-	s.oidc, err = oidc.New(c, s, store)
+	s.providers.oidc, err = oidc.New(c, s, store)
 	if err != nil {
 		return nil, err
 	}

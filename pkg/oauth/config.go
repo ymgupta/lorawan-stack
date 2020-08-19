@@ -37,8 +37,7 @@ type FrontendConfig struct {
 
 // Config is the configuration for the OAuth server.
 type Config struct {
-	Mount       string          `name:"mount" description:"Path on the server where the OAuth server will be served"`
-	UI          UIConfig        `name:"ui"`
-	Providers   ProvidersConfig `name:"providers" description:"Federated authentication providers"`
-	CSRFAuthKey []byte          `name:"-"`
+	Mount       string   `name:"mount" description:"Path on the server where the OAuth server will be served"`
+	UI          UIConfig `name:"ui"`
+	CSRFAuthKey []byte   `name:"-"`
 }
