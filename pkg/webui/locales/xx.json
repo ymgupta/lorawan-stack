@@ -743,6 +743,7 @@
   "oauth.views.login.index.createAccount": "Xxxxxx xx xxxxxxx",
   "oauth.views.login.index.forgotPassword": "Xxxxxx xxxxxxxx?",
   "oauth.views.login.index.loginToContinue": "Xxxxxx xxxxx xx xxxxxxxx",
+  "oauth.views.login.index.loginWithProvider": "Xxxxx xxxx {provider}",
   "oauth.views.update-password.index.newPassword": "Xxx xxxxxxxx",
   "oauth.views.update-password.index.oldPassword": "Xxx xxxxxxxx",
   "oauth.views.update-password.index.passwordChanged": "Xxxxxxxx xxxxxxx",

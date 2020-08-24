@@ -72,3 +72,24 @@
 
     +media-query($bp.s)
       text-align: center
+
+.feds
+  border-normal('left')
+  margin-left: $ls.l
+  flex: 0 1 0
+  width: 12rem
+  display: flex
+  align-items: center
+  padding-left: $ls.l
+  text-align: center
+
+  +media-query($bp.s)
+    margin-left: none
+    border-left: none
+    padding-left: 0
+    padding-top: $ls.s
+    border-normal('top')
+
+  & > div > span
+    one-liner()
+

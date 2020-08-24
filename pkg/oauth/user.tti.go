@@ -18,8 +18,6 @@ type FederatedAuthenticationProvider interface {
 
 var errInvalidProvider = errors.DefineInvalidArgument("invalid_provider", "the provider `{provider_id}` is invalid")
 
-const oidcProviderID = "oidc"
-
 func (s *server) routeFederatedRequest(c echo.Context, f func(FederatedAuthenticationProvider) error) error {
 	ctx := c.Request().Context()
 	providerID := c.Param("provider")

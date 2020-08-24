@@ -244,7 +244,7 @@ func (s *server) RegisterRoutes(server *web.Server) {
 	api.GET("/me", s.CurrentUser, s.requireLogin)
 
 	page := root.Group("", csrfMiddleware)
-	page.GET("/login", webui.Template.Handler, s.redirectToNext)
+	page.GET("/login", webui.Template.Handler, s.redirectToNext, s.withFederatedProviders)
 	page.GET("/login/:provider", s.FederatedLogin, s.redirectToNext)
 	page.GET("/login/:provider/callback", s.FederatedCallback)
 	page.GET("/logout", s.ClientLogout)

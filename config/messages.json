@@ -4661,6 +4661,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:authentication_provider_not_found": {
+    "translations": {
+      "en": "authentication provider `{provider_id}` not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
   "error:pkg/identityserver/store:authorization_code_not_found": {
     "translations": {
       "en": "authorization code not found"
@@ -4753,7 +4762,7 @@
   },
   "error:pkg/identityserver/store:external_user_not_found": {
     "translations": {
-      "en": "external user not found"
+      "en": "external user `{user_id}` not found"
     },
     "description": {
       "package": "pkg/identityserver/store",
@@ -6765,6 +6774,15 @@
     "description": {
       "package": "pkg/oauth/oidc",
       "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:wrong_provider": {
+    "translations": {
+      "en": "wrong provider"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "config.tti.go"
     }
   },
   "error:pkg/oauth:access_denied": {

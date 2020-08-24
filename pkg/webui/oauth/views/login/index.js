@@ -18,7 +18,6 @@ import bind from 'autobind-decorator'
 import Query from 'query-string'
 import { defineMessages } from 'react-intl'
 import { replace } from 'connected-react-router'
-import { Redirect } from 'react-router'
 import { connect } from 'react-redux'
 
 import api from '@oauth/api'
@@ -30,6 +29,7 @@ import SubmitButton from '@ttn-lw/components/submit-button'
 
 import Logo from '@ttn-lw/containers/logo'
 
+import { withEnv } from '@ttn-lw/lib/components/env'
 import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
 import Message from '@ttn-lw/lib/components/message'
 
@@ -45,6 +45,7 @@ const m = defineMessages({
   createAccount: 'Create an account',
   forgotPassword: 'Forgot password?',
   loginToContinue: 'Please login to continue',
+  loginWithProvider: 'Login with {provider}',
 })
 
 const validationSchema = Yup.object().shape({
@@ -56,6 +57,7 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required(sharedMessages.validateRequired),
 })
 
+@withEnv
 @withRouter
 @connect(
   () => ({
@@ -67,6 +69,7 @@ const validationSchema = Yup.object().shape({
 )
 export default class OAuth extends React.PureComponent {
   static propTypes = {
+    env: PropTypes.env.isRequired,
     location: PropTypes.location.isRequired,
     replace: PropTypes.func.isRequired,
     siteName: PropTypes.string.isRequired,
@@ -109,6 +112,37 @@ export default class OAuth extends React.PureComponent {
     })
   }
 
+  @bind
+  renderFederatedProviders() {
+    const {
+      env: { pageData },
+    } = this.props
+
+    if (pageData) {
+      const providers = pageData.providers.reduce((acc, current) => {
+        const providerURL = new URL(window.location.href)
+        providerURL.pathname += `/${current.ids.provider_id}`
+        acc.push({
+          id: current.ids.provider_id,
+          name: current.name,
+          href: providerURL.href,
+        })
+        return acc
+      }, [])
+      if (providers.length === 0) {
+        return
+      }
+      const links = providers.map(provider => (
+        <Button.AnchorLink
+          key={provider.id}
+          message={{ ...m.loginWithProvider, values: { provider: provider.name } }}
+          href={`${provider.href}`}
+        />
+      ))
+      return <div className={style.feds}>{links}</div>
+    }
+  }
+
   render() {
     const initialValues = {
       user_id: '',
@@ -117,9 +151,6 @@ export default class OAuth extends React.PureComponent {
 
     const { info } = this.props.location.state || ''
     const { siteName } = this.props
-
-    const oidcURL = new URL(window.location.href)
-    oidcURL.pathname += '/oidc'
 
     return (
       <div className={style.fullHeightCenter}>
@@ -158,11 +189,11 @@ export default class OAuth extends React.PureComponent {
                 required
               />
               <Form.Submit component={SubmitButton} message={sharedMessages.login} />
-              <Button.AnchorLink message="Login with OIDC" href={`${oidcURL.href}`} />
               <Button naked message={m.createAccount} onClick={this.navigateToRegister} />
               <Button naked message={m.forgotPassword} onClick={this.navigateToResetPassword} />
             </Form>
           </div>
+          {this.renderFederatedProviders()}
         </div>
       </div>
     )
