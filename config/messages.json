@@ -1727,6 +1727,24 @@
       "file": "objects.go"
     }
   },
+  "error:pkg/applicationserver/io/packages/loradms/v1/api/objects:request_type_unsupported": {
+    "translations": {
+      "en": "request type `{type}` is unsupported"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1/api/objects",
+      "file": "objects.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages/loradms/v1/api/objects:uplink_type_unsupported": {
+    "translations": {
+      "en": "uplink type `{type}` is unsupported"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1/api/objects",
+      "file": "objects.go"
+    }
+  },
   "error:pkg/applicationserver/io/packages/loradms/v1/api:api_call_failed": {
     "translations": {
       "en": ""
@@ -1806,15 +1824,6 @@
     "description": {
       "package": "pkg/applicationserver/io/packages/redis",
       "file": "registry.go"
-    }
-  },
-  "error:pkg/applicationserver/io/packages:package_already_registered": {
-    "translations": {
-      "en": "package `{name}` already registered"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/packages",
-      "file": "registration.go"
     }
   },
   "error:pkg/applicationserver/io/packages:package_not_implemented": {
