@@ -11,11 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Scheduling failure events are now emitted on unsuccessful scheduling attempts.
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- CLI login issues when OAuth Server Address explicitly includes the `:443` HTTPS port.
 
 ### Security
 
@@ -27,12 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LoRaCloud DAS integration page in the Console.
 - User Agent metadata on published events (when available).
 - Option to override server name used in TLS handshake with cluster peers (`cluster.tls-server-name`).
+- Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
 
 ### Changed
 
 - Network Server now only publishes payload-related downlink events if scheduling succeeds.
 - Moved remote IP event metadata outside authentication.
 - Admins can now set the expiration time of temporary passwords of users.
+- Application Server links are no longer canceled prematurely for special error codes. Longer back off times are used instead.
 
 ### Fixed
 
