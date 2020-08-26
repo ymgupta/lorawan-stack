@@ -14,7 +14,9 @@
 
 package oauth
 
-import "go.thethings.network/lorawan-stack/v3/pkg/webui"
+import (
+	"go.thethings.network/lorawan-stack/v3/pkg/webui"
+)
 
 // UIConfig is the combined configuration for the OAuth UI.
 type UIConfig struct {

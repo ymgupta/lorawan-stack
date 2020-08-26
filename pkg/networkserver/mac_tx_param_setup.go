@@ -26,11 +26,16 @@ import (
 )
 
 var (
-	evtEnqueueTxParamSetupRequest = defineEnqueueMACRequestEvent("tx_param_setup", "Tx parameter setup")()
-	evtReceiveTxParamSetupAnswer  = defineReceiveMACAnswerEvent("tx_param_setup", "Tx parameter setup")()
+	evtEnqueueTxParamSetupRequest = defineEnqueueMACRequestEvent(
+		"tx_param_setup", "Tx parameter setup",
+		events.WithDataType(&ttnpb.MACCommand_TxParamSetupReq{}),
+	)()
+	evtReceiveTxParamSetupAnswer = defineReceiveMACAnswerEvent(
+		"tx_param_setup", "Tx parameter setup",
+	)()
 )
 
-func deviceNeedsTxParamSetupReq(dev *ttnpb.EndDevice, phy band.Band) bool {
+func deviceNeedsTxParamSetupReq(dev *ttnpb.EndDevice, phy *band.Band) bool {
 	if !phy.TxParamSetupReqSupport ||
 		dev.GetMulticast() ||
 		dev.GetMACState() == nil ||
@@ -53,7 +58,7 @@ func deviceNeedsTxParamSetupReq(dev *ttnpb.EndDevice, phy band.Band) bool {
 	return false
 }
 
-func enqueueTxParamSetupReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, phy band.Band) macCommandEnqueueState {
+func enqueueTxParamSetupReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, phy *band.Band) macCommandEnqueueState {
 	if !deviceNeedsTxParamSetupReq(dev, phy) {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,

@@ -22,6 +22,7 @@ import (
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/aws"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/packages"
+	loraclouddevicemanagementv1 "go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/packages/loradms/v1"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/pubsub"
 	"go.thethings.network/lorawan-stack/v3/pkg/applicationserver/io/web"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"
@@ -54,15 +55,15 @@ type InteropConfig struct {
 
 // Config represents the ApplicationServer configuration.
 type Config struct {
-	LinkMode            string                    `name:"link-mode" description:"Mode to link applications to their Network Server (all, explicit)"`
-	Devices             DeviceRegistry            `name:"-"`
-	Links               LinkRegistry              `name:"-"`
-	MQTT                config.MQTT               `name:"mqtt" description:"MQTT configuration"`
-	Webhooks            WebhooksConfig            `name:"webhooks" description:"Webhooks configuration"`
-	PubSub              PubSubConfig              `name:"pubsub" description:"Pub/sub messaging configuration"`
-	ApplicationPackages ApplicationPackagesConfig `name:"application-packages" description:"Application packages configuration"`
-	Interop             InteropConfig             `name:"interop" description:"Interop client configuration"`
-	DeviceKEKLabel      string                    `name:"device-kek-label" description:"Label of KEK used to encrypt device keys at rest"`
+	LinkMode       string                    `name:"link-mode" description:"Mode to link applications to their Network Server (all, explicit)"`
+	Devices        DeviceRegistry            `name:"-"`
+	Links          LinkRegistry              `name:"-"`
+	MQTT           config.MQTT               `name:"mqtt" description:"MQTT configuration"`
+	Webhooks       WebhooksConfig            `name:"webhooks" description:"Webhooks configuration"`
+	PubSub         PubSubConfig              `name:"pubsub" description:"Pub/sub messaging configuration"`
+	Packages       ApplicationPackagesConfig `name:"packages" description:"Application packages configuration"`
+	Interop        InteropConfig             `name:"interop" description:"Interop client configuration"`
+	DeviceKEKLabel string                    `name:"device-kek-label" description:"Label of KEK used to encrypt device keys at rest"`
 
 	AWS aws.Config `name:"aws" description:"AWS configuration"`
 }
@@ -104,7 +105,8 @@ type PubSubConfig struct {
 
 // ApplicationPackagesConfig contains application packages associations configuration.
 type ApplicationPackagesConfig struct {
-	Registry packages.Registry `name:"-"`
+	packages.Config `name:",squash"`
+	Registry        packages.Registry `name:"-"`
 }
 
 // NewWebhooks returns a new web.Webhooks based on the configuration.
@@ -158,5 +160,11 @@ func (c ApplicationPackagesConfig) NewApplicationPackages(ctx context.Context, s
 	if c.Registry == nil {
 		return nil, nil
 	}
-	return packages.New(ctx, server, c.Registry)
+	handlers := make(map[string]packages.ApplicationPackageHandler)
+
+	// Initialize LoRa Cloud Device Management v1 package handler
+	loradmsHandler := loraclouddevicemanagementv1.New(server, c.Registry)
+	handlers[loradmsHandler.Package().Name] = loradmsHandler
+
+	return packages.New(ctx, server, c.Registry, handlers)
 }

@@ -254,7 +254,13 @@ var startCommand = &cobra.Command{
 			if err != nil {
 				return shared.ErrInitializeNetworkServer.WithCause(err)
 			}
-			ns.Component.RegisterTask(ns.Context(), "queue_downlink", nsDownlinkTasks.Run, component.TaskRestartOnFailure)
+			ns.Component.RegisterTask(&component.TaskConfig{
+				Context: ns.Context(),
+				ID:      "queue_downlink",
+				Func:    nsDownlinkTasks.Run,
+				Restart: component.TaskRestartOnFailure,
+				Backoff: component.DefaultTaskBackoffConfig,
+			})
 		}
 
 		if start.ApplicationServer || startDefault {
@@ -268,7 +274,7 @@ var startCommand = &cobra.Command{
 			config.AS.PubSub.Registry = &asiopsredis.PubSubRegistry{
 				Redis: redis.New(config.Redis.WithNamespace("as", "io", "pubsub")),
 			}
-			config.AS.ApplicationPackages.Registry = &asioapredis.ApplicationPackagesRegistry{
+			config.AS.Packages.Registry = &asioapredis.ApplicationPackagesRegistry{
 				Redis: redis.New(config.Redis.WithNamespace("as", "io", "applicationpackages")),
 			}
 			if config.AS.Webhooks.Target != "" {

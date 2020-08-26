@@ -6,7 +6,6 @@ package eventserver
 import (
 	"context"
 	"fmt"
-	"time"
 
 	grpc_runtime "github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"
@@ -29,24 +28,30 @@ type EventQueue interface {
 }
 
 type taskRegistrar interface {
-	RegisterTask(context.Context, string, component.TaskFunc, component.TaskRestart, ...time.Duration)
+	RegisterTask(*component.TaskConfig)
 }
 
-func registerEventQueueProcessor(ctx context.Context, r taskRegistrar, q EventQueue, id string, f func(context.Context, *ttnpb.Event) error, restart component.TaskRestart, backoff ...time.Duration) {
-	r.RegisterTask(ctx, fmt.Sprintf("event_queue_processor:%s", id), func(ctx context.Context) error {
-		for {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			default:
+func registerEventQueueProcessor(ctx context.Context, r taskRegistrar, q EventQueue, id string, f func(context.Context, *ttnpb.Event) error, restart component.TaskRestart, backoff *component.TaskBackoffConfig) {
+	r.RegisterTask(&component.TaskConfig{
+		Context: ctx,
+		ID:      fmt.Sprintf("event_queue_processor:%s", id),
+		Func: func(ctx context.Context) error {
+			for {
+				select {
+				case <-ctx.Done():
+					return ctx.Err()
+				default:
+				}
+				if err := q.Pop(ctx, id, func(ctx context.Context, pb *ttnpb.Event) error {
+					return f(log.NewContextWithField(ctx, "event_name", pb.Name), pb)
+				}); err != nil {
+					return err
+				}
 			}
-			if err := q.Pop(ctx, id, func(ctx context.Context, pb *ttnpb.Event) error {
-				return f(log.NewContextWithField(ctx, "event_name", pb.Name), pb)
-			}); err != nil {
-				return err
-			}
-		}
-	}, restart, backoff...)
+		},
+		Restart: restart,
+		Backoff: backoff,
+	})
 }
 
 // EventServer represents an event server.
@@ -79,19 +84,25 @@ func New(c *component.Component, conf *Config) (*EventServer, error) {
 	}
 
 	filter := events.NewIdentifierFilter()
-	c.RegisterTask(ctx, "ingest", func(ctx context.Context) error {
-		logger := log.FromContext(ctx)
-		return conf.Subscriber.Subscribe("**", events.HandlerFunc(func(ev events.Event) {
-			pb, err := events.Proto(ev)
-			if err != nil {
-				logger.WithError(err).Error("Failed to encode event")
-				return
-			}
-			if err := conf.IngestQueue.Add(ctx, pb); err != nil {
-				logger.WithError(err).Error("Failed to enqueue event")
-			}
-		}))
-	}, component.TaskRestartOnFailure)
+	c.RegisterTask(&component.TaskConfig{
+		Context: ctx,
+		ID:      "ingest",
+		Func: func(ctx context.Context) error {
+			logger := log.FromContext(ctx)
+			return conf.Subscriber.Subscribe("**", events.HandlerFunc(func(ev events.Event) {
+				pb, err := events.Proto(ev)
+				if err != nil {
+					logger.WithError(err).Error("Failed to encode event")
+					return
+				}
+				if err := conf.IngestQueue.Add(ctx, pb); err != nil {
+					logger.WithError(err).Error("Failed to enqueue event")
+				}
+			}))
+		},
+		Restart: component.TaskRestartOnFailure,
+		Backoff: component.DefaultTaskBackoffConfig,
+	})
 	registerEventQueueProcessor(ctx, c, conf.IngestQueue, conf.Consumers.StreamGroup, func(ctx context.Context, pb *ttnpb.Event) error {
 		ev, err := events.FromProto(pb)
 		if err != nil {
@@ -103,7 +114,7 @@ func New(c *component.Component, conf *Config) (*EventServer, error) {
 			proto: pb,
 		})
 		return nil
-	}, component.TaskRestartOnFailure)
+	}, component.TaskRestartOnFailure, component.DefaultTaskBackoffConfig)
 
 	es := &EventServer{
 		Component: c,

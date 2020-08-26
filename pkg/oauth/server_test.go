@@ -66,7 +66,7 @@ var (
 		State:              ttnpb.STATE_APPROVED,
 		Grants:             []ttnpb.GrantType{ttnpb.GRANT_AUTHORIZATION_CODE, ttnpb.GRANT_REFRESH_TOKEN},
 		RedirectURIs:       []string{"https://uri/callback", "http://uri/callback"},
-		LogoutRedirectURIs: []string{"https://uri/logout-callback", "http://uri/logout-callback", "http://uri/alternative-logout-callback"},
+		LogoutRedirectURIs: []string{"https://uri/logout-callback", "http://uri/logout-callback", "http://uri/alternative-logout-callback", "http://other-host/logout-callback"},
 		Rights:             []ttnpb.Right{ttnpb.RIGHT_USER_INFO},
 	}
 	mockAccessToken = &ttnpb.OAuthAccessToken{
@@ -96,7 +96,6 @@ func init() {
 }
 
 func TestOAuthFlow(t *testing.T) {
-	ctx := test.Context()
 	store := &mockStore{}
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
@@ -112,7 +111,7 @@ func TestOAuthFlow(t *testing.T) {
 			},
 		},
 	})
-	s := oauth.NewServer(ctx, store, oauth.Config{
+	s, err := oauth.NewServer(c, store, oauth.Config{
 		Mount:       "/oauth",
 		CSRFAuthKey: []byte("12345678123456781234567812345678"),
 		UI: oauth.UIConfig{
@@ -123,6 +122,9 @@ func TestOAuthFlow(t *testing.T) {
 			},
 		},
 	})
+	if err != nil {
+		panic(err)
+	}
 	c.RegisterWeb(s)
 	componenttest.StartComponent(t, c)
 
@@ -441,9 +443,28 @@ func TestOAuthFlow(t *testing.T) {
 				s.res.accessToken = mockAccessToken
 			},
 			Method:           "GET",
-			Path:             "/oauth/logout?access_token_id=access-token-id&post_logout_redirect_uri=http://uri/alternative-logout-callback",
+			Path:             "/oauth/logout?access_token_id=access-token-id&post_logout_redirect_uri=http://uri/alternative-logout-callback?foo=bar",
 			ExpectedCode:     http.StatusFound,
-			ExpectedRedirect: "/alternative-logout-callback",
+			ExpectedRedirect: "/alternative-logout-callback?foo=bar",
+			StoreCheck: func(t *testing.T, s *mockStore) {
+				a := assertions.New(t)
+				a.So(s.calls, should.Contain, "DeleteSession")
+				a.So(s.calls, should.Contain, "GetAccessToken")
+				a.So(s.calls, should.Contain, "DeleteAccessToken")
+				a.So(s.calls, should.Contain, "GetClient")
+			},
+		},
+		{
+			Name: "client-initiated logout with redirect to different host",
+			StoreSetup: func(s *mockStore) {
+				s.res.session = mockSession
+				s.res.client = mockClient
+				s.res.accessToken = mockAccessToken
+			},
+			Method:           "GET",
+			Path:             "/oauth/logout?access_token_id=access-token-id&post_logout_redirect_uri=http://other-host/logout-callback?foo=bar",
+			ExpectedCode:     http.StatusFound,
+			ExpectedRedirect: "http://other-host/logout-callback?foo=bar",
 			StoreCheck: func(t *testing.T, s *mockStore) {
 				a := assertions.New(t)
 				a.So(s.calls, should.Contain, "DeleteSession")
@@ -587,7 +608,6 @@ func TestOAuthFlow(t *testing.T) {
 }
 
 func TestTokenExchange(t *testing.T) {
-	ctx := test.Context()
 	store := &mockStore{}
 	c := componenttest.NewComponent(t, &component.Config{
 		ServiceBase: config.ServiceBase{
@@ -599,7 +619,7 @@ func TestTokenExchange(t *testing.T) {
 			},
 		},
 	})
-	s := oauth.NewServer(ctx, store, oauth.Config{
+	s, err := oauth.NewServer(c, store, oauth.Config{
 		Mount: "/oauth",
 		UI: oauth.UIConfig{
 			TemplateData: webui.TemplateData{
@@ -608,6 +628,9 @@ func TestTokenExchange(t *testing.T) {
 			},
 		},
 	})
+	if err != nil {
+		panic(err)
+	}
 	c.RegisterWeb(s)
 	componenttest.StartComponent(t, c)
 

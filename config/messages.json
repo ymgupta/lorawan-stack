@@ -1727,6 +1727,24 @@
       "file": "objects.go"
     }
   },
+  "error:pkg/applicationserver/io/packages/loradms/v1/api/objects:request_type_unsupported": {
+    "translations": {
+      "en": "request type `{type}` is unsupported"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1/api/objects",
+      "file": "objects.go"
+    }
+  },
+  "error:pkg/applicationserver/io/packages/loradms/v1/api/objects:uplink_type_unsupported": {
+    "translations": {
+      "en": "uplink type `{type}` is unsupported"
+    },
+    "description": {
+      "package": "pkg/applicationserver/io/packages/loradms/v1/api/objects",
+      "file": "objects.go"
+    }
+  },
   "error:pkg/applicationserver/io/packages/loradms/v1/api:api_call_failed": {
     "translations": {
       "en": ""
@@ -1806,15 +1824,6 @@
     "description": {
       "package": "pkg/applicationserver/io/packages/redis",
       "file": "registry.go"
-    }
-  },
-  "error:pkg/applicationserver/io/packages:package_already_registered": {
-    "translations": {
-      "en": "package `{name}` already registered"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/packages",
-      "file": "registration.go"
     }
   },
   "error:pkg/applicationserver/io/packages:package_not_implemented": {
@@ -1968,15 +1977,6 @@
     "description": {
       "package": "pkg/applicationserver/io/pubsub/redis",
       "file": "registry.go"
-    }
-  },
-  "error:pkg/applicationserver/io/pubsub:already_configured": {
-    "translations": {
-      "en": "already configured to `{application_uid}` `{pub_sub_id}`"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/pubsub",
-      "file": "pubsub.go"
     }
   },
   "error:pkg/applicationserver/io/pubsub:format_not_found": {
@@ -2139,15 +2139,6 @@
     "description": {
       "package": "pkg/applicationserver/redis",
       "file": "registry.go"
-    }
-  },
-  "error:pkg/applicationserver:already_linked": {
-    "translations": {
-      "en": "already linked to `{application_uid}`"
-    },
-    "description": {
-      "package": "pkg/applicationserver",
-      "file": "linking.go"
     }
   },
   "error:pkg/applicationserver:app_s_key": {
@@ -6434,6 +6425,15 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/networkserver:device_exists": {
+    "translations": {
+      "en": "device already exists"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "registry.go"
+    }
+  },
   "error:pkg/networkserver:device_not_found": {
     "translations": {
       "en": "device not found"
@@ -6558,6 +6558,15 @@
     "description": {
       "package": "pkg/networkserver",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/networkserver:no_band_version": {
+    "translations": {
+      "en": "specified version `{ver}` of band `{id}` does not exist"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "utils.go"
     }
   },
   "error:pkg/networkserver:no_dev_eui": {

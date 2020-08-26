@@ -30,14 +30,21 @@ var (
 	evtCreateEndDevice = events.Define(
 		"ns.end_device.create", "create end device",
 		events.WithVisibility(ttnpb.RIGHT_APPLICATION_DEVICES_READ),
+		events.WithAuthFromContext(),
+		events.WithClientInfoFromContext(),
 	)
 	evtUpdateEndDevice = events.Define(
 		"ns.end_device.update", "update end device",
 		events.WithVisibility(ttnpb.RIGHT_APPLICATION_DEVICES_READ),
+		events.WithUpdatedFieldsDataType(),
+		events.WithAuthFromContext(),
+		events.WithClientInfoFromContext(),
 	)
 	evtDeleteEndDevice = events.Define(
 		"ns.end_device.delete", "delete end device",
 		events.WithVisibility(ttnpb.RIGHT_APPLICATION_DEVICES_READ),
+		events.WithAuthFromContext(),
+		events.WithClientInfoFromContext(),
 	)
 )
 
@@ -391,7 +398,7 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 				if !ttnpb.HasAnyField(sets, "lorawan_phy_version") {
 					req.EndDevice.LoRaWANPHYVersion = dev.LoRaWANPHYVersion
 				}
-				_, phy, err := getDeviceBandVersion(&req.EndDevice, ns.FrequencyPlans)
+				phy, err := deviceBand(&req.EndDevice, ns.FrequencyPlans)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -413,7 +420,7 @@ func (ns *NetworkServer) Set(ctx context.Context, req *ttnpb.SetEndDeviceRequest
 			return nil, nil, errInvalidFieldMask.WithCause(err)
 		}
 
-		_, phy, err := getDeviceBandVersion(&req.EndDevice, ns.FrequencyPlans)
+		phy, err := deviceBand(&req.EndDevice, ns.FrequencyPlans)
 		if err != nil {
 			return nil, nil, err
 		}

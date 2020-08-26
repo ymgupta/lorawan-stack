@@ -6,7 +6,7 @@ export default defineMessages({
   config: 'AWS IoT configuration',
   useDefault: 'Use default integration',
   defaultInfo:
-    'The default AWS IoT integration can be deployed via CloudFormation in your AWS account. {moreInformation}',
+    'The default AWS IoT integration can be deployed via CloudFormation in your AWS account. See also our documentation: {awsIoTDoc}',
   region: 'Region',
   endpointAddress: 'Custom endpoint address',
   endpointAddressDescription:
