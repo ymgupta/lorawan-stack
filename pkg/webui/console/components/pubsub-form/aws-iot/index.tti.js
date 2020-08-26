@@ -10,8 +10,6 @@ import Notification from '@ttn-lw/components/notification'
 import Select from '@ttn-lw/components/select'
 import UnitInput from '@ttn-lw/components/unit-input'
 
-import Message from '@ttn-lw/lib/components/message'
-
 import sharedMessages from '@ttn-lw/lib/shared-messages'
 import PropTypes from '@ttn-lw/lib/prop-types'
 
@@ -45,9 +43,9 @@ const AWSIoTSettings = props => {
         small
         content={m.defaultInfo}
         messageValues={{
-          moreInformation: (
-            <Link.DocLink path="/integrations/pubsub/aws-iot/">
-              <Message content={sharedMessages.moreInformation} />
+          awsIoTDoc: (
+            <Link.DocLink primary path="/integrations/aws-iot/default/">
+              AWS IoT
             </Link.DocLink>
           ),
         }}

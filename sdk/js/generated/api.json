@@ -9241,7 +9241,7 @@
           "name": "MACState",
           "longName": "MACState",
           "fullName": "ttn.lorawan.v3.MACState",
-          "description": "MACState represents the state of MAC layer of the device.\nMACState is reset on each join for OTAA or ResetInd for ABP devices.\nThis is used internally by the Network Server and is read only.",
+          "description": "MACState represents the state of MAC layer of the device.\nMACState is reset on each join for OTAA or ResetInd for ABP devices.\nThis is used internally by the Network Server.",
           "hasExtensions": false,
           "hasFields": true,
           "extensions": [],
@@ -10258,7 +10258,7 @@
           "fields": [
             {
               "name": "name",
-              "description": "",
+              "description": "Name of the event. This can be used to find the (localized) event description.",
               "label": "",
               "type": "string",
               "longType": "string",
@@ -10268,7 +10268,7 @@
             },
             {
               "name": "time",
-              "description": "",
+              "description": "Time at which the event was triggered.",
               "label": "",
               "type": "Timestamp",
               "longType": "google.protobuf.Timestamp",
@@ -10286,7 +10286,7 @@
             },
             {
               "name": "identifiers",
-              "description": "",
+              "description": "Identifiers of the entity (or entities) involved.",
               "label": "repeated",
               "type": "EntityIdentifiers",
               "longType": "EntityIdentifiers",
@@ -10296,7 +10296,7 @@
             },
             {
               "name": "data",
-              "description": "",
+              "description": "Optional data attached to the event.",
               "label": "",
               "type": "Any",
               "longType": "google.protobuf.Any",
@@ -10306,7 +10306,7 @@
             },
             {
               "name": "correlation_ids",
-              "description": "",
+              "description": "Correlation IDs can be used to find related events and actions such as API calls.",
               "label": "repeated",
               "type": "string",
               "longType": "string",
@@ -10324,7 +10324,7 @@
             },
             {
               "name": "origin",
-              "description": "",
+              "description": "The origin of the event. Typically the hostname of the server that created it.",
               "label": "",
               "type": "string",
               "longType": "string",
@@ -10334,7 +10334,7 @@
             },
             {
               "name": "context",
-              "description": "",
+              "description": "Event context, internal use only.",
               "label": "repeated",
               "type": "ContextEntry",
               "longType": "Event.ContextEntry",
@@ -10354,11 +10354,31 @@
             },
             {
               "name": "authentication",
-              "description": "",
+              "description": "Details on the authentication provided by the caller that triggered this event.",
               "label": "",
               "type": "Authentication",
               "longType": "Event.Authentication",
               "fullType": "ttn.lorawan.v3.Event.Authentication",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "remote_ip",
+              "description": "The IP address of the caller that triggered this event.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
+              "ismap": false,
+              "defaultValue": ""
+            },
+            {
+              "name": "user_agent",
+              "description": "The IP address of the caller that triggered this event.",
+              "label": "",
+              "type": "string",
+              "longType": "string",
+              "fullType": "string",
               "ismap": false,
               "defaultValue": ""
             }
@@ -10375,7 +10395,7 @@
           "fields": [
             {
               "name": "type",
-              "description": "",
+              "description": "The type of authentication that was used. This is typically a bearer token.",
               "label": "",
               "type": "string",
               "longType": "string",
@@ -10385,7 +10405,7 @@
             },
             {
               "name": "token_type",
-              "description": "",
+              "description": "The type of token that was used. Common types are APIKey, AccessToken and SessionToken.",
               "label": "",
               "type": "string",
               "longType": "string",
@@ -10395,17 +10415,7 @@
             },
             {
               "name": "token_id",
-              "description": "",
-              "label": "",
-              "type": "string",
-              "longType": "string",
-              "fullType": "string",
-              "ismap": false,
-              "defaultValue": ""
-            },
-            {
-              "name": "remote_ip",
-              "description": "",
+              "description": "The ID of the token that was used.",
               "label": "",
               "type": "string",
               "longType": "string",

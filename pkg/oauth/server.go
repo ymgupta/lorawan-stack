@@ -22,6 +22,7 @@ import (
 
 	echo "github.com/labstack/echo/v4"
 	"github.com/openshift/osin"
+	"go.thethings.network/lorawan-stack/v3/pkg/component"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	web_errors "go.thethings.network/lorawan-stack/v3/pkg/errors/web"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver/store"
@@ -43,7 +44,7 @@ type Server interface {
 }
 
 type server struct {
-	ctx        context.Context
+	c          *component.Component
 	config     Config
 	osinConfig *osin.ServerConfig
 	store      Store
@@ -61,9 +62,9 @@ type Store interface {
 }
 
 // NewServer returns a new OAuth server on top of the given store.
-func NewServer(ctx context.Context, store Store, config Config) Server {
+func NewServer(c *component.Component, store Store, config Config) (Server, error) {
 	s := &server{
-		ctx:    ctx,
+		c:      c,
 		config: config,
 		store:  store,
 	}
@@ -90,7 +91,7 @@ func NewServer(ctx context.Context, store Store, config Config) Server {
 		RetainTokenAfterRefresh:   false,
 	}
 
-	return s
+	return s, nil
 }
 
 type ctxKeyType struct{}
@@ -121,7 +122,7 @@ func (s *server) oauth2(ctx context.Context) *osin.Server {
 }
 
 func (s *server) Printf(format string, v ...interface{}) {
-	log.FromContext(s.ctx).Warnf(format, v...)
+	log.FromContext(s.c.Context()).Warnf(format, v...)
 }
 
 // These errors map to errors in the osin library.

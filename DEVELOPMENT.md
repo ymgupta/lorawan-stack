@@ -72,7 +72,7 @@ You may want to run this commands from time to time.
 
 This section explains how to get a bare-bones version of The Things Stack running on your local machine. This will build whatever code is present in your local repository (along with local changes) and run in it using the default ports.
 
-If you want to just run a docker image of The Things Stack, then check the [Installation](https://thethingsstack.io/latest/getting-started/installation/) section of the documentation.
+If you want to just run a docker image of The Things Stack, then check the [Installation](https://thethingsstack.io/getting-started/installation/) section of the documentation.
 
 ### Pre-requisites
 
@@ -129,7 +129,7 @@ If you're using a multi-tenant setup, go to `http://tenant-id.localhost:1885/` i
 
 6. Customizing configuration
 
-To customize the configuration, copy the configuration file `/config/stack/ttn-lw-stack.yml` to a different location (ex: the `.env` folder in your repo). The configuration is documented in the [Configuration Reference](https://thethingsstack.io/latest/reference/configuration/).
+To customize the configuration, copy the configuration file `/config/stack/ttn-lw-stack.yml` to a different location (ex: the `.env` folder in your repo). The configuration is documented in the [Configuration Reference](https://thethingsstack.io/reference/configuration/).
 
 You can now use the modified configuration with
 
@@ -921,11 +921,313 @@ $ tools/bin/mage js:translations
 
 The message definitions in `pkg/webui/locales` can be used to provide translations in other languages (e.g. `fr.js`). Keep in mind that locale files are checked in and committed, any discrepancy in the locales file with the defined messages will lead to a CI failure.
 
+## Events
+
+In addition to the previously described translation file that we generate, we also generate a data file that contains all event definitions. This file is then loaded by the documentation system so that we can generate documentation for our events.
+
+After adding or changing events, regenerate this file with:
+
+```bash
+$ tools/bin/mage go:eventData
+```
+
 ## Testing
+
+### Unit Tests
+
+To run unit tests, use the following mage targets:
 
 ```bash
 $ tools/bin/mage go:test js:test jsSDK:test
 ```
+
+### End-to-end Tests
+
+We use [Cypress](https://cypress.io) for running frontend-based end-to-end tests. The tests specifications are located at `/cypress/integration`.
+
+#### Running frontend end-to-end tests locally
+
+Make sure to build the frontend assets and run the stack before executing end-to-end tests.
+
+`Cypress` provides two modes for running tests: headless and interactive.
+- Headless mode - will not display any browser GUI and output test progress into your terminal instead. This is helpful when one just needs see the results of the tests.
+- Interactive mode - will run an `Electron` based application together with the full-fledged browser. This is helpful when developig frontend applications as it provides hot reload, time travelling, browser extensions and DOM access.
+
+> Note: Currently, we test our frontend only in Chromium based browsers.
+
+You can run `Cypress` in the headless mode by running the following command:
+
+```bash
+$ tools/bin/mage js:cypressHeadless
+```
+
+You can run `Cypress` in the interactive mode by running the following command:
+
+```bash
+$ tools/bin/mage js:cypressInteractive
+```
+
+#### Code coverage
+
+Code coverage can be used to verify that tests invoke code for handling edge cases.
+To generate code coverage report run:
+
+- Global text summary.
+
+```bash
+$ npx nyc report --reporter=text-summary
+```
+
+- Per file text.
+
+```bash
+$ npx nyc report --reporter=text
+```
+
+- Per file with UI. This command will generate `index.html` file in the `coverage/cypress` folder.
+
+```bash
+$ npx nyc report --reporter=html
+```
+
+#### JavaScript based tests
+
+We find the [JS Unit Testing Guide](https://github.com/mawrkus/js-unit-testing-guide) a good starting point for informing our testing guidelines and we recommend reading through this guide. Note, that we employ some different approaches regarding [Grammar and Capitalization](#Grammar-and-capitalization).
+
+We have extracted and adapted the most important parts below.
+
+##### Pattern
+
+The goal of naming our tests is to have a concise and streamlined description helping us to understand what a test is testing specifically. In order to do that, we follow a **"unit of work - scenario/context - expected behaviour"** pattern:
+```js
+// Schema.
+describe('[unit of work]', () => {
+  it('[expected behaviour] when [scenario/context]', () => {
+    …
+  });
+});
+
+// Example.
+describe('Login', () => {
+  it('succeeds when using correct credentials', () => {
+    …
+  });
+});
+```
+
+This pattern will also help you organizing your tests better.
+
+##### Grammar and Capitalization
+
+Avoid using the modal verb `should` when describing tests. This will add redundancy and unnecessary verbosity to the test description. Instead, use a simple present tense sentence without any modality and with `when` as conjunction. Don't use end of sentence periods.
+
+The `[unit of work]` bit, as part of the outermost `describe()` function is always capitalized, whereas the `[expected behavior]` part of the `it()` function is always lowercase. This way, the suit will generate proper english sentences when concatenating the test descriptions.
+
+```js
+// Bad: using `should`.
+describe('Login', () => {
+  it('should succeed when using correct credentials', () => {
+    …
+  });
+});
+
+// Bad: wrong capitalization.
+describe('login', () => {
+  it('Succeeds when using correct credentials', () => {
+    …
+  });
+});
+
+// Good: No should and proper capitalization.
+describe('Login', () => {
+  it('succeeds when using correct credentials', () => {
+    …
+  });
+});
+
+```
+
+##### React Components
+
+When testing react components, the name of the component is written as `<ReactComponent />`.
+
+```js
+// Bad: not using JSX syntax.
+describe('MyComponent', () => {
+  it('matches snapshot', () => {
+    …
+  });
+});
+
+// Bad: describing the component instead of naming it.
+describe('My component', () => {
+  it('matches snapshot', () => {
+    …
+  });
+});
+
+// Good
+describe('<MyComponent />', () => {
+  it('matches snapshot', () => {
+    …
+  });
+});
+
+```
+
+##### Structurizing tests
+
+We always use the `describe() / it()` hooks to write all tests, even if there's only one test in the suite. This keeps our tests streamlined and allows for easy extension of the test suite.
+
+```js
+// Bad: using `test()` hook.
+test('flattens the object', () => {
+  …
+});
+
+// Good: using `describe() / it()` hooks
+describe('Get by path', () => {
+  it('succeeds when using correct credentials', () => {
+    …
+  });
+});
+
+```
+
+It's fine to use multiple hierarchies of `describe()` to group related tests more accurately:
+
+```js
+describe('User registration', () => {
+  it('succeeds when using valid inputs', () => {
+  });
+
+  describe('when using invalid input values', () => {
+    it('shows an error notification', () => {
+    });
+
+    it('does not perform a redirect', () => {
+    });
+  });
+
+  describe('when using an already registered email', () => {
+    it('shows an error notification', () => {
+    });
+  });
+});
+```
+
+##### Test Driven Development (TDD)
+
+Test Driven Development is a development philosophy that puts tests at the core of development. At The Things Industries, we don't enforce this method but we strongly encourage to adopt a process that emphasizes testing. Since adding fontend-based end-to-end tests to our codebase, we plan to do the following:
+
+1. Writing end-to-end tests for all newly added features
+2. Writing end-to-end tests for each (significant) bug that was resolved
+3. Gradually adding coverage to existing features
+
+Currently, we only employ frontend-based end-to-end tests, meaning that these tests can only be written if they are also operable through the frontend.
+
+#### Writing End-to-End Tests
+
+It is highly suggested to read [Cypress documentation](https://docs.cypress.io/guides) before starting to write tests.
+
+##### Guiding Principle
+
+We follow the following principle for writing useful end-to-end tests:
+
+> The more your tests resemble the way your software is used, the more confidence they can give you.
+
+This means that when writing tests, we always consider the real-life equivalent of the test scenario to design the test setup. This means:
+
+##### Selecting elements
+
+In line with the principle mentioned above, we have also included [`Testing Library`](https://testing-library.com/) to use advanced testing utilities. `Testing Library` has a good guide for [how to select elements](https://testing-library.com/docs/guide-which-query). We try to follow this guide for our end-to-end tests.
+
+In some cases it can be necessary to select DOM elements using a special selection data attribute. We use `data-test-id` for this purpose. Use this attribute to select DOM elements when more realistic means of selection are not sufficient. Use meaningful but concise ID values, such as `error-notification`.
+
+- Select DOM elements using text captions and labels when possible.
+  - Select form fields by its label via `cy.findByLabelText`, e.g. `cy.findByLabelText('User ID')`. Same for field errors,warnings and descriptions, use `cy.findErrorByLabelText`, `cy.findWarningByLabelText` and `cy.findDescriptionByLabelText`.
+  - Select buttons, links, tabs and other elements that are described by [ARIA roles](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques#Roles) via `cy.findByRole`, e.g. `cy.findByRole('button', {name: 'Submit'})`.
+  - Select text elements via `cy.findByText`.
+- Assert that selected elements are visible.
+
+  ```html
+  <!-- Instead of `visibility: hidden` it could be `display:none` or `z-index: -1` as well. -->
+  <div data-test-id="test" style="visibility: hidden">
+    Test content
+  </div>
+  ```
+
+  ```js
+  // Bad. This assertions will pass while not being visible to the user.
+  cy.findByTestId('test').should('exists')
+
+  // Good. This assertion will rightfully fail.
+  cy.findByTestId('test').should('be.visible')
+  ```
+
+##### Test runner globals
+
+`Cypress` uses [Mocha](https://mochajs.org/) as the test runner internally, while for unit tests we use [Jest](https://jestjs.io/). To keep our tests consistent we prefer using globals from `Jest` when possible.
+
+
+Jest globals | Mocha globals | Used for
+--- | --- | ---
+`describe` | `describe` | Group together related tests
+`it` | `it` | Define a single test
+`beforeEach`/`afterEach` | `beforeEach`/`AfterEach` | Hook before/after each test (`it`)
+`beforeAll`/`afterAll` | `before`/`after` | Hook before/after test block (`describe`)
+
+##### End-to-end tests file structure
+
+```bash
+./pkg/cypress
+|-- fixtures                    Cypress mocks
+|-- integration                 frontend end-to-end specifications (1)
+|   |-- console                 Console related end-to-end tests
+|   |   |-- users               tests related to user entity
+|   |   |-- ...
+|   |   |-- shared              tests that are not directly related to a specific entity (2)
+|   |-- oauth                   OAuth related end-to-end tests
+|   |   `-- ...
+|   `--smoke                    smoke tests (3)
+|-- plugins                     Cypress plugins
+|-- support                     Cypress commands and test utilities
+|-- screenshots                 screenshots generated when running tests (4)
+`-- videos                      videos generated when running tests (5)
+```
+
+1. `pkg/cypress/integration` contains all test specifications.
+  - Each test file must be placed into corresponding folder (`console`/`oauth`/`smoke`).
+  - Each test must follow the following naming: `{context}.spec.js`.
+  - One test file must have end-to-end tests dedicated only to a specific entity or view.
+2. `pkg/cypress/{console|oauth}/shared` contains all test specification not directly related to a single entity or a view. For example, `side-navigation.spec.js` or `header.spec.js` must be placed into the `cypress/console/shared` folder because both components are present on multiple views and are partially related to the stack entities. Make sure to scope cypress selections within the tested component using `cy.within`.
+3. `pkg/cypress/integration/smoke` contains tests that simulate a complete user story trying to do almost everything a typical user would do. For example, a typical smoke test can verify that the user is able to register, login, create application and register The Things Uno. For more details and diffeence between regular end-to-end and smoke tests see the [End-to-end tests structure](#organizing-end-to-end-tests) section.
+4. and 5. `Cypress` stores screenshots and videos to the appropriate folder after running end-to-end tests. These should not be added to the repository.
+
+##### Organizing end-to-end tests
+
+When writing end-to-end tests we comply with the following guidelines:
+
+- Tests are grouped by views for a specific entity. For example, when testing creation of application API keys:
+  1. Add test file `cypress/integration/console/applications/api-keys/create.spec.js`.
+  2. Test the behavior of the API key create view independently from any other specification.
+- Do not repeat actions via the UI that are not related to the current test context. Consider adding reusable [Cypress commands](https://docs.cypress.io/api/cypress-api/custom-commands.html) that do necessary test setup programmatically. This means that when testing any UI that is not the login specification and requires the user to be logged in, there is no need to log in through the login page, while we simply fetch the access token. Note: this does not mean that one cannot create a cypress command that performs actions via UI.
+- Extract components that appear on various views and test them separately instead of making assertions in each test where this component is used. For example, such components could be the page header and side navigation.
+- Dedicate at least one test to assert that the view displays its UI elements in place on initial load. Assert on UI changes in tests that trigger these changes.
+- Prefer duplicating entities with non-conflicting ids in tests instead of executing database teardown before each test. For example, when testing various scenarios for registering gateway, consider creating gateways with different ID's and EUI's instead of using a single gateway and drop the database before each test. Note: try to use this approach when possible, otherwise do not hesitate to restore database state before each test.
+- Consider various stack configurations when writing end-to-end tests. Some views have different UI depending on availability of different stack components. For example, the end device wizard looks different for deployments with complete cluster (NS+JS+AS) and for JS-only configuration. Likewise, sections and entire views can be enabled or disabled based on our feature toggles. If your test scenario differs based on different feature toggle conditions, make sure to probe these preconditions in your tests.
+
+##### Smoke tests
+
+We distinguish between regular end-to-end tests and smoke tests. While regular end-to-end tests are scoped to a specific view or component and tests those in depth, smoke tests are testing complete user stories that are critical to the overall integrity of the application and usually comprise multiple components and views, e.g. login flow, user registration or creation of applications. When writing smoke tests we comply with the following guidelines:
+
+- Smoke tests are testing complete user stories in a **wide and shallow** manner, meaning:
+  - performing some complex and critical flow that touches multiple components, APIs and/or views
+  - not testing different configurations or preconditions of the same flow in depth
+  - For example, when testing registration of The Things Uno:
+    1. Add test file `cypress/integration/smoke/devices/create.js`
+    2. Describe the whole user story to register the device including creating an application (or using an existing one), link the application and create the end device.
+- One smoke test should be encapsulated into a single `describeSmokeTest` declaration.
 
 ## Building and Running
 

@@ -26,12 +26,21 @@ import (
 )
 
 var (
-	evtEnqueueLinkADRRequest = defineEnqueueMACRequestEvent("link_adr", "link ADR")()
-	evtReceiveLinkADRAccept  = defineReceiveMACAcceptEvent("link_adr", "link ADR")()
-	evtReceiveLinkADRReject  = defineReceiveMACRejectEvent("link_adr", "link ADR")()
+	evtEnqueueLinkADRRequest = defineEnqueueMACRequestEvent(
+		"link_adr", "link ADR",
+		events.WithDataType(&ttnpb.MACCommand_LinkADRReq{}),
+	)()
+	evtReceiveLinkADRAccept = defineReceiveMACAcceptEvent(
+		"link_adr", "link ADR",
+		events.WithDataType(&ttnpb.MACCommand_LinkADRAns{}),
+	)()
+	evtReceiveLinkADRReject = defineReceiveMACRejectEvent(
+		"link_adr", "link ADR",
+		events.WithDataType(&ttnpb.MACCommand_LinkADRAns{}),
+	)()
 )
 
-func deviceNeedsLinkADRReq(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings, phy band.Band) bool {
+func deviceNeedsLinkADRReq(dev *ttnpb.EndDevice, defaults ttnpb.MACSettings, phy *band.Band) bool {
 	if dev.GetMulticast() || dev.GetMACState() == nil {
 		return false
 	}
@@ -61,7 +70,7 @@ const (
 	noChangeTXPowerIndex  = 15
 )
 
-func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, defaults ttnpb.MACSettings, phy band.Band) (macCommandEnqueueState, error) {
+func enqueueLinkADRReq(ctx context.Context, dev *ttnpb.EndDevice, maxDownLen, maxUpLen uint16, defaults ttnpb.MACSettings, phy *band.Band) (macCommandEnqueueState, error) {
 	if !deviceNeedsLinkADRReq(dev, defaults, phy) {
 		return macCommandEnqueueState{
 			MaxDownLen: maxDownLen,
@@ -230,7 +239,7 @@ func handleLinkADRAns(ctx context.Context, dev *ttnpb.EndDevice, pld *ttnpb.MACC
 	}
 	evs := events.Builders{evt.With(events.WithData(pld))}
 
-	_, phy, err := getDeviceBandVersion(dev, fps)
+	phy, err := deviceBand(dev, fps)
 	if err != nil {
 		return evs, err
 	}

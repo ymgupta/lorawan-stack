@@ -17,7 +17,6 @@ package oauth
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"runtime/trace"
@@ -186,12 +185,19 @@ func (s *server) Login(c echo.Context) error {
 	if err := s.doLogin(ctx, req.UserID, req.Password); err != nil {
 		return err
 	}
-	userIDs := ttnpb.UserIdentifiers{UserID: req.UserID}
+	if err := s.CreateUserSession(c, ttnpb.UserIdentifiers{UserID: req.UserID}); err != nil {
+		return err
+	}
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (s *server) CreateUserSession(c echo.Context, userIDs ttnpb.UserIdentifiers) error {
+	ctx := c.Request().Context()
 	tokenSecret, err := auth.GenerateKey(ctx)
 	if err != nil {
 		return err
 	}
-	hashedSecret, err := auth.Hash(ctx, tokenSecret)
+	hashedSecret, err := auth.Hash(auth.NewContextWithHashValidator(ctx, tokenHashSettings), tokenSecret)
 	if err != nil {
 		return err
 	}
@@ -203,16 +209,12 @@ func (s *server) Login(c echo.Context) error {
 		return err
 	}
 	events.Publish(evtUserLogin.NewWithIdentifiersAndData(ctx, userIDs, nil))
-	err = s.updateAuthCookie(c, func(cookie *auth.CookieShape) error {
+	return s.updateAuthCookie(c, func(cookie *auth.CookieShape) error {
 		cookie.UserID = session.UserIdentifiers.UserID
 		cookie.SessionID = session.SessionID
 		cookie.SessionSecret = tokenSecret
 		return nil
 	})
-	if err != nil {
-		return err
-	}
-	return c.NoContent(http.StatusNoContent)
 }
 
 var (
@@ -260,6 +262,9 @@ func (s *server) ClientLogout(c echo.Context) error {
 		} else {
 			for _, uri := range client.LogoutRedirectURIs {
 				redirectURI, err = osin.ValidateUri(uri, redirectParam)
+				if err == nil {
+					break
+				}
 			}
 			if err != nil {
 				return errInvalidLogoutRedirectURI.WithCause(err)
@@ -281,7 +286,7 @@ func (s *server) ClientLogout(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	return c.Redirect(http.StatusFound, fmt.Sprintf("%s?%s", url.Path, url.RawQuery))
+	return c.Redirect(http.StatusFound, url.String())
 }
 
 func (s *server) Logout(c echo.Context) error {

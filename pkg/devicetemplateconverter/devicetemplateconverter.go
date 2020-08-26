@@ -50,6 +50,9 @@ func New(c *component.Component, conf *Config) (*DeviceTemplateConverter, error)
 		return nil, err
 	}
 
+	// Always enable the TTS device template converter
+	conf.Enabled = append(conf.Enabled, devicetemplates.TTS)
+
 	converters := make(map[string]devicetemplates.Converter, len(conf.Enabled))
 	for _, id := range conf.Enabled {
 		converter := devicetemplates.GetConverter(id)

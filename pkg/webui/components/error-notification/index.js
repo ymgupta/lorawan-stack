@@ -33,8 +33,10 @@ const ErrorNotification = function({ content, ...rest }) {
     <Notification
       error
       content={message.content}
+      title={message.title}
       messageValues={message.values}
       details={details}
+      data-test-id="error-notification"
       {...rest}
     />
   )

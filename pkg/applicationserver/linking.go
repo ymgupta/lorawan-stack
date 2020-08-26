@@ -46,35 +46,28 @@ func (as *ApplicationServer) linkAll(ctx context.Context) error {
 
 func (as *ApplicationServer) startLinkTask(ctx context.Context, ids ttnpb.ApplicationIdentifiers) {
 	ctx = log.NewContextWithField(ctx, "application_uid", unique.ID(ctx, ids))
-	as.StartTask(ctx, "link", func(ctx context.Context) error {
-		target, err := as.linkRegistry.Get(ctx, ids, []string{
-			"network_server_address",
-			"api_key",
-			"default_formatters",
-			"skip_payload_crypto",
-		})
-		if err != nil {
-			if !errors.IsNotFound(err) {
-				log.FromContext(ctx).WithError(err).Error("Failed to get link")
+	as.StartTask(&component.TaskConfig{
+		Context: ctx,
+		ID:      "link",
+		Func: func(ctx context.Context) error {
+			target, err := as.linkRegistry.Get(ctx, ids, []string{
+				"network_server_address",
+				"api_key",
+				"default_formatters",
+				"skip_payload_crypto",
+			})
+			if err != nil {
+				if !errors.IsNotFound(err) {
+					log.FromContext(ctx).WithError(err).Error("Failed to get link")
+				}
+				return nil
 			}
-			return nil
-		}
 
-		err = as.link(ctx, ids, target)
-		switch {
-		case errors.IsFailedPrecondition(err),
-			errors.IsUnauthenticated(err),
-			errors.IsPermissionDenied(err),
-			errors.IsInvalidArgument(err):
-			log.FromContext(ctx).WithError(err).Warn("Failed to link")
-			return nil
-		case errors.IsCanceled(err),
-			errors.IsAlreadyExists(err):
-			return nil
-		default:
-			return err
-		}
-	}, component.TaskRestartOnFailure, 0.1, component.TaskBackoffDial...)
+			return as.link(ctx, ids, target)
+		},
+		Restart: component.TaskRestartOnFailure,
+		Backoff: io.TaskBackoffConfig,
+	})
 }
 
 type upstreamTrafficHandler func(context.Context, *ttnpb.ApplicationUp, *link) (pass bool, err error)
@@ -107,10 +100,7 @@ type link struct {
 
 const linkBufferSize = 10
 
-var (
-	errAlreadyLinked  = errors.DefineAlreadyExists("already_linked", "already linked to `{application_uid}`")
-	errNSPeerNotFound = errors.DefineNotFound("network_server_not_found", "Network Server not found for `{application_uid}`")
-)
+var errNSPeerNotFound = errors.DefineNotFound("network_server_not_found", "Network Server not found for `{application_uid}`")
 
 func (as *ApplicationServer) connectLink(ctx context.Context, link *link) error {
 	var allowInsecure bool
@@ -192,13 +182,13 @@ func (as *ApplicationServer) link(ctx context.Context, ids ttnpb.ApplicationIden
 	}
 	if _, loaded := as.links.LoadOrStore(uid, l); loaded {
 		log.FromContext(ctx).Warn("Link already started")
-		return errAlreadyLinked.WithAttributes("application_uid", uid)
+		return nil
 	}
 	go func() {
 		<-ctx.Done()
 		as.linkErrors.Store(uid, ctx.Err())
 		as.links.Delete(uid)
-		if err := ctx.Err(); err != nil && !errors.IsCanceled(err) {
+		if err := ctx.Err(); err != nil {
 			log.FromContext(ctx).WithError(err).Warn("Link failed")
 			registerLinkFail(ctx, l, err)
 		}
@@ -220,16 +210,18 @@ func (as *ApplicationServer) link(ctx context.Context, ids ttnpb.ApplicationIden
 	registerLinkStart(ctx, l)
 	go func() {
 		<-ctx.Done()
-		if err := ctx.Err(); errors.IsCanceled(err) {
-			logger.Info("Unlinked")
-			registerLinkStop(ctx, l)
-		}
+		logger.WithError(ctx.Err()).Info("Unlinked")
+		registerLinkStop(ctx, l)
 	}()
 
 	go l.run()
 	for _, sub := range as.defaultSubscribers {
 		sub := sub
-		l.subscribeCh <- sub
+		select {
+		case <-l.ctx.Done():
+			return
+		case l.subscribeCh <- sub:
+		}
 		go func() {
 			select {
 			case <-l.ctx.Done():
@@ -239,7 +231,11 @@ func (as *ApplicationServer) link(ctx context.Context, ids ttnpb.ApplicationIden
 				return
 			case <-sub.Context().Done():
 			}
-			l.unsubscribeCh <- sub
+			select {
+			case <-l.ctx.Done():
+				return
+			case l.unsubscribeCh <- sub:
+			}
 		}()
 	}
 	for {
@@ -272,8 +268,12 @@ func (as *ApplicationServer) cancelLink(ctx context.Context, ids ttnpb.Applicati
 	if val, ok := as.links.Load(uid); ok {
 		l := val.(*link)
 		log.FromContext(ctx).WithField("application_uid", uid).Debug("Unlink")
-		l.cancel(context.Canceled)
-		<-l.closed
+		l.cancel(nil)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-l.closed:
+		}
 	} else {
 		as.linkErrors.Delete(uid)
 	}
@@ -301,8 +301,23 @@ func (as *ApplicationServer) getLink(ctx context.Context, ids ttnpb.ApplicationI
 	}
 }
 
+func (l *link) observeSubscribe(correlationID string, sub *io.Subscription) {
+	registerSubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
+	log.FromContext(sub.Context()).Debug("Subscribed")
+}
+
+func (l *link) observeUnsubscribe(correlationID string, sub *io.Subscription) {
+	registerUnsubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
+	log.FromContext(sub.Context()).Debug("Unsubscribed")
+}
+
 func (l *link) run() {
 	subscribers := make(map[*io.Subscription]string)
+	defer func() {
+		for sub, correlationID := range subscribers {
+			l.observeUnsubscribe(correlationID, sub)
+		}
+	}()
 	for {
 		select {
 		case <-l.ctx.Done():
@@ -310,13 +325,11 @@ func (l *link) run() {
 		case sub := <-l.subscribeCh:
 			correlationID := fmt.Sprintf("as:subscriber:%s", events.NewCorrelationID())
 			subscribers[sub] = correlationID
-			registerSubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
-			log.FromContext(sub.Context()).Debug("Subscribed")
+			l.observeSubscribe(correlationID, sub)
 		case sub := <-l.unsubscribeCh:
 			if correlationID, ok := subscribers[sub]; ok {
 				delete(subscribers, sub)
-				registerUnsubscribe(events.ContextWithCorrelationID(l.ctx, correlationID), sub)
-				log.FromContext(sub.Context()).Debug("Unsubscribed")
+				l.observeUnsubscribe(correlationID, sub)
 			}
 		case up := <-l.upCh:
 			for sub := range subscribers {
@@ -358,10 +371,14 @@ func (l *link) sendUp(ctx context.Context, up *ttnpb.ApplicationUp, ack func() e
 		registerDropUp(ctx, up, handleUpErr)
 		return nil
 	}
-
-	l.upCh <- &io.ContextualApplicationUp{
+	ctxUp := &io.ContextualApplicationUp{
 		Context:       ctx,
 		ApplicationUp: up,
+	}
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case l.upCh <- ctxUp:
 	}
 	registerForwardUp(ctx, up)
 	return nil
