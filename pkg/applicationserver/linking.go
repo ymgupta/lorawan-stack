@@ -44,45 +44,6 @@ func (as *ApplicationServer) linkAll(ctx context.Context) error {
 	)
 }
 
-var (
-	linkHealthyDuration = 1 * time.Minute
-	linkBackoffConfig   = &component.TaskBackoffConfig{
-		Jitter: component.DefaultTaskBackoffConfig.Jitter,
-		DynamicInterval: func(ctx context.Context, executionTime time.Duration, invocation int, err error) time.Duration {
-			defaultIntervals := component.DefaultTaskBackoffConfig.Intervals
-			extendedIntervals := append(defaultIntervals,
-				1*time.Minute,
-				5*time.Minute,
-				15*time.Minute,
-				30*time.Minute,
-			)
-
-			var intervals []time.Duration
-			switch {
-			case errors.IsFailedPrecondition(err),
-				errors.IsUnauthenticated(err),
-				errors.IsPermissionDenied(err),
-				errors.IsInvalidArgument(err),
-				errors.IsAlreadyExists(err),
-				errors.IsCanceled(err):
-				intervals = extendedIntervals
-			default:
-				intervals = defaultIntervals
-			}
-
-			bi := invocation - 1
-			if bi >= len(intervals) {
-				bi = len(intervals) - 1
-			}
-			if executionTime > linkHealthyDuration {
-				bi = 0
-			}
-
-			return intervals[bi]
-		},
-	}
-)
-
 func (as *ApplicationServer) startLinkTask(ctx context.Context, ids ttnpb.ApplicationIdentifiers) {
 	ctx = log.NewContextWithField(ctx, "application_uid", unique.ID(ctx, ids))
 	as.StartTask(&component.TaskConfig{
@@ -105,7 +66,7 @@ func (as *ApplicationServer) startLinkTask(ctx context.Context, ids ttnpb.Applic
 			return as.link(ctx, ids, target)
 		},
 		Restart: component.TaskRestartOnFailure,
-		Backoff: linkBackoffConfig,
+		Backoff: io.TaskBackoffConfig,
 	})
 }
 
@@ -139,10 +100,7 @@ type link struct {
 
 const linkBufferSize = 10
 
-var (
-	errAlreadyLinked  = errors.DefineAlreadyExists("already_linked", "already linked to `{application_uid}`")
-	errNSPeerNotFound = errors.DefineNotFound("network_server_not_found", "Network Server not found for `{application_uid}`")
-)
+var errNSPeerNotFound = errors.DefineNotFound("network_server_not_found", "Network Server not found for `{application_uid}`")
 
 func (as *ApplicationServer) connectLink(ctx context.Context, link *link) error {
 	var allowInsecure bool
