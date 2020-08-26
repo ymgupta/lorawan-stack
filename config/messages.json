@@ -1979,15 +1979,6 @@
       "file": "registry.go"
     }
   },
-  "error:pkg/applicationserver/io/pubsub:already_configured": {
-    "translations": {
-      "en": "already configured to `{application_uid}` `{pub_sub_id}`"
-    },
-    "description": {
-      "package": "pkg/applicationserver/io/pubsub",
-      "file": "pubsub.go"
-    }
-  },
   "error:pkg/applicationserver/io/pubsub:format_not_found": {
     "translations": {
       "en": "format `{format}` not found"
@@ -2148,15 +2139,6 @@
     "description": {
       "package": "pkg/applicationserver/redis",
       "file": "registry.go"
-    }
-  },
-  "error:pkg/applicationserver:already_linked": {
-    "translations": {
-      "en": "already linked to `{application_uid}`"
-    },
-    "description": {
-      "package": "pkg/applicationserver",
-      "file": "linking.go"
     }
   },
   "error:pkg/applicationserver:app_s_key": {
@@ -6576,6 +6558,15 @@
     "description": {
       "package": "pkg/networkserver",
       "file": "errors.go"
+    }
+  },
+  "error:pkg/networkserver:no_band_version": {
+    "translations": {
+      "en": "specified version `{ver}` of band `{id}` does not exist"
+    },
+    "description": {
+      "package": "pkg/networkserver",
+      "file": "utils.go"
     }
   },
   "error:pkg/networkserver:no_dev_eui": {

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
+
 ### Changed
 
 - Scheduling failure events are now emitted on unsuccessful scheduling attempts.
@@ -20,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - CLI login issues when OAuth Server Address explicitly includes the `:443` HTTPS port.
+- Documentation link for LoRa Cloud Device & Application Services in the Lora Cloud integration view in the Console.
 
 ### Security
 
@@ -31,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LoRaCloud DAS integration page in the Console.
 - User Agent metadata on published events (when available).
 - Option to override server name used in TLS handshake with cluster peers (`cluster.tls-server-name`).
-- Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
 
 ### Changed
 
