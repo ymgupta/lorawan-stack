@@ -119,26 +119,21 @@ export default class OAuth extends React.PureComponent {
     } = this.props
 
     if (pageData) {
-      const providers = pageData.providers.reduce((acc, current) => {
-        const providerURL = new URL(window.location.href)
-        providerURL.pathname += `/${current.ids.provider_id}`
-        acc.push({
-          id: current.ids.provider_id,
-          name: current.name,
-          href: providerURL.href,
-        })
-        return acc
-      }, [])
+      const providers = pageData.providers
       if (providers.length === 0) {
-        return
+        return null
       }
-      const links = providers.map(provider => (
-        <Button.AnchorLink
-          key={provider.id}
-          message={{ ...m.loginWithProvider, values: { provider: provider.name } }}
-          href={`${provider.href}`}
-        />
-      ))
+      const links = providers.map(provider => {
+        const providerURL = new URL(window.location.href)
+        providerURL.pathname += `/${provider.ids.provider_id}`
+        return (
+          <Button.AnchorLink
+            key={provider.ids.provider_id}
+            message={{ ...m.loginWithProvider, values: { provider: provider.name } }}
+            href={`${providerURL.href}`}
+          />
+        )
+      })
       return <div className={style.feds}>{links}</div>
     }
   }
