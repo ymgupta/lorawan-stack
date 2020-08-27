@@ -6767,6 +6767,15 @@
       "file": "oidc.tti.go"
     }
   },
+  "error:pkg/oauth/oidc:no_username_available": {
+    "translations": {
+      "en": "no username available"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
   "error:pkg/oauth/oidc:registrations_disabled": {
     "translations": {
       "en": "account registrations are disabled"

@@ -128,25 +128,22 @@ func (s *Server) callback(c echo.Context, token *oauth2.Token, next string) erro
 	return c.Redirect(http.StatusFound, fmt.Sprintf("%s?%s", url.Path, url.RawQuery))
 }
 
-func (s *Server) username(ct *claimsToken) string {
-	return fmt.Sprintf("oidc%v", ct.Subject)
-}
-
-var errRegistrationsDisabled = errors.DefineFailedPrecondition("registrations_disabled", "account registrations are disabled")
+var (
+	errRegistrationsDisabled = errors.DefineFailedPrecondition("registrations_disabled", "account registrations are disabled")
+	errNoUsernameAvailable   = errors.DefineResourceExhausted("no_username_available", "no username available")
+)
 
 func (s *Server) createExternalUser(ctx context.Context, claims *claimsToken) (*ttipb.ExternalUser, error) {
 	config := configFromContext(ctx)
 	if !config.AllowRegistrations {
 		return nil, errRegistrationsDisabled.New()
 	}
-	ids := ttnpb.UserIdentifiers{UserID: s.username(claims)}
 	now := time.Now()
 	password, err := auth.Hash(ctx, random.String(64))
 	if err != nil {
 		return nil, err
 	}
 	newUser := &ttnpb.User{
-		UserIdentifiers:     ids,
 		Name:                claims.Name,
 		PrimaryEmailAddress: claims.Email,
 		Password:            password,
@@ -156,8 +153,18 @@ func (s *Server) createExternalUser(ctx context.Context, claims *claimsToken) (*
 	if claims.EmailVerified {
 		newUser.PrimaryEmailAddressValidatedAt = &now
 	}
-	if _, err := s.store.CreateUser(ctx, newUser); err != nil {
-		return nil, err
+	var ids ttnpb.UserIdentifiers
+	var found bool
+	for _, username := range usernames(config.ID, claims) {
+		ids = ttnpb.UserIdentifiers{UserID: username}
+		newUser.UserIdentifiers = ids
+		if _, err := s.store.CreateUser(ctx, newUser); err == nil {
+			found = true
+			break
+		}
+	}
+	if !found {
+		return nil, errNoUsernameAvailable.New()
 	}
 	return s.store.CreateExternalUser(ctx, &ttipb.ExternalUser{
 		UserIDs: ids,
