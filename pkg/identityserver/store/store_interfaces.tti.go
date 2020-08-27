@@ -34,8 +34,8 @@ type TenantStore interface {
 type ExternalUserStore interface {
 	CreateExternalUser(ctx context.Context, eu *ttipb.ExternalUser) (*ttipb.ExternalUser, error)
 	GetExternalUserByUserID(ctx context.Context, ids *ttnpb.UserIdentifiers) (*ttipb.ExternalUser, error)
-	GetExternalUserByExternalID(ctx context.Context, id string) (*ttipb.ExternalUser, error)
-	DeleteExternalUser(ctx context.Context, id string) error
+	GetExternalUserByExternalID(ctx context.Context, providerIDs *ttipb.AuthenticationProviderIdentifiers, externalID string) (*ttipb.ExternalUser, error)
+	DeleteExternalUser(ctx context.Context, providerIDs *ttipb.AuthenticationProviderIdentifiers, externalID string) error
 }
 
 // AuthenticationProviderStore interface for storing federated authentication providers.

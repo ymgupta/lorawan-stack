@@ -106,7 +106,9 @@ func (s *Server) callback(c echo.Context, token *oauth2.Token, next string) erro
 	if err := idToken.Claims(&claims); err != nil {
 		return err
 	}
-	externalUser, err := s.store.GetExternalUserByExternalID(ctx, claims.Subject)
+	oidcConfig := configFromContext(ctx)
+	providerIDs := &ttipb.AuthenticationProviderIdentifiers{ProviderID: oidcConfig.ID}
+	externalUser, err := s.store.GetExternalUserByExternalID(ctx, providerIDs, claims.Subject)
 	if err != nil && !errors.IsNotFound(err) {
 		return err
 	}

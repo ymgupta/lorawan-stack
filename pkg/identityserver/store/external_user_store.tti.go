@@ -27,7 +27,10 @@ func (s *externalUserStore) CreateExternalUser(ctx context.Context, eu *ttipb.Ex
 		return nil, err
 	}
 	provider := &AuthenticationProvider{}
-	if err := s.query(ctx, AuthenticationProvider{}, withProviderID(eu.ProviderIDs.ProviderID)).Select("id").First(provider).Error; err != nil {
+	err = s.query(ctx, AuthenticationProvider{}, withProviderID(eu.ProviderIDs.ProviderID)).
+		Select("id").
+		First(provider).Error
+	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, errAuthenticationProviderNotFound.WithAttributes("provider_id", eu.ProviderIDs.ProviderID)
 		}
@@ -56,6 +59,7 @@ type friendlyExternalUser struct {
 func (s *externalUserStore) optimizedQuery(ctx context.Context) *gorm.DB {
 	return s.store.query(ctx, ExternalUser{}).
 		Select(`"external_users".*, "accounts"."uid" AS "friendly_user_id"`).
+		Joins(`LEFT JOIN "authentication_providers" ON "authentication_providers"."id" = "external_users"."authentication_provider_id"`).
 		Joins(`LEFT JOIN "users" ON "users"."id" = "external_users"."user_id"`).
 		Joins(`LEFT JOIN "accounts" ON "accounts"."account_type" = 'user' AND "accounts"."account_id" = "users"."id"`)
 }
@@ -63,7 +67,9 @@ func (s *externalUserStore) optimizedQuery(ctx context.Context) *gorm.DB {
 func (s *externalUserStore) GetExternalUserByUserID(ctx context.Context, ids *ttnpb.UserIdentifiers) (*ttipb.ExternalUser, error) {
 	defer trace.StartRegion(ctx, "get external user by user id").End()
 	var model friendlyExternalUser
-	err := s.optimizedQuery(ctx).Where(Account{UID: ids.GetUserID()}).Scan(&model).Error
+	err := s.optimizedQuery(ctx).
+		Where(Account{UID: ids.GetUserID()}).
+		Scan(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
 			return nil, errExternalUserNotFound.WithAttributes("user_id", ids.GetUserID())
@@ -75,13 +81,16 @@ func (s *externalUserStore) GetExternalUserByUserID(ctx context.Context, ids *tt
 	return proto, nil
 }
 
-func (s *externalUserStore) GetExternalUserByExternalID(ctx context.Context, id string) (*ttipb.ExternalUser, error) {
+func (s *externalUserStore) GetExternalUserByExternalID(ctx context.Context, providerIDs *ttipb.AuthenticationProviderIdentifiers, externalID string) (*ttipb.ExternalUser, error) {
 	defer trace.StartRegion(ctx, "get external user by user id").End()
 	var model friendlyExternalUser
-	err := s.optimizedQuery(ctx).Where(ExternalUser{ExternalID: id}).Scan(&model).Error
+	err := s.optimizedQuery(ctx).
+		Where(ExternalUser{ExternalID: externalID}).
+		Where(AuthenticationProvider{ProviderID: providerIDs.ProviderID}).
+		Scan(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return nil, errExternalUserNotFound.WithAttributes("user_id", id)
+			return nil, errExternalUserNotFound.WithAttributes("user_id", externalID)
 		}
 		return nil, err
 	}
@@ -90,14 +99,18 @@ func (s *externalUserStore) GetExternalUserByExternalID(ctx context.Context, id 
 	return proto, nil
 }
 
-func (s *externalUserStore) DeleteExternalUser(ctx context.Context, id string) error {
+func (s *externalUserStore) DeleteExternalUser(ctx context.Context, providerIDs *ttipb.AuthenticationProviderIdentifiers, externalID string) error {
 	defer trace.StartRegion(ctx, "delete external user").End()
-	err := s.query(ctx, ExternalUser{}).Where(ExternalUser{ExternalID: id}).Delete(ExternalUser{}).Error
+	var model friendlyExternalUser
+	err := s.optimizedQuery(ctx).
+		Where(ExternalUser{ExternalID: externalID}).
+		Where(AuthenticationProvider{ProviderID: providerIDs.ProviderID}).
+		Scan(&model).Error
 	if err != nil {
 		if gorm.IsRecordNotFoundError(err) {
-			return errExternalUserNotFound.WithAttributes("user_id", id)
+			return errExternalUserNotFound.WithAttributes("user_id", externalID)
 		}
 		return err
 	}
-	return nil
+	return s.DB.Delete(model.ExternalUser).Error
 }

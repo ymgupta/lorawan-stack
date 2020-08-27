@@ -22,14 +22,16 @@ func TestExternalUserStore(t *testing.T) {
 	WithDB(t, func(t *testing.T, db *gorm.DB) {
 		prepareTest(db, &User{}, &Account{}, &ExternalUser{}, AuthenticationProvider{})
 
+		providerIDs := ttipb.AuthenticationProviderIdentifiers{
+			ProviderID: "oidc-bar",
+		}
+
 		providerStore := GetAuthenticationProviderStore(db)
 		provider, err := providerStore.CreateAuthenticationProvider(ctx,
 			&ttipb.AuthenticationProvider{
-				AuthenticationProviderIdentifiers: ttipb.AuthenticationProviderIdentifiers{
-					ProviderID: "oidc-bar",
-				},
-				Name:               "bar",
-				AllowRegistrations: true,
+				AuthenticationProviderIdentifiers: providerIDs,
+				Name:                              "bar",
+				AllowRegistrations:                true,
 				Configuration: &ttipb.AuthenticationProvider_Configuration{
 					Provider: &ttipb.AuthenticationProvider_Configuration_OIDC{
 						OIDC: &ttipb.AuthenticationProvider_OIDC{
@@ -77,16 +79,16 @@ func TestExternalUserStore(t *testing.T) {
 			a.So(got.UpdatedAt, should.HappenAfter, time.Now().Add(-1*time.Hour))
 		}
 
-		got, err = store.GetExternalUserByExternalID(ctx, "foo@bar.com")
+		got, err = store.GetExternalUserByExternalID(ctx, &providerIDs, "foo@bar.com")
 		a.So(err, should.BeNil)
 		if a.So(got, should.NotBeNil) {
 			a.So(got.UserIDs.UserID, should.Equal, "foo")
 		}
 
-		err = store.DeleteExternalUser(ctx, "foo@bar.com")
+		err = store.DeleteExternalUser(ctx, &providerIDs, "foo@bar.com")
 		a.So(err, should.BeNil)
 
-		got, err = store.GetExternalUserByExternalID(ctx, "foo@bar.com")
+		got, err = store.GetExternalUserByExternalID(ctx, &providerIDs, "foo@bar.com")
 		a.So(err, should.NotBeNil)
 		a.So(errors.IsNotFound(err), should.BeTrue)
 	})
