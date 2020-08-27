@@ -6992,6 +6992,15 @@
       "file": "server.go"
     }
   },
+  "error:pkg/oauth:unknown_provider": {
+    "translations": {
+      "en": "the provider `{provider}` is unknown"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.tti.go"
+    }
+  },
   "error:pkg/oauth:unsupported_grant_type": {
     "translations": {
       "en": "unsupported grant type"

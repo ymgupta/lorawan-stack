@@ -144,13 +144,15 @@ func (s *Server) createExternalUser(ctx context.Context, claims *claimsToken) (*
 		return nil, err
 	}
 	newUser := &ttnpb.User{
-		UserIdentifiers:                ids,
-		Name:                           claims.Name,
-		PrimaryEmailAddress:            claims.Email,
-		PrimaryEmailAddressValidatedAt: &now,
-		Password:                       password,
-		PasswordUpdatedAt:              &now,
-		State:                          ttnpb.STATE_APPROVED,
+		UserIdentifiers:     ids,
+		Name:                claims.Name,
+		PrimaryEmailAddress: claims.Email,
+		Password:            password,
+		PasswordUpdatedAt:   &now,
+		State:               ttnpb.STATE_APPROVED,
+	}
+	if claims.EmailVerified {
+		newUser.PrimaryEmailAddressValidatedAt = &now
 	}
 	if _, err := s.store.CreateUser(ctx, newUser); err != nil {
 		return nil, err

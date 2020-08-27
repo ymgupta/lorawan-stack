@@ -3,6 +3,8 @@
 package oauth
 
 import (
+	"reflect"
+
 	echo "github.com/labstack/echo/v4"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/oauth/oidc"
@@ -16,7 +18,10 @@ type FederatedAuthenticationProvider interface {
 	Callback(echo.Context) error
 }
 
-var errInvalidProvider = errors.DefineInvalidArgument("invalid_provider", "the provider `{provider_id}` is invalid")
+var (
+	errInvalidProvider = errors.DefineInvalidArgument("invalid_provider", "the provider `{provider_id}` is invalid")
+	errUnknownProvider = errors.DefineInternal("unknown_provider", "the provider `{provider}` is unknown")
+)
 
 func (s *server) routeFederatedRequest(c echo.Context, f func(FederatedAuthenticationProvider) error) error {
 	ctx := c.Request().Context()
@@ -38,7 +43,7 @@ func (s *server) routeFederatedRequest(c echo.Context, f func(FederatedAuthentic
 			return f(s.providers.oidc)
 		}
 	default:
-		panic("unknown authentication provider type")
+		return errUnknownProvider.WithAttributes("provider", reflect.TypeOf(provider.Configuration.Provider))
 	}
 }
 
