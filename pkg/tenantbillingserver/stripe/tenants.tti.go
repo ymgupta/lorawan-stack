@@ -189,9 +189,35 @@ func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) er
 	if err != nil {
 		return err
 	}
+
 	ids, err := toTenantIDs(sub)
 	if err != nil {
 		return err
+	}
+	tnt, err := client.Get(ctx, &ttipb.GetTenantRequest{
+		TenantIdentifiers: *ids,
+		FieldMask: types.FieldMask{
+			Paths: []string{
+				"billing",
+				"state",
+			},
+		},
+	}, s.tenantAuth)
+	if err != nil {
+		return err
+	}
+
+	billing := tnt.Billing.GetStripe()
+	if billing == nil {
+		return errTenantNotManaged.New()
+	}
+	if billing.CustomerID != sub.Customer.ID {
+		return errCustomerIDMismatch.New()
+	}
+
+	if tnt.State == ttnpb.STATE_SUSPENDED {
+		// If the tenant is already suspended, do not attempt an update.
+		return nil
 	}
 	_, err = client.Update(ctx, &ttipb.UpdateTenantRequest{
 		Tenant: ttipb.Tenant{
