@@ -144,6 +144,8 @@ func (s *contactInfoStore) SetContactInfo(ctx context.Context, entityID ttnpb.Id
 	return pb, nil
 }
 
+var errValidationTokenStillValid = errors.DefineAlreadyExists("validation_token_still_valid", "previous validation token still valid")
+
 func (s *contactInfoStore) CreateValidation(ctx context.Context, validation *ttnpb.ContactInfoValidation) (*ttnpb.ContactInfoValidation, error) {
 	defer trace.StartRegion(ctx, "create contact info validation").End()
 	var (
@@ -170,6 +172,23 @@ func (s *contactInfoStore) CreateValidation(ctx context.Context, validation *ttn
 	model.EntityType, model.EntityID = entityTypeForID(validation.Entity), entity.PrimaryKey()
 	model.ContactMethod = int(contactMethod)
 	model.Value = value
+
+	var existing ContactInfoValidation
+	err = s.query(ctx, ContactInfoValidation{}).Where(ContactInfoValidation{
+		EntityID:      model.EntityID,
+		EntityType:    model.EntityType,
+		ContactMethod: model.ContactMethod,
+		Value:         model.Value,
+	}).Order("expires_at DESC").First(&existing).Error
+	switch {
+	case err == nil:
+		if model.CreatedAt.Before(existing.ExpiresAt) {
+			return nil, errValidationTokenStillValid.New()
+		}
+	case gorm.IsRecordNotFoundError(err):
+	default:
+		return nil, err
+	}
 
 	if err = s.createEntity(ctx, &model); err != nil {
 		return nil, err

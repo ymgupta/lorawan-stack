@@ -4400,6 +4400,15 @@
       "file": "contact_info_store.go"
     }
   },
+  "error:pkg/identityserver/store:validation_token_still_valid": {
+    "translations": {
+      "en": "previous validation token still valid"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "contact_info_store.go"
+    }
+  },
   "error:pkg/identityserver:access_token_mismatch": {
     "translations": {
       "en": "access token ID did not match user or client identifiers"
