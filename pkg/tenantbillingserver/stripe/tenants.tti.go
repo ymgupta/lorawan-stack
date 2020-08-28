@@ -9,6 +9,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
@@ -105,6 +106,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	if err != nil {
 		return err
 	}
+	ctx = log.NewContextWithField(ctx, "tenant_id", tnt.TenantID)
 
 	err = s.addTenantLimits(tnt, sub)
 	if err != nil {
@@ -194,6 +196,7 @@ func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) er
 	if err != nil {
 		return err
 	}
+	ctx = log.NewContextWithField(ctx, "tenant_id", ids.TenantID)
 	tnt, err := client.Get(ctx, &ttipb.GetTenantRequest{
 		TenantIdentifiers: *ids,
 		FieldMask: types.FieldMask{
