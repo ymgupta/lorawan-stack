@@ -146,6 +146,44 @@ Cypress.Commands.add('setApplicationCollaborator', (applicationId, collaboratorI
   })
 })
 
+// Overwrite the default `type` to make sure that subject is resolved and focused before simulating typing. This is helpful
+// when:
+// 1. The action is forced via the `forced` option for inputs that are visually hidden for styling purposes.
+// 2. The action is performed during minor layout shifts.
+Cypress.Commands.overwrite('type', (originalFn, subject, ...args) => {
+  subject.focus()
+
+  return originalFn(subject, ...args)
+})
+
+// Overwrite the default `click` to make sure that subject is resolved and focused before simulating clicks. This is helpful
+// when:
+// 1. The action is forced via the `forced` option for elements that are visually hidden for styling purposes.
+// 2. The action is performed during minor layout shifts.
+Cypress.Commands.overwrite('click', (originalFn, subject, ...args) => {
+  subject.focus()
+
+  return originalFn(subject, ...args)
+})
+
+// Helper function to select an option. Use this function instead of `cy.select` as it allows
+// interacting with `react-select` in both interactive and headless modes of cypress.
+Cypress.Commands.add('selectOption', (title, option) => {
+  cy.findByLabelText(title)
+    .should('be.visible')
+    .type(option, {
+      force: true,
+    })
+
+  cy.get('.select__option')
+    .first()
+    .then($option => {
+      // Native `cy.click` even with the `force` option doesnt work properly in headless electron
+      // environment causing issues when dealing with `react-select` (in interactive mode this works fine).
+      Cypress.$($option).trigger('click')
+    })
+})
+
 // Helper function to quickly seed the database to a fresh state using a
 // previously generated sql dump.
 Cypress.Commands.add('dropAndSeedDatabase', () => {
