@@ -750,6 +750,7 @@
   "oauth.views.login.index.createAccount": "Create an account",
   "oauth.views.login.index.forgotPassword": "Forgot password?",
   "oauth.views.login.index.loginToContinue": "Please login to continue",
+  "oauth.views.login.index.loginWithProvider": "Login with {provider}",
   "oauth.views.update-password.index.newPassword": "New password",
   "oauth.views.update-password.index.oldPassword": "Old password",
   "oauth.views.update-password.index.passwordChanged": "Password changed",

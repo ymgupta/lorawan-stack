@@ -249,6 +249,9 @@ var (
 	errTenantNotFound       = errors.DefineNotFound("tenant_not_found", "tenant `{tenant_id}` not found")
 	errSessionNotFound      = errors.DefineNotFound("session_not_found", "session `{session_id}` for user `{user_id}` not found")
 
+	errExternalUserNotFound           = errors.DefineNotFound("external_user_not_found", "external user `{user_id}` not found")
+	errAuthenticationProviderNotFound = errors.DefineNotFound("authentication_provider_not_found", "authentication provider `{provider_id}` not found")
+
 	errAuthorizationNotFound     = errors.DefineNotFound("authorization_not_found", "authorization of `{user_id}` for `{client_id}` not found")
 	errAuthorizationCodeNotFound = errors.DefineNotFound("authorization_code_not_found", "authorization code not found")
 	errAccessTokenNotFound       = errors.DefineNotFound("access_token_not_found", "access token not found")

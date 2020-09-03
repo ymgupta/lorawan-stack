@@ -27,6 +27,7 @@ import (
 	web_errors "go.thethings.network/lorawan-stack/v3/pkg/errors/web"
 	"go.thethings.network/lorawan-stack/v3/pkg/identityserver/store"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/oauth/oidc"
 	"go.thethings.network/lorawan-stack/v3/pkg/web"
 	"go.thethings.network/lorawan-stack/v3/pkg/web/middleware"
 	"go.thethings.network/lorawan-stack/v3/pkg/webui"
@@ -48,6 +49,10 @@ type server struct {
 	config     Config
 	osinConfig *osin.ServerConfig
 	store      Store
+
+	providers struct {
+		oidc *oidc.Server
+	}
 }
 
 // Store used by the OAuth server.
@@ -59,6 +64,9 @@ type Store interface {
 	store.ClientStore
 	// OAuth is needed for OAuth authorizations.
 	store.OAuthStore
+	// ExternalUserStore and AuthenticationProviderStore are needed for federated authentication.
+	store.ExternalUserStore
+	store.AuthenticationProviderStore
 }
 
 // NewServer returns a new OAuth server on top of the given store.
@@ -89,6 +97,12 @@ func NewServer(c *component.Component, store Store, config Config) (Server, erro
 		AllowClientSecretInParams: true,
 		RedirectUriSeparator:      redirectURISeparator,
 		RetainTokenAfterRefresh:   false,
+	}
+
+	var err error
+	s.providers.oidc, err = oidc.New(c, s, store)
+	if err != nil {
+		return nil, err
 	}
 
 	return s, nil
@@ -230,7 +244,9 @@ func (s *server) RegisterRoutes(server *web.Server) {
 	api.GET("/me", s.CurrentUser, s.requireLogin)
 
 	page := root.Group("", csrfMiddleware)
-	page.GET("/login", webui.Template.Handler, s.redirectToNext)
+	page.GET("/login", webui.Template.Handler, s.redirectToNext, s.withFederatedProviders)
+	page.GET("/login/:provider", s.FederatedLogin, s.redirectToNext)
+	page.GET("/login/:provider/callback", s.FederatedCallback)
 	page.GET("/logout", s.ClientLogout)
 	page.GET("/authorize", s.Authorize(webui.Template.Handler), s.redirectToLogin)
 	page.POST("/authorize", s.Authorize(webui.Template.Handler), s.redirectToLogin)

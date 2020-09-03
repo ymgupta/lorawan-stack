@@ -29,6 +29,7 @@ import SubmitButton from '@ttn-lw/components/submit-button'
 
 import Logo from '@ttn-lw/containers/logo'
 
+import { withEnv } from '@ttn-lw/lib/components/env'
 import IntlHelmet from '@ttn-lw/lib/components/intl-helmet'
 import Message from '@ttn-lw/lib/components/message'
 
@@ -44,6 +45,7 @@ const m = defineMessages({
   createAccount: 'Create an account',
   forgotPassword: 'Forgot password?',
   loginToContinue: 'Please login to continue',
+  loginWithProvider: 'Login with {provider}',
 })
 
 const validationSchema = Yup.object().shape({
@@ -55,6 +57,7 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required(sharedMessages.validateRequired),
 })
 
+@withEnv
 @withRouter
 @connect(
   () => ({
@@ -66,6 +69,7 @@ const validationSchema = Yup.object().shape({
 )
 export default class OAuth extends React.PureComponent {
   static propTypes = {
+    env: PropTypes.env.isRequired,
     location: PropTypes.location.isRequired,
     replace: PropTypes.func.isRequired,
     siteName: PropTypes.string.isRequired,
@@ -106,6 +110,32 @@ export default class OAuth extends React.PureComponent {
     replace('/forgot-password', {
       back: `${location.pathname}${location.search}`,
     })
+  }
+
+  @bind
+  renderFederatedProviders() {
+    const {
+      env: { pageData },
+    } = this.props
+
+    if (pageData) {
+      const providers = pageData.providers
+      if (providers.length === 0) {
+        return null
+      }
+      const links = providers.map(provider => {
+        const providerURL = new URL(window.location.href)
+        providerURL.pathname += `/${provider.ids.provider_id}`
+        return (
+          <Button.AnchorLink
+            key={provider.ids.provider_id}
+            message={{ ...m.loginWithProvider, values: { provider: provider.name } }}
+            href={`${providerURL.href}`}
+          />
+        )
+      })
+      return <div className={style.feds}>{links}</div>
+    }
   }
 
   render() {
@@ -158,6 +188,7 @@ export default class OAuth extends React.PureComponent {
               <Button naked message={m.forgotPassword} onClick={this.navigateToResetPassword} />
             </Form>
           </div>
+          {this.renderFederatedProviders()}
         </div>
       </div>
     )

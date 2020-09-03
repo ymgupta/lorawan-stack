@@ -6,6 +6,11 @@
 
 - [File `lorawan-stack/api/tti/application_api_key.proto`](#lorawan-stack/api/tti/application_api_key.proto)
   - [Message `ApplicationAPIKey`](#tti.lorawan.v3.ApplicationAPIKey)
+- [File `lorawan-stack/api/tti/authentication_provider.proto`](#lorawan-stack/api/tti/authentication_provider.proto)
+  - [Message `AuthenticationProvider`](#tti.lorawan.v3.AuthenticationProvider)
+  - [Message `AuthenticationProvider.Configuration`](#tti.lorawan.v3.AuthenticationProvider.Configuration)
+  - [Message `AuthenticationProvider.OIDC`](#tti.lorawan.v3.AuthenticationProvider.OIDC)
+  - [Message `AuthenticationProviderIdentifiers`](#tti.lorawan.v3.AuthenticationProviderIdentifiers)
 - [File `lorawan-stack/api/tti/billing.proto`](#lorawan-stack/api/tti/billing.proto)
   - [Message `Billing`](#tti.lorawan.v3.Billing)
   - [Message `Billing.Stripe`](#tti.lorawan.v3.Billing.Stripe)
@@ -23,6 +28,8 @@
   - [Message `Configuration.Cluster.IdentityServer.UserRights`](#tti.lorawan.v3.Configuration.Cluster.IdentityServer.UserRights)
   - [Message `Configuration.Cluster.NetworkServer`](#tti.lorawan.v3.Configuration.Cluster.NetworkServer)
   - [Message `Configuration.UI`](#tti.lorawan.v3.Configuration.UI)
+- [File `lorawan-stack/api/tti/external_user.proto`](#lorawan-stack/api/tti/external_user.proto)
+  - [Message `ExternalUser`](#tti.lorawan.v3.ExternalUser)
 - [File `lorawan-stack/api/tti/identifiers.proto`](#lorawan-stack/api/tti/identifiers.proto)
   - [Message `LicenseIdentifiers`](#tti.lorawan.v3.LicenseIdentifiers)
   - [Message `LicenseIssuerIdentifiers`](#tti.lorawan.v3.LicenseIssuerIdentifiers)
@@ -70,6 +77,58 @@
 | ----- | ----------- |
 | `application_ids` | <p>`message.required`: `true`</p> |
 | `api_key` | <p>`string.min_len`: `1`</p> |
+
+## <a name="lorawan-stack/api/tti/authentication_provider.proto">File `lorawan-stack/api/tti/authentication_provider.proto`</a>
+
+### <a name="tti.lorawan.v3.AuthenticationProvider">Message `AuthenticationProvider`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `ids` | [`AuthenticationProviderIdentifiers`](#tti.lorawan.v3.AuthenticationProviderIdentifiers) |  |  |
+| `created_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `updated_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `name` | [`string`](#string) |  |  |
+| `allow_registrations` | [`bool`](#bool) |  |  |
+| `configuration` | [`AuthenticationProvider.Configuration`](#tti.lorawan.v3.AuthenticationProvider.Configuration) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `ids` | <p>`message.required`: `true`</p> |
+| `name` | <p>`string.max_len`: `50`</p> |
+
+### <a name="tti.lorawan.v3.AuthenticationProvider.Configuration">Message `AuthenticationProvider.Configuration`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `oidc` | [`AuthenticationProvider.OIDC`](#tti.lorawan.v3.AuthenticationProvider.OIDC) |  |  |
+
+### <a name="tti.lorawan.v3.AuthenticationProvider.OIDC">Message `AuthenticationProvider.OIDC`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `client_id` | [`string`](#string) |  |  |
+| `client_secret` | [`string`](#string) |  |  |
+| `provider_url` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `provider_url` | <p>`string.uri`: `true`</p> |
+
+### <a name="tti.lorawan.v3.AuthenticationProviderIdentifiers">Message `AuthenticationProviderIdentifiers`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `provider_id` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `provider_id` | <p>`string.max_len`: `36`</p><p>`string.pattern`: `^[a-z0-9](?:[-]?[a-z0-9]){2,}$`</p> |
 
 ## <a name="lorawan-stack/api/tti/billing.proto">File `lorawan-stack/api/tti/billing.proto`</a>
 
@@ -195,6 +254,25 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | `branding_base_url` | [`string`](#string) |  |  |
+
+## <a name="lorawan-stack/api/tti/external_user.proto">File `lorawan-stack/api/tti/external_user.proto`</a>
+
+### <a name="tti.lorawan.v3.ExternalUser">Message `ExternalUser`</a>
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `user_ids` | [`ttn.lorawan.v3.UserIdentifiers`](#ttn.lorawan.v3.UserIdentifiers) |  |  |
+| `provider_ids` | [`AuthenticationProviderIdentifiers`](#tti.lorawan.v3.AuthenticationProviderIdentifiers) |  |  |
+| `created_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `updated_at` | [`google.protobuf.Timestamp`](#google.protobuf.Timestamp) |  |  |
+| `external_id` | [`string`](#string) |  |  |
+
+#### Field Rules
+
+| Field | Validations |
+| ----- | ----------- |
+| `user_ids` | <p>`message.required`: `true`</p> |
+| `provider_ids` | <p>`message.required`: `true`</p> |
 
 ## <a name="lorawan-stack/api/tti/identifiers.proto">File `lorawan-stack/api/tti/identifiers.proto`</a>
 

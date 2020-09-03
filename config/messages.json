@@ -4616,6 +4616,15 @@
       "file": "store.go"
     }
   },
+  "error:pkg/identityserver/store:authentication_provider_not_found": {
+    "translations": {
+      "en": "authentication provider `{provider_id}` not found"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
   "error:pkg/identityserver/store:authorization_code_not_found": {
     "translations": {
       "en": "authorization code not found"
@@ -4700,6 +4709,15 @@
   "error:pkg/identityserver/store:eui_taken": {
     "translations": {
       "en": "EUI already taken"
+    },
+    "description": {
+      "package": "pkg/identityserver/store",
+      "file": "store.go"
+    }
+  },
+  "error:pkg/identityserver/store:external_user_not_found": {
+    "translations": {
+      "en": "external user `{user_id}` not found"
     },
     "description": {
       "package": "pkg/identityserver/store",
@@ -6677,6 +6695,51 @@
       "file": "errors.go"
     }
   },
+  "error:pkg/oauth/oidc:invalid_state": {
+    "translations": {
+      "en": "invalid state `{state}` provided"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:no_id_token": {
+    "translations": {
+      "en": "no ID token found"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:no_username_available": {
+    "translations": {
+      "en": "no username available"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:registrations_disabled": {
+    "translations": {
+      "en": "account registrations are disabled"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "oidc.tti.go"
+    }
+  },
+  "error:pkg/oauth/oidc:wrong_provider": {
+    "translations": {
+      "en": "wrong provider"
+    },
+    "description": {
+      "package": "pkg/oauth/oidc",
+      "file": "config.tti.go"
+    }
+  },
   "error:pkg/oauth:access_denied": {
     "translations": {
       "en": "access denied"
@@ -6765,6 +6828,15 @@
     "description": {
       "package": "pkg/oauth",
       "file": "user.go"
+    }
+  },
+  "error:pkg/oauth:invalid_provider": {
+    "translations": {
+      "en": "the provider `{provider_id}` is invalid"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.tti.go"
     }
   },
   "error:pkg/oauth:invalid_redirect_uri": {
@@ -6873,6 +6945,15 @@
     "description": {
       "package": "pkg/oauth",
       "file": "server.go"
+    }
+  },
+  "error:pkg/oauth:unknown_provider": {
+    "translations": {
+      "en": "the provider `{provider}` is unknown"
+    },
+    "description": {
+      "package": "pkg/oauth",
+      "file": "user.tti.go"
     }
   },
   "error:pkg/oauth:unsupported_grant_type": {

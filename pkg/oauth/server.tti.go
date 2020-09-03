@@ -2,7 +2,11 @@
 
 package oauth
 
-import "context"
+import (
+	"context"
+
+	"go.thethings.network/lorawan-stack/v3/pkg/webui"
+)
 
 // Apply the context to the config.
 func (conf Config) Apply(ctx context.Context) Config {
@@ -31,4 +35,9 @@ func (conf FrontendConfig) Apply(ctx context.Context) FrontendConfig {
 	deriv := conf
 	deriv.StackConfig = conf.StackConfig.Apply(ctx)
 	return deriv
+}
+
+// GetTemplateData returns the web template configuration.
+func (s *server) GetTemplateData(ctx context.Context) webui.TemplateData {
+	return s.configFromContext(ctx).UI.TemplateData
 }

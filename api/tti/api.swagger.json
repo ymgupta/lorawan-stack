@@ -488,6 +488,15 @@
         }
       }
     },
+    "lorawanv3Configuration": {
+      "type": "object",
+      "properties": {
+        "default_cluster": {
+          "$ref": "#/definitions/ConfigurationCluster",
+          "description": "Default cluster configuration."
+        }
+      }
+    },
     "protobufAny": {
       "type": "object",
       "properties": {
@@ -548,15 +557,6 @@
       "properties": {
         "stripe": {
           "$ref": "#/definitions/BillingStripe"
-        }
-      }
-    },
-    "v3Configuration": {
-      "type": "object",
-      "properties": {
-        "default_cluster": {
-          "$ref": "#/definitions/ConfigurationCluster",
-          "description": "Default cluster configuration."
         }
       }
     },
@@ -710,7 +710,7 @@
           "type": "object"
         },
         "configuration": {
-          "$ref": "#/definitions/v3Configuration"
+          "$ref": "#/definitions/lorawanv3Configuration"
         },
         "billing": {
           "$ref": "#/definitions/v3Billing"

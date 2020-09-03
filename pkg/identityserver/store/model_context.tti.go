@@ -83,3 +83,15 @@ func (usr *User) SetContext(ctx context.Context) {
 	usr.Model.SetContext(ctx)
 	usr.Account.SetContext(ctx)
 }
+
+// SetContext sets the context on the external user model.
+func (eu *ExternalUser) SetContext(ctx context.Context) {
+	eu.TenantID = tenant.FromContext(ctx).TenantID
+	eu.Model.SetContext(ctx)
+}
+
+// SetContext sets the context on the authentication provider model.
+func (ap *AuthenticationProvider) SetContext(ctx context.Context) {
+	ap.TenantID = tenant.FromContext(ctx).TenantID
+	ap.Model.SetContext(ctx)
+}
