@@ -25,6 +25,7 @@ import SubmitBar from '@ttn-lw/components/submit-bar'
 import SubmitButton from '@ttn-lw/components/submit-button'
 import Notification from '@ttn-lw/components/notification'
 import ModalButton from '@ttn-lw/components/button/modal-button'
+import PortalledModal from '@ttn-lw/components/modal/portalled'
 
 import PubsubFormatSelector from '@console/containers/pubsub-formats-select'
 
@@ -48,6 +49,7 @@ const pathPlaceholder = 'sub-topic'
 export default class PubsubForm extends Component {
   static propTypes = {
     appId: PropTypes.string.isRequired,
+    existCheck: PropTypes.func,
     initialPubsubValue: PropTypes.pubsub,
     onDelete: PropTypes.func,
     onDeleteFailure: PropTypes.func,
@@ -60,6 +62,7 @@ export default class PubsubForm extends Component {
 
   static defaultProps = {
     initialPubsubValue: undefined,
+    existCheck: () => false,
     onSubmitSuccess: () => null,
     onSubmitFailure: () => null,
     onDeleteSuccess: () => null,
@@ -71,15 +74,19 @@ export default class PubsubForm extends Component {
     super(props)
 
     this.form = React.createRef()
+    this.modalResolve = () => null
+    this.modalReject = () => null
 
     const { initialPubsubValue, update } = this.props
 
     this.state = {
-      error: '',
+      error: undefined,
       provider: blankValues._provider,
       mqttUseCredentials: true,
       natsUseCredentials: true,
       awsIoTUseProviderDefaults: true,
+      displayOverwriteModal: false,
+      existingId: undefined,
     }
 
     if (update && 'nats' in initialPubsubValue) {
@@ -100,7 +107,7 @@ export default class PubsubForm extends Component {
 
   @bind
   async handleSubmit(values, { setSubmitting, resetForm }) {
-    const { appId, onSubmit, onSubmitSuccess, onSubmitFailure } = this.props
+    const { appId, onSubmit, onSubmitSuccess, onSubmitFailure, existCheck, update } = this.props
 
     const castedValues = validationSchema.cast(values)
     const pubsub = mapFormValuesToPubsub(castedValues, appId)
@@ -108,6 +115,17 @@ export default class PubsubForm extends Component {
     await this.setState({ error: '' })
 
     try {
+      if (!update) {
+        const pubsubId = pubsub.ids.pub_sub_id
+        const exists = await existCheck(pubsubId)
+        if (exists) {
+          this.setState({ displayOverwriteModal: true, existingId: pubsubId })
+          await new Promise((resolve, reject) => {
+            this.modalResolve = resolve
+            this.modalReject = reject
+          })
+        }
+      }
       const result = await onSubmit(pubsub)
 
       resetForm({ values })
@@ -158,10 +176,20 @@ export default class PubsubForm extends Component {
     this.setState({ awsIoTUseProviderDefaults: value })
   }
 
+  @bind
+  handleReplaceModalDecision(mayReplace) {
+    if (mayReplace) {
+      this.modalResolve()
+    } else {
+      this.modalReject()
+    }
+    this.setState({ displayOverwriteModal: false })
+  }
+
   get natsSection() {
     const { natsUseCredentials } = this.state
     return (
-      <React.Fragment>
+      <>
         <Form.SubTitle title={m.natsConfig} />
         <Form.Field name="nats.secure" title={sharedMessages.secure} component={Checkbox} />
         <Form.Field
@@ -202,7 +230,7 @@ export default class PubsubForm extends Component {
           autoComplete="on"
           required
         />
-      </React.Fragment>
+      </>
     )
   }
 
@@ -210,7 +238,7 @@ export default class PubsubForm extends Component {
     const { mqttSecure, mqttUseCredentials } = this.state
 
     return (
-      <React.Fragment>
+      <>
         <Form.SubTitle title={m.mqttConfig} />
         <Form.Field
           name="mqtt.use_tls"
@@ -219,7 +247,7 @@ export default class PubsubForm extends Component {
           onChange={this.handleMqttUseTlsChange}
         />
         {mqttSecure && (
-          <React.Fragment>
+          <>
             <Form.Field
               name="mqtt.tls_ca"
               title={m.tlsCa}
@@ -247,7 +275,7 @@ export default class PubsubForm extends Component {
               accept=".pem"
               required
             />
-          </React.Fragment>
+          </>
         )}
         <Form.Field
           name="mqtt.server_url"
@@ -298,13 +326,13 @@ export default class PubsubForm extends Component {
           required
           options={qosOptions}
         />
-      </React.Fragment>
+      </>
     )
   }
 
   get messageTypesSection() {
     return (
-      <React.Fragment>
+      <>
         <Form.SubTitle title={sharedMessages.messageTypes} />
         <PubsubFormatSelector horizontal name="format" required />
         <Form.Field
@@ -384,7 +412,7 @@ export default class PubsubForm extends Component {
           placeholder={pathPlaceholder}
           component={Input.Toggled}
         />
-      </React.Fragment>
+      </>
     )
   }
 
@@ -400,7 +428,7 @@ export default class PubsubForm extends Component {
 
   render() {
     const { update, initialPubsubValue } = this.props
-    const { error, provider } = this.state
+    const { error, provider, displayOverwriteModal, existingId } = this.state
     let initialValues = blankValues
     if (update && initialPubsubValue) {
       initialValues = mapPubsubToFormValues(initialPubsubValue)
@@ -414,6 +442,14 @@ export default class PubsubForm extends Component {
         error={error}
         formikRef={this.form}
       >
+        <PortalledModal
+          title={sharedMessages.idAlreadyExists}
+          message={{ ...m.alreadyExistsModalMessage, values: { id: existingId } }}
+          buttonMessage={m.replacePubsub}
+          onComplete={this.handleReplaceModalDecision}
+          approval
+          visible={displayOverwriteModal}
+        />
         <Form.SubTitle title={sharedMessages.generalInformation} />
         <Form.Field
           name="pub_sub_id"
