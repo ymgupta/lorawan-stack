@@ -82,27 +82,21 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 		endpointAddress = *res.EndpointAddress
 	}
 	brokerAddress := fmt.Sprintf("wss://%s/mqtt", endpointAddress)
-	req, _ := http.NewRequest("GET", brokerAddress, nil)
-	signer := sigv4.NewSigner(ses.Config.Credentials, func(s *sigv4.Signer) {
-		s.DisableHeaderHoisting = true
-	})
-	_, err = signer.Sign(req, nil, "iotdevicegateway", settings.AWSIoT.Region, time.Now())
-	if err != nil {
-		if awserr, ok := err.(awserr.Error); ok {
-			return nil, errSign.WithAttributes("message", awserr.Message())
-		}
-		return nil, err
-	}
-	headers := make(map[string]string)
-	for _, key := range []string{"Authorization", "X-Amz-Date", "X-Amz-Security-Token"} {
-		if value := req.Header.Get(key); value != "" {
-			headers[key] = value
-		}
-	}
-	mqttSettings := &ttnpb.ApplicationPubSub_MQTT{
-		MQTT: &ttnpb.ApplicationPubSub_MQTTProvider{
-			ServerURL: brokerAddress,
-			Headers:   headers,
+	mqttSettings := mqtt.Settings{
+		URL: brokerAddress,
+		HTTPHeadersProvider: func(ctx context.Context) (http.Header, error) {
+			req, _ := http.NewRequest("GET", brokerAddress, nil)
+			signer := sigv4.NewSigner(ses.Config.Credentials, func(s *sigv4.Signer) {
+				s.DisableHeaderHoisting = true
+			})
+			_, err = signer.Sign(req, nil, "iotdevicegateway", settings.AWSIoT.Region, time.Now())
+			if err != nil {
+				if awserr, ok := err.(awserr.Error); ok {
+					return nil, errSign.WithAttributes("message", awserr.Message())
+				}
+				return nil, err
+			}
+			return req.Header, nil
 		},
 	}
 	topics := provider.Topics(target)
