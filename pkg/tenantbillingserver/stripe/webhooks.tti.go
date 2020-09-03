@@ -72,6 +72,12 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, subscriptionItem.Plan.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Customer.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.ID))
+	ctx = log.NewContextWithFields(ctx, log.Fields(
+		"subscription_item_id", subscriptionItem.ID,
+		"plan_id", subscriptionItem.Plan.ID,
+		"customer_id", sub.Customer.ID,
+		"subscription_id", sub.ID,
+	))
 
 	switch sub.Status {
 	case stripe.SubscriptionStatusActive, stripe.SubscriptionStatusTrialing:
