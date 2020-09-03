@@ -26,8 +26,8 @@ type impl struct {
 }
 
 var (
-	errSession          = errors.DefineAborted("session", "configure session: {message}")
-	errDescribeEndpoint = errors.DefineAborted("describe_endpoint", "describe endpoint: {message}")
+	errSession          = errors.DefineFailedPrecondition("session", "configure session: {message}")
+	errDescribeEndpoint = errors.DefineFailedPrecondition("describe_endpoint", "describe endpoint: {message}")
 	errSign             = errors.DefinePermissionDenied("sign", "sign: {message}")
 )
 
