@@ -72,7 +72,9 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	}
 	endpointAddress := settings.AWSIoT.EndpointAddress
 	if endpointAddress == "" {
-		res, err := iot.New(ses).DescribeEndpointWithContext(ctx, &iot.DescribeEndpointInput{})
+		res, err := iot.New(ses).DescribeEndpointWithContext(ctx, &iot.DescribeEndpointInput{
+			EndpointType: aws.String("iot:Data-ATS"),
+		})
 		if err != nil {
 			if awserr, ok := err.(awserr.Error); ok {
 				return nil, errDescribeEndpoint.WithAttributes("message", awserr.Message())
