@@ -1408,6 +1408,18 @@ For development, remember to run the stack with `go run`:
 $ go run ./cmd/ttn-lw-stack start
 ```
 
+### CLI
+
+#### Problem: Stack crashes with error: `undefined: unique.ToTenantID`
+
+#### Cause: Missing build flag
+
+See [Running a Development Build](#running-a-development-build-of-the-things-stack)
+
+```bash
+$ export GOFLAGS="--tags=tti"
+```
+
 #### General advice
 
 A lot of problems during build stem from fragmented, incomplete runs of mage targets (due to arbitrary errors happening during a run). Oftentimes, it then helps to build the entire Web UI from scratch: `tools/bin/mage jsSDK:cleanDeps jsSDK:clean js:cleanDeps js:clean js:build`, and (re-)start The Things Stack after running this.
