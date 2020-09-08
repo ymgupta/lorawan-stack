@@ -15,9 +15,9 @@ type ExternalUser struct {
 	UserID string `gorm:"type:UUID;index:external_user_id_index;not null"`
 
 	AuthenticationProvider   *AuthenticationProvider
-	AuthenticationProviderID string `gorm:"type:UUID;index:external_user_external_id_index;not null"`
+	AuthenticationProviderID string `gorm:"type:UUID;unique_index:external_user_external_id_index;not null"`
 
-	ExternalID string `gorm:"index:external_user_external_id_index;not null"`
+	ExternalID string `gorm:"unique_index:external_user_external_id_index;not null"`
 }
 
 func (ExternalUser) _isMultiTenant() {}
