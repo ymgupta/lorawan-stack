@@ -11,7 +11,7 @@
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.1cea41ee39aef5a4fbe2bdbc671825f58a33d9ba6f3d9f4160af48ba5c798495.css" integrity="sha256-HOpB7jmu9aT74r28Zxgl9Yoz2bpvPZ9BYK9Iulx5hJU="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.7e4de56b6eb0f121d87a4e20a3f5beff049d939f91118b155469f5a6fe219e7e.css" integrity="sha256-fk3la26w8SHYek4go/W&#43;/wSdk5&#43;REYsVVGn1pv4hnn4="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="The Things Stack for LoRaWAN">
   <meta name="keywords" content="">
   <meta itemprop="name" content="Major Changes in The Things Stack">
@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.1</p>
+        <p class="navbar-item is-size-7">v3.9.2</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -113,6 +113,9 @@ debug: false
   <a href="https://thethingsstack.io/getting-started/migrating-from-v2/import-devices/" class="">Import End Devices in The Things Stack</a>
 </li>
 <li>
+  <a href="https://thethingsstack.io/getting-started/migrating-from-v2/gateway-migration/" class="">Gateway Migration</a>
+</li>
+<li>
   <a href="https://thethingsstack.io/getting-started/migrating-from-v2/configure-mac-settings/" class="">Fine-tuning MAC Settings for End Devices</a>
 </li>
 <li>
@@ -135,11 +138,7 @@ debug: false
 <p>The Things Stack is using a new architecture. See <a href="https://thethingsstack.io/reference/components/">Components</a> for a complete overview of the different components of The Things Stack.</p>
 <h2 id="lorawan-support">LoRaWAN support</h2>
 <p>The Things Stack requires the <strong>LoRaWAN version</strong> and <strong>Regional Parameters</strong> (LoRaWAN PHY version) to be set per end device. These default to LoRaWAN version <strong>1.0.2</strong> and LoRaWAN Regional Parameters version <strong>1.0.2 Rev B</strong> for end devices imported from The Things Network Stack V2, because this configuration is the most consistent with V2.</p>
-<p>This means that all end devices need a frequency plan. You will have to choose the frequency plan corresponding to your region. A list of supported Frequency Plan IDs is available in <a href="https://github.com/TheThingsNetwork/lorawan-frequency-plans/blob/master/frequency-plans.yml">the lorawan-frequency-plans Github repository</a>.</p>
-<!--
-TODO: https://github.com/TheThingsNetwork/lorawan-stack/issues/2421
-Add reference to docs after that is merged.
--->
+<p>This means that all end devices need a frequency plan. You will have to choose the frequency plan corresponding to your region. See <a href="https://thethingsstack.io/reference/frequency-plans/">Frequency Plans</a> for a list of supported Frequency Plans and their respective IDs.</p>
 <p>Furthermore, The Things Stack brings full support for all LoRaWAN versions, as well as Class B and Class C modes.</p>
 <h2 id="gateway-coverage">Gateway Coverage</h2>
 <p>The Packet Broker enables peering between networks, so traffic received by one network (e.g. the Public Community Network) but intended for a different network (The Things Stack) can be forwarded to and from that network. See the <a href="https://thethingsstack.io/integrations/peering/">Peering Guide</a> for details on Packet Broker and how to enable it for your network.</p>
@@ -148,7 +147,7 @@ Add reference to docs after that is merged.
 <p><strong>NOTE</strong>: Packet Broker is only enabled on The Things Network Public Community Network and The Things Industries Cloud Hosted.</p>
 </blockquote>
 <p>For private The Things Stack deployments with Packet Broker disabled, you will need to re-configure your gateways to connect to The Things Stack, so that you can start receiving traffic from your end devices.</p>
-<p>In order to connect a gateway to The Things Stack, follow instructions for <a href="https://thethingsstack.io/getting-started/console/create-gateway/">Adding a Gateway in the Console</a> or <a href="https://thethingsstack.io/getting-started/cli/#create-gateway">Adding a Gateway using the CLI</a>. Then, reconfigure the gateway to connect to The Things Stack, and regenerate its API key (if required).</p>
+<p>In order to connect a gateway to The Things Stack, follow instructions for <a href="https://thethingsstack.io/gateways/adding-gateways/">Adding Gateways</a>. Then, reconfigure the gateway to connect to The Things Stack, and regenerate its API key (if required).</p>
 <p>Also see <a href="https://thethingsstack.io/gateways/">Gateways</a> for instructions on configuring popular LoRaWAN gateways with The Things Stack.</p>
 <h2 id="application-data">Application Data</h2>
 <p>The Things Stack uses a different data format for uplink and downlink traffic than The Things Network Stack V2.</p>
@@ -158,11 +157,7 @@ Add reference to docs after that is merged.
 <h3 id="payload-formats">Payload Formats</h3>
 <p>The Things Network Stack V2 has support for payload decoders, converters, validators (for uplink) and encoders (for downlink). These can be either CayenneLPP or Javascript functions.</p>
 <p>The Things Stack has support for an uplink payload formatter (similar to the payload decoder) and a downlink payload formatter (similar to the payload encoder). These can be set per application, and can even be overridden per end device. Similar to The Things Network Stack V2, CayenneLPP and Javascript functions are supported.</p>
-<p>Migrating the The Things Network Stack V2 payload encoder and decoder to an uplink and downlink payload formatter should be straightforward, since they have the same format.</p>
-<!--
-TODO: https://github.com/TheThingsNetwork/lorawan-stack/issues/598
-Add a reference here once Payload Formatters are documented.
--->
+<p>Migrating the The Things Network Stack V2 payload encoder and decoder to an uplink and downlink payload formatter should be straightforward. See <a href="https://thethingsstack.io/integrations/payload-formatters/">Payload Formatters</a> for more details.</p>
 <h3 id="integrations">Integrations</h3>
 <p><a href="https://thethingsstack.io/integrations/">Read about the Integrations supported by The Things Stack</a>.</p>
 <h4 id="mqtt-traffic">MQTT Traffic</h4>
@@ -222,10 +217,10 @@ Add a reference here once Payload Formatters are documented.
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Hylke Visser on 19 Aug 2020.
+  Last changed by Johan Stokking on 11 Sep 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fe25d274f3c38f028593df6807f7006ee0a5909b">
-      Merge pull request #3101 from TheThingsNetwork/release/v3.9.1
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/245962c89beb308e80c03b50f62d19235f9b525f">
+      Merge pull request #3217 from rvolosatovs/release/v3.9.2
     </a>
 </p>
 
@@ -236,7 +231,7 @@ Add a reference here once Payload Formatters are documented.
     </div>
   </div>
 </footer>
-<script src="https://thethingsstack.io/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script><script>
+<script src="https://thethingsstack.io/js/theme.min.f2a4a6f4d8d05caec5bf3fded3276d6dc6a0fb5ef0a20dac102eb4a9b52e725f.js" integrity="sha256-8qSm9NjQXK7Fvz/e0ydtbcag&#43;17wog2sEC60qbUucl8="></script><script>
   window.intercomSettings = {
     app_id: "pp8esr7h",
   };

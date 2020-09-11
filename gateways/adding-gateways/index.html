@@ -11,7 +11,7 @@
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.1cea41ee39aef5a4fbe2bdbc671825f58a33d9ba6f3d9f4160af48ba5c798495.css" integrity="sha256-HOpB7jmu9aT74r28Zxgl9Yoz2bpvPZ9BYK9Iulx5hJU="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.7e4de56b6eb0f121d87a4e20a3f5beff049d939f91118b155469f5a6fe219e7e.css" integrity="sha256-fk3la26w8SHYek4go/W&#43;/wSdk5&#43;REYsVVGn1pv4hnn4="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta itemprop="name" content="Adding Gateways">
@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.1</p>
+        <p class="navbar-item is-size-7">v3.9.2</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -106,7 +106,77 @@ debug: false
 
 <h1 class="title is-size-2">Adding Gateways</h1>
 
-<div class="content"><p>Gateways can be added to The Things Stack by following instructions for <a href="https://thethingsstack.io/getting-started/console/create-gateway/">Adding Gateways in the Console</a> or <a href="https://thethingsstack.io/getting-started/cli/create-gateway/">Adding Gateways Using the Command-line interface</a>.</p>
+<div class="content"><p>This section contains instructions for adding Gateways in The Things Stack.</p>
+<div class="tabs is-boxed" id="tabs">
+  <ul>
+    
+    <li class="is-active" data-tab="console">
+      <a>
+        <span>Console</span>
+      </a>
+    </li>
+    
+    <li class="is-active" data-tab="cli">
+      <a>
+        <span>CLI</span>
+      </a>
+    </li>
+    
+  </ul>
+</div>
+<div id="tab-content" class="content">
+  <section data-content="console">
+  <h2 id="adding-gateways-using-the-console">Adding Gateways using the Console</h2>
+<p>Go to <strong>Gateways</strong> in the top menu, and click <strong>+ Add Gateway</strong> to reach the gateway registration page. Fill the gateway ID, gateway EUI (if your gateway has an EUI) and frequency plan. The other fields are optional. Click <strong>Create Gateway</strong> to create the gateway.</p>
+<figure>
+    <img src="gateway-creation.png"
+         alt="Gateway creation"/> 
+</figure>
+<p>Your gateway will be created and you will be redirected to the gateway overview page of your newly created gateway.</p>
+<figure>
+    <img src="gateway-overview.png"
+         alt="Gateway overview"/> 
+</figure>
+<p>You can now connect your gateway to The Things Stack.</p>
+<h3 id="create-gateway-api-key">Create Gateway API Key</h3>
+<p>Some gateways require an API Key with Link Gateway Rights to be able to connect to The Things Stack.</p>
+<p>In order to do this, navigate the <strong>API Keys</strong> menu of your gateway and select <strong>Add API Key</strong>. Enter a name for your key, select the <strong>Link as Gateway to a Gateway Server for traffic exchange, i.e. write uplink and read downlink</strong> right and then press <strong>Create API Key</strong>.</p>
+<figure>
+    <img src="gateway-api-key-creation.png"
+         alt="Gateway API Key creation"/> 
+</figure>
+<p>You will see a screen that shows your newly created API Key. You now can copy it in your clipboard by pressing the clipboard button. After saving the key in a safe place, press <strong>I have copied the key</strong>. You will not be able to see this key again in the future, and if you lose it, you can create a new one to replace it in the gateway configuration.</p>
+<figure>
+    <img src="gateway-api-key-created.png"
+         alt="Gateway API Key created"/> 
+</figure>
+</section>
+<section data-content="cli">
+  <h2 id="adding-gateways-using-the-cli">Adding Gateways using the CLI</h2>
+<p>First, list the available frequency plans:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways list-frequency-plans
+</code></pre></div><p>Then, create the first gateway with the chosen frequency plan:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways create gtw1 <span class="se">\
+</span><span class="se"></span>  --user-id admin <span class="se">\
+</span><span class="se"></span>  --frequency-plan-id EU_863_870 <span class="se">\
+</span><span class="se"></span>  --gateway-eui 00800000A00009EF <span class="se">\
+</span><span class="se"></span>  --enforce-duty-cycle
+</code></pre></div><p>This creates a gateway <code>gtw1</code> with user <code>admin</code> as collaborator, frequency plan <code>EU_863_870</code>, EUI <code>00800000A00009EF</code> and respecting duty-cycle limitations. You can now connect your gateway to The Things Stack.</p>
+<blockquote>
+<p>Note: The CLI returns the created and updated entities by default in JSON. This can be useful in scripts.</p>
+</blockquote>
+<h3 id="create-gateway-api-key">Create Gateway API Key</h3>
+<p>Some gateways require an API Key with Link Gateway Rights to be able to connect to The Things Stack.</p>
+<p>Create an API key for the gateway:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">$ ttn-lw-cli gateways api-keys create <span class="se">\
+</span><span class="se"></span>  --name link <span class="se">\
+</span><span class="se"></span>  --gateway-id gtw1 <span class="se">\
+</span><span class="se"></span>  --right-gateway-link
+</code></pre></div><p>The CLI will return an API key such as <code>NNSXS.VEEBURF3KR77ZR...</code>. This API key has only link rights and can therefore only be used for linking this gateway. Make sure to copy the key and save it in a safe place. You will not be able to see this key again in the future, and if you lose it, you can create a new one to replace it in the gateway configuration.</p>
+</section>
+
+</div>
+
 <p>Once a gateway has been added, get started with <a href="https://thethingsstack.io/devices/adding-devices/">Adding Devices</a> and <a href="https://thethingsstack.io/integrations/">Integrations</a> to process and act on data.</p></div>
 
 
@@ -157,10 +227,10 @@ debug: false
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Hylke Visser on 19 Aug 2020.
+  Last changed by Johan Stokking on 11 Sep 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fe25d274f3c38f028593df6807f7006ee0a5909b">
-      Merge pull request #3101 from TheThingsNetwork/release/v3.9.1
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/245962c89beb308e80c03b50f62d19235f9b525f">
+      Merge pull request #3217 from rvolosatovs/release/v3.9.2
     </a>
 </p>
 
@@ -171,7 +241,7 @@ debug: false
     </div>
   </div>
 </footer>
-<script src="https://thethingsstack.io/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script><script>
+<script src="https://thethingsstack.io/js/theme.min.f2a4a6f4d8d05caec5bf3fded3276d6dc6a0fb5ef0a20dac102eb4a9b52e725f.js" integrity="sha256-8qSm9NjQXK7Fvz/e0ydtbcag&#43;17wog2sEC60qbUucl8="></script><script>
   window.intercomSettings = {
     app_id: "pp8esr7h",
   };

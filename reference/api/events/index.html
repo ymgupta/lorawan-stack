@@ -11,7 +11,7 @@
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.1cea41ee39aef5a4fbe2bdbc671825f58a33d9ba6f3d9f4160af48ba5c798495.css" integrity="sha256-HOpB7jmu9aT74r28Zxgl9Yoz2bpvPZ9BYK9Iulx5hJU="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
+  <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.7e4de56b6eb0f121d87a4e20a3f5beff049d939f91118b155469f5a6fe219e7e.css" integrity="sha256-fk3la26w8SHYek4go/W&#43;/wSdk5&#43;REYsVVGn1pv4hnn4="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="">
   <meta name="keywords" content="">
   <meta itemprop="name" content="Events API">
@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.1</p>
+        <p class="navbar-item is-size-7">v3.9.2</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -793,6 +793,27 @@ The availability of historical events depends on server support and retention po
 <p class="event-description">subscribe application</p>
 <h3 class="event-name" id="event:as.application.unsubscribe">Event <code>as.application.unsubscribe</code></h3>
 <p class="event-description">unsubscribe application</p>
+<h3 class="event-name" id="event:as.down.data.decode.fail">Event <code>as.down.data.decode.fail</code></h3>
+<p class="event-description">decode downlink data message failure</p>
+<details><summary>Show example of <code>data</code> field</summary>
+  <pre class="event-example"><code>{
+  "@type": "type.googleapis.com/ttn.lorawan.v3.ErrorDetails",
+  "attributes": {
+    "attr_name": "attr_value"
+  },
+  "code": 2,
+  "message_format": "example error for `{attr_name}`",
+  "name": "example",
+  "namespace": "pkg/example"
+}</code></pre>
+</details>
+<h3 class="event-name" id="event:as.down.data.decode.warning">Event <code>as.down.data.decode.warning</code></h3>
+<p class="event-description">decode downlink data message warning</p>
+<details><summary>Show example of <code>data</code> field</summary>
+  <pre class="event-example"><code>{
+  "@type": "type.googleapis.com/ttn.lorawan.v3.ApplicationDownlink"
+}</code></pre>
+</details>
 <h3 class="event-name" id="event:as.down.data.drop">Event <code>as.down.data.drop</code></h3>
 <p class="event-description">drop downlink data message</p>
 <details><summary>Show example of <code>data</code> field</summary>
@@ -805,6 +826,27 @@ The availability of historical events depends on server support and retention po
   "message_format": "example error for `{attr_name}`",
   "name": "example",
   "namespace": "pkg/example"
+}</code></pre>
+</details>
+<h3 class="event-name" id="event:as.down.data.encode.fail">Event <code>as.down.data.encode.fail</code></h3>
+<p class="event-description">encode downlink data message failure</p>
+<details><summary>Show example of <code>data</code> field</summary>
+  <pre class="event-example"><code>{
+  "@type": "type.googleapis.com/ttn.lorawan.v3.ErrorDetails",
+  "attributes": {
+    "attr_name": "attr_value"
+  },
+  "code": 2,
+  "message_format": "example error for `{attr_name}`",
+  "name": "example",
+  "namespace": "pkg/example"
+}</code></pre>
+</details>
+<h3 class="event-name" id="event:as.down.data.encode.warning">Event <code>as.down.data.encode.warning</code></h3>
+<p class="event-description">encode downlink data message warning</p>
+<details><summary>Show example of <code>data</code> field</summary>
+  <pre class="event-example"><code>{
+  "@type": "type.googleapis.com/ttn.lorawan.v3.ApplicationDownlink"
 }</code></pre>
 </details>
 <h3 class="event-name" id="event:as.down.data.forward">Event <code>as.down.data.forward</code></h3>
@@ -952,6 +994,17 @@ The availability of historical events depends on server support and retention po
   "message_format": "example error for `{attr_name}`",
   "name": "example",
   "namespace": "pkg/example"
+}</code></pre>
+</details>
+<h3 class="event-name" id="event:as.up.data.decode.warning">Event <code>as.up.data.decode.warning</code></h3>
+<p class="event-description">decode uplink data message warning</p>
+<details><summary>Show example of <code>data</code> field</summary>
+  <pre class="event-example"><code>{
+  "@type": "type.googleapis.com/ttn.lorawan.v3.ApplicationUplink",
+  "received_at": "0001-01-01T00:00:00Z",
+  "settings": {
+    "data_rate": {}
+  }
 }</code></pre>
 </details>
 <h3 class="event-name" id="event:as.up.data.drop">Event <code>as.up.data.drop</code></h3>
@@ -1815,10 +1868,10 @@ The availability of historical events depends on server support and retention po
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Hylke Visser on 19 Aug 2020.
+  Last changed by Johan Stokking on 11 Sep 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/fe25d274f3c38f028593df6807f7006ee0a5909b">
-      Merge pull request #3101 from TheThingsNetwork/release/v3.9.1
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/245962c89beb308e80c03b50f62d19235f9b525f">
+      Merge pull request #3217 from rvolosatovs/release/v3.9.2
     </a>
 </p>
 
@@ -1829,7 +1882,7 @@ The availability of historical events depends on server support and retention po
     </div>
   </div>
 </footer>
-<script src="https://thethingsstack.io/js/theme.min.df15d52bc4d1307cdd17a69bb1c802fb4d36b2e7b3411817277dc80c16b97f3c.js" integrity="sha256-3xXVK8TRMHzdF6abscgC&#43;002suezQRgXJ33IDBa5fzw="></script><script>
+<script src="https://thethingsstack.io/js/theme.min.f2a4a6f4d8d05caec5bf3fded3276d6dc6a0fb5ef0a20dac102eb4a9b52e725f.js" integrity="sha256-8qSm9NjQXK7Fvz/e0ydtbcag&#43;17wog2sEC60qbUucl8="></script><script>
   window.intercomSettings = {
     app_id: "pp8esr7h",
   };
