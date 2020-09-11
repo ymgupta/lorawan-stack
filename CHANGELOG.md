@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconnection issue to AWS IoT MQTT when the session expired (default after 15 minutes).
 - Pub/Sub integrations not backing off on internal connection failures.
 - Network Server ping slot-related field validation.
+- Memory usage of Network Server application uplink queues.
 
 ### Security
 
