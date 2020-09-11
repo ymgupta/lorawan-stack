@@ -42,8 +42,10 @@ func WrapPubSub(ctx context.Context, wrapped events.PubSub, taskStarter componen
 		taskStarter:  taskStarter,
 		ctx:          ctx,
 		cancel:       cancel,
-		readClient:   ttnRedisClient.ReadOnlyClient().Client,
+		client:       ttnRedisClient.Client,
 		eventChannel: eventChannel,
+
+		readClient: ttnRedisClient.ReadOnlyClient().Client,
 	}
 }
 
@@ -59,9 +61,11 @@ type PubSub struct {
 	taskStarter  component.TaskStarter
 	ctx          context.Context
 	cancel       context.CancelFunc
+	client       *redis.Client
 	eventChannel string
 	subOnce      sync.Once
-	readClient   *redis.Client
+
+	readClient *redis.Client
 }
 
 var errChannelClosed = errors.DefineAborted("channel_closed", "channel closed")
@@ -117,6 +121,9 @@ func (ps *PubSub) Close(ctx context.Context) error {
 	case <-ctx.Done():
 		return ctx.Err()
 	case <-ps.ctx.Done():
+		if err := ps.client.Close(); err != nil {
+			return err
+		}
 		if err := ps.readClient.Close(); err != nil {
 			return err
 		}
@@ -132,7 +139,7 @@ func (ps *PubSub) Publish(evt events.Event) {
 		logger.WithError(err).Warn("Failed to marshal event to JSON")
 		return
 	}
-	if err := ps.readClient.Publish(ps.eventChannel, b).Err(); err != nil {
+	if err := ps.client.Publish(ps.eventChannel, b).Err(); err != nil {
 		logger.WithError(err).Warn("Failed to publish event")
 	}
 }
