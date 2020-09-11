@@ -174,6 +174,10 @@ var startCommand = &cobra.Command{
 			return shared.ErrInitializeBaseComponent.WithCause(err)
 		}
 
+		if err := shared.InitializeEvents(ctx, c, config.ServiceBase); err != nil {
+			return err
+		}
+
 		c.RegisterGRPC(component.NewConfigurationServer(c))
 
 		host, err := os.Hostname()
