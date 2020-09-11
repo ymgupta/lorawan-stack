@@ -3644,6 +3644,15 @@
       "file": "grpc.go"
     }
   },
+  "error:pkg/events/redis:channel_closed": {
+    "translations": {
+      "en": "channel closed"
+    },
+    "description": {
+      "package": "pkg/events/redis",
+      "file": "redis.go"
+    }
+  },
   "error:pkg/eventserver/redis:no_payload": {
     "translations": {
       "en": "no payload"

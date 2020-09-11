@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
 - Support for binary decoding downlink messages previously encoded with Javascript or CayenneLPP.
+- Service data fields to pub/subs and webhooks in the Console.
 
 ### Changed
 
@@ -18,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default Javascript function signatures to `encodeDownlink()`, `decodeUplink()` and `decodeDownlink()`.
 - Default Class B timeout is increased from 1 minute to 10 minutes as was originally intended.
 - Update Go to 1.15
+- Application, gateway, organization and end device title sections in the Console.
 
 ### Deprecated
 
@@ -32,6 +34,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Webhooks and Pub/Subs forms in the Console will now let users choose whether they want to overwrite an existing record when the ID already exists (as opposed to overwriting by default).
 - Tenant Billing Server suspending unmanaged tenants.
 - Reconnection issue to AWS IoT MQTT when the session expired (default after 15 minutes).
+- Pub/Sub integrations not backing off on internal connection failures.
+- Network Server ping slot-related field validation.
+- Memory usage of Network Server application uplink queues.
 
 ### Security
 
