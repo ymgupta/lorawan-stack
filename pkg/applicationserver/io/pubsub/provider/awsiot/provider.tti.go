@@ -103,6 +103,9 @@ func (impl) OpenConnection(ctx context.Context, target provider.Target) (pc *pro
 	}
 	topics := provider.Topics(target)
 	if defaultIntegration := settings.AWSIoT.GetDefault(); defaultIntegration != nil {
+		if mqttSettings.ClientID == "" {
+			mqttSettings.ClientID = fmt.Sprintf("thethings-%s", defaultIntegration.StackName)
+		}
 		topics = &defaultIntegrationTopics{
 			baseTopic: fmt.Sprintf(defaultIntegrationBaseTopicFormat, defaultIntegration.StackName),
 		}
