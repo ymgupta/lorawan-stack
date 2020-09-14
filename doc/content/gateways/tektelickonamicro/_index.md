@@ -3,7 +3,9 @@ title: "Tektelic Kona Micro IoT LoRaWAN Gateway"
 description: ""
 ---
 
-Tektelic Kona Micro IoT LoRaWAN Gateway is an 8 channel LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://tektelic.com/wp-content/uploads/KONA-Micro.pdf). This page guides you to connect it to {{% tts %}}.
+The **Tektelic Kona Micro IoT LoRaWAN Gateway** is an 8 channel LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://tektelic.com/wp-content/uploads/KONA-Micro.pdf). This page guides you to connect it to {{% tts %}}.
+
+<!--more-->
 
 ## Prerequisites
 

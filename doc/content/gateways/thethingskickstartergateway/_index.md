@@ -3,7 +3,9 @@ title: "The Things Kickstarter Gateway"
 description: ""
 ---
 
-The Things Kickstarter Gateway is a LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://www.thethingsnetwork.org/docs/gateways/gateway/). This page guides you to connect it to {{% tts %}}.
+The **Things Kickstarter Gateway** is a LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://www.thethingsnetwork.org/docs/gateways/gateway/). This page guides you to connect it to {{% tts %}}.
+
+<!--more-->
 
 ## Prerequisites
 

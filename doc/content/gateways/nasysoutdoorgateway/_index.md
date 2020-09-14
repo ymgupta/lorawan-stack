@@ -3,7 +3,9 @@ title: "NASys LoRaWAN Outdoor Gateway"
 description: ""
 ---
 
-NASys LoRaWAN Outdoor Gateway is an 8 Channel LoRaWAN gateway, whose technical specifications can be found in [the official product page](https://www.nasys.no/product/lorawan-gateway/). This page guides you to connect it to {{% tts %}}.
+The **NASys LoRaWAN Outdoor Gateway** is an 8 Channel LoRaWAN gateway, whose technical specifications can be found in [the official product page](https://www.nasys.no/product/lorawan-gateway/). This page guides you to connect it to {{% tts %}}.
+
+<!--more-->
 
 ## Prerequisites
 

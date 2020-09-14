@@ -3,7 +3,7 @@ title: "Wifx LORIX One"
 description: ""
 ---
 
-The LORIX One is a robust and professional grade outdoor LoRaWAN® gateway in an ultra compact form factor, designed and assembled in Switzerland. The LORIX One supports ethernet, wireless, and cellular backhauls.
+The **Wifx LORIX One** is a robust and professional grade outdoor LoRaWAN® gateway in an ultra compact form factor, designed and assembled in Switzerland. The LORIX One supports ethernet, wireless, and cellular backhauls.
 
 This page will guide you through the steps required to connect the gateway to {{% tts %}}.
 

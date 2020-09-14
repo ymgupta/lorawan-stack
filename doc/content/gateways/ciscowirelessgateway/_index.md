@@ -6,6 +6,8 @@ weight: 1
 
 The **Cisco Wireless Gateway for LoRaWAN** technical specifications can be found in [Cisco's official documentation](https://www.cisco.com/c/en/us/products/routers/wireless-gateway-lorawan/). This page guides you to connecting the gateway to {{% tts %}}.
 
+<!--more-->
+
 ![Cisco LoRaWAN Gateway](cisco.jpg)
 
 ## Prerequisites

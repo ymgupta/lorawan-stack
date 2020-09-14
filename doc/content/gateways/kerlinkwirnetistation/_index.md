@@ -4,7 +4,9 @@ description: ""
 aliases: [/guides/connecting-gateways/kerlinkwirnetistation]
 ---
 
-Kerlink Wirnet iStation is a LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://www.kerlink.com/product/wirnet-istation/). This page guides you to connect it to {{% tts %}}.
+The **Kerlink Wirnet iStation** is a LoRaWAN gateway, whose technical specifications can be found in [the official documentation](https://www.kerlink.com/product/wirnet-istation/). This page guides you to connect it to {{% tts %}}.
+
+<!--more-->
 
 ## Prerequisites
 

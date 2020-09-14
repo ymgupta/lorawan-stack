@@ -3,9 +3,9 @@ title: "Generate QR Code"
 description: ""
 ---
 
-{{% tts %}} can generate QR codes for your devices. This helps identifying the devices and allows for claiming the device.
+{{% tts %}} can generate QR codes for your devices, which allows you to identify and claim devices.
 
-This guide shows you to generate a QR code for claiming with the command-line interface (CLI).
+In this guide, learn to generate QR codes using the command line interface.
 
 <!--more-->
 
