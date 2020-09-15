@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.2</p>
+        <p class="navbar-item is-size-7">v3.9.3</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -115,31 +115,42 @@ debug: false
 
 <h1 class="title is-size-2">Configuration and Update Server (CUPS)</h1>
 
-<div class="content"><p>LoRa Basics™ Station regularly connects to a Configuration and Update Server to check for configuration and software updates. This page contains information about managing your gateway using The Things Stack Configuration and Update Server (CUPS) Protocol.</p>
+<div class="content"><p>LoRa Basics™ Station can regularly connect to a Configuration and Update Server (CUPS) server to check for configuration and software updates. This page contains information about connecting your gateway to The Things Stack to support remote management via the CUPS Protocol.</p>
+<blockquote>
+<p>CUPS is <strong>not required</strong> for sending and receiving LoRaWAN data, but it can greatly simplify the management of gateways.</p>
+</blockquote>
 <h2 id="requirements">Requirements</h2>
 <ol>
 <li>User account on The Things Stack with rights to create gateways.</li>
+<li>A gateway which supports LoRa Basics™ Station.</li>
 </ol>
 <h2 id="create-a-gateway">Create a Gateway</h2>
-<p>Follow instructions for <a href="https://thethingsstack.io/gateways/adding-gateways/">Adding Gateways</a>.</p>
+<p>To connect a gateway using the CUPS protocol, you must first add the gateway in The Things Stack. This can be done either in the console, or via the command line. See instructions for <a href="https://thethingsstack.io/gateways/adding-gateways/">Adding Gateways</a>.</p>
 <h2 id="create-an-api-key">Create an API Key</h2>
-<p>CUPS requires an API Key with the following rights:</p>
+<p>CUPS requires an API key for your gateway with the following rights:</p>
 <ul>
 <li>View gateway information</li>
 <li>Edit basic gateway settings</li>
 </ul>
-<p>If you have not already created one, follow instructions for creating a Gateway API Key in <a href="https://thethingsstack.io/gateways/adding-gateways/">Adding Gateways</a>.</p>
+<p>To create an API key for your gateway, follow instructions for Creating a Gateway API key in <a href="https://thethingsstack.io/gateways/adding-gateways/">Adding Gateways</a>.</p>
 <h2 id="configure-gateway">Configure Gateway</h2>
-<p>On your gateway, set the following configuration fields.</p>
-<p>The <code>&lt;server-address&gt;</code> is the address of The Things Stack. If you followed the <a href="https://thethingsstack.io/getting-started/">Getting Started guide</a> this is the same as what you use instead of <code>thethings.example.com</code>.</p>
-<p>The <code>&lt;gateway-api-key&gt;</code> is the API Key you created above. Create a file named <code>cups.key</code> and copy your gateway API Key in as an HTTP header in the following format:</p>
-<pre><code>Authorization: Bearer &lt;gateway-api-key&gt;
-</code></pre><p>Some gateways require that the <code>cups.key</code> file is terminated with a Carriage Return Line Feed (<code>0x0D0A</code>) character. To easily add a CRLF character and save the file, use the following command:</p>
+<p>Gateway configuration menus differ depending on the manufacturer, but all LoRa Basics™ Station gateways support the following configuration options. Consult your gateway documentation for more information about configuring your specific gateway.</p>
+<h3 id="cups-server-address">CUPS Server Address</h3>
+<p>The server address is the network endpoint of The Things Stack CUPS. It is a combination of the <strong>protocol</strong> (https), the <strong>server address</strong>, and the <strong>port</strong>:</p>
+<p>Enter the following in your gateway as CUPS Server Address: <code>https://&lt;server-address&gt;:443</code></p>
+<blockquote>
+<p>The <code>&lt;server-address&gt;</code> is the address of The Things Stack. If you followed the <a href="https://thethingsstack.io/getting-started/">Getting Started guide</a> this is the same as what you use instead of <code>thethings.example.com</code>, e.g <code>https://thethings.example.com:443</code></p>
+</blockquote>
+<h3 id="cups-server-certificate--cups-trust">CUPS Server Certificate / CUPS Trust</h3>
+<p>This is the <a href="https://en.wikipedia.org/wiki/Certificate_authority">CA certificate</a> which secures your domain. A <code>.pem</code> file containing common certificates is available in the <a href="">Root Certificates Reference</a>.</p>
+<p>Upload the <code>.pem</code> file in your gateway as the CUPS Server Certificate / CUPS Trust.</p>
+<h3 id="cups-key-file">CUPS Key File</h3>
+<p>This is a file which The Things Stack uses to verify the identity of your gateway.</p>
+<p>Use the following command to create a file called <code>cups.key</code> with the <code>&lt;gateway-api-key&gt;</code> you created above.</p>
 <div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">echo</span> <span class="s2">&#34;Authorization: Bearer &lt;gateway-api-key&gt;&#34;</span> <span class="p">|</span> perl -p -e <span class="s1">&#39;s/\r\n|\n|\r/\r\n/g&#39;</span>  &gt; cups.key
-</code></pre></div><p>If using Let&rsquo;s Encrypt to secure your domain, you may download the Let&rsquo;s Encrypt DST X3 Trust file <a href="https://letsencrypt.org/certs/lets-encrypt-x3-cross-signed.pem.txt">here</a>.</p>
-<p>CUPS URI: <code>https://&lt;server-address&gt;:443</code></p>
-<p>CUPS Key: <code>cups.key</code></p>
-<p>CUPS Trust: Use the CA certificate of your trust provider</p></div>
+</code></pre></div><blockquote>
+<p>The above command creates a file called <code>cups.key</code>, terminated with a Carriage Return Line Feed (<code>0x0D0A</code>) character. Upload this file in your gateway as the CUPS key.</p>
+</blockquote></div>
 
 <script>window.emojicom_widget = { campaign: "NEDHszRC2r2KaGj1mhj7" };</script>
 <script src="https://cdn.emojicom.io/embed/widget.js" async></script>
@@ -185,10 +196,10 @@ debug: false
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Johan Stokking on 11 Sep 2020.
+  Last changed by Roman Volosatovs on 15 Sep 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/245962c89beb308e80c03b50f62d19235f9b525f">
-      Merge pull request #3217 from rvolosatovs/release/v3.9.2
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/3f0c189ff912b88921cd4705b3afb8c57b1a6c53">
+      Merge pull request #3239 from rvolosatovs/fix/adr-loss-rate
     </a>
 </p>
 

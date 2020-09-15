@@ -7,20 +7,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <meta name="generator" content="Hugo 0.71.0" />
-  <title>Components | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/reference/components/" />
+  <title>Root Certificates | The Things Stack for LoRaWAN</title><link rel="canonical" href="https://thethingsstack.io/reference/root-certificates/" />
   <link rel="alternate icon" href="/favicon.ico">
   <link rel="alternate icon" type="image/png" href="/favicon.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="https://thethingsstack.io/css/theme.min.7e4de56b6eb0f121d87a4e20a3f5beff049d939f91118b155469f5a6fe219e7e.css" integrity="sha256-fk3la26w8SHYek4go/W&#43;/wSdk5&#43;REYsVVGn1pv4hnn4="><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsearch.js@2/dist/cdn/docsearch.min.css" />
   <meta name="description" content="">
   <meta name="keywords" content="">
-  <meta itemprop="name" content="Components">
+  <meta itemprop="name" content="Root Certificates">
   <meta itemprop="description" content="">
   <meta itemprop="keywords" content="">
-  <meta property="og:title" content="Components">
+  <meta property="og:title" content="Root Certificates">
   <meta property="og:description" content="">
-  <meta property="og:url" content="https://thethingsstack.io/reference/components/">
-  <meta name="twitter:title" content="Components" />
+  <meta property="og:url" content="https://thethingsstack.io/reference/root-certificates/">
+  <meta name="twitter:title" content="Root Certificates" />
   <meta name="twitter:description" content="" />
   <meta name="twitter:card" content="summary" />
 </head>
@@ -90,43 +90,10 @@ debug: false
       <div class="column is-one-third">
 
 
-<h2 class="title is-size-4">Components</h2>
+<h2 class="title is-size-4">Root Certificates</h2>
 
 <ul class="menu-list">
-<a href="https://thethingsstack.io/reference/components/" class="is-active">Overview</a>
-<li>
-  <a href="https://thethingsstack.io/reference/components/application-server/" class="">Application Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/cli/" class="">Command-line Interface</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/console/" class="">Console</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/device-template-converter/" class="">Device Template Converter</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/gateway-configuration-server/" class="">Gateway Configuration Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/gateway-server/" class="">Gateway Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/identity-server/" class="">Identity Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/join-server/" class="">Join Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/network-server/" class="">Network Server</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/packet-broker-agent/" class="">Packet Broker Agent</a>
-</li>
-<li>
-  <a href="https://thethingsstack.io/reference/components/qr-code-generator/" class="">QR Code Generator</a>
-</li>
+<a href="https://thethingsstack.io/reference/root-certificates/" class="is-active">Overview</a>
 </ul>
 
 
@@ -137,15 +104,15 @@ debug: false
       
       <div class="column is-two-thirds">
 
-<h1 class="title is-size-2">Components</h1>
+<h1 class="title is-size-2">Root Certificates</h1>
 
-<div class="content"><p>The Things Stack is composed of a number of components. The core components Network Server, Application Server and Join Server follow the LoRaWAN Network Reference Model. The Things Stack also contains an Identity Server, Gateway Server, Console and Command-line Interface.</p>
-<figure>
-    <img src="components.png"
-         alt="Components"/> 
-</figure>
-
-</div>
+<div class="content"><p>This section contains links to common root SSL certificates used in The Things Stack, issued by trusted certificate authorities (CAs).</p>
+<h2 id="minimal-certificate-list-for-common-installations">Minimal Certificate List for Common Installations</h2>
+<p>This <code>.pem</code> file contains certificates used in standard The Things Stack deployments, and is small enough to fit on memory constrained devices such as Gateways.</p>
+<p>Download the minimal certificate list <a href="ca.pem" download>here</a>.</p>
+<h2 id="complete-certificate-list">Complete Certificate List</h2>
+<p>This <code>.pem</code> file contains all common CA certificates trusted by Mozilla, and is extracted and hosted by <a href="https://curl.haxx.se/docs/caextract.html">curl</a>.</p>
+<p>Download the complete certificate list from curl <a href="https://curl.haxx.se/ca/cacert.pem">here</a>.</p></div>
 
 
 
@@ -158,7 +125,6 @@ debug: false
 
 
 <div class="is-clearfix">
-<a class="button is-pulled-right" href="/reference/components/application-server/">Application Server →</a>
 </div>
 
 
@@ -203,7 +169,7 @@ debug: false
     </a>
 </p>
 
-<a href="https://github.com/TheThingsNetwork/lorawan-stack/blob/default/doc/content/reference/components/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
+<a href="https://github.com/TheThingsNetwork/lorawan-stack/blob/default/doc/content/reference/root-certificates/_index.md" class="button is-primary is-small is-inverted is-outlined">Edit on Github</a>
 </div>
 
       </div>

@@ -33,7 +33,7 @@
     <div class="navbar-brand">
       <a class="navbar-item" href="/">
         <img src="/img/TTS-logo.svg">
-        <p class="navbar-item is-size-7">v3.9.2</p>
+        <p class="navbar-item is-size-7">v3.9.3</p>
       </a>
       <span class="navbar-burger burger" data-target="topMenu">
         <span></span>
@@ -116,6 +116,8 @@ debug: false
 <h1 class="title is-size-2">LoRa Basics™ Station</h1>
 
 <div class="content"><p>The <a href="https://lora-developers.semtech.com/resources/tools/basic-station/welcome-basic-station/">LoRa Basics™ Station</a> protocol simplifies management of large scale LoRaWAN networks. LoRa Basics™ Station is the preferred way of connecting Gateways to The Things Stack.</p>
+<p>This section contains information for connecting your gateway to The Things Stack using LoRa Basics™ Station and its sub protocols.</p>
+<h2 id="advantages-of-lora-basics-station">Advantages of LoRa Basics™ Station</h2>
 <p>Some of the advantages of LoRa Basics™ Station over the legacy UDP Packet Forwarder are:</p>
 <ul>
 <li>Centralized Update and Configuration Management</li>
@@ -123,8 +125,12 @@ debug: false
 <li>Centralized Channel-Plan Management</li>
 <li>No Dependency on Local Time Keeping</li>
 </ul>
+<h2 id="lns-and-cups-sub-protocols">LNS and CUPS Sub Protocols</h2>
 <p>LoRa Basics™ Station contains two sub protocols for connecting Gateways to Network Servers, LoRaWAN Network Server (LNS) and Configuration and Update Server (CUPS).</p>
-<p>The Things Stack has full support for the LoRa Basics™ Station protocol. This section contains information for connecting your gateway using LNS or CUPS.</p>
+<h3 id="lorawan-network-server-lns">LoRaWAN Network Server (LNS)</h3>
+<p>LNS establishes a data connection between a LoRa Basics™ Station gateway and a Network Server (in this case, The Things Stack). LoRa® uplink and downlink frames are exchanged through this data connection. The LNS protocol is <strong>required</strong> for sending and receiving LoRaWAN data.</p>
+<h3 id="configuration-and-update-server-cups">Configuration and Update Server (CUPS)</h3>
+<p>CUPS allows a Network Server to configure gateways remotely, and to update gateway firmware. CUPS is <strong>not required</strong> for sending and receiving LoRaWAN data, but it can greatly simplify the management of gateways.</p>
 <p>More information about LoRa Basics™ Station is available at <a href="https://lora-developers.semtech.com/resources/tools/basic-station/welcome-basic-station/">Semtech&rsquo;s Developer Portal</a></p></div>
 
 
@@ -176,10 +182,10 @@ debug: false
         <h3 class="title is-6">About this page</h3>
         <div class="content">
 <p class="has-text-light is-size-7">
-  Last changed by Johan Stokking on 11 Sep 2020.
+  Last changed by Roman Volosatovs on 15 Sep 2020.
   <br>
-  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/245962c89beb308e80c03b50f62d19235f9b525f">
-      Merge pull request #3217 from rvolosatovs/release/v3.9.2
+  <a href="https://github.com/TheThingsNetwork/lorawan-stack/commit/3f0c189ff912b88921cd4705b3afb8c57b1a6c53">
+      Merge pull request #3239 from rvolosatovs/fix/adr-loss-rate
     </a>
 </p>
 
