@@ -20973,7 +20973,15 @@
               "longType": "ApplicationDownlink",
               "fullType": "ttn.lorawan.v3.ApplicationDownlink",
               "ismap": false,
-              "defaultValue": ""
+              "defaultValue": "",
+              "options": {
+                "validate.rules": [
+                  {
+                    "name": "repeated.max_items",
+                    "value": 100000
+                  }
+                ]
+              }
             }
           ]
         },

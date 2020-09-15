@@ -9,8 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+## [3.9.3] - 2020-09-15
+
+### Added
+
 - Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
 - Support for binary decoding downlink messages previously encoded with Javascript or CayenneLPP.
+- Common CA certificates available in documentation.
 - Service data fields to pub/subs and webhooks in the Console.
 
 ### Changed
@@ -20,12 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default Class B timeout is increased from 1 minute to 10 minutes as was originally intended.
 - Update Go to 1.15
 - Application, gateway, organization and end device title sections in the Console.
+- Network Server downlink queues now have a capacity - by default maximum application downlink queue length is 10000 elements.
+- Improve ADR algorithm loss rate computation.
 
 ### Deprecated
 
 - Previous Javascript function signatures `Decoder()` and `Encoder()`, although they remain functional until further notice.
-
-### Removed
 
 ### Fixed
 
@@ -37,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pub/Sub integrations not backing off on internal connection failures.
 - Network Server ping slot-related field validation.
 - Memory usage of Network Server application uplink queues.
-
-### Security
+- Incorrect uplink FCnt display in end device title section.
+- Service Data messages being routed incorrectly.
 
 ## [3.9.1] - 2020-08-19
 
@@ -1067,7 +1080,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.1...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.3...HEAD
+[3.9.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.1...v3.9.3
 [3.9.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.0...v3.9.1
 [3.9.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.6...v3.9.0
 [3.8.6]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.5...v3.8.6
