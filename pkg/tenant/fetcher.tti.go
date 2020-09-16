@@ -65,9 +65,10 @@ type cachedTenant struct {
 
 type cachedFetcher struct {
 	Fetcher
-	ttlFunc func(error) time.Duration
-	mu      sync.Mutex
-	cache   map[string]*cachedTenant
+	ttl        func(error) time.Duration
+	allowStale func(error) bool
+	mu         sync.Mutex
+	cache      map[string]*cachedTenant
 }
 
 var timeNow = time.Now
@@ -90,7 +91,10 @@ func (c *cachedFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdenti
 		} else {
 			cached.err = err // keep the old tenant.
 		}
-		cached.expires = timeNow().Add(c.ttlFunc(cached.err))
+		cached.expires = timeNow().Add(c.ttl(cached.err))
+	}
+	if cached.tenant != nil && cached.err != nil && c.allowStale(cached.err) {
+		return cached.tenant, nil
 	}
 	return cached.tenant, cached.err
 }
@@ -112,13 +116,37 @@ func StaticTTL(ttl time.Duration) func(error) time.Duration {
 	}
 }
 
+// CachedFetcherOption is an option for the cache fetcher.
+type CachedFetcherOption interface {
+	applyTo(*cachedFetcher)
+}
+
+type cachedFetcherOptionFunc func(*cachedFetcher)
+
+func (f cachedFetcherOptionFunc) applyTo(cf *cachedFetcher) {
+	f(cf)
+}
+
+// WithStaleDataForErrors returns an option for the cached fetcher that makes it
+// return stale data for certain errors.
+func WithStaleDataForErrors(allowStale func(error) bool) CachedFetcherOption {
+	return cachedFetcherOptionFunc(func(c *cachedFetcher) {
+		c.allowStale = allowStale
+	})
+}
+
 // NewCachedFetcher wraps the fetcher with a cache.
-func NewCachedFetcher(fetcher Fetcher, ttlFunc func(error) time.Duration) Fetcher {
-	return &cachedFetcher{
-		Fetcher: fetcher,
-		ttlFunc: ttlFunc,
-		cache:   make(map[string]*cachedTenant),
+func NewCachedFetcher(fetcher Fetcher, ttlFunc func(error) time.Duration, opts ...CachedFetcherOption) Fetcher {
+	f := &cachedFetcher{
+		Fetcher:    fetcher,
+		ttl:        ttlFunc,
+		allowStale: func(error) bool { return false },
+		cache:      make(map[string]*cachedTenant),
 	}
+	for _, opt := range opts {
+		opt.applyTo(f)
+	}
+	return f
 }
 
 // NewMapFetcher returns a new tenant fetcher that returns tenants from a map.
