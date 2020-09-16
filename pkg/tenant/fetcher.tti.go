@@ -29,19 +29,20 @@ func (f FetcherFunc) FetchTenant(ctx context.Context, ids *ttipb.TenantIdentifie
 }
 
 type singleFlightFetcher struct {
-	fetcher      Fetcher
+	Fetcher
 	singleflight singleflight.Group
 }
 
-// NewSingleFlightFetcher returns a fetcher that de-duplicates concurrent fetches
-// for the same arguments.
-func NewSingleFlightFetcher(fetcher Fetcher) Fetcher { return &singleFlightFetcher{fetcher: fetcher} }
+// NewSingleFlightFetcher returns a fetcher that de-duplicates concurrent fetches for the same arguments.
+func NewSingleFlightFetcher(fetcher Fetcher) Fetcher {
+	return &singleFlightFetcher{Fetcher: fetcher}
+}
 
 func (f *singleFlightFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
 	fieldPaths = normalizeFieldPaths(fieldPaths)
 	key := fmt.Sprintf("%s:%s", ids.IDString(), strings.Join(fieldPaths, ","))
 	res, err, _ := f.singleflight.Do(key, func() (interface{}, error) {
-		return f.fetcher.FetchTenant(ctx, ids, fieldPaths...)
+		return f.Fetcher.FetchTenant(ctx, ids, fieldPaths...)
 	})
 	if err != nil {
 		return nil, err
@@ -74,16 +75,16 @@ func normalizeFieldPaths(fieldPaths []string) []string {
 }
 
 type cachedTenant struct {
-	time   time.Time
-	tenant *ttipb.Tenant
-	err    error
+	tenant  *ttipb.Tenant
+	err     error
+	expires time.Time
 }
 
 type cachedFetcher struct {
-	fetcher              Fetcher
-	successTTL, errorTTL time.Duration
-	mu                   sync.Mutex
-	cache                map[string]*cachedTenant
+	Fetcher
+	ttlFunc func(error) time.Duration
+	mu      sync.Mutex
+	cache   map[string]*cachedTenant
 }
 
 var timeNow = time.Now
@@ -97,19 +98,16 @@ func (c *cachedFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdenti
 		cached = &cachedTenant{}
 		c.cache[key] = cached
 	}
-	var cacheValid bool
-	now := timeNow()
-	if cached.err != nil {
-		cacheValid = now.Sub(cached.time) <= c.errorTTL
-	} else {
-		cacheValid = now.Sub(cached.time) <= c.successTTL
-	}
+	cacheValid := timeNow().Before(cached.expires)
 	c.mu.Unlock()
 	if !cacheValid {
-		cached.tenant, cached.err = c.fetcher.FetchTenant(ctx, ids, fieldPaths...)
-		if cached.err == nil || (!errors.IsCanceled(cached.err) && !errors.IsDeadlineExceeded(cached.err)) {
-			cached.time = timeNow() // we only have a real result if the request wasn't canceled or timed out.
+		tenant, err := c.Fetcher.FetchTenant(ctx, ids, fieldPaths...)
+		if err == nil {
+			cached.tenant, cached.err = tenant, err
+		} else {
+			cached.err = err // keep the old tenant.
 		}
+		cached.expires = timeNow().Add(c.ttlFunc(cached.err))
 	}
 	return cached.tenant, cached.err
 }
@@ -119,22 +117,24 @@ func (c *cachedFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdenti
 func (c *cachedFetcher) Expire(t time.Time) {
 	c.mu.Lock()
 	for _, cached := range c.cache {
-		if cached.err != nil {
-			cached.time = t.Add(-1 * c.errorTTL)
-		} else {
-			cached.time = t.Add(-1 * c.successTTL)
-		}
+		cached.expires = t
 	}
 	c.mu.Unlock()
 }
 
+// StaticTTL returns a TTL func that always returns the given TTL.
+func StaticTTL(ttl time.Duration) func(error) time.Duration {
+	return func(error) time.Duration {
+		return ttl
+	}
+}
+
 // NewCachedFetcher wraps the fetcher with a cache.
-func NewCachedFetcher(fetcher Fetcher, successTTL, errorTTL time.Duration) Fetcher {
+func NewCachedFetcher(fetcher Fetcher, ttlFunc func(error) time.Duration) Fetcher {
 	return &cachedFetcher{
-		fetcher:    fetcher,
-		successTTL: successTTL,
-		errorTTL:   errorTTL,
-		cache:      make(map[string]*cachedTenant),
+		Fetcher: fetcher,
+		ttlFunc: ttlFunc,
+		cache:   make(map[string]*cachedTenant),
 	}
 }
 

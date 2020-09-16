@@ -80,7 +80,7 @@ func TestCachedFetcher(t *testing.T) {
 			return &ttipb.Tenant{}, nil
 		})
 
-		cf := NewCachedFetcher(f, time.Second, time.Second)
+		cf := NewCachedFetcher(f, StaticTTL(time.Second))
 
 		for i := 0; i < 5; i++ {
 			_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")
@@ -106,7 +106,7 @@ func TestCachedFetcher(t *testing.T) {
 			return nil, errors.New("some error")
 		})
 
-		cf := NewCachedFetcher(f, time.Second, time.Second)
+		cf := NewCachedFetcher(f, StaticTTL(time.Second))
 
 		for i := 0; i < 5; i++ {
 			_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")

@@ -24,8 +24,8 @@ func (c *Component) initTenancy() {
 			FieldMask:         pbtypes.FieldMask{Paths: fieldPaths},
 		}, creds)
 	})
-	if c.config.Tenancy.CacheTTL > 0 {
-		fetcher = tenant.NewCachedFetcher(fetcher, c.config.Tenancy.CacheTTL, c.config.Tenancy.CacheTTL)
+	if ttl := c.config.Tenancy.CacheTTL; ttl > 0 {
+		fetcher = tenant.NewCachedFetcher(fetcher, tenant.StaticTTL(ttl))
 	} else {
 		c.Logger().Warn("No tenant cache TTL configured")
 	}
