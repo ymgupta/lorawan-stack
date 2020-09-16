@@ -160,3 +160,34 @@ func (f mapFetcher) FetchTenant(_ context.Context, ids *ttipb.TenantIdentifiers,
 	}
 	return &res, nil
 }
+
+type combinedFieldsFetcher struct {
+	Fetcher
+	mu         sync.Mutex
+	fieldPaths map[string]struct{}
+}
+
+// NewCombinedFieldsFetcher returns a fetcher that combines fields of subsequent fetches.
+func NewCombinedFieldsFetcher(fetcher Fetcher) Fetcher {
+	return &combinedFieldsFetcher{
+		Fetcher:    fetcher,
+		fieldPaths: make(map[string]struct{}),
+	}
+}
+
+func (f *combinedFieldsFetcher) FetchTenant(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
+	f.mu.Lock()
+	for _, path := range fieldPaths {
+		if _, exists := f.fieldPaths[path]; exists {
+			continue
+		}
+		f.fieldPaths[path] = struct{}{}
+	}
+	fetchPaths := make([]string, 0, len(f.fieldPaths))
+	for path := range f.fieldPaths {
+		fetchPaths = append(fetchPaths, path)
+	}
+	f.mu.Unlock()
+	sort.Strings(fetchPaths)
+	return f.Fetcher.FetchTenant(ctx, ids, fetchPaths...)
+}

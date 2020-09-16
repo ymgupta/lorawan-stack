@@ -154,3 +154,25 @@ func TestMapFetcher(t *testing.T) {
 		a.So(errors.IsNotFound(err), should.BeTrue)
 	}
 }
+
+func TestCombinedFieldsFetcher(t *testing.T) {
+	a := assertions.New(t)
+
+	var fetchedPaths []string
+	f := FetcherFunc(func(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
+		fetchedPaths = fieldPaths
+		return &ttipb.Tenant{}, nil
+	})
+
+	cf := NewCombinedFieldsFetcher(f)
+
+	_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")
+	a.So(err, should.BeNil)
+	a.So(fetchedPaths, should.Resemble, []string{"name"})
+
+	cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
+	a.So(fetchedPaths, should.Resemble, []string{"description", "name"})
+
+	cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name", "description")
+	a.So(fetchedPaths, should.Resemble, []string{"description", "name"})
+}

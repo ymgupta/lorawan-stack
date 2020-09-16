@@ -30,6 +30,7 @@ func (c *Component) initTenancy() {
 		c.Logger().Warn("No tenant cache TTL configured")
 	}
 	fetcher = tenant.NewSingleFlightFetcher(fetcher)
+	fetcher = tenant.NewCombinedFieldsFetcher(fetcher)
 	c.AddContextFiller(func(ctx context.Context) context.Context {
 		return tenant.NewContextWithFetcher(ctx, fetcher)
 	})
