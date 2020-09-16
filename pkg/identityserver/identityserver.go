@@ -130,6 +130,7 @@ func New(c *component.Component, config *Config) (is *IdentityServer, err error)
 	if ttl := c.GetBaseConfig(is.Context()).Tenancy.CacheTTL; ttl > 0 {
 		fetcher = tenant.NewCachedFetcher(fetcher, tenant.StaticTTL(ttl))
 	}
+	fetcher = tenant.NewSingleFlightFetcher(fetcher)
 	c.AddContextFiller(func(ctx context.Context) context.Context {
 		ctx = tenant.NewContextWithFetcher(ctx, fetcher)
 		return ctx
