@@ -219,7 +219,7 @@ func (s *Stripe) updateTenantState(ctx context.Context, sub *stripe.Subscription
 	}
 
 	if tnt.State == state {
-		// If the tenant is already suspended, do not attempt an update.
+		// If the tenant is already in that state, do not attempt an update.
 		return nil
 	}
 	_, err = client.Update(ctx, &ttipb.UpdateTenantRequest{

@@ -25,6 +25,7 @@ func (tbs *TenantBillingServer) Report(ctx context.Context, data *ttipb.Metering
 			logger.WithError(err).Error("Failed to retrieve tenant")
 			continue
 		}
+		ctx := log.NewContextWithField(ctx, "tenant_id", tenant.TenantID)
 		err = tbs.contactBackend(ctx, tenant, tenantData.Totals)
 		if err != nil {
 			logger.WithError(err).Error("Failed to report metrics to backend")
