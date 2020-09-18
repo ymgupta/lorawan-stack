@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Tenant Billing Server no longer suspends tenants while their subscription is `past_due`. Instead, the tenant state is changed to `flagged`.
+
 ### Deprecated
 
 ### Removed

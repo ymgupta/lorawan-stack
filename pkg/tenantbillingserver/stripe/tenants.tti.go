@@ -186,7 +186,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	return nil
 }
 
-func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) error {
+func (s *Stripe) updateTenantState(ctx context.Context, sub *stripe.Subscription, state ttnpb.State) error {
 	client, err := s.getTenantRegistry(ctx)
 	if err != nil {
 		return err
@@ -218,14 +218,14 @@ func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) er
 		return errCustomerIDMismatch.New()
 	}
 
-	if tnt.State == ttnpb.STATE_SUSPENDED {
-		// If the tenant is already suspended, do not attempt an update.
+	if tnt.State == state {
+		// If the tenant is already in that state, do not attempt an update.
 		return nil
 	}
 	_, err = client.Update(ctx, &ttipb.UpdateTenantRequest{
 		Tenant: ttipb.Tenant{
 			TenantIdentifiers: *ids,
-			State:             ttnpb.STATE_SUSPENDED,
+			State:             state,
 		},
 		FieldMask: types.FieldMask{
 			Paths: []string{
