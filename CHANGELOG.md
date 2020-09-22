@@ -38,6 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - Join EUI prefixes select on empty prefixes configuration in Join Server.
+- Application Server linking. The Network Server now pushes data to the cluster Application Server instead.
+  - Applications which desire to handle payload decryption within their own domains should disable payload decryption at application or device level and decrypt the payload on their own end.
+  - While not backwards compatible, the decision to remove linking was heavily motivated by scalability concerns - the previous linking model scales poorly when taking high availability and load balancing concerns into account.
 
 ### Fixed
 
