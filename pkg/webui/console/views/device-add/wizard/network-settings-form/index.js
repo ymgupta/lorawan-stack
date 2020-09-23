@@ -97,7 +97,12 @@ const NetworkSettingsForm = props => {
       validationContext={validationContext}
       error={error}
     >
-      <NsFrequencyPlansSelect required autoFocus name="frequency_plan_id" />
+      <NsFrequencyPlansSelect
+        required
+        autoFocus
+        glossaryId={glossaryId.FREQUENCY_PLAN}
+        name="frequency_plan_id"
+      />
       <Form.Field
         required
         disabled
@@ -106,6 +111,7 @@ const NetworkSettingsForm = props => {
         name="lorawan_version"
         component={Select}
         options={LORAWAN_VERSIONS}
+        glossaryId={glossaryId.LORAWAN_VERSION}
       />
       <Form.Field
         required
@@ -120,6 +126,7 @@ const NetworkSettingsForm = props => {
         title={sharedMessages.supportsClassC}
         name="supports_class_c"
         component={Checkbox}
+        glossaryId={glossaryId.CLASS_C}
       />
       <Form.Field
         title={sharedMessages.frameCounterWidth}
@@ -163,6 +170,7 @@ const NetworkSettingsForm = props => {
             }
             component={Input.Generate}
             onGenerateValue={generate16BytesKey}
+            glossaryId={glossaryId.NETWORK_SESSION_KEY}
           />
           {lwVersion >= 110 && (
             <Form.Field
