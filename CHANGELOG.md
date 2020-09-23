@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+- Detail view of events in the Console moved to the side.
+- Display the full event object when expanded in the Console (used to be `event.data` only).
 
 - Tenant Billing Server no longer suspends tenants while their subscription is `past_due`. Instead, the tenant state is changed to `flagged`.
 
@@ -18,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+ - Performance issues of event views in the Console (freezing after some time).
 
 - Gateway Server panic on upstream message handling.
 - Incorrect redirects for restricted routes in the Console.
