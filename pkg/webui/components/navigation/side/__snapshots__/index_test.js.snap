@@ -40,7 +40,13 @@ exports[`<SideNavigation /> when it is flat matches snapshot 1`] = `
       <div
         className="drawer"
       >
-        <injectIntl(Link)
+        <Link
+          disabled={false}
+          onClick={[Function]}
+          primary={false}
+          replace={false}
+          secondary={false}
+          showVisited={false}
           to="/"
         >
           <div
@@ -64,7 +70,7 @@ exports[`<SideNavigation /> when it is flat matches snapshot 1`] = `
               uppercase={false}
             />
           </div>
-        </injectIntl(Link)>
+        </Link>
         <ContextProvider
           value={
             Object {
@@ -149,7 +155,13 @@ exports[`<SideNavigation /> when it is nested matches snapshot 1`] = `
       <div
         className="drawer"
       >
-        <injectIntl(Link)
+        <Link
+          disabled={false}
+          onClick={[Function]}
+          primary={false}
+          replace={false}
+          secondary={false}
+          showVisited={false}
           to="/"
         >
           <div
@@ -173,7 +185,7 @@ exports[`<SideNavigation /> when it is nested matches snapshot 1`] = `
               uppercase={false}
             />
           </div>
-        </injectIntl(Link)>
+        </Link>
         <ContextProvider
           value={
             Object {
