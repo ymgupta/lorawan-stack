@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	"go.thethings.network/lorawan-stack/v3/pkg/band"
 	"go.thethings.network/lorawan-stack/v3/pkg/cluster"
 	"go.thethings.network/lorawan-stack/v3/pkg/component"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
@@ -58,43 +57,6 @@ const (
 	// networkInitiatedDownlinkInterval is the minimum time.Duration passed before a network-initiated(e.g. Class B or C) downlink following an arbitrary downlink.
 	networkInitiatedDownlinkInterval = time.Second
 )
-
-var lorawanVersionPairs = map[ttnpb.MACVersion]map[ttnpb.PHYVersion]struct{}{
-	ttnpb.MAC_V1_0: {
-		ttnpb.PHY_V1_0: struct{}{},
-	},
-	ttnpb.MAC_V1_0_1: {
-		ttnpb.PHY_V1_0_1: struct{}{},
-	},
-	ttnpb.MAC_V1_0_2: {
-		ttnpb.PHY_V1_0_2_REV_A: struct{}{},
-		ttnpb.PHY_V1_0_2_REV_B: struct{}{},
-	},
-	ttnpb.MAC_V1_0_3: {
-		ttnpb.PHY_V1_0_3_REV_A: struct{}{},
-	},
-	ttnpb.MAC_V1_1: {
-		ttnpb.PHY_V1_1_REV_A: struct{}{},
-		ttnpb.PHY_V1_1_REV_B: struct{}{},
-	},
-}
-
-var lorawanBands = func() map[string]map[ttnpb.PHYVersion]*band.Band {
-	bands := make(map[string]map[ttnpb.PHYVersion]*band.Band, len(band.All))
-	for _, b := range band.All {
-		vers := b.Versions()
-		m := make(map[ttnpb.PHYVersion]*band.Band, len(vers))
-		for _, ver := range vers {
-			b, err := b.Version(ver)
-			if err != nil {
-				panic(fmt.Errorf("failed to obtain %s band of version %s", b.ID, ver))
-			}
-			m[ver] = &b
-		}
-		bands[b.ID] = m
-	}
-	return bands
-}()
 
 // windowDurationFunc is a function, which is used by Network Server to determine the duration of deduplication and cooldown windows.
 type windowDurationFunc func(ctx context.Context) time.Duration
@@ -163,7 +125,8 @@ type NetworkServer struct {
 
 	uplinkDeduplicator UplinkDeduplicator
 
-	deviceKEKLabel string
+	deviceKEKLabel        string
+	downlinkQueueCapacity int
 }
 
 // Option configures the NetworkServer.
@@ -171,7 +134,10 @@ type Option func(ns *NetworkServer)
 
 var DefaultOptions []Option
 
-const downlinkProcessTaskName = "process_downlink"
+const (
+	downlinkProcessTaskName = "process_downlink"
+	maxInt                  = int(^uint(0) >> 1)
+)
 
 // New returns new NetworkServer.
 func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, error) {
@@ -191,6 +157,10 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 		panic(errInvalidConfiguration.WithCause(errors.New("DownlinkTasks is not specified")))
 	case conf.UplinkDeduplicator == nil:
 		panic(errInvalidConfiguration.WithCause(errors.New("UplinkDeduplicator is not specified")))
+	case conf.DownlinkQueueCapacity < 0:
+		return nil, errInvalidConfiguration.WithCause(errors.New("Downlink queue capacity must be greater than or equal to 0"))
+	case conf.DownlinkQueueCapacity > maxInt/2:
+		return nil, errInvalidConfiguration.WithCause(errors.New(fmt.Sprintf("Downlink queue capacity must be below %d", maxInt/2)))
 	}
 
 	devAddrPrefixes := conf.DevAddrPrefixes
@@ -233,22 +203,23 @@ func New(c *component.Component, conf *Config, opts ...Option) (*NetworkServer, 
 	}
 
 	ns := &NetworkServer{
-		Component:           c,
-		ctx:                 ctx,
-		enterpriseConfig:    conf.EnterpriseConfig,
-		netID:               conf.NetID,
-		newDevAddr:          makeNewDevAddrFunc(devAddrPrefixes...),
-		applicationServers:  &sync.Map{},
-		applicationUplinks:  conf.ApplicationUplinkQueue.Queue,
-		deduplicationWindow: makeWindowDurationFunc(conf.DeduplicationWindow),
-		collectionWindow:    makeWindowDurationFunc(conf.DeduplicationWindow + conf.CooldownWindow),
-		devices:             wrapEndDeviceRegistryWithReplacedFields(conf.Devices, replacedEndDeviceFields...),
-		downlinkTasks:       conf.DownlinkTasks,
-		downlinkPriorities:  downlinkPriorities,
-		defaultMACSettings:  conf.DefaultMACSettings.Parse(),
-		interopClient:       interopCl,
-		uplinkDeduplicator:  conf.UplinkDeduplicator,
-		deviceKEKLabel:      conf.DeviceKEKLabel,
+		Component:             c,
+		ctx:                   ctx,
+		enterpriseConfig:      conf.EnterpriseConfig,
+		netID:                 conf.NetID,
+		newDevAddr:            makeNewDevAddrFunc(devAddrPrefixes...),
+		applicationServers:    &sync.Map{},
+		applicationUplinks:    conf.ApplicationUplinkQueue.Queue,
+		deduplicationWindow:   makeWindowDurationFunc(conf.DeduplicationWindow),
+		collectionWindow:      makeWindowDurationFunc(conf.DeduplicationWindow + conf.CooldownWindow),
+		devices:               wrapEndDeviceRegistryWithReplacedFields(conf.Devices, replacedEndDeviceFields...),
+		downlinkTasks:         conf.DownlinkTasks,
+		downlinkPriorities:    downlinkPriorities,
+		defaultMACSettings:    conf.DefaultMACSettings.Parse(),
+		interopClient:         interopCl,
+		uplinkDeduplicator:    conf.UplinkDeduplicator,
+		deviceKEKLabel:        conf.DeviceKEKLabel,
+		downlinkQueueCapacity: conf.DownlinkQueueCapacity,
 	}
 
 	if len(opts) == 0 {

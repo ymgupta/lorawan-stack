@@ -9,6 +9,7 @@ import (
 	"github.com/gogo/protobuf/types"
 	"github.com/stripe/stripe-go"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
+	"go.thethings.network/lorawan-stack/v3/pkg/log"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
@@ -105,6 +106,7 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	if err != nil {
 		return err
 	}
+	ctx = log.NewContextWithField(ctx, "tenant_id", tnt.TenantID)
 
 	err = s.addTenantLimits(tnt, sub)
 	if err != nil {
@@ -184,19 +186,46 @@ func (s *Stripe) createTenant(ctx context.Context, sub *stripe.Subscription) err
 	return nil
 }
 
-func (s *Stripe) suspendTenant(ctx context.Context, sub *stripe.Subscription) error {
+func (s *Stripe) updateTenantState(ctx context.Context, sub *stripe.Subscription, state ttnpb.State) error {
 	client, err := s.getTenantRegistry(ctx)
 	if err != nil {
 		return err
 	}
+
 	ids, err := toTenantIDs(sub)
 	if err != nil {
 		return err
 	}
+	ctx = log.NewContextWithField(ctx, "tenant_id", ids.TenantID)
+	tnt, err := client.Get(ctx, &ttipb.GetTenantRequest{
+		TenantIdentifiers: *ids,
+		FieldMask: types.FieldMask{
+			Paths: []string{
+				"billing",
+				"state",
+			},
+		},
+	}, s.tenantAuth)
+	if err != nil {
+		return err
+	}
+
+	billing := tnt.Billing.GetStripe()
+	if billing == nil {
+		return errTenantNotManaged.New()
+	}
+	if billing.CustomerID != sub.Customer.ID {
+		return errCustomerIDMismatch.New()
+	}
+
+	if tnt.State == state {
+		// If the tenant is already in that state, do not attempt an update.
+		return nil
+	}
 	_, err = client.Update(ctx, &ttipb.UpdateTenantRequest{
 		Tenant: ttipb.Tenant{
 			TenantIdentifiers: *ids,
-			State:             ttnpb.STATE_SUSPENDED,
+			State:             state,
 		},
 		FieldMask: types.FieldMask{
 			Paths: []string{

@@ -303,9 +303,9 @@ func AssertErrorIsUnauthenticated(t *testing.T, err error) bool {
 }
 
 func AssertReceiveError(ctx context.Context, ch <-chan error, assert func(*testing.T, error) bool) bool {
-	t := test.MustTFromContext(ctx)
+	t, a := test.MustNewTFromContext(ctx)
 	t.Helper()
-	a := assertions.New(t)
+
 	var err error
 	if !a.So(test.WaitContext(ctx, func() { err = <-ch }), should.BeTrue) {
 		return false
@@ -314,9 +314,8 @@ func AssertReceiveError(ctx context.Context, ch <-chan error, assert func(*testi
 }
 
 func AssertIngest(ctx context.Context, ingest func(context.Context, *ttnpb.Event) (<-chan error, bool), ev *ttnpb.Event, handle func() bool, assertError func(*testing.T, error) bool) bool {
-	t := test.MustTFromContext(ctx)
+	t, a := test.MustNewTFromContext(ctx)
 	t.Helper()
-	a := assertions.New(t)
 
 	errCh, ok := ingest(ctx, ev)
 	if !a.So(ok, should.BeTrue) {
@@ -335,25 +334,24 @@ func NewISPeer(ctx context.Context, is interface {
 	return test.Must(test.NewGRPCServerPeer(ctx, is, ttnpb.RegisterApplicationAccessServer)).(cluster.Peer)
 }
 
-func AssertListRights(ctx context.Context, env TestEnvironment, assert func(ctx context.Context, ids ttnpb.Identifiers) bool, rights ...ttnpb.Right) bool {
-	t := test.MustTFromContext(ctx)
+func AssertListRights(ctx context.Context, env TestEnvironment, assert func(ctx, reqCtx context.Context, ids ttnpb.Identifiers) bool, rights ...ttnpb.Right) bool {
+	t, a := test.MustNewTFromContext(ctx)
 	t.Helper()
-	a := assertions.New(t)
 
 	listRightsCh := make(chan test.ApplicationAccessListRightsRequest)
 	defer close(listRightsCh)
 
 	if !a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer,
-		func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
-			return test.AllTrue(
-				a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS),
-				a.So(ids, should.BeNil),
-			)
-		},
-		test.ClusterGetPeerResponse{
-			Peer: NewISPeer(ctx, &test.MockApplicationAccessServer{
-				ListRightsFunc: test.MakeApplicationAccessListRightsChFunc(listRightsCh),
-			}),
+		func(ctx, reqCtx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) (test.ClusterGetPeerResponse, bool) {
+			_, a := test.MustNewTFromContext(ctx)
+			return test.ClusterGetPeerResponse{
+					Peer: NewISPeer(ctx, &test.MockApplicationAccessServer{
+						ListRightsFunc: test.MakeApplicationAccessListRightsChFunc(listRightsCh),
+					}),
+				}, test.AllTrue(
+					a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS),
+					a.So(ids, should.BeNil),
+				)
 		},
 	), should.BeTrue) {
 		return false

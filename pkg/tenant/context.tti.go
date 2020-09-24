@@ -27,3 +27,20 @@ func NewContext(parent context.Context, id ttipb.TenantIdentifiers) context.Cont
 	ctx := context.WithValue(parent, tenantIDKey, id)
 	return log.NewContextWithField(ctx, "tenant_id", id.TenantID)
 }
+
+type fetcherKeyType struct{}
+
+var fetcherKey fetcherKeyType
+
+// NewContextWithFetcher returns a new context with the given tenant fetcher.
+func NewContextWithFetcher(ctx context.Context, fetcher Fetcher) context.Context {
+	return context.WithValue(ctx, fetcherKey, fetcher)
+}
+
+// FetcherFromContext returns the tenant fetcher from the context.
+func FetcherFromContext(ctx context.Context) (Fetcher, bool) {
+	if fetcher, ok := ctx.Value(fetcherKey).(Fetcher); ok {
+		return fetcher, true
+	}
+	return nil, false
+}

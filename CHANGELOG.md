@@ -9,8 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+- Decoded downlink payloads are now published as part of downlink attempt events.
+- Decoded downlink payloads are stored now by Network Server.
+- Raw downlink PHY payloads are not stored anymore by Network Server.
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [3.9.4] - 2020-09-23
+
+### Changed
+
+- Detail view of events in the Console moved to the side.
+- Display the full event object when expanded in the Console (used to be `event.data` only).
+- Tenant Billing Server no longer suspends tenants while their subscription is `past_due`. Instead, the tenant state is changed to `flagged`.
+- Cached Tenant information is now used during Identity Server unavailability.
+
+### Fixed
+
+- Performance issues of event views in the Console (freezing after some time).
+- Gateway Server panic on upstream message handling.
+- Incorrect redirects for restricted routes in the Console.
+- Validation of MAC settings in the Network Server.
+- Network Server panic when RX2 parameters cannot be computed.
+
+## [3.9.3] - 2020-09-15
+
+### Added
+
 - Add `the-things-stack` device template converter, enabled by default. Effectively, this allows importing end devices from the Console.
 - Support for binary decoding downlink messages previously encoded with Javascript or CayenneLPP.
+- Common CA certificates available in documentation.
+- Service data fields to pub/subs and webhooks in the Console.
 
 ### Changed
 
@@ -18,12 +55,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scheduling failure events are now emitted on unsuccessful scheduling attempts.
 - Default Javascript function signatures to `encodeDownlink()`, `decodeUplink()` and `decodeDownlink()`.
 - Default Class B timeout is increased from 1 minute to 10 minutes as was originally intended.
+- Update Go to 1.15
+- Application, gateway, organization and end device title sections in the Console.
+- Network Server downlink queues now have a capacity - by default maximum application downlink queue length is 10000 elements.
+- Improve ADR algorithm loss rate computation.
 
 ### Deprecated
 
 - Previous Javascript function signatures `Decoder()` and `Encoder()`, although they remain functional until further notice.
-
-### Removed
 
 ### Fixed
 
@@ -31,8 +70,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CLI login issues when OAuth Server Address explicitly includes the `:443` HTTPS port.
 - Documentation link for LoRa Cloud Device & Application Services in the Lora Cloud integration view in the Console.
 - Webhooks and Pub/Subs forms in the Console will now let users choose whether they want to overwrite an existing record when the ID already exists (as opposed to overwriting by default).
-
-### Security
+- Tenant Billing Server suspending unmanaged tenants.
+- Reconnection issue to AWS IoT MQTT when the session expired (default after 15 minutes).
+- Pub/Sub integrations not backing off on internal connection failures.
+- Network Server ping slot-related field validation.
+- Memory usage of Network Server application uplink queues.
+- Incorrect uplink FCnt display in end device title section.
+- Service Data messages being routed incorrectly.
 
 ## [3.9.1] - 2020-08-19
 
@@ -1061,7 +1105,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 NOTE: These links should respect backports. See https://github.com/TheThingsNetwork/lorawan-stack/pull/1444/files#r333379706.
 -->
 
-[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.1...HEAD
+[unreleased]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.4...HEAD
+[3.9.4]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.3...v3.9.4
+[3.9.3]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.1...v3.9.3
 [3.9.1]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.9.0...v3.9.1
 [3.9.0]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.6...v3.9.0
 [3.8.6]: https://github.com/TheThingsNetwork/lorawan-stack/compare/v3.8.5...v3.8.6

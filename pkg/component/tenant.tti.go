@@ -6,9 +6,11 @@ import (
 	"context"
 
 	pbtypes "github.com/gogo/protobuf/types"
+	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/tenant"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttipb"
 	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
+	"google.golang.org/grpc/codes"
 )
 
 func (c *Component) initTenancy() {
@@ -24,12 +26,30 @@ func (c *Component) initTenancy() {
 			FieldMask:         pbtypes.FieldMask{Paths: fieldPaths},
 		}, creds)
 	})
-	if c.config.Tenancy.CacheTTL > 0 {
-		fetcher = tenant.NewCachedFetcher(fetcher, c.config.Tenancy.CacheTTL, c.config.Tenancy.CacheTTL)
+	if ttl := c.config.Tenancy.CacheTTL; ttl > 0 {
+		fetcher = tenant.NewCachedFetcher(
+			fetcher,
+			tenant.StaticTTL(ttl),
+			tenant.WithStaleDataForErrors(func(err error) bool {
+				switch codes.Code(errors.Code(err)) {
+				case codes.Canceled,
+					codes.Unknown,
+					codes.DeadlineExceeded,
+					codes.ResourceExhausted,
+					codes.Internal,
+					codes.Unavailable,
+					codes.DataLoss:
+					return true
+				default:
+					return false
+				}
+			}),
+		)
 	} else {
 		c.Logger().Warn("No tenant cache TTL configured")
 	}
 	fetcher = tenant.NewSingleFlightFetcher(fetcher)
+	fetcher = tenant.NewCombinedFieldsFetcher(fetcher)
 	c.AddContextFiller(func(ctx context.Context) context.Context {
 		return tenant.NewContextWithFetcher(ctx, fetcher)
 	})

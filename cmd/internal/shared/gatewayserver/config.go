@@ -21,8 +21,8 @@ import (
 	"go.thethings.network/lorawan-stack/v3/cmd/internal/shared"
 	"go.thethings.network/lorawan-stack/v3/pkg/config"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver"
-	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/basicstationlns"
 	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/udp"
+	"go.thethings.network/lorawan-stack/v3/pkg/gatewayserver/io/ws"
 )
 
 // DefaultGatewayServerConfig is the default configuration for the GatewayServer.
@@ -51,7 +51,7 @@ var DefaultGatewayServerConfig = gatewayserver.Config{
 		PublicTLSAddress: fmt.Sprintf("%s:8882", shared.DefaultPublicHost),
 	},
 	BasicStation: gatewayserver.BasicStationConfig{
-		Config:    basicstationlns.DefaultConfig,
+		Config:    ws.DefaultConfig,
 		Listen:    ":1887",
 		ListenTLS: ":8887",
 	},
