@@ -30,11 +30,6 @@ const stackConfigTask = (_, config) => {
       .join('\n')
     const yml = yaml.safeLoad(out)
 
-    // General.
-    config.siteName = yml.console.ui['site-name']
-    config.title = yml.console.ui.title
-    config.subTitle = yml.console.ui['sub-title']
-
     // Cluster.
     config.asBaseUrl = yml.console.ui.as['base-url']
     config.asEnabled = yml.console.ui.as.enabled
@@ -52,10 +47,16 @@ const stackConfigTask = (_, config) => {
     config.qrgEnabled = yml.console.ui.qrg.enabled
 
     // Console.
+    config.consoleSiteName = yml.console.ui['site-name']
+    config.consoleSubTitle = yml.console.ui['sub-title']
+    config.consoleTitle = yml.console.ui.title
     config.consoleAssetsRootPath = yml.console.ui['assets-base-url']
     config.consoleRootPath = new URL(yml.console.ui['canonical-url']).pathname
 
     // OAuth.
+    config.oauthSiteName = yml.is.oauth.ui['site-name']
+    config.oauthSubTitle = yml.is.oauth.ui['sub-title']
+    config.oauthTitle = yml.is.oauth.ui.title
     config.oauthRootPath = new URL(yml.is.oauth.ui['canonical-url']).pathname
     config.oauthAssetsRootPath = yml.is.oauth.ui['assets-base-url']
   } catch (err) {
