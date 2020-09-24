@@ -23,8 +23,7 @@ import (
 
 func TestStream(t *testing.T) {
 	PerformConsumerTest(t, DefaultConfig.Consumers.StreamGroup, (1<<9)*test.Delay, func(ctx context.Context, es *EventServer, env TestEnvironment, ingest func(context.Context, *ttnpb.Event) (<-chan error, bool)) bool {
-		t := test.MustTFromContext(ctx)
-		a := assertions.New(t)
+		t, a := test.MustNewTFromContext(ctx)
 
 		ctx, cancel := context.WithCancel(ctx)
 		defer cancel()
@@ -55,8 +54,9 @@ func TestStream(t *testing.T) {
 		assertListRights := func(ctx context.Context, expectedIDs ttnpb.Identifiers, rights ...ttnpb.Right) bool {
 			t := test.MustTFromContext(ctx)
 			t.Helper()
-			return assertions.New(t).So(AssertListRights(ctx, env, func(ctx context.Context, ids ttnpb.Identifiers) bool {
-				md := rpcmetadata.FromIncomingContext(ctx)
+			return assertions.New(t).So(AssertListRights(ctx, env, func(ctx, reqCtx context.Context, ids ttnpb.Identifiers) bool {
+				_, a := test.MustNewTFromContext(ctx)
+				md := rpcmetadata.FromIncomingContext(reqCtx)
 				return test.AllTrue(
 					a.So(md.AuthType, should.Equal, authType),
 					a.So(md.AuthValue, should.Equal, authValue),
@@ -128,14 +128,13 @@ func TestStream(t *testing.T) {
 				Handler: func(ctx context.Context, cl ttnpb.Events_StreamClient) bool {
 					a := assertions.New(test.MustTFromContext(ctx))
 					return a.So(test.AssertClusterGetPeerRequest(ctx, env.Cluster.GetPeer,
-						func(ctx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) bool {
-							return test.AllTrue(
-								a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS),
-								a.So(ids, should.BeNil),
-							)
-						},
-						test.ClusterGetPeerResponse{
-							Peer: NewISPeer(ctx, &test.MockApplicationAccessServer{}),
+						func(ctx, reqCtx context.Context, role ttnpb.ClusterRole, ids ttnpb.Identifiers) (test.ClusterGetPeerResponse, bool) {
+							return test.ClusterGetPeerResponse{
+									Peer: NewISPeer(ctx, &test.MockApplicationAccessServer{}),
+								}, test.AllTrue(
+									a.So(role, should.Equal, ttnpb.ClusterRole_ACCESS),
+									a.So(ids, should.BeNil),
+								)
 						},
 					), should.BeTrue)
 				},
