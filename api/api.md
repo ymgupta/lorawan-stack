@@ -2612,6 +2612,7 @@ The messages (for translation) are stored as "error:<namespace>:<name>".
 | `authentication` | [`Event.Authentication`](#ttn.lorawan.v3.Event.Authentication) |  | Details on the authentication provided by the caller that triggered this event. |
 | `remote_ip` | [`string`](#string) |  | The IP address of the caller that triggered this event. |
 | `user_agent` | [`string`](#string) |  | The IP address of the caller that triggered this event. |
+| `unique_id` | [`string`](#string) |  | The unique identifier of the event, assigned on creation. |
 
 #### Field Rules
 
@@ -4400,7 +4401,7 @@ Only the components for which the keys were meant, will have the key-encryption-
 | Field | Validations |
 | ----- | ----------- |
 | `m_hdr` | <p>`message.required`: `true`</p> |
-| `mic` | <p>`bytes.len`: `4`</p> |
+| `mic` | <p>`bytes.min_len`: `0`</p><p>`bytes.max_len`: `4`</p> |
 
 ### <a name="ttn.lorawan.v3.PingSlotPeriodValue">Message `PingSlotPeriodValue`</a>
 
