@@ -17,11 +17,17 @@ const { execSync } = require('child_process')
 const yaml = require('js-yaml')
 const codeCoverageTask = require('@cypress/code-coverage/task')
 
+const logLine = /^\s*(DEBUG|INFO|WARN|ERROR)/
+
 // `stackConfigTask` sources stack configuration entires to `Cypress` configuration while preserving
 // all entries from `cypress.json`.
 const stackConfigTask = (_, config) => {
   try {
-    const out = execSync('go run ./cmd/ttn-lw-stack config --yml')
+    const out = execSync('go run -tags tti ./cmd/tti-lw-stack config --yml')
+      .toString()
+      .split('\n')
+      .filter(f => !f.match(logLine))
+      .join('\n')
     const yml = yaml.safeLoad(out)
 
     // General.
