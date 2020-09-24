@@ -12,6 +12,7 @@ import (
 	"github.com/stripe/stripe-go/webhook"
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
 	"go.thethings.network/lorawan-stack/v3/pkg/log"
+	"go.thethings.network/lorawan-stack/v3/pkg/ttnpb"
 )
 
 const (
@@ -72,14 +73,22 @@ func (s *Stripe) handleWebhook(c echo.Context) error {
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, subscriptionItem.Plan.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.Customer.ID))
 	ctx = events.ContextWithCorrelationID(ctx, fmt.Sprintf(correlationIDFormat, sub.ID))
+	ctx = log.NewContextWithFields(ctx, log.Fields(
+		"subscription_item_id", subscriptionItem.ID,
+		"plan_id", subscriptionItem.Plan.ID,
+		"customer_id", sub.Customer.ID,
+		"subscription_id", sub.ID,
+	))
 
 	switch sub.Status {
 	case stripe.SubscriptionStatusActive, stripe.SubscriptionStatusTrialing:
 		return s.createTenant(ctx, sub)
 	case stripe.SubscriptionStatusIncomplete, stripe.SubscriptionStatusIncompleteExpired:
 		return nil
-	case stripe.SubscriptionStatusCanceled, stripe.SubscriptionStatusPastDue, stripe.SubscriptionStatusUnpaid:
-		return s.suspendTenant(ctx, sub)
+	case stripe.SubscriptionStatusPastDue:
+		return s.updateTenantState(ctx, sub, ttnpb.STATE_FLAGGED)
+	case stripe.SubscriptionStatusCanceled, stripe.SubscriptionStatusUnpaid:
+		return s.updateTenantState(ctx, sub, ttnpb.STATE_SUSPENDED)
 	default:
 		logger.Errorf("Unhandled Stripe subscription status: %s", sub.Status)
 		return nil

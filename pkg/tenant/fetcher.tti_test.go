@@ -80,7 +80,7 @@ func TestCachedFetcher(t *testing.T) {
 			return &ttipb.Tenant{}, nil
 		})
 
-		cf := NewCachedFetcher(f, time.Second, time.Second)
+		cf := NewCachedFetcher(f, StaticTTL(time.Second))
 
 		for i := 0; i < 5; i++ {
 			_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")
@@ -100,13 +100,24 @@ func TestCachedFetcher(t *testing.T) {
 	t.Run("Error", func(t *testing.T) {
 		a := assertions.New(t)
 
-		var callsToF uint32
+		var (
+			callsToF       uint32
+			tenantToReturn *ttipb.Tenant
+			errToReturn    error = errors.New("some error")
+		)
 		f := FetcherFunc(func(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
 			callsToF++
-			return nil, errors.New("some error")
+			return tenantToReturn, errToReturn
 		})
 
-		cf := NewCachedFetcher(f, time.Second, time.Second)
+		var staleError = errors.Define("allow_stale_data", "allow stale data")
+
+		cf := NewCachedFetcher(f, StaticTTL(time.Second), WithStaleDataForErrors(func(err error) bool {
+			return errors.Resemble(err, staleError)
+		}))
+		expire := func() {
+			cf.(interface{ Expire(time.Time) }).Expire(time.Now())
+		}
 
 		for i := 0; i < 5; i++ {
 			_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")
@@ -117,10 +128,27 @@ func TestCachedFetcher(t *testing.T) {
 		cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
 		a.So(callsToF, should.Equal, 2)
 
-		cf.(interface{ Expire(time.Time) }).Expire(time.Now())
+		expire()
+
+		tenantToReturn, errToReturn = &ttipb.Tenant{}, nil
 
 		cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
 		a.So(callsToF, should.Equal, 3)
+
+		expire()
+
+		errToReturn = staleError
+
+		tnt, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
+		a.So(err, should.BeNil)
+		a.So(tnt, should.Equal, tenantToReturn)
+
+		expire()
+
+		errToReturn = errors.New("other error")
+
+		tnt, err = cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
+		a.So(err, should.NotBeNil)
 	})
 }
 
@@ -153,4 +181,26 @@ func TestMapFetcher(t *testing.T) {
 	if a.So(err, should.NotBeNil) {
 		a.So(errors.IsNotFound(err), should.BeTrue)
 	}
+}
+
+func TestCombinedFieldsFetcher(t *testing.T) {
+	a := assertions.New(t)
+
+	var fetchedPaths []string
+	f := FetcherFunc(func(ctx context.Context, ids *ttipb.TenantIdentifiers, fieldPaths ...string) (*ttipb.Tenant, error) {
+		fetchedPaths = fieldPaths
+		return &ttipb.Tenant{}, nil
+	})
+
+	cf := NewCombinedFieldsFetcher(f)
+
+	_, err := cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name")
+	a.So(err, should.BeNil)
+	a.So(fetchedPaths, should.Resemble, []string{"name"})
+
+	cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "description")
+	a.So(fetchedPaths, should.Resemble, []string{"description", "name"})
+
+	cf.FetchTenant(test.Context(), &ttipb.TenantIdentifiers{TenantID: "foo-tenant"}, "name", "description")
+	a.So(fetchedPaths, should.Resemble, []string{"description", "name"})
 }

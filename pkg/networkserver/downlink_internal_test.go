@@ -5074,10 +5074,10 @@ func TestProcessDownlinkTask(t *testing.T) {
 	}
 }
 
-func TestGenerateDownlink(t *testing.T) {
-	const appIDString = "process-downlink-test-app-id"
+func TestGenerateDataDownlink(t *testing.T) {
+	const appIDString = "generate-data-downlink-test-app-id"
 	appID := ttnpb.ApplicationIdentifiers{ApplicationID: appIDString}
-	const devID = "process-downlink-test-dev-id"
+	const devID = "generate-data-downlink-test-dev-id"
 
 	devAddr := types.DevAddr{0x42, 0xff, 0xff, 0xff}
 
@@ -5088,28 +5088,6 @@ func TestGenerateDownlink(t *testing.T) {
 	encodeMessage := func(msg *ttnpb.Message, ver ttnpb.MACVersion, confFCnt uint32) []byte {
 		msg = deepcopy.Copy(msg).(*ttnpb.Message)
 		mac := msg.GetMACPayload()
-
-		if len(mac.FRMPayload) > 0 && mac.FPort == 0 || len(mac.FOpts) > 0 {
-			var key types.AES128Key
-			switch ver {
-			case ttnpb.MAC_V1_0, ttnpb.MAC_V1_0_1, ttnpb.MAC_V1_0_2:
-				key = fNwkSIntKey
-			case ttnpb.MAC_V1_1:
-				key = nwkSEncKey
-			default:
-				panic(fmt.Errorf("unknown version %s", ver))
-			}
-
-			var err error
-			if len(mac.FOpts) > 0 {
-				mac.FOpts, err = crypto.EncryptDownlink(key, mac.DevAddr, mac.FCnt, mac.FOpts, true)
-			} else {
-				mac.FRMPayload, err = crypto.EncryptDownlink(key, mac.DevAddr, mac.FCnt, mac.FRMPayload, false)
-			}
-			if err != nil {
-				t.Fatal("Failed to encrypt downlink MAC buffer")
-			}
-		}
 
 		b, err := lorawan.MarshalMessage(*msg)
 		if err != nil {
@@ -5131,13 +5109,6 @@ func TestGenerateDownlink(t *testing.T) {
 			t.Fatal("Failed to compute MIC")
 		}
 		return append(b, mic[:]...)
-	}
-
-	encodeMAC := func(phy *band.Band, cmds ...*ttnpb.MACCommand) (b []byte) {
-		for _, cmd := range cmds {
-			b = test.Must(lorawan.DefaultMACCommands.AppendDownlink(*phy, b, *cmd)).([]byte)
-		}
-		return
 	}
 
 	for _, tc := range []struct {
@@ -5254,6 +5225,7 @@ func TestGenerateDownlink(t *testing.T) {
 									FHDR: ttnpb.FHDR{
 										FCnt: 24,
 									},
+									FullFCnt: 24,
 								},
 							},
 						},
@@ -5290,6 +5262,7 @@ func TestGenerateDownlink(t *testing.T) {
 							},
 							FCnt: 42,
 						},
+						FullFCnt: 42,
 					},
 				},
 			}, ttnpb.MAC_V1_1, 24),
@@ -5312,6 +5285,7 @@ func TestGenerateDownlink(t *testing.T) {
 										FHDR: ttnpb.FHDR{
 											FCnt: 24,
 										},
+										FullFCnt: 24,
 									},
 								},
 							},
@@ -5392,6 +5366,7 @@ func TestGenerateDownlink(t *testing.T) {
 							},
 							FCnt: 42,
 						},
+						FullFCnt:   42,
 						FPort:      1,
 						FRMPayload: []byte("test"),
 					},
@@ -5461,6 +5436,7 @@ func TestGenerateDownlink(t *testing.T) {
 									FHDR: ttnpb.FHDR{
 										FCnt: 24,
 									},
+									FullFCnt: 24,
 								},
 							},
 						},
@@ -5504,6 +5480,7 @@ func TestGenerateDownlink(t *testing.T) {
 							},
 							FCnt: 42,
 						},
+						FullFCnt:   42,
 						FPort:      1,
 						FRMPayload: []byte("test"),
 					},
@@ -5536,6 +5513,7 @@ func TestGenerateDownlink(t *testing.T) {
 										FHDR: ttnpb.FHDR{
 											FCnt: 24,
 										},
+										FullFCnt: 24,
 									},
 								},
 							},
@@ -5615,6 +5593,7 @@ func TestGenerateDownlink(t *testing.T) {
 							},
 							FCnt: 42,
 						},
+						FullFCnt:   42,
 						FPort:      1,
 						FRMPayload: []byte("test"),
 					},
@@ -5687,6 +5666,7 @@ func TestGenerateDownlink(t *testing.T) {
 									FHDR: ttnpb.FHDR{
 										FCnt: 24,
 									},
+									FullFCnt: 24,
 								},
 							},
 						},
@@ -5730,6 +5710,7 @@ func TestGenerateDownlink(t *testing.T) {
 							},
 							FCnt: 42,
 						},
+						FullFCnt:   42,
 						FPort:      1,
 						FRMPayload: []byte("test"),
 					},
@@ -5766,6 +5747,7 @@ func TestGenerateDownlink(t *testing.T) {
 										FHDR: ttnpb.FHDR{
 											FCnt: 24,
 										},
+										FullFCnt: 24,
 									},
 								},
 							},
@@ -5842,11 +5824,12 @@ func TestGenerateDownlink(t *testing.T) {
 								ADR: true,
 							},
 							FCnt: 42,
-							FOpts: encodeMAC(
+							FOpts: MustEncryptDownlink(nwkSEncKey, devAddr, 42, true, MakeDownlinkMACBuffer(
 								LoRaWANBands[band.EU_863_870][ttnpb.PHY_V1_1_REV_B],
-								ttnpb.CID_DEV_STATUS.MACCommand(),
-							),
+								ttnpb.CID_DEV_STATUS,
+							)...),
 						},
+						FullFCnt: 42,
 					},
 				},
 			}, ttnpb.MAC_V1_1, 0),
@@ -5948,11 +5931,12 @@ func TestGenerateDownlink(t *testing.T) {
 								ADR: true,
 							},
 							FCnt: 42,
-							FOpts: encodeMAC(
+							FOpts: MustEncryptDownlink(nwkSEncKey, devAddr, 42, true, MakeDownlinkMACBuffer(
 								LoRaWANBands[band.EU_863_870][ttnpb.PHY_V1_1_REV_B],
-								ttnpb.CID_DEV_STATUS.MACCommand(),
-							),
+								ttnpb.CID_DEV_STATUS,
+							)...),
 						},
+						FullFCnt: 42,
 					},
 				},
 			}, ttnpb.MAC_V1_1, 0),

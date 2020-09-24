@@ -98,6 +98,7 @@ export const mapPubsubToFormValues = function(pubsub) {
     downlink_sent: mapPubsubMessageTypeToFormValue(pubsub.downlink_sent),
     join_accept: mapPubsubMessageTypeToFormValue(pubsub.join_accept),
     location_solved: mapPubsubMessageTypeToFormValue(pubsub.location_solved),
+    service_data: mapPubsubMessageTypeToFormValue(pubsub.service_data),
     uplink_message: mapPubsubMessageTypeToFormValue(pubsub.uplink_message),
   }
 
@@ -139,6 +140,7 @@ export const mapFormValuesToPubsub = function(values, appId) {
     downlink_sent: mapMessageTypeFormValueToPubsubMessageType(values.downlink_sent),
     join_accept: mapMessageTypeFormValueToPubsubMessageType(values.join_accept),
     location_solved: mapMessageTypeFormValueToPubsubMessageType(values.location_solved),
+    service_data: mapMessageTypeFormValueToPubsubMessageType(values.service_data),
     uplink_message: mapMessageTypeFormValueToPubsubMessageType(values.uplink_message),
   }
 
@@ -177,5 +179,6 @@ export const blankValues = {
   downlink_sent: { enabled: false, value: '' },
   join_accept: { enabled: false, value: '' },
   location_solved: { enabled: false, value: '' },
+  service_data: { enabled: false, value: '' },
   uplink_message: { enabled: false, value: '' },
 }
