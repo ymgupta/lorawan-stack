@@ -19,6 +19,7 @@ import (
 
 	"github.com/gogo/protobuf/types"
 	"github.com/jinzhu/gorm"
+	clusterauth "go.thethings.network/lorawan-stack/v3/pkg/auth/cluster"
 	"go.thethings.network/lorawan-stack/v3/pkg/auth/rights"
 	"go.thethings.network/lorawan-stack/v3/pkg/errors"
 	"go.thethings.network/lorawan-stack/v3/pkg/events"
@@ -260,10 +261,11 @@ func (is *IdentityServer) listGateways(ctx context.Context, req *ttnpb.ListGatew
 }
 
 func (is *IdentityServer) updateGateway(ctx context.Context, req *ttnpb.UpdateGatewayRequest) (gtw *ttnpb.Gateway, err error) {
-	if err = rights.RequireGateway(ctx, req.GatewayIdentifiers, ttnpb.RIGHT_GATEWAY_SETTINGS_BASIC); err != nil {
-		return nil, err
+	if err := clusterauth.Authorized(ctx); err != nil {
+		if err = rights.RequireGateway(ctx, req.GatewayIdentifiers, ttnpb.RIGHT_GATEWAY_SETTINGS_BASIC); err != nil {
+			return nil, err
+		}
 	}
-
 	// Backwards compatibility for frequency_plan_id field.
 	if ttnpb.HasAnyField(req.FieldMask.Paths, "frequency_plan_id") {
 		if !ttnpb.HasAnyField(req.FieldMask.Paths, "frequency_plan_ids") {

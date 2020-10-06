@@ -800,15 +800,6 @@ func sameLocation(a, b ttnpb.Location) bool {
 
 func (gs *GatewayServer) handleLocationUpdates(conn connectionEntry) {
 	ctx := conn.Context()
-
-	var err error
-	var callOpt grpc.CallOption
-	callOpt, err = rpcmetadata.WithForwardedAuth(ctx, gs.AllowInsecureForCredentials())
-	if errors.IsUnauthenticated(err) {
-		callOpt = gs.WithClusterAuth()
-	} else if err != nil {
-		return
-	}
 	registry, err := gs.getRegistry(ctx, &conn.Gateway().GatewayIdentifiers)
 	if err != nil {
 		return
@@ -841,7 +832,7 @@ func (gs *GatewayServer) handleLocationUpdates(conn connectionEntry) {
 							"antennas",
 						},
 					},
-				}, callOpt)
+				}, gs.WithClusterAuth())
 				if err != nil {
 					log.FromContext(ctx).WithError(err).Warn("Failed to update antenna location")
 				}
