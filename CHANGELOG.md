@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve LinkADRReq scheduling condition computation and, as a consequence, downlink task efficiency.
 - CUPS Server only accepts The Things Stack API Key for token auth.
 - Improve MQTT Pub/Sub task restart conditions and error propagation.
+- Pausing event streams is not saving up arriving events during the pause anymore.
 
 ### Deprecated
 
@@ -58,6 +59,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - End device import in the Console crashing in Firefox.
 - Creation of multicast end devices in the Console.
 - Overwriting values in the end device wizard in the Console.
+- Event selection not working properly when the event stream is paused in the Console.
 
 ### Security
 
