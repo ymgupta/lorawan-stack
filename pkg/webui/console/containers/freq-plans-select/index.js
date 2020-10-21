@@ -29,9 +29,12 @@ const m = defineMessages({
   title: 'Frequency plan',
   warning: 'Frequency plans unavailable',
   description: 'The frequency plan used by the end device',
+  none: 'Do not use a frequency plan',
 })
 
 const formatOptions = plans => plans.map(plan => ({ value: plan.id, label: plan.name }))
+
+const additionalGsFrequencyPlans = [{ value: 'no-frequency-plan', label: m.none.defaultMessage }]
 
 const CreateFrequencyPlansSelector = source =>
   CreateFetchSelect({
@@ -43,6 +46,7 @@ const CreateFrequencyPlansSelector = source =>
     defaultTitle: m.title,
     optionsFormatter: formatOptions,
     defaultDescription: m.description,
+    additionalOptions: source === 'gs' ? additionalGsFrequencyPlans : [],
   })
 
 export const GsFrequencyPlansSelect = CreateFrequencyPlansSelector('gs')

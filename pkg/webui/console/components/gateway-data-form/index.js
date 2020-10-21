@@ -15,6 +15,7 @@
 import React from 'react'
 import bind from 'autobind-decorator'
 import { defineMessages } from 'react-intl'
+import { omit } from 'lodash'
 
 import delay from '@console/constants/delays'
 
@@ -63,6 +64,8 @@ const m = defineMessages({
     'Configure gateway delay (minimum: {minimumValue}ms, default: {defaultValue}ms)',
   delayWarning:
     'Delay too short. The lower bound ({minimumValue}ms) will be used by the Gateway Server.',
+  frequencyPlanWarning:
+    'Without choosing a frequency plan, packets from the gateway will not be correctly processed',
 })
 
 const validationSchema = Yup.object().shape({
@@ -82,7 +85,7 @@ const validationSchema = Yup.object().shape({
     .min(2, Yup.passValues(sharedMessages.validateTooShort))
     .max(50, Yup.passValues(sharedMessages.validateTooLong)),
   description: Yup.string().max(2000, Yup.passValues(sharedMessages.validateTooLong)),
-  frequency_plan_id: Yup.string(),
+  frequency_plan_id: Yup.string().required(sharedMessages.validateRequired),
   gateway_server_address: Yup.string().matches(
     addressRegexp,
     Yup.passValues(sharedMessages.validateAddressFormat),
@@ -133,6 +136,7 @@ class GatewayDataForm extends React.Component {
 
     this.state = {
       shouldDisplayWarning: this.isNotValidDuration(props.initialValues.schedule_anytime_delay),
+      showFrequencyPlanWarning: this.isNoFrequencyPlan(props.initialValues.freqPlan),
     }
   }
 
@@ -142,9 +146,17 @@ class GatewayDataForm extends React.Component {
   }
 
   @bind
+  handleFrequencyPlanChange(freqPlan) {
+    this.setState({ showFrequencyPlanWarning: this.isNoFrequencyPlan(freqPlan.value) })
+  }
+
+  @bind
   onSubmit(values, helpers) {
     const { onSubmit } = this.props
-    const castedValues = validationSchema.cast(values)
+
+    const castedValues = validationSchema.cast(
+      this.isNoFrequencyPlan(values.frequency_plan_id) ? omit(values, 'frequency_plan_id') : values,
+    )
 
     onSubmit(castedValues, helpers)
   }
@@ -164,6 +176,10 @@ class GatewayDataForm extends React.Component {
     }
   }
 
+  isNoFrequencyPlan(value) {
+    return Boolean(value === 'no-frequency-plan')
+  }
+
   isNotValidDuration(value) {
     const { duration, unit } = this.decodeDelayValue(value)
     switch (unit) {
@@ -180,7 +196,7 @@ class GatewayDataForm extends React.Component {
 
   render() {
     const { update, error, initialValues, formRef, children } = this.props
-    const { shouldDisplayWarning } = this.state
+    const { shouldDisplayWarning, showFrequencyPlanWarning } = this.state
 
     return (
       <Form
@@ -247,7 +263,12 @@ class GatewayDataForm extends React.Component {
           description={sharedMessages.attributeDescription}
         />
         <Message component="h4" content={sharedMessages.lorawanOptions} />
-        <GsFrequencyPlansSelect name="frequency_plan_id" menuPlacement="top" />
+        <GsFrequencyPlansSelect
+          name="frequency_plan_id"
+          menuPlacement="top"
+          onChange={this.handleFrequencyPlanChange}
+          warning={showFrequencyPlanWarning ? m.frequencyPlanWarning : undefined}
+        />
         <Form.Field
           title={sharedMessages.gatewayScheduleDownlinkLate}
           name="schedule_downlink_late"
