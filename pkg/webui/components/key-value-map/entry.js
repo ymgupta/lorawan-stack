@@ -84,6 +84,7 @@ class Entry extends React.Component {
     return (
       <div className={style.entriesRow}>
         <Input
+          data-test-id={'key'}
           className={style.input}
           name={this._getKeyInputName()}
           placeholder={keyPlaceholder}
@@ -94,6 +95,7 @@ class Entry extends React.Component {
           code
         />
         <Input
+          data-test-id={'value'}
           className={style.input}
           name={this._getValueInputName()}
           placeholder={valuePlaceholder}
